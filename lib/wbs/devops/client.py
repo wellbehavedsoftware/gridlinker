@@ -55,9 +55,12 @@ class Client:
 
 	def get_raw (self, key):
 
+		path_string = "%s/v2/keys%s" % (self.server_url, key)
+		path_bytes = path_string.encode ("utf-8")
+
 		response = self.http.request_encode_body (
 			"GET",
-			"%s/v2/keys%s" % (self.server_url, key))
+			path_bytes)
 
 		if response.status != 200:
 			raise Exception ()
@@ -80,6 +83,32 @@ class Client:
 
 		if not response.status in [200, 201]:
 			raise Exception ()
+
+	def get_tree (self, key):
+
+		payload = {
+			"recursive": "true",
+		}
+
+		response = self.http.request_encode_body (
+			"GET",
+			"%s/v2/keys%s" % (self.server_url, key),
+			payload)
+
+		if response.status != 200:
+			raise ("Exception")
+
+		all_values_etcd = json.loads (response.data)
+
+		ret = {}
+
+		for value_etcd in all_values_etcd ["node"] ["nodes"]:
+
+			relative_key = value_etcd ["key"] [len (key):]
+
+			ret [relative_key] = value_etcd ["value"]
+
+		return ret
 
 	def rm (self, key):
 
