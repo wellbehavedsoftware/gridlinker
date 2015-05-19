@@ -5,12 +5,6 @@ import tempfile
 
 from wbs.devops import yamlx
 
-#import os.path
-#import sys
-#import wbs
-#import etcd
-#import os
-
 def args (prev_sub_parser):
 
 	parser = prev_sub_parser.add_parser ("host")
