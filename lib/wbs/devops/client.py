@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 
-import etcd
+import json
+import ssl
+import urllib3
 
 from wbs.devops import yamlx
 
@@ -8,54 +10,106 @@ class Client:
 
 	def __init__ (
 		self,
-		peers = None,
-		ca_cert = None,
+		servers = [ "localhost" ],
+		port = 2379,
+		secure = False,
+		client_ca_cert = None,
 		client_cert = None,
 		client_key = None,
 		prefix = "",
 	):
 
-		self.prefix = prefix
+		self.servers = servers
+		self.port = port
 
-		if peers:
+		if secure:
 
-			self.etcd_client = etcd.Client (
-				protocol = "https",
-				host = peers,
-				cert = (client_cert, client_key),
-				ca_cert = ca_cert)
+			self.http = urllib3.PoolManager (
+				num_pools = 10,
+				ca_certs = client_ca_cert,
+				cert_file = client_cert,
+				key_file = client_key,
+				cert_reqs = ssl.CERT_REQUIRED)
+
+			self.server_url = 'https://%s:%s' % (servers [0], port)
 
 		else:
 
-			self.etcd_client = etcd.client.Client (
-				host = "localhost",
-				port = 2379)
+			self.http = urllib3.PoolManager (
+				num_pools = 10)
+
+			self.server_url = 'http://%s:%s' % (servers [0], port)
 
 	def exists (self, key):
 
-		try:
+		response = self.http.request_encode_body (
+			"GET",
+			"%s/v2/keys%s" % (self.server_url, key))
 
-			self.etcd_client.get (
-				key = self.prefix + key)
-
+		if response.status == 200:
 			return True
 
-		except etcd.EtcdKeyNotFound:
-
+		if response.status == 404:
 			return False
+
+		raise Exception ()
 
 	def get_raw (self, key):
 
-		value_etcd = self.etcd_client.get (
-			key = self.prefix + key)
+		path_string = "%s/v2/keys%s" % (self.server_url, key)
+		path_bytes = path_string.encode ("utf-8")
 
-		return value_etcd.value
+		response = self.http.request_encode_body (
+			"GET",
+			path_bytes)
+
+		if response.status != 200:
+			raise Exception ()
+
+		value_etcd = json.loads (response.data)
+
+		return value_etcd ["node"] ["value"]
 
 	def set_raw (self, key, value):
 
-		self.etcd_client.write (
-			key = self.prefix + key,
-			value = value)
+		payload = {
+			"value": value,
+		}
+
+		response = self.http.request_encode_body (
+			"PUT",
+			"%s/v2/keys%s" % (self.server_url, key),
+			payload,
+			encode_multipart = False)
+
+		if not response.status in [200, 201]:
+			raise Exception ()
+
+	def get_tree (self, key):
+
+		payload = {
+			"recursive": "true",
+		}
+
+		response = self.http.request_encode_body (
+			"GET",
+			"%s/v2/keys%s" % (self.server_url, key),
+			payload)
+
+		if response.status != 200:
+			raise ("Exception")
+
+		all_values_etcd = json.loads (response.data)
+
+		ret = {}
+
+		for value_etcd in all_values_etcd ["node"] ["nodes"]:
+
+			relative_key = value_etcd ["key"] [len (key):]
+
+			ret [relative_key] = value_etcd ["value"]
+
+		return ret
 
 	def rm (self, key):
 

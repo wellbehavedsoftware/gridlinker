@@ -31,7 +31,30 @@ def args_export (sub_parsers):
 
 def do_export (context, args):
 
-	print "TODO"
+	etcd_root = context.client.etcd_client.read (args.source, recursive = True)
+
+	dir_names = {}
+
+	for etcd_item in etcd_root.children:
+
+		relative_key = etcd_item.key [len (args.source):]
+
+		print relative_key
+
+		item_dir = os.path.dirname (relative_key)
+
+		if not item_dir in dir_names:
+
+			print item_dir
+
+			if not os.path.isdir (args.target + item_dir):
+				os.makedirs (args.target + item_dir)
+
+			dir_names [item_dir] = True
+
+		file_handle = open (args.target + relative_key, "w")
+		file_handle.write (etcd_item.value)
+		file_handle.close ()
 
 def args_import (sub_parsers):
 
@@ -66,7 +89,7 @@ def do_import (context, args):
 			) as file_handle:
 				file_contents = file_handle.read ()
 
-			context.client.etcd_client.write (
+			context.client.set_raw (
 				args.target + "/" + dir_name + "/" + file_name,
 				file_contents)
 
