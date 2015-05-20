@@ -16,6 +16,7 @@ class Client:
 		client_ca_cert = None,
 		client_cert = None,
 		client_key = None,
+		prefix = "",
 	):
 
 		self.servers = servers
@@ -113,24 +114,24 @@ class Client:
 	def rm (self, key):
 
 		self.etcd_client.delete (
-			key = key)
+			key = self.prefix + key)
 
 	def rmdir (self, key):
 
 		self.etcd_client.delete (
-			key = key,
+			key = self.prefix + key,
 			dir = True)
 
 	def mkdir_queue (self, key):
 
 		result = self.etcd_client.write (
-			key = key,
+			key = self.prefix + key,
 			value = None,
 			append = True,
 			dir = True)
 
 		return (
-			str (result.key),
+			str (result.key [len (self.prefix):]),
 			str (result.createdIndex),
 		)
 

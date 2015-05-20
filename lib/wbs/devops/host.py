@@ -14,6 +14,7 @@ def args (prev_sub_parser):
 	args_set (next_sub_parsers)
 	args_unset (next_sub_parsers)
 	args_edit (next_sub_parsers)
+	args_create (next_sub_parsers)
 	args_show (next_sub_parsers)
 
 def args_get (sub_parsers):
@@ -106,8 +107,62 @@ def args_edit (sub_parsers):
 
 def do_edit (context, args):
 
+	if not context.client.exists (
+			"/host/" + args.host):
+
+		raise Exception (
+			"Host does not exist: " + args.host)
+
 	host_data = context.client.get_yaml (
 		"/host/" + args.host)
+
+	temp_file = tempfile.NamedTemporaryFile ()
+
+	host_yaml = yamlx.encode (
+		context.schemas ["host"],
+		host_data)
+
+	temp_file.write (host_yaml)
+	temp_file.flush ()
+
+	os.system ("%s %s" % (os.environ ["EDITOR"], temp_file.name))
+
+	temp_again = open (temp_file.name, "r")
+	host_yaml = temp_again.read ()
+
+	host_data = yamlx.parse (
+		host_yaml)
+
+	temp_again.close ()
+
+	context.client.set_yaml (
+		"/host/" + args.host,
+		host_data,
+		context.schemas ["host"])
+
+def args_create (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"create")
+
+	parser.set_defaults (
+		func = do_create)
+
+	parser.add_argument (
+		"host",
+		help = "Host to create")
+
+def do_create (context, args):
+
+	if context.client.exists (
+			"/host/" + args.host):
+
+		raise Exception (
+			"Host already exists: " + args.host)
+
+	host_data = {
+		"host_name": args.host,
+	}
 
 	temp_file = tempfile.NamedTemporaryFile ()
 
