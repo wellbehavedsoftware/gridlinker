@@ -4,7 +4,7 @@ import json
 import ssl
 import urllib3
 
-from wbs.devops import yamlx
+from wbsdevops import yamlx
 
 class Client:
 
@@ -63,8 +63,17 @@ class Client:
 			"GET",
 			path_bytes)
 
+		if response.status == 404:
+
+			raise LookupError (
+				"No such key: %s" % key)
+
 		if response.status != 200:
-			raise Exception ()
+
+			raise Exception (
+				"Error %s: %s" % (
+					response.status,
+					response.reason))
 
 		value_etcd = json.loads (response.data)
 
@@ -74,6 +83,46 @@ class Client:
 
 		payload = {
 			"value": value,
+		}
+
+		response = self.http.request_encode_body (
+			"PUT",
+			"%s/v2/keys%s" % (self.server_url, key),
+			payload,
+			encode_multipart = False)
+
+		if not response.status in [200, 201]:
+
+			raise Exception (
+				"Error %s: %s" % (
+					response.status,
+					response.reason))
+
+	def update_raw (self, key, old_value, new_value):
+
+		payload = {
+			"prevValue": old_value,
+			"value": new_value,
+		}
+
+		response = self.http.request_encode_body (
+			"PUT",
+			"%s/v2/keys%s" % (self.server_url, key),
+			payload,
+			encode_multipart = False)
+
+		if not response.status in [200, 201]:
+
+			raise Exception (
+				"Error %s: %s" % (
+					response.status,
+					response.reason))
+
+	def create_raw (self, key, value):
+
+		payload = {
+			"value": value,
+			"prevExist": False,
 		}
 
 		response = self.http.request_encode_body (
@@ -101,13 +150,13 @@ class Client:
 
 		all_values_etcd = json.loads (response.data)
 
-		ret = {}
+		ret = []
 
 		for value_etcd in all_values_etcd ["node"] ["nodes"]:
 
 			relative_key = value_etcd ["key"] [len (key):]
 
-			ret [relative_key] = value_etcd ["value"]
+			ret.append (( relative_key, value_etcd ["value"] ))
 
 		return ret
 

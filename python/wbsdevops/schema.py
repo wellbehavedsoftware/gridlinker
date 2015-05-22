@@ -11,19 +11,21 @@ class Schema:
 class SchemaField:
 
 	def __init__ (
-			self, 
+			self,
 			name,
 			required = False,
-			default = None):
+			default = None,
+			sub_schema = None):
 
 		self.name = name
 		self.required = required
-		self.default = default		
+		self.default = default
+		self.sub_schema = sub_schema
 
 class SchemaGroup:
 
 	def __init__ (
-			self, 
+			self,
 			fields):
 
 		self.fields = fields
