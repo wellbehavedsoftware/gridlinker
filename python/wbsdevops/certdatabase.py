@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from wbs.devops.schema import SchemaField, SchemaGroup
+from wbsdevops.schema import SchemaField, SchemaGroup
 
 class CertificateDatabase:
 
@@ -318,7 +318,7 @@ class CertificateDatabase:
 				"No current certificate for " + name)
 
 		certificate_strings = []
-		
+
 		certificate_strings.append (
 			self.dnode_client.get_raw (
 				entry_path + "/current/certificate"))

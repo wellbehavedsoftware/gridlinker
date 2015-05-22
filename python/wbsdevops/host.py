@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import os
 import tempfile
 
-from wbs.devops import yamlx
+from wbsdevops import yamlx
 
 def args (prev_sub_parser):
 
@@ -206,5 +206,5 @@ def do_show (context, args):
 
 	host_yaml = context.client.host_to_yaml (host_data)
 	print host_yaml
-	
+
 	pass
