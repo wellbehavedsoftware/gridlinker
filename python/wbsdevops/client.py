@@ -139,7 +139,11 @@ class Client:
 			encode_multipart = False)
 
 		if not response.status in [200, 201]:
-			raise Exception ()
+
+			raise Exception (
+				"Error %s: %s" % (
+					response.status,
+					response.reason))
 
 	def get_tree (self, key):
 
@@ -152,8 +156,17 @@ class Client:
 			self.key_url (key),
 			payload)
 
-		if response.status != 200:
-			raise ("Exception")
+		if response.status == 404:
+
+			raise LookupError (
+				"No such key: %s" % key)
+
+		if not response.status in [200, 201]:
+
+			raise Exception (
+				"Error %s: %s" % (
+					response.status,
+					response.reason))
 
 		all_values_etcd = json.loads (response.data)
 
@@ -161,7 +174,7 @@ class Client:
 
 		for value_etcd in all_values_etcd ["node"] ["nodes"]:
 
-			relative_key = value_etcd ["key"] [len (key):]
+			relative_key = value_etcd ["key"] [len (key) + len (self.prefix):]
 
 			ret.append (( relative_key, value_etcd ["value"] ))
 
