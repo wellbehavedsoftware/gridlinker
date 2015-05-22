@@ -21,6 +21,7 @@ class Client:
 
 		self.servers = servers
 		self.port = port
+		self.prefix = prefix
 
 		if secure:
 
@@ -31,20 +32,29 @@ class Client:
 				key_file = client_key,
 				cert_reqs = ssl.CERT_REQUIRED)
 
-			self.server_url = 'https://%s:%s' % (servers [0], port)
+			self.server_url = "https://%s:%s" % (servers [0], port)
 
 		else:
 
 			self.http = urllib3.PoolManager (
 				num_pools = 10)
 
-			self.server_url = 'http://%s:%s' % (servers [0], port)
+			self.server_url = "http://%s:%s" % (servers [0], port)
+
+	def key_url (self, key):
+
+		url_string = "%s/v2/keys%s%s" % (
+			self.server_url,
+			self.prefix,
+			key)
+
+		return url_string.encode ("utf-8")
 
 	def exists (self, key):
 
 		response = self.http.request_encode_body (
 			"GET",
-			"%s/v2/keys%s" % (self.server_url, key))
+			self.key_url (key))
 
 		if response.status == 200:
 			return True
@@ -56,12 +66,9 @@ class Client:
 
 	def get_raw (self, key):
 
-		path_string = "%s/v2/keys%s" % (self.server_url, key)
-		path_bytes = path_string.encode ("utf-8")
-
 		response = self.http.request_encode_body (
 			"GET",
-			path_bytes)
+			self.key_url (key))
 
 		if response.status == 404:
 
@@ -87,7 +94,7 @@ class Client:
 
 		response = self.http.request_encode_body (
 			"PUT",
-			"%s/v2/keys%s" % (self.server_url, key),
+			self.key_url (key),
 			payload,
 			encode_multipart = False)
 
@@ -107,7 +114,7 @@ class Client:
 
 		response = self.http.request_encode_body (
 			"PUT",
-			"%s/v2/keys%s" % (self.server_url, key),
+			self.key_url (key),
 			payload,
 			encode_multipart = False)
 
@@ -127,7 +134,7 @@ class Client:
 
 		response = self.http.request_encode_body (
 			"PUT",
-			"%s/v2/keys%s" % (self.server_url, key),
+			self.key_url (key),
 			payload,
 			encode_multipart = False)
 
@@ -142,7 +149,7 @@ class Client:
 
 		response = self.http.request_encode_body (
 			"GET",
-			"%s/v2/keys%s" % (self.server_url, key),
+			self.key_url (key),
 			payload)
 
 		if response.status != 200:
