@@ -5,6 +5,8 @@ import os
 import subprocess
 import sys
 
+from wbsmisc import env_resolve
+
 def args (sub_parsers):
 
 	args_etcd (sub_parsers)
@@ -116,9 +118,7 @@ def do_etcdctl (context, args):
 
 	result = subprocess.call (
 		[ "etcdctl" ] + args.rest,
-		env = dict (
-			os.environ,
-			** context.env))
+		env = env_resolve (os.environ, context.env))
 
 	sys.exit (result)
 

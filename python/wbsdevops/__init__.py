@@ -10,6 +10,7 @@ from wbsdevops import host
 from wbsdevops.certauthority import CertificateAuthority
 from wbsdevops.certdatabase import CertificateDatabase
 from wbsdevops.client import Client
+from wbsdevops.context import GenericContext
 
 from wbsdevops.schema import Schema
 from wbsdevops.schema import SchemaDatabase
