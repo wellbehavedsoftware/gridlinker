@@ -2,6 +2,9 @@ from __future__ import absolute_import
 
 import yaml
 
+import wbsdevops
+import wbsmisc
+
 from wbsmisc import env_combine
 from wbsmisc import lazy_property
 
@@ -23,8 +26,25 @@ class GenericContext (object):
 	@lazy_property
 	def client (self):
 
-		return wbsdevops.Client (
-			prefix = client_config ["etcd_prefix"])
+		if self.client_config ["etcd_secure"] == "yes":
+
+			return wbsdevops.Client (
+				servers = self.client_config ["etcd_servers"],
+				secure = True,
+				client_ca_cert = "config/client-ca.cert",
+				client_cert = "config/client.cert",
+				client_key = "config/client.key",
+				prefix = self.client_config ["etcd_prefix"])
+
+		elif self.client_config ["etcd_secure"] == "no":
+
+			return wbsdevops.Client (
+				servers = self.client_config ["etcd_servers"],
+				prefix = self.client_config ["etcd_prefix"])
+
+		else:
+
+			raise Exception ()
 
 	@lazy_property
 	def env (self):
@@ -124,3 +144,20 @@ class GenericContext (object):
 	def ansible_init (self):
 
 		pass
+
+	@lazy_property
+	def authorities (self):
+
+		return LazyDictionary (
+			self.load_authority)
+
+	def load_authority (self, name):
+
+		authority = CertificateAuthority (
+			self,
+			"/authority/" + name,
+			self.certificate_data)
+
+		authority.load ()
+
+		return authority
