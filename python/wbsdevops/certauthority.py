@@ -2,16 +2,14 @@
 
 from __future__ import absolute_import
 
-#import os.path
+import collections
 import itertools
 import re
 import struct
-#import sys
-#import tempfile
 
 from OpenSSL import crypto, rand
 
-from wbs.devops.schema import SchemaField, SchemaGroup
+from wbsdevops.schema import SchemaField, SchemaGroup
 
 serial_pattern = re.compile (
 	r"^[1-9]\d*$")
@@ -19,16 +17,25 @@ serial_pattern = re.compile (
 digest_pattern = re.compile (
 	r"^\d{2}(:\d{2})*$")
 
+Certificate = collections.namedtuple ("Certificate", [
+	"serial",
+	"digest",
+	"certificate",
+	"private_key",
+])
+
 class CertificateAuthority:
 
-	def __init__ (self, client, path, certificate_data, schemas):
+	def __init__ (self, context, path, certificate_data):
 
 		self.state = "none"
 
-		self.client = client
+		self.context = context
+		self.client = context.client
+		self.schemas = context.schemas
+
 		self.path = path
 		self.certificate_data = certificate_data
-		self.schemas = schemas
 
 	def create (self, name):
 
@@ -36,7 +43,7 @@ class CertificateAuthority:
 			raise Exception ()
 
 		# sanity check
-		
+
 		if self.client.exists (self.path):
 			raise Exception ("Already exists")
 
@@ -186,12 +193,17 @@ class CertificateAuthority:
 
 	def issue (self, type, name, alt_names):
 
-		# check if it exists
-
 		if self.client.exists (
 			self.path + "/named/" + name):
 
-			return False, None, None
+			raise Exception (
+				"Certficate already exists for this common name")
+
+		else:
+
+			return reissue (type, name, alt_names)
+
+	def reissue (self, type, name, alt_names):
 
 		# check type
 
@@ -332,7 +344,11 @@ class CertificateAuthority:
 			self.path + "/named/" + name,
 			str (issue_serial))
 
-		return True, issue_serial, issue_digest
+		return Certificate (
+			serial = issue_serial,
+			digest = issue_digest,
+			certificate = issue_cert_string,
+			private_key = issue_key_string)
 
 	def get (self, issue_ref):
 
@@ -356,16 +372,15 @@ class CertificateAuthority:
 		)
 
 		certificate_string = self.client.get_raw (
-				issue_path + "/certificate")
+			issue_path + "/certificate")
 
 		key_string = self.client.get_raw (
 			issue_path + "/key")
 
-		return (
-			True,
-			certificate_string,
-			key_string,
-		)
+		return Certificate (
+			serial = issue_serial,
+			certificate = certificate_string,
+			private_key = key_string)
 
 	def root_certificate (self):
 

@@ -2,22 +2,29 @@ from __future__ import absolute_import
 
 import etcd
 import os
+import subprocess
+import sys
 
-def args (prev_sub_parser):
+def args (sub_parsers):
 
-	parser = prev_sub_parser.add_parser ("etcd")
+	args_etcd (sub_parsers)
+	args_etcdctl (sub_parsers)
+
+def args_etcd (prev_sub_parsers):
+
+	parser = prev_sub_parsers.add_parser ("etcd")
 	next_sub_parsers = parser.add_subparsers ()
 
-	args_export (next_sub_parsers)
-	args_import (next_sub_parsers)
+	args_etcd_export (next_sub_parsers)
+	args_etcd_import (next_sub_parsers)
 
-def args_export (sub_parsers):
+def args_etcd_export (sub_parsers):
 
 	parser = sub_parsers.add_parser (
 		"export")
 
 	parser.set_defaults (
-		func = do_export)
+		func = do_etcd_export)
 
 	parser.add_argument (
 		"--source",
@@ -29,7 +36,7 @@ def args_export (sub_parsers):
 		required = True,
 		help = "Local filesystem path to write data to")
 
-def do_export (context, args):
+def do_etcd_export (context, args):
 
 	etcd_root = context.client.etcd_client.read (args.source, recursive = True)
 
@@ -56,13 +63,13 @@ def do_export (context, args):
 		file_handle.write (etcd_item.value)
 		file_handle.close ()
 
-def args_import (sub_parsers):
+def args_etcd_import (sub_parsers):
 
 	parser = sub_parsers.add_parser (
 		"import")
 
 	parser.set_defaults (
-		func = do_import)
+		func = do_etcd_import)
 
 	parser.add_argument (
 		"--source",
@@ -74,7 +81,7 @@ def args_import (sub_parsers):
 		default = "",
 		help = "Etcd path to write data to")
 
-def do_import (context, args):
+def do_etcd_import (context, args):
 
 	for dir_name, subdir_list, file_list in os.walk (args.source):
 
@@ -92,5 +99,27 @@ def do_import (context, args):
 			context.client.set_raw (
 				args.target + "/" + dir_name + "/" + file_name,
 				file_contents)
+
+def args_etcdctl (prev_sub_parsers):
+
+	parser = prev_sub_parsers.add_parser (
+		"etcdctl")
+
+	parser.set_defaults (
+		func = do_etcdctl)
+
+	parser.add_argument (
+		"rest",
+		nargs="*")
+
+def do_etcdctl (context, args):
+
+	result = subprocess.call (
+		[ "etcdctl" ] + args.rest,
+		env = dict (
+			os.environ,
+			** context.env))
+
+	sys.exit (result)
 
 # ex: noet ts=4 filetype=yaml
