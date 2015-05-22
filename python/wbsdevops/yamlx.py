@@ -84,7 +84,7 @@ def encode_dict (schema, data, indent, here):
 
 			yaml += field.name
 			yaml += ": "
-			yaml += encode_real ([], value, next_indent, False)
+			yaml += encode_real (field.sub_schema, value, next_indent, False)
 
 			done_keys [field.name] = True
 
