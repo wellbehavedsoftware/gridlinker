@@ -8,6 +8,10 @@ import wbsmisc
 from wbsmisc import env_combine
 from wbsmisc import lazy_property
 
+from wbsmisc import LazyDictionary
+
+from wbsdevops import CertificateAuthority
+
 class GenericContext (object):
 
 	def __init__ (self, home, args):
