@@ -9,7 +9,14 @@ from wbsmisc import env_resolve
 def args (prev_sub_parsers):
 
 	parser = prev_sub_parsers.add_parser (
-		"ansible")
+		"ansible",
+		help = "direct control of ansible",
+		description = """
+			The ansible command group contains various commands which can be
+			used to hook into ansible directly. Using this tool instead of using
+			the ansible binaries directly ensures that the environment is set up
+			correctly.
+		""")
 
 	next_sub_parsers = parser.add_subparsers ()
 
@@ -18,20 +25,28 @@ def args (prev_sub_parsers):
 def args_playbook (sub_parsers):
 
 	parser = sub_parsers.add_parser (
-		"playbook")
+		"playbook",
+		help = "run an ansible playbook",
+		description = """
+			This command will execute ansible-playbook directly, passing along
+			any arguments unchanged. Remember that you will normally want to
+			place a double-dash "--" between the playbook command and the
+			arguments which are to be passed to ansible.
+		""")
 
 	parser.set_defaults (
 		func = do_playbook)
 
 	parser.add_argument (
 		"rest",
-		nargs = "*")
+		nargs = "*",
+		help = "arguments to be passed verbatim to ansible-playbook")
 
 def do_playbook (context, args):
 
 	run_playbook (context, args.rest)
 
-def run_playbook (context, args):
+def run_playbook (context, args, action = "boolean"):
 
 	context.ansible_init ()
 
@@ -54,4 +69,30 @@ def run_playbook (context, args):
 		] + context.ansible_args + args,
 		env = env_resolve (os.environ, context.env))
 
-	sys.exit (result)
+	if action == "ignore":
+
+		return
+
+	elif action == "boolean":
+
+		return result == 0
+
+	elif action == "integer":
+
+		return result
+
+	elif action == "exit":
+
+		if result != 0:
+			sys.exit (result)
+
+	elif action == "error":
+
+		if result != 0:
+			raise Exception (
+				"Ansible exited with status %s" % result)
+
+	else:
+
+		raise Exception (
+			"Invalid result option: %s" % action)

@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-import collections
 import itertools
 import re
 import struct
@@ -8,6 +7,7 @@ import sys
 
 from OpenSSL import crypto, rand
 
+from wbsdevops.certificate.certificate import Certificate
 from wbsdevops.schema import SchemaField, SchemaGroup
 
 serial_pattern = re.compile (
@@ -15,13 +15,6 @@ serial_pattern = re.compile (
 
 digest_pattern = re.compile (
 	r"^\d{2}(:\d{2})*$")
-
-Certificate = collections.namedtuple ("Certificate", [
-	"serial",
-	"digest",
-	"certificate",
-	"private_key",
-])
 
 class CertificateAuthority:
 
@@ -388,7 +381,8 @@ class CertificateAuthority:
 def args (prev_sub_parsers):
 
 	parser = prev_sub_parsers.add_parser (
-		"authority")
+		"authority",
+		help = "manage a certificate authority")
 
 	next_sub_parsers = parser.add_subparsers ()
 
@@ -597,7 +591,7 @@ def do_export (client, args):
 
 		print "failure"
 
-def add_schemas (schemas):
+def schemas (schemas):
 
 	schemas.define ("certificate-authority", [
 
