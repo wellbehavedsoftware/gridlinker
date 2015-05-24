@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-
 from __future__ import absolute_import
 
 import collections
 import itertools
 import re
 import struct
+import sys
 
 from OpenSSL import crypto, rand
 
@@ -201,7 +200,7 @@ class CertificateAuthority:
 
 		else:
 
-			return reissue (type, name, alt_names)
+			return self.reissue (type, name, alt_names)
 
 	def reissue (self, type, name, alt_names):
 
@@ -388,7 +387,9 @@ class CertificateAuthority:
 
 def args (prev_sub_parsers):
 
-	parser = prev_sub_parsers.add_parser ("authority")
+	parser = prev_sub_parsers.add_parser (
+		"authority")
+
 	next_sub_parsers = parser.add_subparsers ()
 
 	args_create (next_sub_parsers)
@@ -397,8 +398,11 @@ def args (prev_sub_parsers):
 
 def args_create (sub_parsers):
 
-	parser = sub_parsers.add_parser ("create")
-	parser.set_defaults (func = do_create)
+	parser = sub_parsers.add_parser (
+		"create")
+
+	parser.set_defaults (
+		func = do_create)
 
 	parser.add_argument (
 		"--authority",
@@ -411,10 +415,9 @@ def args_create (sub_parsers):
 def do_create (context, args):
 
 	authority = CertificateAuthority (
-		context.client,
+		context,
 		"/authority/" + args.authority,
-		context.certificate_data,
-		context.schemas)
+		context.certificate_data)
 
 	authority.create (args.common_name)
 
@@ -422,8 +425,11 @@ def do_create (context, args):
 
 def args_issue (sub_parsers):
 
-	parser = sub_parsers.add_parser ("issue")
-	parser.set_defaults (func = do_issue)
+	parser = sub_parsers.add_parser (
+		"issue")
+
+	parser.set_defaults (
+		func = do_issue)
 
 	parser.add_argument (
 		"--authority",
@@ -493,10 +499,9 @@ def args_issue (sub_parsers):
 def do_issue (context, args):
 
 	authority = CertificateAuthority (
-		context.client,
+		context,
 		"/authority/" + args.authority,
-		context.certificate_data,
-		context.schemas)
+		context.certificate_data)
 
 	authority.load ()
 
@@ -506,16 +511,16 @@ def do_issue (context, args):
 		[ "email:" + alt_email for alt_email in args.alt_email ],
 	]))
 
-	success, issue_serial, issue_digest = authority.issue (
-		args.type,
-		args.common_name,
-		alt_names)
+	try:
 
-	if success:
+		certificate = authority.issue (
+			args.type,
+			args.common_name,
+			alt_names)
 
 		print "Created certificate %s %s %s" % (
-			issue_serial,
-			issue_digest,
+			certificate.serial,
+			certificate.digest,
 			args.common_name)
 
 		if args.store_host and args.store_key:
@@ -528,7 +533,7 @@ def do_issue (context, args):
 				args.store_key,
 				args.store_host)
 
-	else:
+	except:
 
 		print "Certificate already exists for %s" % (
 			args.common_name)
