@@ -59,7 +59,12 @@ def encode_dict (schema, data, indent, here):
 
 	done_keys = {}
 
-	for group in schema.groups:
+	if schema:
+		field_groups = schema.groups
+	else:
+		field_groups = []
+
+	for group in field_groups:
 
 		new_group = True
 
@@ -114,7 +119,7 @@ def encode_dict (schema, data, indent, here):
 
 		yaml += key
 		yaml += ": "
-		yaml += encode_real ([], data [key], next_indent, False)
+		yaml += encode_real (None, data [key], next_indent, False)
 
 		here = False
 		new_group = False

@@ -40,17 +40,13 @@ def args_etcd_export (sub_parsers):
 
 def do_etcd_export (context, args):
 
-	etcd_root = context.client.etcd_client.read (args.source, recursive = True)
+	tree = context.client.get_tree (args.source)
 
 	dir_names = {}
 
-	for etcd_item in etcd_root.children:
+	for key, value in tree:
 
-		relative_key = etcd_item.key [len (args.source):]
-
-		print relative_key
-
-		item_dir = os.path.dirname (relative_key)
+		item_dir = os.path.dirname (key)
 
 		if not item_dir in dir_names:
 
@@ -61,8 +57,8 @@ def do_etcd_export (context, args):
 
 			dir_names [item_dir] = True
 
-		file_handle = open (args.target + relative_key, "w")
-		file_handle.write (etcd_item.value)
+		file_handle = open (args.target + key, "w")
+		file_handle.write (value)
 		file_handle.close ()
 
 def args_etcd_import (sub_parsers):
