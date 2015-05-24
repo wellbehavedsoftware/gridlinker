@@ -340,7 +340,9 @@ class CertificateAuthority:
 			serial = issue_serial,
 			digest = issue_digest,
 			certificate = issue_cert_string,
-			private_key = issue_key_string)
+			private_key = issue_key_string,
+			certificate_path = issue_path + "/certificate",
+			private_key_path = issue_path + "/key")
 
 	def get (self, issue_ref):
 
@@ -372,7 +374,9 @@ class CertificateAuthority:
 		return Certificate (
 			serial = issue_serial,
 			certificate = certificate_string,
-			private_key = key_string)
+			private_key = key_string,
+			certificate_path = issue_path + "/certificate",
+			private_key_path = issue_path + "/key")
 
 	def root_certificate (self):
 

@@ -7,6 +7,8 @@ Certificate = collections.namedtuple ("Certificate", [
 	"digest",
 	"certificate",
 	"private_key",
+	"certificate_path",
+	"private_key_path",
 ])
 
 def args (sub_parsers):
