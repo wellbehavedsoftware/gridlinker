@@ -52,7 +52,7 @@ class Client:
 
 	def exists (self, key):
 
-		response = self.http.request_encode_body (
+		response = self.http.request (
 			"GET",
 			self.key_url (key))
 
@@ -66,7 +66,7 @@ class Client:
 
 	def get_raw (self, key):
 
-		response = self.http.request_encode_body (
+		response = self.http.request (
 			"GET",
 			self.key_url (key))
 
@@ -151,7 +151,7 @@ class Client:
 			"recursive": "true",
 		}
 
-		response = self.http.request_encode_body (
+		response = self.http.request (
 			"GET",
 			self.key_url (key),
 			payload)
@@ -168,17 +168,26 @@ class Client:
 					response.status,
 					response.reason))
 
-		all_values_etcd = json.loads (response.data)
+		tree_etcd = json.loads (response.data)
 
-		ret = []
+		return self.walk_tree (key, tree_etcd ["node"])
 
-		for value_etcd in all_values_etcd ["node"] ["nodes"]:
+	def walk_tree (self, prefix, node):
 
-			relative_key = value_etcd ["key"] [len (key) + len (self.prefix):]
+		if "value" in node:
 
-			ret.append (( relative_key, value_etcd ["value"] ))
+			relative_key = node ["key"] [len (self.prefix) + len (prefix):]
 
-		return ret
+			return [ (relative_key, node ["value"]) ]
+
+		elif "nodes" in node:
+
+			return [
+				item for sub_list in [
+					self.walk_tree (prefix, child_node)
+					for child_node in node ["nodes"]
+				] for item in sub_list
+			]
 
 	def rm (self, key):
 

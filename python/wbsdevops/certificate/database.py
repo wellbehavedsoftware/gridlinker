@@ -347,6 +347,7 @@ def args (prev_sub_parsers):
 
 	parser = prev_sub_parsers.add_parser (
 		name = "database",
+		help = "manage a database of certificates",
 		description = """
 			This tool manages a database of certificates, along with their
 			corresponding certificate chains and private keys. It is also able
@@ -634,7 +635,7 @@ def do_export (context, args):
 
 		print "failure"
 
-def add_schemas (schemas):
+def schemas (schemas):
 
 	schemas.define ("certificate-database", [
 
