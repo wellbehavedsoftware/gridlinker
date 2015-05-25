@@ -1,68 +1,33 @@
 from __future__ import absolute_import
 
-from wbsdevops.schema import SchemaGroup, SchemaField
-from wbsdevops.command import CollectionCommand
-from wbsdevops.command import CommandHelper
+from wbsdevops import command
 
-from wbsmisc import generate_password
+group_command = command.CollectionCommand (
 
-class GroupCommandHelper (CommandHelper):
+	command.CommandHelper (
 
-	def __init__ (self):
+		name = "group",
+		help = "manage group definitions",
 
-		self.name = "group"
-		self.help = "manage group definitions"
-		self.description = None
+		custom_args = [
 
-	def get_collection (self, context):
+			command.NameArgument (
+				argument = "--name",
+				key = "group_name"),
 
-		return context.groups
+			command.SimpleArgument (
+				argument = "--description",
+				key = "group_description",
+				help = "user-friendly description"),
 
-	def args_common (self, parser):
+			command.SetArgument (),
+			command.GeneratePasswordArgument (),
 
-		parser.add_argument (
-			"--description",
-			help = "user-friendly description")
+		],
 
-		parser.add_argument (
-			"--set",
-			action = "append",
-			nargs = 2,
-			default = [],
-			help = "miscellaneous value to store")
+	)
 
-		parser.add_argument (
-			"--generate-password",
-			action = "append",
-			default = [],
-			help = "generate random password to store")
-
-	def do_common (self, context, args, group_data):
-
-		group_data_mappings = {
-			"group_name": "name",
-			"group_description": "description",
-		}
-
-		arg_vars = vars (args)
-
-		for target, source in group_data_mappings.items ():
-
-			if not arg_vars [source]:
-				continue
-
-			group_data [target] = arg_vars [source]
-
-		for key, value in args.set:
-
-			group_data [key] = value
-
-		for key in args.generate_password:
-
-			group_data [key] = generate_password ()
-
-group_command = CollectionCommand (
-	GroupCommandHelper ())
+)
 
 def args (sub_parsers):
 

@@ -1,66 +1,38 @@
 from __future__ import absolute_import
 
-from wbsdevops.command import CollectionCommand
-from wbsdevops.command import CommandHelper
+from wbsdevops import command
 
-from wbsdevops.schema import SchemaGroup, SchemaField
+admin_command = command.CollectionCommand (
 
-from wbsmisc import generate_password
+	command.CommandHelper (
 
-class AdminCommandHelper (CommandHelper):
+		name = "admin",
+		help = "manage admin users",
 
-	def __init__ (self):
+		custom_args = [
 
-		self.name = "admin"
-		self.help = "manage admin users"
-		self.description = None
+			command.NameArgument (
+				argument = "--name",
+				key = "admin_name"),
 
-	def get_collection (self, context):
+			command.SimpleArgument (
+				argument = "--full-name",
+				key = "admin_full_name",
+				help = "full name of admin"),
 
-		return context.admins
+			command.FileArgument (
+				argument = "--ssh-key",
+				path = "ssh-key",
+				help = "public ssh key to identify admin"),
 
-	def args_common (self, parser):
+			command.SetArgument (),
+			command.GeneratePasswordArgument (),
 
-		parser.add_argument (
-			"--full-name",
-			help = "full name of admin")
+		],
 
-		parser.add_argument (
-			"--ssh-key",
-			help = "public ssh key to identify admin")
+	)
 
-		parser.add_argument (
-			"--set",
-			action = "append",
-			nargs = 2,
-			default = [],
-			help = "miscellaneous value to store")
-
-	def do_common (self, context, args, admin_data):
-
-		admin_data_mappings = {
-			"admin_name": "name",
-			"admin_full_name": "full_name",
-		}
-
-		arg_vars = vars (args)
-
-		for target, source in admin_data_mappings.items ():
-
-			if not arg_vars [source]:
-				continue
-
-			admin_data [target] = arg_vars [source]
-
-		if args.ssh_key:
-
-			with open (args.ssh_key) as file_handle:
-				ssh_key = file_handle.read ()
-
-			context.admins.set_file (args.name, "ssh-key", ssh_key)
-
-admin_command = CollectionCommand (
-	AdminCommandHelper ())
+)
 
 def args (sub_parsers):
 

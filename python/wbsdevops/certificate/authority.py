@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import itertools
+import os
 import re
 import struct
 import sys
@@ -321,6 +322,10 @@ class CertificateAuthority:
 		# write to database
 
 		self.client.set_raw (
+			issue_path + "/digest",
+			issue_digest)
+
+		self.client.set_raw (
 			issue_path + "/certificate",
 			issue_cert_string)
 
@@ -365,6 +370,9 @@ class CertificateAuthority:
 			issue_serial,
 		)
 
+		issue_digest = self.client.get_raw (
+			issue_path + "/digest")
+
 		certificate_string = self.client.get_raw (
 			issue_path + "/certificate")
 
@@ -373,6 +381,7 @@ class CertificateAuthority:
 
 		return Certificate (
 			serial = issue_serial,
+			digest = issue_digest,
 			certificate = certificate_string,
 			private_key = key_string,
 			certificate_path = issue_path + "/certificate",
@@ -533,12 +542,7 @@ def args_issue (sub_parsers):
 
 def do_issue (context, args):
 
-	authority = CertificateAuthority (
-		context,
-		"/authority/" + args.authority,
-		context.certificate_data)
-
-	authority.load ()
+	authority = context.authorities [args.authority]
 
 	alt_names = list (itertools.chain.from_iterable ([
 		[ "DNS:" + alt_dns for alt_dns in args.alt_dns ],
@@ -595,55 +599,86 @@ def args_export (sub_parsers):
 
 	parser.add_argument (
 		"--authority",
-		required = True)
+		required = True,
+		help = "name of issuing certificate authority")
 
 	parser.add_argument (
 		"--common-name",
-		required = True)
+		required = True,
+		help = "common name of certificate to export")
 
 	parser.add_argument (
-		"--full-certificate-chain")
+		"--certificate",
+		required = False,
+		help = "file to write the issued certificate only")
 
 	parser.add_argument (
-		"--private-key")
+		"--certificate-and-chain",
+		required = False,
+		help = "file to write the issued certificate and chain")
 
-def do_export (client, args):
+	parser.add_argument (
+		"--chain",
+		required = False,
+		help = "file to write the chain only")
 
-	authority = CertificateAuthority (
-		context.client,
-		"/authority/" + args.authority,
-		context.certificate_data,
-		context.schemas)
+	parser.add_argument (
+		"--private-key",
+		required = False,
+		help = "filename to write the private key")
 
-	authority.load ()
+def do_export (context, args):
 
-	success, certificate_string, key_string = authority.get (
-		args.common_name)
+	authority = context.authorities [args.authority]
 
-	if success:
+	try:
 
-		if args.full_certificate_chain:
+		certificate = authority.get (
+			args.common_name)
 
-			with open (args.full_certificate_chain, "w") as file_handle:
+	except KeyError:
 
-				file_handle.write (certificate_string)
-				file_handle.write (authority.root_certificate ())
+		print "not found"
+		sys.exit (1)
 
-			print "Wrote full chain to %s" % (
-				args.full_certificate_chain)
+	if args.certificate:
 
-		if args.private_key:
+		with open (args.certificate, "w") as file_handle:
 
-			with open (args.private_key, "w") as file_handle:
+			file_handle.write (certificate.certificate)
 
-				file_handle.write (key_string)
+		print "Wrote certificate to %s" % (
+			args.certificate)
 
-			print "Wrote private key to %s" % (
-				args.private_key)
+	if args.chain:
 
-	else:
+		with open (args.chain, "w") as file_handle:
 
-		print "failure"
+			file_handle.write (authority.root_certificate ())
+
+		print "Wrote chain to %s" % (
+			args.chain)
+
+	if args.certificate_and_chain:
+
+		with open (args.certificate_and_chain, "w") as file_handle:
+
+			file_handle.write (certificate.certificate)
+			file_handle.write (authority.root_certificate ())
+
+		print "Wrote certificate and chain to %s" % (
+			args.certificate_and_chain)
+
+	if args.private_key:
+
+		with open (args.private_key, "w") as file_handle:
+
+			os.fchmod (file_handle.fileno (), 0600)
+
+			file_handle.write (certificate.private_key)
+
+		print "Wrote private key to %s" % (
+			args.private_key)
 
 def args_revoke (sub_parsers):
 
@@ -663,7 +698,8 @@ def args_revoke (sub_parsers):
 
 	parser.add_argument (
 		"--authority",
-		required = True)
+		required = True,
+		help = "name of revoking certificate authority")
 
 def do_revoke (context, args):
 
@@ -688,7 +724,8 @@ def args_crl (sub_parsers):
 
 	parser.add_argument (
 		"--authority",
-		required = True)
+		required = True,
+		help = "name of issuing certificate authority")
 
 def do_crl (context, args):
 
@@ -714,7 +751,8 @@ def args_sign (sub_parsers):
 
 	parser.add_argument (
 		"--authority",
-		required = True)
+		required = True,
+		help = "name of signing certificate authority")
 
 def do_sign (context, args):
 

@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from wbsdevops import admin
+from wbsdevops import amazon
 from wbsdevops import ansible
 from wbsdevops import certificate
 from wbsdevops import env
@@ -23,6 +24,7 @@ from wbsdevops.schema import SchemaGroup
 
 modules = [
 	admin,
+	amazon,
 	ansible,
 	certificate,
 	env,

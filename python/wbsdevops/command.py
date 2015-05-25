@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+from wbsmisc import generate_password
+
 class CollectionCommand:
 
 	def __init__ (self, helper):
@@ -9,7 +11,7 @@ class CollectionCommand:
 	def args (self, prev_sub_parser):
 
 		parser = prev_sub_parser.add_parser (
-			self.helper.name,
+			self.helper.command_name,
 			help = self.helper.help,
 			description = self.helper.description)
 
@@ -33,11 +35,6 @@ class CollectionCommand:
 		parser.set_defaults (
 			func = self.do_create)
 
-		parser.add_argument (
-			"--name",
-			required = True,
-			help = "name of %s to create" % self.helper.name)
-
 		self.helper.args_create (parser)
 
 	def do_create (self, context, args):
@@ -53,9 +50,11 @@ class CollectionCommand:
 
 		record_data = {}
 
-		self.helper.do_create (context, args, record_data)
+		self.helper.update_record (context, args, record_data)
 
 		collection.set (args.name, record_data)
+
+		self.helper.update_files (context, args, collection)
 
 		print "Created %s %s" % (
 			self.helper.name,
@@ -75,11 +74,6 @@ class CollectionCommand:
 		parser.set_defaults (
 			func = self.do_update)
 
-		parser.add_argument (
-			"--name",
-			required = True,
-			help = "name of %s to update" % self.helper.name)
-
 		self.helper.args_update (parser)
 
 	def do_update (self, context, args):
@@ -95,9 +89,11 @@ class CollectionCommand:
 
 		record_data = collection.get (args.name)
 
-		self.helper.do_update (context, args, record_data)
+		self.helper.update_record (context, args, record_data)
 
 		collection.set (args.name, record_data)
+
+		self.helper.update_files (context, args, collection)
 
 		print "Updated %s %s" % (
 			self.helper.name,
@@ -126,30 +122,228 @@ class CollectionCommand:
 
 		print record_yaml
 
+class SimpleArgument:
+
+	def __init__ (self, argument, key, help):
+
+		self.argument = argument
+		self.key = key
+		self.help = help
+
+		self.argument_name = argument [2:].replace ("-", "_")
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			self.argument,
+			help = self.help)
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			self.argument,
+			help = self.help)
+
+	def update_record (self, arg_vars, record_data):
+
+		value = arg_vars [self.argument_name]
+
+		if value:
+			record_data [self.key] = value
+
+	def update_files (self, arg_vars, collection):
+
+		pass
+
+class NameArgument:
+
+	def __init__ (self, argument, key):
+
+		self.argument = argument
+		self.key = key
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			self.argument,
+			required = True,
+			help = "name of %s to create" % helper.name)
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--name",
+			required = True,
+			help = "name of %s to update" % helper.name)
+
+	def update_record (self, arg_vars, record_data):
+
+		record_data [self.key] = arg_vars ["name"]
+
+	def update_files (self, arg_vars, collection):
+
+		pass
+
+class FileArgument:
+
+	def __init__ (self, argument, path, help):
+
+		self.argument = argument
+		self.path = path
+		self.help = help
+
+		self.argument_name = argument [2:].replace ("-", "_")
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			self.argument,
+			help = self.help)
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			self.argument,
+			help = self.help)
+
+	def update_record (self, arg_vars, record_data):
+
+		pass
+
+	def update_files (self, arg_vars, collection):
+
+		value = arg_vars [self.argument_name]
+
+		if not value:
+			return
+
+		with open (value) as file_handle:
+			file_contents = file_handle.read ()
+
+		collection.set_file (arg_vars ["name"], self.path, file_contents)
+
+class SetArgument:
+
+	def __init__ (self):
+
+		pass
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--set",
+			action = "append",
+			nargs = 2,
+			default = [],
+			help = "miscellaneous value to store")
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--set",
+			action = "append",
+			nargs = 2,
+			default = [],
+			help = "miscellaneous value to store")
+
+	def update_record (self, arg_vars, record_data):
+
+		for key, value in arg_vars ["set"]:
+			record_data [key] = value
+
+	def update_files (self, arg_vars, collection):
+
+		pass
+
+class GeneratePasswordArgument:
+
+	def __init__ (self):
+
+		pass
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--generate-password",
+			action = "append",
+			default = [],
+			help = "generate random password to store")
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--generate-password",
+			action = "append",
+			default = [],
+			help = "generate random password to store")
+
+	def update_record (self, arg_vars, record_data):
+
+		for key in arg_vars ["generate_password"]:
+			record_data [key] = generate_password ()
+
+	def update_files (self, arg_vars, collection):
+
+		pass
+
 class CommandHelper:
 
-	def args_common (self, parser):
+	def __init__ (self,
 
-		pass
+		name,
+		command_name = None,
+		collection_name = None,
 
-	def do_common (self, context, args, record_data):
+		help = None,
+		description = None,
 
-		pass
+		enable_description = False,
+		enable_set = False,
+		enable_generate_password = False,
+
+		custom_args = [],
+
+	):
+
+		self.name = name
+		self.command_name = command_name or name
+		self.collection_name = collection_name or name.replace ('-', '_') + "s"
+
+		self.help = help
+		self.description = description
+
+		self.enable_description = enable_description
+		self.enable_set = enable_set
+		self.enable_generate_password = enable_generate_password
+
+		self.custom_args = custom_args
 
 	def args_create (self, parser):
 
-		self.args_common (parser)
-
-	def do_create (self, context, args, record_data):
-
-		self.do_common (context, args, record_data)
+		for custom_arg in self.custom_args:
+			custom_arg.args_create (parser, self)
 
 	def args_update (self, parser):
 
-		self.args_common (parser)
+		for custom_arg in self.custom_args:
+			custom_arg.args_update (parser, self)
 
-	def do_update (self, context, args, record_data):
+	def update_record (self, context, args, record_data):
 
-		self.do_common (context, args, record_data)
+		arg_vars = vars (args)
+
+		for custom_arg in self.custom_args:
+			custom_arg.update_record (arg_vars, record_data)
+
+	def update_files (self, context, args, collection):
+
+		arg_vars = vars (args)
+
+		for custom_arg in self.custom_args:
+			custom_arg.update_files (arg_vars, collection)
+
+	def get_collection (self, context):
+
+		return getattr (context, self.collection_name)
 
 # ex: noet ts=4 filetype=yaml
