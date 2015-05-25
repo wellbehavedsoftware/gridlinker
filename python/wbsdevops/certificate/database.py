@@ -634,17 +634,3 @@ def do_export (context, args):
 	else:
 
 		print "failure"
-
-def schemas (schemas):
-
-	schemas.define ("certificate-database", [
-
-		SchemaGroup ([
-
-			SchemaField (
-				name = "database_state",
-				required = True),
-
-		]),
-
-	])

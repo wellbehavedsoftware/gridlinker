@@ -4,7 +4,7 @@ import json
 import ssl
 import urllib3
 
-from wbsdevops import yamlx
+from wbsmisc import yamlx
 
 class Client:
 

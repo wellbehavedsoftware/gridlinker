@@ -37,9 +37,4 @@ def args (sub_parsers):
 	for module in modules:
 		module.args (sub_parsers)
 
-def schemas (schemas):
-
-	for module in modules:
-		module.schemas (schemas)
-
 # ex: noet ts=4 filetype=yaml

@@ -9,17 +9,26 @@ class CollectionCommand:
 	def args (self, prev_sub_parser):
 
 		parser = prev_sub_parser.add_parser (
-			self.helper.name)
+			self.helper.name,
+			help = self.helper.help,
+			description = self.helper.description)
 
 		next_sub_parsers = parser.add_subparsers ()
 
 		self.args_create (next_sub_parsers)
 		self.args_update (next_sub_parsers)
+		self.args_show (next_sub_parsers)
 
 	def args_create (self, sub_parsers):
 
 		parser = sub_parsers.add_parser (
-			"create")
+			"create",
+			help = "create a new {0}".format (self.helper.name),
+			description = """
+				Create a new {0}. This command takes the name of a {0} and
+				various other arguments which are stored in the admin database.
+				It will report an error if the {0} already exists.
+			""".format (self.helper.name))
 
 		parser.set_defaults (
 			func = self.do_create)
@@ -55,7 +64,13 @@ class CollectionCommand:
 	def args_update (self, sub_parsers):
 
 		parser = sub_parsers.add_parser (
-			"update")
+			"update",
+			help = "update an existing {0}".format (self.helper.name),
+			description = """
+				Update an existing {0}. This command takes the name of a {0} and
+				various other arguments which are stored in the admin database.
+				It will report an error if the {0} does not already exist.
+			""".format (self.helper.name))
 
 		parser.set_defaults (
 			func = self.do_update)
@@ -87,6 +102,29 @@ class CollectionCommand:
 		print "Updated %s %s" % (
 			self.helper.name,
 			args.name)
+
+	def args_show (self, sub_parsers):
+
+		parser = sub_parsers.add_parser (
+			"show",
+			help = "show the data for a {0}".format (self.helper.name))
+
+		parser.set_defaults (
+			func = self.do_show)
+
+		parser.add_argument (
+			"--name",
+			help = "{0} to show data for".format (self.helper.name))
+
+	def do_show (self, context, args):
+
+		collection = self.helper.get_collection (context)
+
+		record_data = collection.get (args.name)
+
+		record_yaml = collection.to_yaml (record_data)
+
+		print record_yaml
 
 class CommandHelper:
 

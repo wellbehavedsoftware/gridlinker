@@ -7,9 +7,8 @@ import tempfile
 
 import StringIO
 
-from wbsdevops import yamlx
-
 from wbsmisc import generate_password
+from wbsmisc import yamlx
 
 def args (prev_sub_parser):
 
@@ -286,10 +285,6 @@ def do_create (context, args):
 			host_key_private)
 
 	print "Created host %s" % args.host_name
-
-def schemas (schemas):
-
-	pass
 
 def args_show (sub_parsers):
 

@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from wbsdevops import yamlx
+from wbsmisc import yamlx
 
 class Collection:
 

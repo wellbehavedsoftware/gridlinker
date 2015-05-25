@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-from wbsdevops import yamlx
 from wbsdevops.schema import SchemaGroup, SchemaField
 from wbsdevops.command import CollectionCommand
 from wbsdevops.command import CommandHelper
@@ -12,6 +11,8 @@ class GroupCommandHelper (CommandHelper):
 	def __init__ (self):
 
 		self.name = "group"
+		self.help = "manage group definitions"
+		self.description = None
 
 	def get_collection (self, context):
 
@@ -66,23 +67,5 @@ group_command = CollectionCommand (
 def args (sub_parsers):
 
 	group_command.args (sub_parsers)
-
-def schemas (schemas):
-
-	schemas.define ("group", [
-
-		SchemaGroup ([
-
-			SchemaField (
-				name = "group_name",
-				required = True),
-
-			SchemaField (
-				name = "group_description",
-				required = False),
-
-		]),
-
-	])
 
 # ex: noet ts=4 filetype=yaml

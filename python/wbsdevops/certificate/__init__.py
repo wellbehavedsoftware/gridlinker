@@ -22,8 +22,4 @@ def args (prev_sub_parsers):
 	certificate.args (next_sub_parsers)
 	database.args (next_sub_parsers)
 
-def schemas (schemas):
-
-	authority.schemas (schemas)
-	certificate.schemas (schemas)
-	database.schemas (schemas)
+# ex: noet ts=4 filetype=python

@@ -1,9 +1,75 @@
+import collections
+import os
 import sys
 import yaml
 
+# ordering code modified from here:
+# https://gist.github.com/enaeseth/844388#file-yaml_ordered_dict-py
+
+class OrderedDictYAMLLoader (yaml.Loader):
+
+	def __init__ (self, * args, ** kwargs):
+
+		yaml.Loader.__init__ (self, * args, ** kwargs)
+
+		self.add_constructor (
+			"tag:yaml.org,2002:map",
+			type (self).construct_yaml_map)
+
+		self.add_constructor (
+			"tag:yaml.org,2002:omap",
+			type (self).construct_yaml_map)
+
+	def construct_yaml_map (self, node):
+
+		data = collections.OrderedDict ()
+
+		yield data
+
+		value = self.construct_mapping (node)
+
+		data.update (value)
+
+	def construct_mapping (self, node, deep = False):
+
+		if isinstance (node, yaml.MappingNode):
+
+			self.flatten_mapping (node)
+
+		else:
+
+			raise yaml.constructor.ConstructorError (
+				None,
+				None,
+				"expected a mapping node, but found %s" % node.id,
+				node.start_mark)
+
+		mapping = collections.OrderedDict ()
+
+		for key_node, value_node in node.value:
+
+			key = self.construct_object (key_node, deep = deep)
+
+			try:
+				hash (key)
+
+			except TypeError, exc:
+
+				raise yaml.constructor.ConstructorError (
+					"while constructing a mapping",
+					node.start_mark,
+					"found unacceptable key (%s)" % exc,
+					key_node.start_mark)
+
+			value = self.construct_object (value_node, deep = deep)
+
+			mapping [key] = value
+
+		return mapping
+
 def parse (string):
 
-	return yaml.safe_load (string)
+	return yaml.load (string, OrderedDictYAMLLoader)
 
 def encode (schema, data):
 
@@ -125,5 +191,26 @@ def encode_dict (schema, data, indent, here):
 		new_group = False
 
 	return yaml
+
+def load_data (path):
+
+	if os.path.isdir (path):
+
+		ret = {}
+
+		for child_name in os.listdir (path):
+
+			child_path = path + "/" + child_name
+			ret [child_name] = load_data (child_path)
+
+		return ret
+
+	elif os.path.isfile (path):
+
+		return parse (file (path))
+
+	else:
+
+		raise Exception ()
 
 # ex: noet ts=4 filetype=yaml

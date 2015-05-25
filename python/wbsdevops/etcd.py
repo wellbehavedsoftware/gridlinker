@@ -14,7 +14,10 @@ def args (sub_parsers):
 
 def args_etcd (prev_sub_parsers):
 
-	parser = prev_sub_parsers.add_parser ("etcd")
+	parser = prev_sub_parsers.add_parser (
+		"etcd",
+		help = "tools to manage etcd directly")
+
 	next_sub_parsers = parser.add_subparsers ()
 
 	args_etcd_export (next_sub_parsers)
@@ -23,7 +26,8 @@ def args_etcd (prev_sub_parsers):
 def args_etcd_export (sub_parsers):
 
 	parser = sub_parsers.add_parser (
-		"export")
+		"export",
+		help = "export data from etcd")
 
 	parser.set_defaults (
 		func = do_etcd_export)
@@ -64,7 +68,8 @@ def do_etcd_export (context, args):
 def args_etcd_import (sub_parsers):
 
 	parser = sub_parsers.add_parser (
-		"import")
+		"import",
+		help = "import data into etcd")
 
 	parser.set_defaults (
 		func = do_etcd_import)
@@ -101,7 +106,8 @@ def do_etcd_import (context, args):
 def args_etcdctl (prev_sub_parsers):
 
 	parser = prev_sub_parsers.add_parser (
-		"etcdctl")
+		"etcdctl",
+		help = "invoke etcdctl directly")
 
 	parser.set_defaults (
 		func = do_etcdctl)
@@ -117,9 +123,5 @@ def do_etcdctl (context, args):
 		env = env_resolve (os.environ, context.env))
 
 	sys.exit (result)
-
-def schemas (schemas):
-
-	pass
 
 # ex: noet ts=4 filetype=yaml

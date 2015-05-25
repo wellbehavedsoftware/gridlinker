@@ -1,0 +1,13 @@
+---
+
+general:
+
+  group_name:
+    type: "name"
+    required: "yes"
+
+  group_description:
+    type: "string"
+    required: "no"
+
+# ex: et ts=2 filetype=yaml

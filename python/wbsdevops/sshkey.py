@@ -6,8 +6,6 @@ import tempfile
 
 import StringIO
 
-from wbsdevops import yamlx
-
 def args (prev_sub_parser):
 
 	parser = prev_sub_parser.add_parser ("ssh-key")
@@ -61,9 +59,5 @@ def do_generate (context, args):
 		private_key)
 
 	print "Generated ssh key %s" % args.name
-
-def schemas (schemas):
-
-	pass
 
 # ex: noet ts=4 filetype=yaml

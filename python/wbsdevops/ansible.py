@@ -10,7 +10,7 @@ def args (prev_sub_parsers):
 
 	parser = prev_sub_parsers.add_parser (
 		"ansible",
-		help = "direct control of ansible",
+		help = "manage or invoke ansible",
 		description = """
 			The ansible command group contains various commands which can be
 			used to hook into ansible directly. Using this tool instead of using
@@ -44,9 +44,9 @@ def args_playbook (sub_parsers):
 
 def do_playbook (context, args):
 
-	run_playbook (context, args.rest)
+	run_playbook (context, args.rest, "exit")
 
-def run_playbook (context, args, action = "boolean"):
+def run_playbook (context, args, action):
 
 	context.ansible_init ()
 
@@ -96,9 +96,5 @@ def run_playbook (context, args, action = "boolean"):
 
 		raise Exception (
 			"Invalid result option: %s" % action)
-
-def schemas (schemas):
-
-	pass
 
 # ex: noet ts=4 filetype=yaml

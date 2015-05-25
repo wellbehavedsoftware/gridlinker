@@ -12,6 +12,8 @@ class AdminCommandHelper (CommandHelper):
 	def __init__ (self):
 
 		self.name = "admin"
+		self.help = "manage admin users"
+		self.description = None
 
 	def get_collection (self, context):
 
@@ -63,23 +65,5 @@ admin_command = CollectionCommand (
 def args (sub_parsers):
 
 	admin_command.args (sub_parsers)
-
-def schemas (schemas):
-
-	schemas.define ("admin", [
-
-		SchemaGroup ([
-
-			SchemaField (
-				name = "admin_name",
-				required = True),
-
-			SchemaField (
-				name = "admin_full_name",
-				required = False),
-
-		]),
-
-	])
 
 # ex: noet ts=4 filetype=yaml

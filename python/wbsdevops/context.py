@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import os
 import yaml
 
 import wbsdevops
@@ -7,11 +8,13 @@ import wbsmisc
 
 from wbsmisc import env_combine
 from wbsmisc import lazy_property
+from wbsmisc import yamlx
 
 from wbsmisc import LazyDictionary
 
 from wbsdevops.certificate.authority import CertificateAuthority
 from wbsdevops.collection import Collection
+from wbsdevops.schema import SchemaDatabase
 
 class GenericContext (object):
 
@@ -98,6 +101,11 @@ class GenericContext (object):
 		return "%s/ansible" % self.third_party_home
 
 	@lazy_property
+	def wbs_devops_tools_home (self):
+
+		return "%s/wbs-devops-tools" % self.third_party_home
+
+	@lazy_property
 	def ansible_env (self):
 
 		return {
@@ -130,7 +138,8 @@ class GenericContext (object):
 	def ansible_roles_path (self):
 
 		return [
-			"%s/roles" % self.home,
+			"%s/playbooks/%s" % (self.home, item)
+			for item in os.listdir ("%s/playbooks" % self.home)
 		]
 
 	@lazy_property
@@ -206,5 +215,30 @@ class GenericContext (object):
 	def hosts (self):
 
 		return Collection (self, "/host", self.schemas ["host"])
+
+	@lazy_property
+	def local_data (self):
+
+		return yamlx.load_data ("%s/data" % self.home)
+
+	@lazy_property
+	def overrides_data (self):
+
+		return yamlx.load_data ("config/overrides.yml")
+
+	@lazy_property
+	def wbs_devops_tools_data (self):
+
+		return yamlx.load_data ("%s/data" % self.wbs_devops_tools_home)
+
+	@lazy_property
+	def schemas (self):
+
+		schemas = SchemaDatabase ()
+		
+		schemas.read_all (self.wbs_devops_tools_data ["schemas"])
+		schemas.read_all (self.local_data ["schemas"])
+
+		return schemas
 
 # ex: noet ts=4 filetype=yaml
