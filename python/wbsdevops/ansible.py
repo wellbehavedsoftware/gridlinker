@@ -96,3 +96,9 @@ def run_playbook (context, args, action = "boolean"):
 
 		raise Exception (
 			"Invalid result option: %s" % action)
+
+def schemas (schemas):
+
+	pass
+
+# ex: noet ts=4 filetype=yaml

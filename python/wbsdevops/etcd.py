@@ -118,4 +118,8 @@ def do_etcdctl (context, args):
 
 	sys.exit (result)
 
+def schemas (schemas):
+
+	pass
+
 # ex: noet ts=4 filetype=yaml

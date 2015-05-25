@@ -386,29 +386,48 @@ def args (prev_sub_parsers):
 
 	parser = prev_sub_parsers.add_parser (
 		"authority",
-		help = "manage a certificate authority")
+		help = "manage a certificate authority",
+		description = """
+			This tool manages a certificate authority, along with a record of
+			the certificates which have been issued and revoked, including the
+			private key when appropriate. It is able to generate certificates
+			along with private keys, or to sign requests (CSRs) which are
+			generated elsewhere. It is also able to revoke certificates and to
+			publish signed lists of revoked certificates (CRL).
+		""")
 
 	next_sub_parsers = parser.add_subparsers ()
 
 	args_create (next_sub_parsers)
 	args_issue (next_sub_parsers)
 	args_export (next_sub_parsers)
+	args_revoke (next_sub_parsers)
+	args_crl (next_sub_parsers)
+	args_sign (next_sub_parsers)
 
 def args_create (sub_parsers):
 
 	parser = sub_parsers.add_parser (
-		"create")
+		"create",
+		help = "create a new certificate authority",
+		description = """
+			This tool creates a new certificate authority. A private key and
+			self-signed certificate will be generated and other metadata will be
+			initialised.
+		""")
 
 	parser.set_defaults (
 		func = do_create)
 
 	parser.add_argument (
 		"--authority",
-		required = True)
+		required = True,
+		help = "name of the certificate authority to create")
 
 	parser.add_argument (
 		"--common-name",
-		required = True)
+		required = True,
+		help = "common name to use in the subject of the certificate authority")
 
 def do_create (context, args):
 
@@ -419,23 +438,32 @@ def do_create (context, args):
 
 	authority.create (args.common_name)
 
-	print "Certificate authority created"
+	print "Created certificate authority %s" % args.authority
 
 def args_issue (sub_parsers):
 
 	parser = sub_parsers.add_parser (
-		"issue")
+		"issue",
+		help = "issue a new certificate and key",
+		description = """
+			This tool issues a new certificate along with a private key which
+			is generated locally. This is normally used when the certificate is
+			to be used by a subordinate, such as an employee or a server
+			belonging to the entity that controls the certificate authority.
+		""")
 
 	parser.set_defaults (
 		func = do_issue)
 
 	parser.add_argument (
 		"--authority",
-		required = True)
+		required = True,
+		help = "name of issuing certificate authority")
 
 	parser.add_argument (
 		"--common-name",
-		required = True)
+		required = True,
+		help = "common name to use in subject")
 
 	# type
 
@@ -444,18 +472,21 @@ def args_issue (sub_parsers):
 
 	parser_type.add_argument (
 		"--server",
+		help = "server usage only",
 		action = "store_const",
 		const = "server",
 		dest = "type")
 
 	parser_type.add_argument (
 		"--client",
+		help = "client usage only",
 		action = "store_const",
 		const = "client",
 		dest = "type")
 
 	parser_type.add_argument (
 		"--mixed",
+		help = "server or client usage",
 		action = "store_const",
 		const = "mixed",
 		dest = "type")
@@ -466,13 +497,16 @@ def args_issue (sub_parsers):
 		"store")
 
 	parser_store.add_argument (
-		"--store-database")
+		"--store-host",
+		help = "TODO")
 
 	parser_store.add_argument (
-		"--store-host")
+		"--store-certificate",
+		help = "TODO")
 
 	parser_store.add_argument (
-		"--store-host-key")
+		"--store-private-key",
+		help = "TODO")
 
 	# alt names
 
@@ -481,16 +515,19 @@ def args_issue (sub_parsers):
 
 	parser_alt_names.add_argument (
 		"--alt-dns",
+		help = "alternative dns hostname",
 		default = [],
 		action = "append")
 
 	parser_alt_names.add_argument (
 		"--alt-ip",
+		help = "alternative ip address",
 		default = [],
 		action = "append")
 
 	parser_alt_names.add_argument (
 		"--alt-email",
+		help = "alternative email address",
 		default = [],
 		action = "append")
 
@@ -516,21 +553,6 @@ def do_issue (context, args):
 			args.common_name,
 			alt_names)
 
-		print "Created certificate %s %s %s" % (
-			certificate.serial,
-			certificate.digest,
-			args.common_name)
-
-		if args.store_host and args.store_key:
-
-			host_data = wbs_client.get_host (args.store_host)
-			host_data [args.store_key] = issue_digest
-			wbs_client.set_host (args.store_host, host_data)
-
-			print "Stored as %s in host %s" % (
-				args.store_key,
-				args.store_host)
-
 	except:
 
 		print "Certificate already exists for %s" % (
@@ -538,10 +560,38 @@ def do_issue (context, args):
 
 		sys.exit (1)
 
+	print "Issued certificate %s %s %s" % (
+		certificate.serial,
+		certificate.digest,
+		args.common_name)
+
+	if args.store_host:
+
+		host_data = context.hosts.get (args.store_host)
+
+		if args.store_certificate:
+			host_data [args.store_certificate] = certificate.certificate_path
+
+		if args.store_private_key:
+			host_data [args.store_private_key] = certificate.private_key_path
+
+		context.hosts.set (args.store_host, host_data)
+
+		print "Stored certificate in host %s" % (
+			args.store_host)
+
 def args_export (sub_parsers):
 
-	parser = sub_parsers.add_parser ('export')
-	parser.set_defaults (func = do_export)
+	parser = sub_parsers.add_parser (
+		"export",
+		help = "export a certificate, key, chain, etc",
+		description = """
+			This tool writes out the certificate and associated information for
+			one of the certificates issued by this authority.
+		""")
+
+	parser.set_defaults (
+		func = do_export)
 
 	parser.add_argument (
 		"--authority",
@@ -594,6 +644,81 @@ def do_export (client, args):
 	else:
 
 		print "failure"
+
+def args_revoke (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"revoke",
+		help = "revoke a previously issued certificate",
+		description = """
+			This tool revokes a certificate which was previously issued by this
+			certificate authority. For this to take effect, some method must be
+			implemented to communicate the revocation list to the appropriate
+			parties and to ensure that they actively verify certificates against
+			it.
+		""")
+
+	parser.set_defaults (
+		func = do_revoke)
+
+	parser.add_argument (
+		"--authority",
+		required = True)
+
+def do_revoke (context, args):
+
+	raise Exception ("TODO")
+
+def args_crl (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"crl",
+		help = "create a \"certificate revocation list\"",
+		description = """
+			This tool writes out a signed list of certificates which have been
+			issued and then subsequently revoked by this certificate authority,
+			commonly known as a "certificate revocation list\". This can be
+			distributed to entities which need to verify certificates issued by
+			this authority so that revoked certificates can be identified and
+			their use prohibited.
+		""")
+
+	parser.set_defaults (
+		func = do_crl)
+
+	parser.add_argument (
+		"--authority",
+		required = True)
+
+def do_crl (context, args):
+
+	raise Exception ("TODO")
+
+def args_sign (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"sign",
+		help = "sign a \"certificate signing request\"",
+		description = """
+			This tool is used to generated a signed certificate, corresponding
+			to a certificate signing request generated by a third party. This
+			should be used when the entity which controls the certificate
+			authority and the entity to which the certificate is being issued
+			are distinct, and it allows the private key to be generated by the
+			entity to which the certificate is being issued without ever
+			revealing it to the certificate authority.
+		""")
+
+	parser.set_defaults (
+		func = do_sign)
+
+	parser.add_argument (
+		"--authority",
+		required = True)
+
+def do_sign (context, args):
+
+	raise Exception ("TODO")
 
 def schemas (schemas):
 

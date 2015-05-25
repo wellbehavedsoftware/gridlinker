@@ -14,3 +14,9 @@ def do_env (context, args):
 
 	for key in sorted (context.env.keys ()):
 		print "export %s=\"%s\"" % (key, context.env [key])
+
+def schemas (schemas):
+
+	pass
+
+# ex: noet ts=4 filetype=yaml

@@ -225,3 +225,5 @@ class Client:
 		value_yaml = yamlx.encode (schema, value)
 
 		self.set_raw (key, value_yaml)
+
+# ex: noet ts=4 filetype=yaml

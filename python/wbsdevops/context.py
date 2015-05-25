@@ -10,7 +10,8 @@ from wbsmisc import lazy_property
 
 from wbsmisc import LazyDictionary
 
-from wbsdevops import CertificateAuthority
+from wbsdevops.certificate.authority import CertificateAuthority
+from wbsdevops.collection import Collection
 
 class GenericContext (object):
 
@@ -111,6 +112,37 @@ class GenericContext (object):
 		}
 
 	@lazy_property
+	def ansible_lookup_plugins (self):
+
+		return [
+			"%s/wbs-devops-tools/lookup-plugins" % self.third_party_home,
+		]
+
+	@lazy_property
+	def ansible_library (self):
+
+		return [
+			"%s/ansible-modules-core" % self.third_party_home,
+			"%s/ansible-modules-extras" % self.third_party_home,
+		]
+
+	@lazy_property
+	def ansible_roles_path (self):
+
+		return [
+			"%s/roles" % self.home,
+		]
+
+	@lazy_property
+	def ansible_ssh_args (self):
+
+		return [
+			"-o ControlMaster=auto",
+			"-o ControlPersist=60s",
+			"-o ForwardAgent=yes",
+		]
+
+	@lazy_property
 	def ansible_config (self):
 
 		return {
@@ -118,21 +150,15 @@ class GenericContext (object):
 			"defaults": {
 				"force_color": "True",
 				"gathering": "explicit",
-				"library": ":".join ([
-					"%s/ansible-modules-core" % self.third_party_home,
-					"%s/ansible-modules-extras" % self.third_party_home,
-				]),
-				"roles_path": "%s/roles" % self.home,
+				"library": ":".join (self.ansible_library),
+				"lookup_plugins": ":".join (self.ansible_lookup_plugins),
+				"roles_path": ":".join (self.ansible_roles_path),
 			},
 
 			"ssh_connection": {
 				"control_path": "%s/work/control/%%%%h" % self.home,
 				"pipelining": "True",
-				"ssh_args": " ".join ([
-					"-o ControlMaster=auto",
-					"-o ControlPersist=60s",
-					"-o ForwardAgent=yes",
-				]),
+				"ssh_args": " ".join (self.ansible_ssh_args),
 			},
 
 		}
@@ -165,3 +191,10 @@ class GenericContext (object):
 		authority.load ()
 
 		return authority
+
+	@lazy_property
+	def hosts (self):
+
+		return Collection (self, "/host", self.schemas ["host"])
+
+# ex: noet ts=4 filetype=yaml

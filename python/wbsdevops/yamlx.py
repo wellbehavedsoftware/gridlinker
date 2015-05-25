@@ -125,3 +125,5 @@ def encode_dict (schema, data, indent, here):
 		new_group = False
 
 	return yaml
+
+# ex: noet ts=4 filetype=yaml

@@ -49,3 +49,5 @@ class SchemaDatabase:
 	def __getitem__ (self, name):
 
 		return self.schemas [name]
+
+# ex: noet ts=4 filetype=yaml
