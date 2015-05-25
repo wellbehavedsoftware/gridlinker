@@ -53,7 +53,10 @@ class Collection:
 			key = "%s/%s" % (record_key, file_name),
 			value = file_contents)
 
-	def get_all (self):
+	def get_all_list (self):
+
+		if not self.client.exists (self.collection_path):
+			return []
 
 		ret = []
 
@@ -68,6 +71,27 @@ class Collection:
 			record_data = yamlx.parse (record_yaml)
 
 			ret.append ((record_name, record_data))
+
+		return ret
+
+	def get_all_dictionary (self):
+
+		if not self.client.exists (self.collection_path):
+			return {}
+
+		ret = {}
+
+		for record_key, record_yaml \
+		in self.client.get_tree (self.collection_path):
+
+			if not record_key.endswith ("/data"):
+				continue
+
+			record_name = record_key [1:-5]
+
+			record_data = yamlx.parse (record_yaml)
+
+			ret [record_name] = record_data
 
 		return ret
 

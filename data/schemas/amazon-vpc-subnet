@@ -1,0 +1,39 @@
+---
+
+general:
+
+  vpc_subnet_name:
+    type: "name"
+    required: "yes"
+
+  vpc_subnet_description:
+    type: "string"
+    required: "no"
+
+vpc:
+
+  vpc_name:
+    type: "string"
+    required: "yes"
+
+amazon:
+
+  amazon_zone:
+    type: "string"
+    required: "yes"
+
+private_network:
+
+  private_network:
+    type: "string"
+    required: "yes"
+
+  private_netmask:
+    type: "string"
+    required: "yes"
+
+  private_netmask_bits:
+    type: "string"
+    required: "yes"
+
+# ex: et ts=2 filetype=yaml

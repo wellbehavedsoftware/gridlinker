@@ -127,6 +127,13 @@ class GenericContext (object):
 		]
 
 	@lazy_property
+	def ansible_filter_plugins (self):
+
+		return [
+			"%s/wbs-devops-tools/filter-plugins" % self.third_party_home,
+		]
+
+	@lazy_property
 	def ansible_library (self):
 
 		return [
@@ -160,6 +167,7 @@ class GenericContext (object):
 				"force_color": "True",
 				"gathering": "explicit",
 				"library": ":".join (self.ansible_library),
+				"filter_plugins": ":".join (self.ansible_filter_plugins),
 				"lookup_plugins": ":".join (self.ansible_lookup_plugins),
 				"roles_path": ":".join (self.ansible_roles_path),
 			},
@@ -215,6 +223,21 @@ class GenericContext (object):
 	def hosts (self):
 
 		return Collection (self, "/host", self.schemas ["host"])
+
+	@lazy_property
+	def amazon_accounts (self):
+
+		return Collection (self, "/amazon/account", self.schemas ["amazon-account"])
+
+	@lazy_property
+	def amazon_vpcs (self):
+
+		return Collection (self, "/amazon/vpc", self.schemas ["amazon-vpc"])
+
+	@lazy_property
+	def amazon_vpc_subnets (self):
+
+		return Collection (self, "/amazon/vpc-subnet", self.schemas ["amazon-vpc-subnet"])
 
 	@lazy_property
 	def local_data (self):

@@ -10,6 +10,18 @@ general:
     type: "string"
     required: "no"
 
+regions:
+
+  amazon_regions:
+    type: "list"
+    required: "yes"
+
+ssh_keys:
+
+  ssh_keys:
+    type: "map"
+    required: "no"
+
 security:
 
   access_key_id:

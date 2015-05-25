@@ -18,6 +18,7 @@ group_command = command.CollectionCommand (
 			command.SimpleArgument (
 				argument = "--description",
 				key = "group_description",
+				value_name = "DESCRIPTION",
 				help = "user-friendly description"),
 
 			command.SetArgument (),

@@ -18,6 +18,7 @@ admin_command = command.CollectionCommand (
 			command.SimpleArgument (
 				argument = "--full-name",
 				key = "admin_full_name",
+				value_name = "NAME",
 				help = "full name of admin"),
 
 			command.FileArgument (

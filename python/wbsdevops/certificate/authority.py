@@ -17,6 +17,12 @@ serial_pattern = re.compile (
 digest_pattern = re.compile (
 	r"^\d{2}(:\d{2})*$")
 
+class AlreadyExistsError (Exception):
+	pass
+
+class IllegalStateError (Exception):
+	pass
+
 class CertificateAuthority:
 
 	def __init__ (self, context, path, certificate_data):
@@ -33,12 +39,12 @@ class CertificateAuthority:
 	def create (self, name):
 
 		if self.state != "none":
-			raise Exception ()
+			raise IllegalStateError ()
 
 		# sanity check
 
 		if self.client.exists (self.path):
-			raise Exception ("Already exists")
+			raise AlreadyExistsError ()
 
 		# create key
 
@@ -189,8 +195,7 @@ class CertificateAuthority:
 		if self.client.exists (
 			self.path + "/named/" + name):
 
-			raise Exception (
-				"Certficate already exists for this common name")
+			raise AlreadyExistsError ()
 
 		else:
 
@@ -223,7 +228,7 @@ class CertificateAuthority:
 
 		else:
 
-			raise Exception ("Invalid type: %s" % type)
+			raise IllegalArgumentError ()
 
 		# increase serial
 
@@ -557,7 +562,7 @@ def do_issue (context, args):
 			args.common_name,
 			alt_names)
 
-	except:
+	except AlreadyExistsError:
 
 		print "Certificate already exists for %s" % (
 			args.common_name)

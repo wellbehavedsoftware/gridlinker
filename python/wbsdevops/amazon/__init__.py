@@ -1,7 +1,11 @@
 from wbsdevops.amazon import account
+from wbsdevops.amazon import vpc
+from wbsdevops.amazon import vpcsubnet
 
 modules = [
 	account,
+	vpc,
+	vpcsubnet,
 ]
 
 def args (prev_sub_parsers):

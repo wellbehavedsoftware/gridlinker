@@ -37,6 +37,11 @@ class CollectionCommand:
 
 		self.helper.args_create (parser)
 
+		parser.add_argument (
+			"--edit",
+			action = "store_true",
+			help = "edit {0} data before creating".format (self.helper.name))
+
 	def do_create (self, context, args):
 
 		collection = self.helper.get_collection (context)
@@ -51,6 +56,24 @@ class CollectionCommand:
 		record_data = {}
 
 		self.helper.update_record (context, args, record_data)
+
+		if args.edit:
+
+			temp_file = tempfile.NamedTemporaryFile ()
+
+			record_yaml = collection.to_yaml (record_data)
+
+			temp_file.write (record_yaml)
+			temp_file.flush ()
+
+			os.system ("%s %s" % (os.environ ["EDITOR"], temp_file.name))
+
+			temp_again = open (temp_file.name, "r")
+			record_yaml = temp_again.read ()
+
+			record_data = yamlx.parse (record_yaml)
+
+			temp_again.close ()
 
 		collection.set (args.name, record_data)
 
@@ -122,12 +145,44 @@ class CollectionCommand:
 
 		print record_yaml
 
+class ArgumentGroup:
+
+	def __init__ (self, label, arguments):
+
+		self.label = label
+		self.arguments = arguments
+
+	def args_create (self, parser, helper):
+
+		group = parser.add_argument_group (self.label)
+
+		for argument in self.arguments:
+			argument.args_create (group, helper)
+
+	def args_update (self, parser, helper):
+
+		group = parser.add_argument_group (self.label)
+
+		for argument in self.arguments:
+			argument.args_create (group, helper)
+
+	def update_record (self, arg_vars, record_data):
+
+		for argument in self.arguments:
+			argument.update_record (arg_vars, record_data)
+
+	def update_files (self, arg_vars, collection):
+
+		for argument in self.arguments:
+			argument.update_files (arg_vars, collection)
+
 class SimpleArgument:
 
-	def __init__ (self, argument, key, help):
+	def __init__ (self, argument, key, value_name, help):
 
 		self.argument = argument
 		self.key = key
+		self.value_name = value_name
 		self.help = help
 
 		self.argument_name = argument [2:].replace ("-", "_")
@@ -136,12 +191,14 @@ class SimpleArgument:
 
 		parser.add_argument (
 			self.argument,
+			metavar = self.value_name,
 			help = self.help)
 
 	def args_update (self, parser, helper):
 
 		parser.add_argument (
 			self.argument,
+			metavar = self.value_name,
 			help = self.help)
 
 	def update_record (self, arg_vars, record_data):
@@ -150,6 +207,93 @@ class SimpleArgument:
 
 		if value:
 			record_data [self.key] = value
+
+	def update_files (self, arg_vars, collection):
+
+		pass
+
+class AddListArgument:
+
+	def __init__ (self, argument, key, help, value_name):
+
+		self.argument = argument
+		self.key = key
+		self.help = help
+		self.value_name = value_name
+
+		self.argument_name = argument [2:].replace ("-", "_")
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			self.argument,
+			action = "append",
+			default = [],
+			help = self.help,
+			metavar = self.value_name)
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			self.argument,
+			action = "append",
+			default = [],
+			help = self.help,
+			metavar = self.value_name)
+
+	def update_record (self, arg_vars, record_data):
+
+		for value in arg_vars [self.argument_name]:
+
+			if not self.key in record_data:
+				record_data [self.key] = []
+
+			record_data [self.key].append (value)
+
+	def update_files (self, arg_vars, collection):
+
+		pass
+
+class AddDictionaryArgument:
+
+	def __init__ (self, argument, key, help, key_name, value_name):
+
+		self.argument = argument
+		self.key = key
+		self.help = help
+		self.key_name = key_name
+		self.value_name = value_name
+
+		self.argument_name = argument [2:].replace ("-", "_")
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			self.argument,
+			action = "append",
+			default = [],
+			nargs = 2,
+			help = self.help,
+			metavar = (self.key_name, self.value_name))
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			self.argument,
+			action = "append",
+			default = [],
+			nargs = 2,
+			help = self.help,
+			metavar = (self.key_name, self.value_name))
+
+	def update_record (self, arg_vars, record_data):
+
+		for key, value in arg_vars [self.argument_name]:
+
+			if not self.key in record_data:
+				record_data [self.key] = {}
+
+			record_data [self.key] [key] = value
 
 	def update_files (self, arg_vars, collection):
 
@@ -198,12 +342,14 @@ class FileArgument:
 
 		parser.add_argument (
 			self.argument,
+			metavar = "FILE",
 			help = self.help)
 
 	def args_update (self, parser, helper):
 
 		parser.add_argument (
 			self.argument,
+			metavar = "FILE",
 			help = self.help)
 
 	def update_record (self, arg_vars, record_data):
@@ -235,6 +381,7 @@ class SetArgument:
 			action = "append",
 			nargs = 2,
 			default = [],
+			metavar = ("KEY", "VALUE"),
 			help = "miscellaneous value to store")
 
 	def args_update (self, parser, helper):
