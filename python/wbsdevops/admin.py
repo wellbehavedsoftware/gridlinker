@@ -1,77 +1,68 @@
 from __future__ import absolute_import
 
-from wbsdevops import yamlx
+from wbsdevops.command import CollectionCommand
+from wbsdevops.command import CommandHelper
 
 from wbsdevops.schema import SchemaGroup, SchemaField
 
-def args (prev_sub_parser):
+from wbsmisc import generate_password
 
-	parser = prev_sub_parser.add_parser ("admin")
-	next_sub_parsers = parser.add_subparsers ()
+class AdminCommandHelper (CommandHelper):
 
-	args_create (next_sub_parsers)
+	def __init__ (self):
 
-def args_create (sub_parsers):
+		self.name = "admin"
 
-	parser = sub_parsers.add_parser (
-		"create")
+	def get_collection (self, context):
 
-	parser.set_defaults (
-		func = do_create)
+		return context.admins
 
-	parser.add_argument (
-		"--name",
-		required = True,
-		help = "name of admin to create")
+	def args_common (self, parser):
 
-	parser.add_argument (
-		"--full-name",
-		help = "full name of admin")
+		parser.add_argument (
+			"--full-name",
+			help = "full name of admin")
 
-	parser.add_argument (
-		"--ssh-key",
-		help = "public ssh key to identify admin")
+		parser.add_argument (
+			"--ssh-key",
+			help = "public ssh key to identify admin")
 
-def do_create (context, args):
+		parser.add_argument (
+			"--set",
+			action = "append",
+			nargs = 2,
+			default = [],
+			help = "miscellaneous value to store")
 
-	admin_path = "/admin/%s" % args.name
+	def do_common (self, context, args, admin_data):
 
-	if context.client.exists (admin_path):
+		admin_data_mappings = {
+			"admin_name": "name",
+			"admin_full_name": "full_name",
+		}
 
-		raise Exception (
-			"Admin already exists: %s" % args.name)
+		arg_vars = vars (args)
 
-	admin_data_mappings = {
-		"admin_name": "name",
-		"admin_full_name": "full_name",
-	}
+		for target, source in admin_data_mappings.items ():
 
-	arg_vars = vars (args)
+			if not arg_vars [source]:
+				continue
 
-	admin_data = {}
+			admin_data [target] = arg_vars [source]
 
-	for target, source in admin_data_mappings.items ():
+		if args.ssh_key:
 
-		if not arg_vars [source]:
-			continue
+			with open (args.ssh_key) as file_handle:
+				ssh_key = file_handle.read ()
 
-		admin_data [target] = arg_vars [source]
+			context.admins.set_file (args.name, "ssh-key", ssh_key)
 
-	context.client.set_yaml (
-		"%s/data" % admin_path,
-		admin_data,
-		context.schemas ["admin"])
+admin_command = CollectionCommand (
+	AdminCommandHelper ())
 
-	if args.ssh_key:
+def args (sub_parsers):
 
-		with open (args.ssh_key) as file_handle:
-			ssh_key = file_handle.read ()
-
-		context.client.set_raw (
-			key = "%s/ssh-key" % admin_path,
-			value = ssh_key)
-
-	print "Created admin %s" % args.name
+	admin_command.args (sub_parsers)
 
 def schemas (schemas):
 

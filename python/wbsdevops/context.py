@@ -193,6 +193,16 @@ class GenericContext (object):
 		return authority
 
 	@lazy_property
+	def admins (self):
+
+		return Collection (self, "/admin", self.schemas ["admin"])
+
+	@lazy_property
+	def groups (self):
+
+		return Collection (self, "/group", self.schemas ["group"])
+
+	@lazy_property
 	def hosts (self):
 
 		return Collection (self, "/host", self.schemas ["host"])

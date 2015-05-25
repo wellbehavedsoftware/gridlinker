@@ -2,87 +2,70 @@ from __future__ import absolute_import
 
 from wbsdevops import yamlx
 from wbsdevops.schema import SchemaGroup, SchemaField
+from wbsdevops.command import CollectionCommand
+from wbsdevops.command import CommandHelper
 
 from wbsmisc import generate_password
 
-def args (prev_sub_parser):
+class GroupCommandHelper (CommandHelper):
 
-	parser = prev_sub_parser.add_parser (
-		"group")
+	def __init__ (self):
 
-	next_sub_parsers = parser.add_subparsers ()
+		self.name = "group"
 
-	args_create (next_sub_parsers)
+	def get_collection (self, context):
 
-def args_create (sub_parsers):
+		return context.groups
 
-	parser = sub_parsers.add_parser (
-		"create")
+	def args_common (self, parser):
 
-	parser.set_defaults (
-		func = do_create)
+		parser.add_argument (
+			"--description",
+			help = "user-friendly description")
 
-	parser.add_argument (
-		"--name",
-		required = True,
-		help = "name of group to create")
+		parser.add_argument (
+			"--set",
+			action = "append",
+			nargs = 2,
+			default = [],
+			help = "miscellaneous value to store")
 
-	parser.add_argument (
-		"--description",
-		help = "user-friendly description")
+		parser.add_argument (
+			"--generate-password",
+			action = "append",
+			default = [],
+			help = "generate random password to store")
 
-	parser.add_argument (
-		"--set",
-		action = "append",
-		nargs = 2,
-		default = [],
-		help = "miscellaneous value to store")
+	def do_common (self, context, args, group_data):
 
-	parser.add_argument (
-		"--generate-password",
-		action = "append",
-		default = [],
-		help = "generate random password to store")
+		group_data_mappings = {
+			"group_name": "name",
+			"group_description": "description",
+		}
 
-def do_create (context, args):
+		arg_vars = vars (args)
 
-	group_path = "/group/%s" % args.name
+		for target, source in group_data_mappings.items ():
 
-	if context.client.exists (group_path):
+			if not arg_vars [source]:
+				continue
 
-		raise Exception (
-			"Group already exists: %s" % args.name)
+			group_data [target] = arg_vars [source]
 
-	group_data_mappings = {
-		"group_name": "name",
-		"group_description": "description",
-	}
+		for key, value in args.set:
 
-	arg_vars = vars (args)
+			group_data [key] = value
 
-	group_data = {}
+		for key in args.generate_password:
 
-	for target, source in group_data_mappings.items ():
+			group_data [key] = generate_password ()
 
-		if not arg_vars [source]:
-			continue
+group_command = CollectionCommand (
+	GroupCommandHelper ())
 
-		group_data [target] = arg_vars [source]
+def args (sub_parsers):
 
-	for key, value in args.set:
-
-		group_data [key] = value
-
-	for key in args.generate_password:
-
-		group_data [key] = generate_password ()
-
-	context.client.set_yaml (
-		"%s/data" % group_path,
-		group_data,
-		context.schemas ["group"])
-
-	print "Created group %s" % args.name
+	group_command.args (sub_parsers)
 
 def schemas (schemas):
 

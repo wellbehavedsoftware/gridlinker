@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 def args (sub_parsers):
 
 	args_env (sub_parsers)
