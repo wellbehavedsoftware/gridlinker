@@ -11,10 +11,11 @@ from wbsmisc import lazy_property
 from wbsmisc import yamlx
 
 from wbsmisc import LazyDictionary
+from wbsmisc import SchemaDatabase
 
-from wbsdevops.certificate.authority import CertificateAuthority
-from wbsdevops.collection import Collection
-from wbsdevops.schema import SchemaDatabase
+from wbsdevops.certificate import CertificateAuthority
+
+from wbsdevops.generic import GenericCollection
 
 class GenericContext (object):
 
@@ -212,32 +213,32 @@ class GenericContext (object):
 	@lazy_property
 	def admins (self):
 
-		return Collection (self, "/admin", self.schemas ["admin"])
+		return GenericCollection (self, "/admin", self.schemas ["admin"])
 
 	@lazy_property
 	def groups (self):
 
-		return Collection (self, "/group", self.schemas ["group"])
+		return GenericCollection (self, "/group", self.schemas ["group"])
 
 	@lazy_property
 	def hosts (self):
 
-		return Collection (self, "/host", self.schemas ["host"])
+		return GenericCollection (self, "/host", self.schemas ["host"])
 
 	@lazy_property
 	def amazon_accounts (self):
 
-		return Collection (self, "/amazon/account", self.schemas ["amazon-account"])
+		return GenericCollection (self, "/amazon/account", self.schemas ["amazon-account"])
 
 	@lazy_property
 	def amazon_vpcs (self):
 
-		return Collection (self, "/amazon/vpc", self.schemas ["amazon-vpc"])
+		return GenericCollection (self, "/amazon/vpc", self.schemas ["amazon-vpc"])
 
 	@lazy_property
 	def amazon_vpc_subnets (self):
 
-		return Collection (self, "/amazon/vpc-subnet", self.schemas ["amazon-vpc-subnet"])
+		return GenericCollection (self, "/amazon/vpc-subnet", self.schemas ["amazon-vpc-subnet"])
 
 	@lazy_property
 	def local_data (self):

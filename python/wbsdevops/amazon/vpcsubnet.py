@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 
-from wbsdevops import command
+from wbsdevops import generic
 
-vpc_subnet_command = command.CollectionCommand (
+vpc_subnet_command = generic.GenericCommand (
 
-	command.CommandHelper (
+	generic.CommandHelper (
 
 		name = "amazon-vpc-subnet",
 		command_name = "vpc-subnet",
@@ -13,47 +13,47 @@ vpc_subnet_command = command.CollectionCommand (
 
 		custom_args = [
 
-			command.NameArgument (
+			generic.NameArgument (
 				argument = "--name",
 				key = "vpc_subnet_name"),
 
-			command.SimpleArgument (
+			generic.SimpleArgument (
 				argument = "--description",
 				key = "vpc_subnet_description",
 				value_name = "DESCRIPTION",
 				help = "user-friendly description"),
 
-			command.SimpleArgument (
+			generic.SimpleArgument (
 				argument = "--vpc-name",
 				key = "vpc_name",
 				value_name = "VPC",
 				help = "vpc name"),
 
-			command.SimpleArgument (
+			generic.SimpleArgument (
 				argument = "--amazon-zone",
 				key = "amazon_zone",
 				value_name = "ZONE",
 				help = "amazon zone name"),
 
-			command.SimpleArgument (
+			generic.SimpleArgument (
 				argument = "--private-network",
 				key = "private_network",
 				value_name = "IP",
 				help = "private network ip address"),
 
-			command.SimpleArgument (
+			generic.SimpleArgument (
 				argument = "--private-netmask",
 				key = "private_netmask",
 				value_name = "NETMASK",
 				help = "private network ip netmask"),
 
-			command.SimpleArgument (
+			generic.SimpleArgument (
 				argument = "--private-netmask-bits",
 				key = "private_netmask_bits",
 				value_name = "BITS",
 				help = "private network ip netmask size in bits"),
 
-			command.SetArgument (),
+			generic.SetArgument (),
 
 		],
 

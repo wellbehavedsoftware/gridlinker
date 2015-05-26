@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from wbsdevops.schema import SchemaField, SchemaGroup
+from wbsmisc import SchemaField, SchemaGroup
 
 class CertificateDatabase:
 

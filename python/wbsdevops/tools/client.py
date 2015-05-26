@@ -226,4 +226,9 @@ class Client:
 
 		self.set_raw (key, value_yaml)
 
+def args (sub_parsers):
+
+	pass
+
 # ex: noet ts=4 filetype=yaml
+

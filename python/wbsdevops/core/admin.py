@@ -1,33 +1,37 @@
 from __future__ import absolute_import
 
-from wbsdevops import command
+from wbsdevops.generic import *
 
-admin_command = command.CollectionCommand (
+admin_command = GenericCommand (
 
-	command.CommandHelper (
+	CommandHelper (
 
 		name = "admin",
 		help = "manage admin users",
+		description = """
+			This command allows you to manage a simple database of admin users,
+			along with their access credentials and other basic information.
+		""",
 
 		custom_args = [
 
-			command.NameArgument (
+			NameArgument (
 				argument = "--name",
 				key = "admin_name"),
 
-			command.SimpleArgument (
+			SimpleArgument (
 				argument = "--full-name",
 				key = "admin_full_name",
 				value_name = "NAME",
 				help = "full name of admin"),
 
-			command.FileArgument (
+			FileArgument (
 				argument = "--ssh-key",
 				path = "ssh-key",
 				help = "public ssh key to identify admin"),
 
-			command.SetArgument (),
-			command.GeneratePasswordArgument (),
+			SetArgument (),
+			GeneratePasswordArgument (),
 
 		],
 

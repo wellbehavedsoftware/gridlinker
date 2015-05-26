@@ -1,28 +1,28 @@
 from __future__ import absolute_import
 
-from wbsdevops import command
+from wbsdevops.generic import *
 
-group_command = command.CollectionCommand (
+group_command = GenericCommand (
 
-	command.CommandHelper (
+	CommandHelper (
 
 		name = "group",
 		help = "manage group definitions",
 
 		custom_args = [
 
-			command.NameArgument (
+			NameArgument (
 				argument = "--name",
 				key = "group_name"),
 
-			command.SimpleArgument (
+			SimpleArgument (
 				argument = "--description",
 				key = "group_description",
 				value_name = "DESCRIPTION",
 				help = "user-friendly description"),
 
-			command.SetArgument (),
-			command.GeneratePasswordArgument (),
+			SetArgument (),
+			GeneratePasswordArgument (),
 
 		],
 

@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from wbsmisc import yamlx
 
-class Collection:
+class GenericCollection:
 
 	def __init__ (self, context, collection_path, record_schema):
 

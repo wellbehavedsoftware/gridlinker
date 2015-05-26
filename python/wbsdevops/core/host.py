@@ -1,37 +1,37 @@
 from __future__ import absolute_import
 
-from wbsdevops import command
+from wbsdevops.generic import *
 
-host_command = command.CollectionCommand (
+host_command = GenericCommand (
 
-	command.CommandHelper (
+	CommandHelper (
 
 		name = "host",
 		help = "manage host definitions",
 
 		custom_args = [
 
-			command.ArgumentGroup (
+			ArgumentGroup (
 				label = "basic host information",
 				arguments = [
 
-				command.NameArgument (
+				NameArgument (
 					argument = "--name",
 					key = "host_name"),
 
-				command.SimpleArgument (
+				SimpleArgument (
 					argument = "--description",
 					key = "host_description",
 					value_name = "DESCRIPTION",
 					help = "user-friendly description"),
 
-				command.AddListArgument (
+				AddListArgument (
 					argument = "--host-group",
 					key = "host_group",
 					value_name = "GROUP",
 					help = "group to add host to"),
 
-				command.SimpleArgument (
+				SimpleArgument (
 					argument = "--host-index",
 					key = "host_index",
 					value_name = "INDEX",
@@ -39,17 +39,17 @@ host_command = command.CollectionCommand (
 
 			]),
 
-			command.ArgumentGroup (
+			ArgumentGroup (
 				label = "ansible configuration",
 				arguments = [
 
-				command.SimpleArgument (
+				SimpleArgument (
 					argument = "--ansible-ssh-host",
 					key = "ansible_ssh_host",
 					value_name = "HOST",
 					help = "ssh hostname"),
 
-				command.SimpleArgument (
+				SimpleArgument (
 					argument = "--ansible-ssh-user",
 					key = "ansible_ssh_user",
 					value_name = "USER",
@@ -57,11 +57,11 @@ host_command = command.CollectionCommand (
 
 			]),
 
-			command.ArgumentGroup (
+			ArgumentGroup (
 				label = "private network configuration",
 				arguments = [
 
-				command.SimpleArgument (
+				SimpleArgument (
 					argument = "--private-address",
 					key = "private_address",
 					value_name = "IP",
@@ -69,12 +69,12 @@ host_command = command.CollectionCommand (
 
 			]),
 
-			command.ArgumentGroup (
+			ArgumentGroup (
 				label = "arbitrary configuration",
 				arguments = [
 
-				command.SetArgument (),
-				command.GeneratePasswordArgument (),
+				SetArgument (),
+				GeneratePasswordArgument (),
 
 			]),
 

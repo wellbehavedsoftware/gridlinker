@@ -1,37 +1,27 @@
 from __future__ import absolute_import
 
-from wbsdevops import admin
 from wbsdevops import amazon
-from wbsdevops import ansible
 from wbsdevops import certificate
-from wbsdevops import env
-from wbsdevops import etcd
-from wbsdevops import group
-from wbsdevops import host
-from wbsdevops import sshkey
+from wbsdevops import core
+from wbsdevops import generic
+from wbsdevops import tools
 
 from wbsdevops.certificate import Certificate
 from wbsdevops.certificate import CertificateAuthority
 from wbsdevops.certificate import CertificateDatabase
-from wbsdevops.client import Client
-from wbsdevops.context import GenericContext
-from wbsdevops.collection import Collection
 
-from wbsdevops.schema import Schema
-from wbsdevops.schema import SchemaDatabase
-from wbsdevops.schema import SchemaField
-from wbsdevops.schema import SchemaGroup
+from wbsdevops.generic import GenericContext
+from wbsdevops.generic import GenericCollection
+from wbsdevops.generic import GenericCommand
+
+from wbsdevops.tools import Client
 
 modules = [
-	admin,
 	amazon,
-	ansible,
 	certificate,
-	env,
-	etcd,
-	group,
-	host,
-	sshkey,
+	core,
+	generic,
+	tools,
 ]
 
 def args (sub_parsers):

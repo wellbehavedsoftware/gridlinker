@@ -9,7 +9,8 @@ import sys
 from OpenSSL import crypto, rand
 
 from wbsdevops.certificate.certificate import Certificate
-from wbsdevops.schema import SchemaField, SchemaGroup
+
+from wbsmisc import SchemaField, SchemaGroup
 
 serial_pattern = re.compile (
 	r"^[1-9]\d*$")
