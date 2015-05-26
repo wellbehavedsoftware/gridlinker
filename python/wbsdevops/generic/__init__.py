@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from wbsdevops.generic.arguments import *
 from wbsdevops.generic.collection import *
+from wbsdevops.generic.columns import *
 from wbsdevops.generic.command import *
 from wbsdevops.generic.context import *
 

@@ -80,6 +80,20 @@ host_command = GenericCommand (
 
 		],
 
+		custom_columns = [
+
+			SimpleColumn (
+				name = "host_name",
+				label = "Name",
+				default = True),
+
+			SimpleColumn (
+				name = "private_address",
+				label = "Private IP",
+				default = True),
+
+		],
+
 	)
 
 )

@@ -52,6 +52,20 @@ account_command = GenericCommand (
 
 		],
 
+		custom_columns = [
+
+			SimpleColumn (
+				name = "account_name",
+				label = "Name",
+				default = True),
+
+			SimpleColumn (
+				name = "account_description",
+				label = "Description",
+				default = True),
+
+		],
+
 	)
 
 )

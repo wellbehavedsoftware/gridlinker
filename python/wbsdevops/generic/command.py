@@ -127,28 +127,28 @@ class GenericCommand:
 
 		for column in columns:
 
-			max_size = len (column)
+			max_size = len (column.label)
 
 			for record_data in records_by_name.values ():
 
-				if not column in record_data:
+				if not column.name in record_data:
 					continue
 
-				value = record_data [column]
+				value = record_data [column.name]
 				length = len (value)
 
 				if length > max_size:
 					max_size = length
 
-			column_sizes [column] = max_size
+			column_sizes [column.name] = max_size
 
 		# show headings
 
 		sys.stdout.write ("\n ")
 
 		for column in columns:
-			column_size = column_sizes [column]
-			sys.stdout.write (column.ljust (column_size + 1))
+			column_size = column_sizes [column.name]
+			sys.stdout.write (column.label.ljust (column_size + 1))
 
 		sys.stdout.write ("\n")
 
@@ -157,7 +157,7 @@ class GenericCommand:
 		sys.stdout.write ("-")
 
 		for column in columns:
-			column_size = column_sizes [column]
+			column_size = column_sizes [column.name]
 			sys.stdout.write ("-" * (column_size + 1))
 
 		sys.stdout.write ("\n")
@@ -172,10 +172,10 @@ class GenericCommand:
 
 			for column in columns:
 
-				column_size = column_sizes [column]
+				column_size = column_sizes [column.name]
 
-				if column in record_data:
-					value = record_data [column]
+				if column.name in record_data:
+					value = record_data [column.name]
 				else:
 					value = ""
 
@@ -259,7 +259,7 @@ class CommandHelper:
 		description = None,
 
 		custom_args = [],
-		custom_columns = None,
+		custom_columns = [],
 
 	):
 
@@ -271,7 +271,7 @@ class CommandHelper:
 		self.description = description
 
 		self.custom_args = custom_args
-		self.custom_columns = custom_columns or [ name + "_name" ]
+		self.custom_columns = custom_columns
 
 	def args_create (self, parser):
 

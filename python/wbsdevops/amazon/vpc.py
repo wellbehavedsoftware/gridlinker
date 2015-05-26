@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 
-from wbsdevops import generic
+from wbsdevops.generic import *
 
-account_command = generic.GenericCommand (
+account_command = GenericCommand (
 
-	generic.CommandHelper (
+	CommandHelper (
 
 		name = "amazon-vpc",
 		command_name = "vpc",
@@ -13,47 +13,85 @@ account_command = generic.GenericCommand (
 
 		custom_args = [
 
-			generic.NameArgument (
-				argument = "--name",
-				key = "vpc_name"),
+			ArgumentGroup (
+				label = "basic vpc information",
+				arguments = [
 
-			generic.SimpleArgument (
-				argument = "--description",
-				key = "vpc_description",
-				value_name = "DESCRIPTION",
-				help = "user-friendly description"),
+				NameArgument (
+					argument = "--name",
+					key = "vpc_name"),
 
-			generic.SimpleArgument (
-				argument = "--amazon-account",
-				key = "amazon_account",
-				value_name = "ACCOUNT",
-				help = "amazon account name"),
+				SimpleArgument (
+					argument = "--description",
+					key = "vpc_description",
+					value_name = "DESCRIPTION",
+					help = "user-friendly description"),
 
-			generic.SimpleArgument (
-				argument = "--amazon-region",
-				key = "amazon_region",
-				value_name = "REGION",
-				help = "amazon region name"),
+			]),
 
-			generic.SimpleArgument (
-				argument = "--private-network",
-				key = "private_network",
-				value_name = "IP",
-				help = "private network ip address"),
+			ArgumentGroup (
+				label = "amazon placement",
+				arguments = [
 
-			generic.SimpleArgument (
-				argument = "--private-netmask",
-				key = "private_netmask",
-				value_name = "NETMASK",
-				help = "private network ip netmask"),
+				SimpleArgument (
+					argument = "--amazon-account",
+					key = "amazon_account",
+					value_name = "ACCOUNT",
+					help = "amazon account name"),
 
-			generic.SimpleArgument (
-				argument = "--private-netmask-bits",
-				key = "private_netmask_bits",
-				value_name = "BITS",
-				help = "private network ip netmask size in bits"),
+				SimpleArgument (
+					argument = "--amazon-region",
+					key = "amazon_region",
+					value_name = "REGION",
+					help = "amazon region name"),
 
-			generic.SetArgument (),
+			]),
+
+			ArgumentGroup (
+				label = "private network configuration",
+				arguments = [
+
+				SimpleArgument (
+					argument = "--private-network",
+					key = "private_network",
+					value_name = "IP",
+					help = "private network ip address"),
+
+				SimpleArgument (
+					argument = "--private-netmask",
+					key = "private_netmask",
+					value_name = "NETMASK",
+					help = "private network ip netmask"),
+
+				SimpleArgument (
+					argument = "--private-netmask-bits",
+					key = "private_netmask_bits",
+					value_name = "BITS",
+					help = "private network ip netmask size in bits"),
+
+			]),
+
+			ArgumentGroup (
+				label = "arbitrary configuration",
+				arguments = [
+
+				SetArgument (),
+
+			]),
+
+		],
+
+		custom_columns = [
+
+			SimpleColumn (
+				name = "vpc_name",
+				label = "Name",
+				default = True),
+
+			SimpleColumn (
+				name = "vpc_description",
+				label = "Description",
+				default = True),
 
 		],
 

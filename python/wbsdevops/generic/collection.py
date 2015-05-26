@@ -23,6 +23,15 @@ class GenericCollection:
 
 		return record_data
 
+	def exists_file (self, record_name, file_name):
+
+		record_key = "%s/%s" % (
+			self.collection_path,
+			record_name)
+
+		return self.client.exists (
+			key = "%s/%s" % (record_key, file_name))
+
 	def get_file (self, record_name, file_name):
 
 		record_key = "%s/%s" % (

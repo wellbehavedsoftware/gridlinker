@@ -26,6 +26,20 @@ group_command = GenericCommand (
 
 		],
 
+		custom_columns = [
+
+			SimpleColumn (
+				name = "group_name",
+				label = "Name",
+				default = True),
+
+			SimpleColumn (
+				name = "group_description",
+				label = "Description",
+				default = True),
+
+		],
+
 	)
 
 )
