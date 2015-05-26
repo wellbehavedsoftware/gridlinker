@@ -6,9 +6,7 @@ import sys
 from ansible import utils
 
 HOME = os.path.abspath (os.path.dirname (__file__) + "/../../..")
-
 support_path = "%s/misc/plugin-support.py" % HOME
-
 support = imp.load_source ("support", support_path)
 
 class LookupModule (object):

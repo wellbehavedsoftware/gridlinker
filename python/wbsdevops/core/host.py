@@ -27,7 +27,7 @@ host_command = GenericCommand (
 
 				AddListArgument (
 					argument = "--host-group",
-					key = "host_group",
+					key = "host_groups",
 					value_name = "GROUP",
 					help = "group to add host to"),
 

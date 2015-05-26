@@ -128,6 +128,13 @@ class GenericContext (object):
 		]
 
 	@lazy_property
+	def ansible_callback_plugins (self):
+
+		return [
+			"%s/wbs-devops-tools/callback-plugins" % self.third_party_home,
+		]
+
+	@lazy_property
 	def ansible_filter_plugins (self):
 
 		return [
@@ -140,6 +147,7 @@ class GenericContext (object):
 		return [
 			"%s/ansible-modules-core" % self.third_party_home,
 			"%s/ansible-modules-extras" % self.third_party_home,
+			"%s/modules" % self.wbs_devops_tools_home,
 		]
 
 	@lazy_property
@@ -170,6 +178,7 @@ class GenericContext (object):
 				"library": ":".join (self.ansible_library),
 				"filter_plugins": ":".join (self.ansible_filter_plugins),
 				"lookup_plugins": ":".join (self.ansible_lookup_plugins),
+				"callback_plugins": ":".join (self.ansible_callback_plugins),
 				"roles_path": ":".join (self.ansible_roles_path),
 			},
 
@@ -211,6 +220,17 @@ class GenericContext (object):
 		return authority
 
 	@lazy_property
+	def collections (self):
+
+		return [
+			self.admins,
+			self.groups,
+			self.hosts,
+			self.amazon_accounts,
+			self.amazon_vpcs,
+		]
+
+	@lazy_property
 	def admins (self):
 
 		return GenericCollection (self, "/admin", self.schemas ["admin"])
@@ -234,11 +254,6 @@ class GenericContext (object):
 	def amazon_vpcs (self):
 
 		return GenericCollection (self, "/amazon/vpc", self.schemas ["amazon-vpc"])
-
-	@lazy_property
-	def amazon_vpc_subnets (self):
-
-		return GenericCollection (self, "/amazon/vpc-subnet", self.schemas ["amazon-vpc-subnet"])
 
 	@lazy_property
 	def local_data (self):

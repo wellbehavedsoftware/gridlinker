@@ -40,6 +40,24 @@ def flatten_hash (values, * inner_names):
 
 	return ret
 
+def property_get (value, path):
+
+	if "." in path:
+
+		first, rest = path.split (".", 1)
+		return property_get (value [first], rest)
+
+	else:
+
+		return value [path]
+
+def list_to_map (items, key_name, value_name):
+
+	return dict ([
+		(property_get (item, key_name), property_get (item, value_name))
+		for item in items
+	])
+
 class FilterModule (object):
 
     def filters (self):
@@ -47,5 +65,6 @@ class FilterModule (object):
         return {
 
 			"flatten_hash": flatten_hash,
+			"list_to_map": list_to_map,
 
 		}

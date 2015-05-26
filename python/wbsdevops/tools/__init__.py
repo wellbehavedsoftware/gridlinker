@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from wbsdevops.tools import ansible
 from wbsdevops.tools import client
 from wbsdevops.tools import etcd
+from wbsdevops.tools import ssh
 
 from wbsdevops.tools.client import Client
 
@@ -10,6 +11,7 @@ modules = [
 	ansible,
 	client,
 	etcd,
+	ssh,
 ]
 
 def args (sub_parsers):
