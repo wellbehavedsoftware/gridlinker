@@ -1,12 +1,39 @@
 from __future__ import absolute_import
 
 import json
+import os
 import ssl
 import urllib3
 
 from wbsmisc import yamlx
 
 class Client:
+
+	def http (self):
+
+		if os.getpid () != self.pid:
+
+			if self.secure:
+
+				self.pool = urllib3.PoolManager (
+					num_pools = 10,
+					ca_certs = self.client_ca_cert,
+					cert_file = self.client_cert,
+					key_file = self.client_key,
+					cert_reqs = ssl.CERT_REQUIRED)
+
+				self.server_url = "https://%s:%s" % (self.servers [0], self.port)
+
+			else:
+
+				self.pool = urllib3.PoolManager (
+					num_pools = 10)
+
+				self.server_url = "http://%s:%s" % (self.servers [0], self.port)
+
+			self.pid = os.getpid ()
+
+		return self.pool
 
 	def __init__ (
 		self,
@@ -21,25 +48,13 @@ class Client:
 
 		self.servers = servers
 		self.port = port
+		self.secure = secure
+		self.client_ca_cert = client_ca_cert
+		self.client_cert = client_cert
+		self.client_key = client_key
 		self.prefix = prefix
 
-		if secure:
-
-			self.http = urllib3.PoolManager (
-				num_pools = 10,
-				ca_certs = client_ca_cert,
-				cert_file = client_cert,
-				key_file = client_key,
-				cert_reqs = ssl.CERT_REQUIRED)
-
-			self.server_url = "https://%s:%s" % (servers [0], port)
-
-		else:
-
-			self.http = urllib3.PoolManager (
-				num_pools = 10)
-
-			self.server_url = "http://%s:%s" % (servers [0], port)
+		self.pid = None
 
 	def key_url (self, key):
 
@@ -52,7 +67,7 @@ class Client:
 
 	def exists (self, key):
 
-		response = self.http.request (
+		response = self.http ().request (
 			"GET",
 			self.key_url (key))
 
@@ -66,7 +81,7 @@ class Client:
 
 	def get_raw (self, key):
 
-		response = self.http.request (
+		response = self.http ().request (
 			"GET",
 			self.key_url (key))
 
@@ -92,7 +107,7 @@ class Client:
 			"value": value,
 		}
 
-		response = self.http.request_encode_body (
+		response = self.http ().request_encode_body (
 			"PUT",
 			self.key_url (key),
 			payload,
@@ -112,7 +127,7 @@ class Client:
 			"value": new_value,
 		}
 
-		response = self.http.request_encode_body (
+		response = self.http ().request_encode_body (
 			"PUT",
 			self.key_url (key),
 			payload,
@@ -132,7 +147,7 @@ class Client:
 			"prevExist": False,
 		}
 
-		response = self.http.request_encode_body (
+		response = self.http ().request_encode_body (
 			"PUT",
 			self.key_url (key),
 			payload,
@@ -151,7 +166,7 @@ class Client:
 			"recursive": "true",
 		}
 
-		response = self.http.request (
+		response = self.http ().request (
 			"GET",
 			self.key_url (key),
 			payload)

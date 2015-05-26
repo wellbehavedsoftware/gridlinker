@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import os
+import threading
 import yaml
 
 import wbsdevops
@@ -111,11 +112,17 @@ class GenericContext (object):
 
 		return {
 
+			"WBS_DEVOPS_TOOLS_SUPPORT": "monidevops",
+
 			"ANSIBLE_CONFIG": "work/ansible.cfg",
 			"ANSIBLE_HOME": self.ansible_home,
 
 			"PATH": [ "%s/bin" % self.ansible_home ],
-			"PYTHONPATH": [ "%s/lib" % self.ansible_home ],
+			"PYTHONPATH": [
+				"%s/python" % self.home,
+				"%s/python" % self.wbs_devops_tools_home,
+				"%s/lib" % self.ansible_home,
+			],
 			"PYTHONUNBUFFERED": "1",
 
 		}
