@@ -234,6 +234,7 @@ class GenericContext (object):
 			self.groups,
 			self.hosts,
 			self.amazon_accounts,
+			self.amazon_balancers,
 			self.amazon_vpcs,
 		]
 
@@ -256,6 +257,11 @@ class GenericContext (object):
 	def amazon_accounts (self):
 
 		return GenericCollection (self, "/amazon/account", self.schemas ["amazon-account"])
+
+	@lazy_property
+	def amazon_balancers (self):
+
+		return GenericCollection (self, "/amazon/balancer", self.schemas ["amazon-balancer"])
 
 	@lazy_property
 	def amazon_vpcs (self):

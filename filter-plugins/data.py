@@ -58,6 +58,13 @@ def list_to_map (items, key_name, value_name):
 		for item in items
 	])
 
+def dict_map (keys, mapping):
+
+	return [
+		mapping [key]
+		for key in keys
+	]
+
 class FilterModule (object):
 
     def filters (self):
@@ -66,5 +73,6 @@ class FilterModule (object):
 
 			"flatten_hash": flatten_hash,
 			"list_to_map": list_to_map,
+			"dict_map": dict_map,
 
 		}

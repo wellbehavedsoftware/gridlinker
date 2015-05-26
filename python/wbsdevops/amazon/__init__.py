@@ -1,8 +1,10 @@
 from wbsdevops.amazon import account
+from wbsdevops.amazon import balancer
 from wbsdevops.amazon import vpc
 
 modules = [
 	account,
+	balancer,
 	vpc,
 ]
 

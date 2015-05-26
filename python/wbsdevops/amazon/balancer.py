@@ -2,28 +2,28 @@ from __future__ import absolute_import
 
 from wbsdevops.generic import *
 
-account_command = GenericCommand (
+balancer_command = GenericCommand (
 
 	CommandHelper (
 
-		name = "amazon-vpc",
-		command_name = "vpc",
+		name = "amazon-balancer",
+		command_name = "balancer",
 
-		help = "manage amazon vpc definitions",
+		help = "manage amazon elastic load balancer definitions",
 
 		custom_args = [
 
 			ArgumentGroup (
-				label = "basic vpc information",
+				label = "basic balancer information",
 				arguments = [
 
 				NameArgument (
 					argument = "--name",
-					key = "vpc_name"),
+					key = "balancer_name"),
 
 				SimpleArgument (
 					argument = "--description",
-					key = "vpc_description",
+					key = "balancer_description",
 					value_name = "DESCRIPTION",
 					help = "user-friendly description"),
 
@@ -45,29 +45,17 @@ account_command = GenericCommand (
 					value_name = "REGION",
 					help = "amazon region name"),
 
-			]),
-
-			ArgumentGroup (
-				label = "private network configuration",
-				arguments = [
-
 				SimpleArgument (
-					argument = "--private-network",
-					key = "private_network_name",
-					value_name = "IP",
-					help = "private network ip address"),
+					argument = "--vpc",
+					key = "amazon_vpc_name",
+					help = "name of vpc",
+					value_name = "SUBNET"),
 
-				SimpleArgument (
-					argument = "--private-netmask",
-					key = "private_netmask",
-					value_name = "NETMASK",
-					help = "private network ip netmask"),
-
-				SimpleArgument (
-					argument = "--private-netmask-bits",
-					key = "private_netmask_bits",
-					value_name = "BITS",
-					help = "private network ip netmask size in bits"),
+				AddListArgument (
+					argument = "--add-vpc-subnet",
+					key = "amazon_vpc_subnet_names",
+					help = "add a vpc subnet region",
+					value_name = "SUBNET"),
 
 			]),
 
@@ -84,12 +72,12 @@ account_command = GenericCommand (
 		custom_columns = [
 
 			SimpleColumn (
-				name = "vpc_name",
+				name = "balancer_name",
 				label = "Name",
 				default = True),
 
 			SimpleColumn (
-				name = "vpc_description",
+				name = "balancer_description",
 				label = "Description",
 				default = True),
 
@@ -101,6 +89,6 @@ account_command = GenericCommand (
 
 def args (sub_parsers):
 
-	account_command.args (sub_parsers)
+	balancer_command.args (sub_parsers)
 
 # ex: noet ts=4 filetype=yaml
