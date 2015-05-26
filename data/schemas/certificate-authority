@@ -1,0 +1,35 @@
+---
+
+general:
+
+  authority_name:
+    type: "name"
+    required: "yes"
+
+  authority_state:
+    type: "enum"
+    required: "yes"
+
+  authority_serial:
+    type: "integer"
+    required: "yes"
+
+subject:
+
+  subject_country:
+    type: "string"
+    required: "yes"
+
+  subject_locality:
+    type: "string"
+    required: "yes"
+
+  subject_organization:
+    type: "string"
+    required: "yes"
+
+  subject_common_name:
+    type: "string"
+    required: "yes"
+
+# ex: et ts=2 filetype=yaml

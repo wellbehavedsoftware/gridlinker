@@ -14,7 +14,3 @@ Certificate = collections.namedtuple ("Certificate", [
 def args (sub_parsers):
 
 	pass
-
-def schemas (schemas):
-
-	pass

@@ -1,0 +1,35 @@
+---
+
+general:
+
+  account_name:
+    type: "name"
+    required: "yes"
+
+  description:
+    type: "string"
+    required: "no"
+
+regions:
+
+  amazon_regions:
+    type: "list"
+    required: "yes"
+
+ssh_keys:
+
+  ssh_keys:
+    type: "map"
+    required: "no"
+
+security:
+
+  access_key_id:
+    type: "string"
+    required: "no"
+
+  secret_access_key:
+    type: "password"
+    required: "no"
+
+# ex: et ts=2 filetype=yaml
