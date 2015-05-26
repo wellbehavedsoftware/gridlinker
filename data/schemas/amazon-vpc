@@ -1,0 +1,13 @@
+---
+
+general:
+
+  vpc_name:
+    type: "name"
+    required: "yes"
+
+  vpc_description:
+    type: "string"
+    required: "no"
+
+# ex: et ts=2 filetype=yaml

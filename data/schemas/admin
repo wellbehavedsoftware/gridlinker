@@ -1,0 +1,13 @@
+---
+
+general:
+
+  admin_name:
+    type: "name"
+    required: "yes"
+
+  admin_full_name:
+    type: "string"
+    required: "no"
+
+# ex: et ts=2 filetype=yaml

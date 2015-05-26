@@ -1,0 +1,13 @@
+---
+
+general:
+
+  database_name:
+    type: "name"
+    required: "yes"
+
+  database_state:
+    type: "enum"
+    required: "yes"
+
+# ex: et ts=2 filetype=yaml

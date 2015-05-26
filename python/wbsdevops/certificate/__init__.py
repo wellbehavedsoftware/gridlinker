@@ -4,6 +4,12 @@ from wbsdevops.certificate.authority import CertificateAuthority
 from wbsdevops.certificate.certificate import Certificate
 from wbsdevops.certificate.database import CertificateDatabase
 
+modules = [
+	authority,
+	certificate,
+	database,
+]
+
 def args (prev_sub_parsers):
 
 	parser = prev_sub_parsers.add_parser (
@@ -18,12 +24,7 @@ def args (prev_sub_parsers):
 
 	next_sub_parsers = parser.add_subparsers ()
 
-	authority.args (next_sub_parsers)
-	certificate.args (next_sub_parsers)
-	database.args (next_sub_parsers)
+	for module in modules:
+		module.args (next_sub_parsers)
 
-def schemas (schemas):
-
-	authority.schemas (schemas)
-	certificate.schemas (schemas)
-	database.schemas (schemas)
+# ex: noet ts=4 filetype=python
