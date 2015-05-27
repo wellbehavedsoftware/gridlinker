@@ -10,4 +10,50 @@ general:
     type: "string"
     required: "no"
 
+state:
+
+  vpc_id:
+    type: "string"
+    required: "no"
+
+private_network:
+
+  private_network_prefix:
+    type: "string"
+    required: "no"
+
+subnets:
+
+  vpc_subnet_ids:
+    type: "map"
+    required: "no"
+
+subnets:
+
+  vpc_security_group_ids:
+    type: "map"
+    required: "no"
+
+amazon:
+
+  amazon_account_name:
+    type: "string"
+    required: "yes"
+
+  amazon_region_name:
+    type: "string"
+    required: "yes"
+
+vpc_subnet_ids:
+
+  vpc_subnet_ids:
+    type: "map"
+    required: "no"
+
+vpc_security_group_ids:
+
+  vpc_security_group_ids:
+    type: "map"
+    required: "no"
+
 # ex: et ts=2 filetype=yaml

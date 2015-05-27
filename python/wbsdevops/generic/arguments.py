@@ -225,7 +225,7 @@ class FileArgument:
 
 		collection.set_file (arg_vars ["name"], self.path, file_contents)
 
-class SetArgument:
+class MiscSetArgument:
 
 	def __init__ (self):
 
@@ -254,6 +254,44 @@ class SetArgument:
 
 		for key, value in arg_vars ["set"]:
 			record_data [key] = value
+
+	def update_files (self, arg_vars, collection):
+
+		pass
+
+class MiscAddArgument:
+
+	def __init__ (self):
+
+		pass
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--add",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("KEY", "VALUE"),
+			help = "miscellaneous value to add to list")
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--add",
+			action = "append",
+			nargs = 2,
+			default = [],
+			help = "miscellaneous value to add to list")
+
+	def update_record (self, arg_vars, record_data):
+
+		for key, value in arg_vars ["add"]:
+
+			if not key in record_data:
+				record_data [key] = []
+
+			record_data [key].append (value)
 
 	def update_files (self, arg_vars, collection):
 

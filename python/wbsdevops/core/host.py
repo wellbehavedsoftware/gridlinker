@@ -70,10 +70,23 @@ host_command = GenericCommand (
 			]),
 
 			ArgumentGroup (
+				label = "amazon instance configuration",
+				arguments = [
+			
+				AddListArgument (
+					argument = "--add-amazon-balancer",
+					key = "amazon_balancer_names",
+					value_name = "BALANCER",
+					help = "add to elastic load balancer"),
+			
+			]),
+
+			ArgumentGroup (
 				label = "arbitrary configuration",
 				arguments = [
 
-				SetArgument (),
+				MiscSetArgument (),
+				MiscAddArgument (),
 				GeneratePasswordArgument (),
 
 			]),

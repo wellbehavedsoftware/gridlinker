@@ -48,7 +48,7 @@ account_command = GenericCommand (
 				help = "add an amazon region",
 				value_name = "REGION"),
 
-			SetArgument (),
+			MiscSetArgument (),
 
 		],
 

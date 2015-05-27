@@ -30,7 +30,8 @@ admin_command = GenericCommand (
 				path = "ssh-key",
 				help = "public ssh key to identify admin"),
 
-			SetArgument (),
+			MiscSetArgument (),
+			MiscAddArgument (),
 			GeneratePasswordArgument (),
 
 		],
