@@ -75,7 +75,7 @@ account_command = GenericCommand (
 				label = "arbitrary configuration",
 				arguments = [
 
-				SetArgument (),
+				MiscSetArgument (),
 
 			]),
 

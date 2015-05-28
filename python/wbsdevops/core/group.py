@@ -21,7 +21,8 @@ group_command = GenericCommand (
 				value_name = "DESCRIPTION",
 				help = "user-friendly description"),
 
-			SetArgument (),
+			MiscSetArgument (),
+			MiscAddArgument (),
 			GeneratePasswordArgument (),
 
 		],
