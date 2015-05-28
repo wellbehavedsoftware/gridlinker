@@ -112,7 +112,7 @@ class GenericContext (object):
 
 		return {
 
-			"WBS_DEVOPS_TOOLS_SUPPORT": "monidevops",
+			"WBS_DEVOPS_TOOLS_SUPPORT": self.support_package,
 
 			"ANSIBLE_CONFIG": "work/ansible.cfg",
 			"ANSIBLE_HOME": self.ansible_home,
