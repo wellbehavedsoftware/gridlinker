@@ -253,6 +253,7 @@ class CommandHelper:
 
 		name,
 		command_name = None,
+		short_name = None,
 		collection_name = None,
 
 		help = None,
@@ -264,6 +265,7 @@ class CommandHelper:
 	):
 
 		self.name = name
+		self.short_name = short_name or name.replace ('-', '_')
 		self.command_name = command_name or name
 		self.collection_name = collection_name or name.replace ('-', '_') + "s"
 
@@ -288,14 +290,14 @@ class CommandHelper:
 		arg_vars = vars (args)
 
 		for custom_arg in self.custom_args:
-			custom_arg.update_record (arg_vars, record_data)
+			custom_arg.update_record (arg_vars, record_data, self)
 
 	def update_files (self, context, args, collection):
 
 		arg_vars = vars (args)
 
 		for custom_arg in self.custom_args:
-			custom_arg.update_files (arg_vars, collection)
+			custom_arg.update_files (arg_vars, collection, self)
 
 	def get_collection (self, context):
 

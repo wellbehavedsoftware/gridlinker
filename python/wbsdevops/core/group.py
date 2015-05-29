@@ -11,19 +11,44 @@ group_command = GenericCommand (
 
 		custom_args = [
 
-			NameArgument (
-				argument = "--name",
-				key = "group_name"),
+			ArgumentGroup (
+				label = "basic group information",
+				arguments = [
 
-			SimpleArgument (
-				argument = "--description",
-				key = "group_description",
-				value_name = "DESCRIPTION",
-				help = "user-friendly description"),
+				NameArgument (),
 
-			MiscSetArgument (),
-			MiscAddArgument (),
-			GeneratePasswordArgument (),
+				SimpleArgument (
+					argument = "--class",
+					required = True,
+					key = "group_class",
+					value_name = "CLASS",
+					help = "class this group belongs to"),
+
+				SimpleArgument (
+					argument = "--parent",
+					required = False,
+					key = "group_parent",
+					value_name = "PARENT",
+					help = "parent group of this group"),
+
+				SimpleArgument (
+					argument = "--description",
+					required = False,
+					key = "group_description",
+					value_name = "DESCRIPTION",
+					help = "user-friendly description"),
+
+			]),
+
+			ArgumentGroup (
+				label = "arbitrary configuration",
+				arguments = [
+
+				MiscSetArgument (),
+				MiscAddArgument (),
+				GeneratePasswordArgument (),
+
+			]),
 
 		],
 
@@ -32,6 +57,16 @@ group_command = GenericCommand (
 			SimpleColumn (
 				name = "group_name",
 				label = "Name",
+				default = True),
+
+			SimpleColumn (
+				name = "group_class",
+				label = "Class",
+				default = True),
+
+			SimpleColumn (
+				name = "group_parent",
+				label = "Parent",
 				default = True),
 
 			SimpleColumn (

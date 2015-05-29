@@ -23,24 +23,26 @@ class ArgumentGroup:
 		for argument in self.arguments:
 			argument.args_create (group, helper)
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
 		for argument in self.arguments:
-			argument.update_record (arg_vars, record_data)
+			argument.update_record (arg_vars, record_data, helper)
 
-	def update_files (self, arg_vars, collection):
+	def update_files (self, arg_vars, collection, helper):
 
 		for argument in self.arguments:
-			argument.update_files (arg_vars, collection)
+			argument.update_files (arg_vars, collection, helper)
 
 class SimpleArgument:
 
-	def __init__ (self, argument, key, value_name, help):
+	def __init__ (self, argument, required, key, value_name, help):
 
 		self.argument = argument
 		self.key = key
 		self.value_name = value_name
 		self.help = help
+
+		self.required = required
 
 		self.argument_name = argument [2:].replace ("-", "_")
 
@@ -58,14 +60,39 @@ class SimpleArgument:
 			metavar = self.value_name,
 			help = self.help)
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
 		value = arg_vars [self.argument_name]
 
 		if value:
 			record_data [self.key] = value
 
-	def update_files (self, arg_vars, collection):
+	def update_files (self, arg_vars, collection, helper):
+
+		pass
+
+class GroupArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--group",
+			required = False,
+			metavar = "GROUP",
+			help = "group this %s belongs to" % helper.name)
+
+	def args_update (self, parser, helper):
+
+		pass
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		value = arg_vars ["group"]
+
+		if value:
+			record_data ["%s_group" % helper.short_name] = value
+
+	def update_files (self, arg_vars, collection, helper):
 
 		pass
 
@@ -98,7 +125,7 @@ class AddListArgument:
 			help = self.help,
 			metavar = self.value_name)
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
 		for value in arg_vars [self.argument_name]:
 
@@ -107,7 +134,7 @@ class AddListArgument:
 
 			record_data [self.key].append (value)
 
-	def update_files (self, arg_vars, collection):
+	def update_files (self, arg_vars, collection, helper):
 
 		pass
 
@@ -143,7 +170,7 @@ class AddDictionaryArgument:
 			help = self.help,
 			metavar = (self.key_name, self.value_name))
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
 		for key, value in arg_vars [self.argument_name]:
 
@@ -152,21 +179,16 @@ class AddDictionaryArgument:
 
 			record_data [self.key] [key] = value
 
-	def update_files (self, arg_vars, collection):
+	def update_files (self, arg_vars, collection, helper):
 
 		pass
 
 class NameArgument:
 
-	def __init__ (self, argument, key):
-
-		self.argument = argument
-		self.key = key
-
 	def args_create (self, parser, helper):
 
 		parser.add_argument (
-			self.argument,
+			"--name",
 			required = True,
 			help = "name of %s to create" % helper.name)
 
@@ -177,11 +199,11 @@ class NameArgument:
 			required = True,
 			help = "name of %s to update" % helper.name)
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
-		record_data [self.key] = arg_vars ["name"]
+		record_data ["%s_name" % helper.short_name] = arg_vars ["name"]
 
-	def update_files (self, arg_vars, collection):
+	def update_files (self, arg_vars, collection, helper):
 
 		pass
 
@@ -209,11 +231,11 @@ class FileArgument:
 			metavar = "FILE",
 			help = self.help)
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
 		pass
 
-	def update_files (self, arg_vars, collection):
+	def update_files (self, arg_vars, collection, helper):
 
 		value = arg_vars [self.argument_name]
 
@@ -250,12 +272,12 @@ class MiscSetArgument:
 			default = [],
 			help = "miscellaneous value to store")
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
 		for key, value in arg_vars ["set"]:
 			record_data [key] = value
 
-	def update_files (self, arg_vars, collection):
+	def update_files (self, arg_vars, collection, helper):
 
 		pass
 
@@ -284,7 +306,7 @@ class MiscAddArgument:
 			default = [],
 			help = "miscellaneous value to add to list")
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
 		for key, value in arg_vars ["add"]:
 
@@ -293,7 +315,7 @@ class MiscAddArgument:
 
 			record_data [key].append (value)
 
-	def update_files (self, arg_vars, collection):
+	def update_files (self, arg_vars, collection, helper):
 
 		pass
 
@@ -319,11 +341,11 @@ class GeneratePasswordArgument:
 			default = [],
 			help = "generate random password to store")
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
 		for key in arg_vars ["generate_password"]:
 			record_data [key] = generate_password ()
 
-	def update_files (self, arg_vars, collection):
+	def update_files (self, arg_vars, collection, helper):
 
 		pass

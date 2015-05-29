@@ -7,6 +7,7 @@ balancer_command = GenericCommand (
 	CommandHelper (
 
 		name = "amazon-balancer",
+		short_name = "balancer",
 		command_name = "balancer",
 
 		help = "manage amazon elastic load balancer definitions",
@@ -17,12 +18,12 @@ balancer_command = GenericCommand (
 				label = "basic balancer information",
 				arguments = [
 
-				NameArgument (
-					argument = "--name",
-					key = "balancer_name"),
+				NameArgument (),
+				GroupArgument (),
 
 				SimpleArgument (
 					argument = "--description",
+					required = False,
 					key = "balancer_description",
 					value_name = "DESCRIPTION",
 					help = "user-friendly description"),
@@ -35,18 +36,21 @@ balancer_command = GenericCommand (
 
 				SimpleArgument (
 					argument = "--amazon-account",
+					required = False,
 					key = "amazon_account_name",
 					value_name = "ACCOUNT",
 					help = "amazon account name"),
 
 				SimpleArgument (
 					argument = "--amazon-region",
+					required = False,
 					key = "amazon_region_name",
 					value_name = "REGION",
 					help = "amazon region name"),
 
 				SimpleArgument (
 					argument = "--vpc",
+					required = False,
 					key = "amazon_vpc_name",
 					help = "name of vpc",
 					value_name = "SUBNET"),
