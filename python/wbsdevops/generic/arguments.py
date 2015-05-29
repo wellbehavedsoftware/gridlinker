@@ -270,12 +270,81 @@ class MiscSetArgument:
 			action = "append",
 			nargs = 2,
 			default = [],
+			metavar = ("KEY", "VALUE"),
 			help = "miscellaneous value to store")
 
 	def update_record (self, arg_vars, record_data, helper):
 
 		for key, value in arg_vars ["set"]:
 			record_data [key] = value
+
+	def update_files (self, arg_vars, collection, helper):
+
+		pass
+
+class MiscUnsetArgument:
+
+	def __init__ (self):
+
+		pass
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--unset",
+			action = "append",
+			default = [],
+			metavar = "KEY",
+			help = "miscellaneous value to unset")
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--set",
+			action = "append",
+			default = [],
+			metavar = "KEY",
+			help = "miscellaneous value to unset")
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		for key in arg_vars ["unset"]:
+			if key in record_data:
+				del record_data [key]
+
+	def update_files (self, arg_vars, collection, helper):
+
+		pass
+
+class MiscRemoveArgument:
+
+	def __init__ (self):
+
+		pass
+
+	def args_create (self, parser, helper):
+
+		parser.set_defaults (
+			remove = [])
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--remove",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("KEY", "VALUE"),
+			help = "miscellaneous value to remove from list")
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		for key, value in arg_vars ["remove"]:
+
+			if not key in record_data:
+				return
+
+			record_data [key].remove (value)
 
 	def update_files (self, arg_vars, collection, helper):
 
@@ -331,6 +400,7 @@ class GeneratePasswordArgument:
 			"--generate-password",
 			action = "append",
 			default = [],
+			metavar = "KEY",
 			help = "generate random password to store")
 
 	def args_update (self, parser, helper):
@@ -339,6 +409,7 @@ class GeneratePasswordArgument:
 			"--generate-password",
 			action = "append",
 			default = [],
+			metavar = "KEY",
 			help = "generate random password to store")
 
 	def update_record (self, arg_vars, record_data, helper):

@@ -112,7 +112,10 @@ class GenericContext (object):
 
 		return {
 
+			"WBS_DEVOPS_PARENT_HOME": self.home,
+			"WBS_DEVOPS_PARENT_WORK": "%s/work" % self.home,
 			"WBS_DEVOPS_TOOLS_SUPPORT": self.support_package,
+			"WBS_DEVOPS_KNOWN_HOSTS": "%s/work/known-hosts" % self.home,
 
 			"ANSIBLE_CONFIG": "work/ansible.cfg",
 			"ANSIBLE_HOME": self.ansible_home,
@@ -126,6 +129,13 @@ class GenericContext (object):
 			"PYTHONUNBUFFERED": "1",
 
 		}
+
+	@lazy_property
+	def ansible_action_plugins (self):
+
+		return [
+			"%s/wbs-devops-tools/action-plugins" % self.third_party_home,
+		]
 
 	@lazy_property
 	def ansible_lookup_plugins (self):
@@ -183,6 +193,7 @@ class GenericContext (object):
 				"force_color": "True",
 				"gathering": "explicit",
 				"library": ":".join (self.ansible_library),
+				"action_plugins": ":".join (self.ansible_action_plugins),
 				"filter_plugins": ":".join (self.ansible_filter_plugins),
 				"lookup_plugins": ":".join (self.ansible_lookup_plugins),
 				"callback_plugins": ":".join (self.ansible_callback_plugins),

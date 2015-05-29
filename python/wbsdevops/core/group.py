@@ -45,7 +45,11 @@ group_command = GenericCommand (
 				arguments = [
 
 				MiscSetArgument (),
+				MiscUnsetArgument (),
+
 				MiscAddArgument (),
+				MiscRemoveArgument (),
+
 				GeneratePasswordArgument (),
 
 			]),
