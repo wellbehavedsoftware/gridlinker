@@ -1,0 +1,55 @@
+[client]
+
+port = 3306
+socket = /var/run/mysqld/mysqld.sock
+
+[mysqld_safe]
+
+socket = /var/run/mysqld/mysqld.sock
+nice = 0
+syslog
+
+[mysqld]
+
+# general
+
+user = mysql
+pid-file = /var/run/mysqld/mysqld.pid
+socket = /var/run/mysqld/mysqld.sock
+bind-address = 0.0.0.0
+port = {{ '3306' if inventory_hostname == mysql_master else '3307' }}
+basedir = /usr
+datadir = /var/lib/mysql
+tmpdir = /tmp
+lc-messages-dir = /usr/share/mysql
+skip-external-locking
+
+# tuning
+
+key-buffer-size = 16M
+max-allowed-packet = 16M
+thread-stack = 192K
+thread-cache-size = 8
+query-cache-limit = 1M
+query-cache-size = 16M
+
+# logging
+
+log_error = /var/log/mysql/error.log
+
+# replication
+
+server-id = {{ mysql_server_id }}
+{% if inventory_hostname == mysql_master %}
+log-bin = /var/log/mysql/mysql-bin.log
+expire-logs-days = 30
+max-binlog-size = 128M
+{% else %}
+read-only
+{% endif %}
+
+[mysqldump]
+
+quick
+quote-names
+max-allowed-packet = 16M

@@ -1,0 +1,47 @@
+---
+
+- hosts: "host"
+  tasks:
+
+    - set_fact:
+        icinga_web_state: "configuring"
+      when: "icinga_web_state == 'unconfigured'"
+
+    - name: "create web database"
+      when: "inventory_hostname == mysql_master and icinga_state == 'configuring'"
+      action:
+        module: "mysql_db"
+        name: "icingaweb2"
+
+    - name: "create web "
+      when: "inventory_hostname == mysql_master and icinga_state == 'configuring'"
+      action:
+        module: "mysql_user"
+        name: "icingaweb2"
+        host: "%"
+        password: "{{ icinga_web_mysql_password }}"
+        priv: "icingaido.*:ALL/icingaweb2.*:ALL"
+
+    - name: "initialize web database"
+      when: "inventory_hostname == mysql_master and icinga_state == 'configuring'"
+      args:
+        executable: "/bin/bash"
+      shell:
+
+        set -euf -o pipefail;
+
+        mysql icingaweb2
+          </opt/icinga-web-{{ icinga_web_version }}/etc/schema/mysql.schema.sql;
+
+        password_hash=$(openssl passwd -1 {{ icinga_web_admin_password }});
+
+        mysql icingaweb2 --execute "
+          INSERT INTO icingaweb_user (name, active, password_hash)
+          VALUES ('admin', 1, '$password_hash');
+        ";
+
+    - set_fact:
+        icinga_web_state: "running"
+      when: "icinga_web_state == 'configuring'"
+
+# ex: et ts=2 filetype=yaml

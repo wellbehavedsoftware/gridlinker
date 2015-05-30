@@ -1,0 +1,6 @@
+---
+
+- include: "assign-amazon-elastic-ip.yml"
+  tags: "assign-amazon-elastic-ip"
+
+# ex: et ts=2 filetype=yaml

@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from wbsdevops.generic import *
 
@@ -12,30 +13,31 @@ host_command = GenericCommand (
 		custom_args = [
 
 			ArgumentGroup (
+				label = "host identity",
+				arguments = [
+
+				NameArgument (),
+				GroupArgument (),
+
+			]),
+			
+			ArgumentGroup (
 				label = "basic host information",
 				arguments = [
 
-				NameArgument (
-					argument = "--name",
-					key = "host_name"),
-
 				SimpleArgument (
-					argument = "--description",
-					key = "host_description",
-					value_name = "DESCRIPTION",
-					help = "user-friendly description"),
-
-				AddListArgument (
-					argument = "--host-group",
-					key = "host_groups",
-					value_name = "GROUP",
-					help = "group to add host to"),
-
-				SimpleArgument (
-					argument = "--host-index",
+					argument = "--index",
+					required = False,
 					key = "host_index",
 					value_name = "INDEX",
 					help = "host index, eg \"1\" for \"host-1\""),
+
+				SimpleArgument (
+					argument = "--description",
+					required = False,
+					key = "host_description",
+					value_name = "DESCRIPTION",
+					help = "user-friendly description"),
 
 			]),
 
@@ -45,12 +47,14 @@ host_command = GenericCommand (
 
 				SimpleArgument (
 					argument = "--ansible-ssh-host",
+					required = False,
 					key = "ansible_ssh_host",
 					value_name = "HOST",
 					help = "ssh hostname"),
 
 				SimpleArgument (
 					argument = "--ansible-ssh-user",
+					required = False,
 					key = "ansible_ssh_user",
 					value_name = "USER",
 					help = "ssh username"),
@@ -63,6 +67,7 @@ host_command = GenericCommand (
 
 				SimpleArgument (
 					argument = "--private-address",
+					required = False,
 					key = "private_address",
 					value_name = "IP",
 					help = "private ip address"),
@@ -86,7 +91,11 @@ host_command = GenericCommand (
 				arguments = [
 
 				MiscSetArgument (),
+				MiscUnsetArgument (),
+
 				MiscAddArgument (),
+				MiscRemoveArgument (),
+
 				GeneratePasswordArgument (),
 
 			]),

@@ -1,10 +1,10 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import os
 import paramiko.rsakey
-import tempfile
-
 import StringIO
+import tempfile
 
 def args (prev_sub_parser):
 
@@ -58,6 +58,6 @@ def do_generate (context, args):
 		"%s/private" % key_path,
 		private_key)
 
-	print "Generated ssh key %s" % args.name
+	print ("Generated ssh key %s" % args.name)
 
 # ex: noet ts=4 filetype=yaml

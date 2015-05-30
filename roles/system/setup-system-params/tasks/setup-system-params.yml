@@ -1,0 +1,11 @@
+---
+
+- name: "configure sysctl"
+  action:
+    module: "template"
+    dest: "/etc/sysctl.conf"
+    src: "system-params-sysctl"
+  sudo: "yes"
+  notify: "reload sysctl"
+
+# ex: et ts=2 filetype=yaml

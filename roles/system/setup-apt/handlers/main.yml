@@ -1,0 +1,9 @@
+---
+
+- name: "update apt package lists"
+  action:
+    module: "apt"
+    update_cache: "yes"
+  sudo: "yes"
+
+# ex: et ts=2 filetype=yaml

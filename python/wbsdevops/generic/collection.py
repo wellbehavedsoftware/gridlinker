@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from wbsmisc import yamlx
 
@@ -61,6 +62,25 @@ class GenericCollection:
 		self.client.set_raw (
 			key = "%s/%s" % (record_key, file_name),
 			value = file_contents)
+
+	def get_all_values (self):
+
+		if not self.client.exists (self.collection_path):
+			return []
+
+		ret = []
+
+		for record_key, record_yaml \
+		in self.client.get_tree (self.collection_path):
+
+			if not record_key.endswith ("/data"):
+				continue
+
+			record_data = yamlx.parse (record_yaml)
+
+			ret.append (record_data)
+
+		return ret
 
 	def get_all_list (self):
 

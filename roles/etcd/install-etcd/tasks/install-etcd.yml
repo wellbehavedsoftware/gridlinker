@@ -1,0 +1,63 @@
+---
+
+- set_fact:
+    etcd_state: "installing"
+  when: "etcd_state is not defined"
+
+- name: "install etcd"
+  sudo: "yes"
+  when: "etcd_state == 'installing'"
+  args:
+    executable: "/bin/bash"
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ etcd_temp }}";
+    mkdir "{{ etcd_temp }}";
+    cd "{{ etcd_temp }}";
+
+    wget --quiet "{{ etcd_url }}";
+
+    tar -xzf "{{ etcd_archive }}";
+
+    rsync --archive --delete
+      "{{ etcd_directory }}/"
+      "{{ etcd_target }}/";
+
+    rm -rf "{{ etcd_temp }}";    
+
+- name: "create etcd directories"
+  action:
+    module: "file"
+    path: "{{ item.path }}"
+    state: "directory"
+    mode: "{{ item.mode }}"
+  sudo: "yes"
+  with_items: "etcd_directories"
+
+- name: "write etcd security config"
+  action:
+    module: "copy"
+    dest: "/etc/etcd/{{ item.target }}"
+    content: "{{ lookup ('etcd', item.source) }}"
+    mode: "{{ item.mode }}"
+  sudo: "yes"
+  notify: "restart etcd"
+  with_items: "etcd_security_config"
+
+- name: "write etcd upstart config"
+  action:
+    module: "template"
+    src: "etcd-upstart"
+    dest: "/etc/init/etcd.conf"
+  sudo: "yes"
+  notify: [ "reload upstart config", "restart etcd" ]
+
+- meta: "flush_handlers"
+
+- set_fact:
+    etcd_state: "unconfigured"
+  when: "etcd_state == 'installing'"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,11 @@
+---
+
+- name: "install openvpn packages"
+  action:
+    module: "apt"
+    name: "{{ item }}"
+  sudo: "yes"
+  with_items:
+    - "openvpn"
+
+# ex: et ts=2 filetype=yaml

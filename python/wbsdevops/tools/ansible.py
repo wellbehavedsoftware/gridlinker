@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import os
 import subprocess
@@ -50,7 +51,7 @@ def run_playbook (context, args, action):
 
 	context.ansible_init ()
 
-	with file ("work/ansible.cfg", "w") as file_handle:
+	with open ("work/ansible.cfg", "w") as file_handle:
 
 		for index, (section_name, section_data) \
 		in enumerate (context.ansible_config.items ()):

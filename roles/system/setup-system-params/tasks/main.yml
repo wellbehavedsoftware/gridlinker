@@ -1,0 +1,6 @@
+---
+
+- include: "setup-system-params.yml"
+  tags: "setup-system-params"
+
+# ex: et ts=2 filetype=yaml
