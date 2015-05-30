@@ -82,9 +82,9 @@ class GenericCommand:
 
 		self.helper.update_files (context, args, collection)
 
-		print "Created %s %s" % (
+		print ("Created %s %s" % (
 			self.helper.name,
-			args.name)
+			args.name))
 
 	def args_list (self, sub_parsers):
 
@@ -220,9 +220,9 @@ class GenericCommand:
 
 		self.helper.update_files (context, args, collection)
 
-		print "Updated %s %s" % (
+		print ("Updated %s %s" % (
 			self.helper.name,
-			args.name)
+			args.name))
 
 	def args_show (self, sub_parsers):
 
@@ -245,7 +245,7 @@ class GenericCommand:
 
 		record_yaml = collection.to_yaml (record_data)
 
-		print record_yaml
+		print (record_yaml)
 
 class CommandHelper:
 
