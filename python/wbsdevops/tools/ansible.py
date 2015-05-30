@@ -22,6 +22,7 @@ def args (prev_sub_parsers):
 	next_sub_parsers = parser.add_subparsers ()
 
 	args_playbook (next_sub_parsers)
+	args_inventory (next_sub_parsers)
 
 def args_playbook (sub_parsers):
 
@@ -97,5 +98,35 @@ def run_playbook (context, args, action):
 
 		raise Exception (
 			"Invalid result option: %s" % action)
+
+def args_inventory (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"inventory",
+		help = "run the ansible inventory script",
+		description = """
+			This command will execute the inventory-script, along with the
+			appropriate environment which it needs to work correctly. This is
+			useful for debugging.
+		""")
+
+	parser.set_defaults (
+		func = do_inventory)
+
+	parser.add_argument (
+		"rest",
+		nargs = "*",
+		help = "arguments to be passed verbatim to inventory-script")
+
+def do_inventory (context, args):
+
+	result = subprocess.call (
+		[
+			"%s/misc/inventory-script" % context.home,
+		] + args.rest,
+		env = env_resolve (os.environ, context.env))
+
+	if result != 0:
+		sys.exit (result)
 
 # ex: noet ts=4 filetype=yaml

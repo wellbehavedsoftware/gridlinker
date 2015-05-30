@@ -110,11 +110,14 @@ class ClassArgument:
 			metavar = "CLASS",
 			help = "class of {0}s to update".format (helper.name))
 
-	def args_show (self, parser, helper):
+	def update_record (self, arg_vars, record_data, helper):
 
-		parser.add_argument (
-			"--name",
-			help = "name of {0} to show data for".format (helper.name))
+		value = arg_vars ["class"]
+
+		key = "%s_class" % helper.short_name
+
+		if value:
+			record_data [key] = value
 
 	def filter_record (self, arg_vars, record_data):
 
@@ -145,6 +148,15 @@ class ParentArgument:
 			required = False,
 			metavar = "PARENT",
 			help = "parent {0} of {0}s to update".format (helper.name))
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		value = arg_vars ["parent"]
+
+		key = "%s_parent" % helper.short_name
+
+		if value:
+			record_data [key] = value
 
 	def filter_record (self, arg_vars, record_data):
 
