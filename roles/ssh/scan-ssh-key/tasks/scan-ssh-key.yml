@@ -1,0 +1,29 @@
+---
+
+- name: "retrieve host key {{ scan_ssh_key_type }}"
+  connection: "local"
+  register: "ssh_keyscan_result"
+  args:
+    executable: "/bin/bash"
+  shell:
+
+    set -euf -o pipefail;
+
+    ssh-keyscan -t {{ scan_ssh_key_type }} {{ amazon_public_ip }} \
+    | cut -f2-3 -d' ';
+
+- name: "store host key {{ scan_ssh_key_type }}"
+  connection: "local"
+  set_fact_dynamic:
+    "ssh_host_key_{{ scan_ssh_key_type }}": "{{ ssh_keyscan_result.stdout }}"
+
+- name: "temporary store host key {{ scan_ssh_key_type }}"
+  connection: "local"
+  args:
+    executable: "/bin/bash"
+  shell:
+    set -euf -o pipefail;
+    echo "{{ amazon_public_ip }} {{ ssh_keyscan_result.stdout }}"
+      >>"$WBS_DEVOPS_KNOWN_HOSTS";
+
+# ex: et ts=2 filetype=yaml

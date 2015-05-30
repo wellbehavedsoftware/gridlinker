@@ -15,24 +15,35 @@ admin_command = GenericCommand (
 
 		custom_args = [
 
-			NameArgument (
-				argument = "--name",
-				key = "admin_name"),
+			ArgumentGroup (
+				label = "basic admin information",
+				arguments = [
 
-			SimpleArgument (
-				argument = "--full-name",
-				key = "admin_full_name",
-				value_name = "NAME",
-				help = "full name of admin"),
+				NameArgument (),
 
-			FileArgument (
-				argument = "--ssh-key",
-				path = "ssh-key",
-				help = "public ssh key to identify admin"),
+				SimpleArgument (
+					argument = "--full-name",
+					required = False,
+					key = "admin_full_name",
+					value_name = "NAME",
+					help = "full name of admin"),
 
-			MiscSetArgument (),
-			MiscAddArgument (),
-			GeneratePasswordArgument (),
+				FileArgument (
+					argument = "--ssh-key",
+					path = "ssh-key",
+					help = "public ssh key to identify admin"),
+
+			]),
+
+			ArgumentGroup (
+				label = "arbitrary configuration",
+				arguments = [
+
+				MiscSetArgument (),
+				MiscAddArgument (),
+				GeneratePasswordArgument (),
+
+			]),
 
 		],
 

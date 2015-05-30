@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-import etcd
 import os
 import subprocess
 import sys
@@ -54,7 +53,7 @@ def do_etcd_export (context, args):
 
 		if not item_dir in dir_names:
 
-			print item_dir
+			print (item_dir)
 
 			if not os.path.isdir (args.target + item_dir):
 				os.makedirs (args.target + item_dir)
@@ -90,7 +89,7 @@ def do_etcd_import (context, args):
 
 		dir_name = dir_name [len (args.source) + 1:]
 
-		print "/" + dir_name
+		print ("/" + dir_name)
 
 		for file_name in file_list:
 

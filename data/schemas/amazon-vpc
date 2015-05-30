@@ -10,6 +10,10 @@ general:
     type: "string"
     required: "no"
 
+  vpc_group:
+    type: "string"
+    required: "no"
+
 state:
 
   vpc_id:

@@ -1,0 +1,6 @@
+---
+
+- include: "create-amazon-instance.yml"
+  tags: "create-amazon-instance"
+
+# ex: et ts=2 filetype=yaml

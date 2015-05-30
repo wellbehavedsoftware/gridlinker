@@ -1,0 +1,6 @@
+---
+
+- include: "synchronize-mysql-cluster.yml"
+  tags: "synchronize-mysql-cluster"
+  
+# ex: et ts=2 filetype=yaml

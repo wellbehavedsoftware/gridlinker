@@ -8,10 +8,17 @@ class CallbackModule (object):
 
 	def runner_on_ok (self, record_name, result):
 
-		if result ["invocation"] ["module_name"] != "set_fact":
+		if not result ["invocation"] ["module_name"] in [
+			"set_fact",
+			"set_fact_dynamic",
+		]:
 			return
 
 		self.store_facts (record_name, result ["ansible_facts"])
+
+	def __setattr__ (self, key, value):
+
+		self.__dict__ [key] = value
 
 	def store_facts (self, record_name, facts):
 

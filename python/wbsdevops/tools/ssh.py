@@ -20,6 +20,6 @@ def args_ssh (prev_sub_parsers):
 
 def do_ssh (context, args):
 
-	print args.host
+	print (args.host)
 
 # ex: noet ts=4 filetype=yaml
