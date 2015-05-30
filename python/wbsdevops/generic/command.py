@@ -102,6 +102,8 @@ class GenericCommand:
 		parser.set_defaults (
 			func = self.do_list)
 
+		self.helper.args_list (parser)
+
 	def do_list (self, context, args):
 
 		collection = self.helper.get_collection (context)
@@ -115,6 +117,9 @@ class GenericCommand:
 
 		for record_name, record_data \
 		in collection.get_all_list ():
+
+			if not self.helper.filter_record (context, args, record_data):
+				continue
 
 			record_names.append (record_name)
 			records_by_name [record_name] = record_data
@@ -205,24 +210,40 @@ class GenericCommand:
 
 		collection = self.helper.get_collection (context)
 
-		if not collection.exists (args.name):
+		if args.name:
 
-			raise Exception (
-				"%s does not exist: %s" % (
-					self.helper.name.title (),
-					args.name))
+			if not collection.exists (args.name):
 
-		record_data = collection.get (args.name)
+				raise Exception (
+					"%s does not exist: %s" % (
+						self.helper.name.title (),
+						args.name))
 
-		self.helper.update_record (context, args, record_data)
+			all_records = [
+				(args.name, collection.get (args.name))
+			]
 
-		collection.set (args.name, record_data)
+		else:
 
-		self.helper.update_files (context, args, collection)
+			all_records = collection.get_all_list ()
 
-		print ("Updated %s %s" % (
-			self.helper.name,
-			args.name))
+		filtered_records = [
+			(record_name, record_data)
+			for record_name, record_data in all_records
+			if self.helper.filter_record (context, args, record_data)
+		]
+
+		for record_name, record_data in filtered_records:
+
+			self.helper.update_record (context, args, record_data)
+
+			collection.set (record_name, record_data)
+
+			self.helper.update_files (context, args, collection)
+
+			print ("Updated %s %s" % (
+				self.helper.name,
+				record_name))
 
 	def args_show (self, sub_parsers):
 
@@ -233,9 +254,7 @@ class GenericCommand:
 		parser.set_defaults (
 			func = self.do_show)
 
-		parser.add_argument (
-			"--name",
-			help = "{0} to show data for".format (self.helper.name))
+		self.helper.args_show (parser)
 
 	def do_show (self, context, args):
 
@@ -278,26 +297,42 @@ class CommandHelper:
 	def args_create (self, parser):
 
 		for custom_arg in self.custom_args:
-			custom_arg.args_create (parser, self)
+			if hasattr (custom_arg, "args_create"):
+				custom_arg.args_create (parser, self)
+
+	def args_list (self, parser):
+
+		for custom_arg in self.custom_args:
+			if hasattr (custom_arg, "args_list"):
+				custom_arg.args_list (parser, self)
+
+	def args_show (self, parser):
+
+		for custom_arg in self.custom_args:
+			if hasattr (custom_arg, "args_show"):
+				custom_arg.args_show (parser, self)
 
 	def args_update (self, parser):
 
 		for custom_arg in self.custom_args:
-			custom_arg.args_update (parser, self)
+			if hasattr (custom_arg, "args_update"):
+				custom_arg.args_update (parser, self)
 
 	def update_record (self, context, args, record_data):
 
 		arg_vars = vars (args)
 
 		for custom_arg in self.custom_args:
-			custom_arg.update_record (arg_vars, record_data, self)
+			if hasattr (custom_arg, "update_record"):
+				custom_arg.update_record (arg_vars, record_data, self)
 
 	def update_files (self, context, args, collection):
 
 		arg_vars = vars (args)
 
 		for custom_arg in self.custom_args:
-			custom_arg.update_files (arg_vars, collection, self)
+			if hasattr (custom_arg, "update_files"):
+				custom_arg.update_files (arg_vars, collection, self)
 
 	def get_collection (self, context):
 
@@ -306,5 +341,16 @@ class CommandHelper:
 	def get_columns (self, context):
 
 		return self.custom_columns
+
+	def filter_record (self, context, args, record_data):
+
+		arg_vars = vars (args)
+
+		for custom_arg in self.custom_args:
+			if hasattr (custom_arg, "filter_record") \
+			and not custom_arg.filter_record (arg_vars, record_data, self):
+				return False
+
+		return True
 
 # ex: noet ts=4 filetype=yaml

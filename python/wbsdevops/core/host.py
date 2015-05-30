@@ -12,11 +12,17 @@ host_command = GenericCommand (
 		custom_args = [
 
 			ArgumentGroup (
-				label = "basic host information",
+				label = "host identity",
 				arguments = [
 
 				NameArgument (),
 				GroupArgument (),
+
+			]),
+			
+			ArgumentGroup (
+				label = "basic host information",
+				arguments = [
 
 				SimpleArgument (
 					argument = "--index",

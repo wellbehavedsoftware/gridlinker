@@ -9,24 +9,6 @@ import urllib
 
 from wbsmisc import yamlx
 
-"""
-
-import httplib
-
-connection = httplib.HTTPSConnection (
-	"10.120.1.4",
-	port = 443,
-	key_file = "config/client.key",
-	cert_file = "config/client.cert",
-	strict = True)
-
-print connection.sock.getpeercert ()
-
-import sys
-
-sys.exit ()
-"""
-
 class Client:
 
 	def __init__ (

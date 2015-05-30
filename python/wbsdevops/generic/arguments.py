@@ -11,27 +11,51 @@ class ArgumentGroup:
 
 	def args_create (self, parser, helper):
 
-		group = parser.add_argument_group (self.label)
+		group = parser.add_argument_group (
+			self.label)
 
 		for argument in self.arguments:
-			argument.args_create (group, helper)
+			if hasattr (argument, "args_create"):
+				argument.args_create (group, helper)
+
+	def args_list (self, parser, helper):
+
+		group = parser.add_argument_group (
+			self.label)
+
+		for argument in self.arguments:
+			if hasattr (argument, "args_list"):
+				argument.args_list (group, helper)
+
+	def args_show (self, parser, helper):
+
+		group = parser.add_argument_group (
+			self.label)
+
+		for argument in self.arguments:
+			if hasattr (argument, "args_show"):
+				argument.args_show (group, helper)
 
 	def args_update (self, parser, helper):
 
-		group = parser.add_argument_group (self.label)
+		group = parser.add_argument_group (
+			self.label)
 
 		for argument in self.arguments:
-			argument.args_create (group, helper)
+			if hasattr (argument, "args_update"):
+				argument.args_update (group, helper)
 
 	def update_record (self, arg_vars, record_data, helper):
 
 		for argument in self.arguments:
-			argument.update_record (arg_vars, record_data, helper)
+			if hasattr (argument, "update_record"):
+				argument.update_record (arg_vars, record_data, helper)
 
 	def update_files (self, arg_vars, collection, helper):
 
 		for argument in self.arguments:
-			argument.update_files (arg_vars, collection, helper)
+			if hasattr (argument, "update_files"):
+				argument.update_files (arg_vars, collection, helper)
 
 class SimpleArgument:
 
@@ -67,9 +91,71 @@ class SimpleArgument:
 		if value:
 			record_data [self.key] = value
 
-	def update_files (self, arg_vars, collection, helper):
+class ClassArgument:
 
-		pass
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--class",
+			required = False,
+			metavar = "CLASS",
+			help = "class this {0} belongs to".format (helper.name))
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--class",
+			required = False,
+			metavar = "CLASS",
+			help = "class of {0}s to update".format (helper.name))
+
+	def args_show (self, parser, helper):
+
+		parser.add_argument (
+			"--name",
+			help = "name of {0} to show data for".format (helper.name))
+
+	def filter_record (self, arg_vars, record_data):
+
+		if not "class" in arg_vars:
+			return True
+
+		class_key = "%s_class" % helper.short_name
+
+		if not class_key in record_data:
+			return False
+
+		return record_data [class_key] == arg_vars ["class"]
+
+class ParentArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--parent",
+			required = False,
+			metavar = "PARENT",
+			help = "parent {0} of this {0}".format (helper.name))
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--parent",
+			required = False,
+			metavar = "PARENT",
+			help = "parent {0} of {0}s to update".format (helper.name))
+
+	def filter_record (self, arg_vars, record_data):
+
+		if not "parent" in arg_vars:
+			return True
+
+		class_key = "%s_parent" % helper.short_name
+
+		if not class_key in record_data:
+			return False
+
+		return record_data [class_key] == arg_vars ["parent"]
 
 class GroupArgument:
 
@@ -81,20 +167,35 @@ class GroupArgument:
 			metavar = "GROUP",
 			help = "group this %s belongs to" % helper.name)
 
-	def args_update (self, parser, helper):
+	def args_list (self, parser, helper):
 
-		pass
+		parser.add_argument (
+			"--group",
+			required = False,
+			metavar = "GROUP",
+			help = "group to show {0}s belonging to".format (helper.name))
 
 	def update_record (self, arg_vars, record_data, helper):
+
+		if not "group" in arg_vars:
+			return	
 
 		value = arg_vars ["group"]
 
 		if value:
 			record_data ["%s_group" % helper.short_name] = value
 
-	def update_files (self, arg_vars, collection, helper):
+	def filter_record (self, arg_vars, record_data):
 
-		pass
+		if not "group" in arg_vars:
+			return True
+
+		group_key = "%s_group" % helper.short_name
+
+		if not group_key in record_data:
+			return False
+
+		return record_data [group_key] == arg_vars ["group"]
 
 class AddListArgument:
 
@@ -133,10 +234,6 @@ class AddListArgument:
 				record_data [self.key] = []
 
 			record_data [self.key].append (value)
-
-	def update_files (self, arg_vars, collection, helper):
-
-		pass
 
 class AddDictionaryArgument:
 
@@ -179,10 +276,6 @@ class AddDictionaryArgument:
 
 			record_data [self.key] [key] = value
 
-	def update_files (self, arg_vars, collection, helper):
-
-		pass
-
 class NameArgument:
 
 	def args_create (self, parser, helper):
@@ -190,22 +283,27 @@ class NameArgument:
 		parser.add_argument (
 			"--name",
 			required = True,
+			metavar = "NAME",
 			help = "name of %s to create" % helper.name)
 
 	def args_update (self, parser, helper):
 
 		parser.add_argument (
 			"--name",
-			required = True,
+			required = False,
+			metavar = "NAME",
 			help = "name of %s to update" % helper.name)
 
 	def update_record (self, arg_vars, record_data, helper):
 
-		record_data ["%s_name" % helper.short_name] = arg_vars ["name"]
+		value = arg_vars ["name"]
 
-	def update_files (self, arg_vars, collection, helper):
+		if not value:
+			return
 
-		pass
+		key = "%s_name" % helper.short_name
+
+		record_data [key] = value
 
 class FileArgument:
 
@@ -231,10 +329,6 @@ class FileArgument:
 			metavar = "FILE",
 			help = self.help)
 
-	def update_record (self, arg_vars, record_data, helper):
-
-		pass
-
 	def update_files (self, arg_vars, collection, helper):
 
 		value = arg_vars [self.argument_name]
@@ -248,10 +342,6 @@ class FileArgument:
 		collection.set_file (arg_vars ["name"], self.path, file_contents)
 
 class MiscSetArgument:
-
-	def __init__ (self):
-
-		pass
 
 	def args_create (self, parser, helper):
 
@@ -278,29 +368,12 @@ class MiscSetArgument:
 		for key, value in arg_vars ["set"]:
 			record_data [key] = value
 
-	def update_files (self, arg_vars, collection, helper):
-
-		pass
-
 class MiscUnsetArgument:
-
-	def __init__ (self):
-
-		pass
-
-	def args_create (self, parser, helper):
-
-		parser.add_argument (
-			"--unset",
-			action = "append",
-			default = [],
-			metavar = "KEY",
-			help = "miscellaneous value to unset")
 
 	def args_update (self, parser, helper):
 
 		parser.add_argument (
-			"--set",
+			"--unset",
 			action = "append",
 			default = [],
 			metavar = "KEY",
@@ -312,15 +385,7 @@ class MiscUnsetArgument:
 			if key in record_data:
 				del record_data [key]
 
-	def update_files (self, arg_vars, collection, helper):
-
-		pass
-
 class MiscRemoveArgument:
-
-	def __init__ (self):
-
-		pass
 
 	def args_create (self, parser, helper):
 
@@ -346,15 +411,7 @@ class MiscRemoveArgument:
 
 			record_data [key].remove (value)
 
-	def update_files (self, arg_vars, collection, helper):
-
-		pass
-
 class MiscAddArgument:
-
-	def __init__ (self):
-
-		pass
 
 	def args_create (self, parser, helper):
 
@@ -384,15 +441,7 @@ class MiscAddArgument:
 
 			record_data [key].append (value)
 
-	def update_files (self, arg_vars, collection, helper):
-
-		pass
-
 class GeneratePasswordArgument:
-
-	def __init__ (self):
-
-		pass
 
 	def args_create (self, parser, helper):
 
@@ -417,6 +466,4 @@ class GeneratePasswordArgument:
 		for key in arg_vars ["generate_password"]:
 			record_data [key] = generate_password ()
 
-	def update_files (self, arg_vars, collection, helper):
-
-		pass
+# ex: noet ts=4 filetype=yaml

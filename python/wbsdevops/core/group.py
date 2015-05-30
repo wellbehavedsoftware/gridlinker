@@ -12,24 +12,18 @@ group_command = GenericCommand (
 		custom_args = [
 
 			ArgumentGroup (
-				label = "basic group information",
+				label = "group identity",
 				arguments = [
 
 				NameArgument (),
+				ClassArgument (),
+				ParentArgument (),
 
-				SimpleArgument (
-					argument = "--class",
-					required = True,
-					key = "group_class",
-					value_name = "CLASS",
-					help = "class this group belongs to"),
+			]),
 
-				SimpleArgument (
-					argument = "--parent",
-					required = False,
-					key = "group_parent",
-					value_name = "PARENT",
-					help = "parent group of this group"),
+			ArgumentGroup (
+				label = "basic group information",
+				arguments = [
 
 				SimpleArgument (
 					argument = "--description",
