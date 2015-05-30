@@ -1,0 +1,3 @@
+{% for source in ubuntu_sources %}
+deb {{ source.url }}/ubuntu {{ source.source }} {{ source.repositories | join (' ') }}
+{% endfor %}

@@ -1,0 +1,28 @@
+template Service "generic-service" {
+
+	max_check_attempts = 5
+	check_interval = 1m
+	retry_interval = 30s
+
+}
+
+apply Service "http" {
+
+	import "generic-service"
+
+	check_command = "http"
+
+	assign where host.vars.http
+
+}
+
+apply Service "disk" {
+
+	import "generic-service"
+
+	check_command = "disk"
+	command_endpoint = host.name
+
+	assign where true
+
+}

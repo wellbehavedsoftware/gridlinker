@@ -1,0 +1,15 @@
+---
+
+- name: "add to load balancers"
+  connection: "local"
+  action:
+    module: "ec2_elb"
+    instance_id: "{{ amazon_instance_id }}"
+    ec2_elbs: "{{ amazon_balancer_names }}"
+    state: "present"
+    wait: "no"
+    region: "{{ amazon_region_name }}"
+    aws_access_key: "{{ amazon_access_key_id }}"
+    aws_secret_key: "{{ amazon_secret_access_key }}"
+
+# ex: et ts=2 filetype=yaml

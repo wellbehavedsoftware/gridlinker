@@ -1,0 +1,7 @@
+---
+
+- name: "reload sysctl"
+  shell: "sudo sysctl --load /etc/sysctl.conf"
+  sudo: "yes"
+
+# ex: et ts=2 filetype=yaml

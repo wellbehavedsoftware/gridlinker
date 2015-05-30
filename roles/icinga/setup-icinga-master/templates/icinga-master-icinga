@@ -1,0 +1,45 @@
+include "constants.conf"
+include "secrets.conf"
+include "zones.conf"
+
+include <itl>
+include <plugins>
+
+library "checker"
+library "db_ido_mysql"
+library "notification"
+
+object ApiListener "api" {
+
+	cert_path = SysconfDir + "/icinga2/pki/" + NodeName + ".cert"
+	key_path = SysconfDir + "/icinga2/pki/" + NodeName + ".key"
+	ca_path = SysconfDir + "/icinga2/pki/ca.cert"
+
+	accept_config = false
+	accept_commands = true
+
+}
+
+object CheckerComponent "checker" {
+}
+
+object FileLogger "main-log" {
+	severity = "information"
+	path = LocalStateDir + "/log/icinga2/icinga2.log"
+}
+
+object IdoMysqlConnection "ido-mysql" {
+	host = "{{ mysql_master }}",
+	database = "icingaido"
+	user = "icingaido",
+	password = IcingaIdoMysqlPassword,
+}
+
+object NotificationComponent "notification" {
+}
+
+include "commands.conf"
+include "hosts.conf"
+include "services.conf"
+include "time-periods.conf"
+include "users.conf"

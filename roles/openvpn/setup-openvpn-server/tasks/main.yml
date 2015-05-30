@@ -1,0 +1,6 @@
+---
+
+- include: "setup-openvpn-server.yml"
+  tags: "setup-openvpn-server"
+
+# ex: et ts=2 filetype=yaml

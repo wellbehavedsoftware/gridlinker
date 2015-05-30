@@ -20,37 +20,43 @@ from wbsdevops.generic import GenericCollection
 
 class GenericContext (object):
 
-	def __init__ (self, home, args):
+	def __init__ (self, home, connection_name, args):
 
 		self.home = home
+		self.connection_name = connection_name
 		self.args = args
 
 	@lazy_property
-	def client_config (self):
+	def connections_config (self):
 
-		file_path = "%s/config/client.yml" % self.home
+		file_path = "%s/config/connections.yml" % self.home
 
 		with open (file_path) as file_handle:
 			return yaml.load (file_handle)
 
 	@lazy_property
+	def connection_config (self):
+
+		return self.connections_config [self.connection_name]
+
+	@lazy_property
 	def client (self):
 
-		if self.client_config ["etcd_secure"] == "yes":
+		if self.connection_config ["etcd_secure"] == "yes":
 
 			return wbsdevops.Client (
-				servers = self.client_config ["etcd_servers"],
+				servers = self.connection_config ["etcd_servers"],
 				secure = True,
-				client_ca_cert = "config/client-ca.cert",
-				client_cert = "config/client.cert",
-				client_key = "config/client.key",
-				prefix = self.client_config ["etcd_prefix"])
+				client_ca_cert = "config/%s-ca.cert" % self.connection_name,
+				client_cert = "config/%s.cert" % self.connection_name,
+				client_key = "config/%s.key" % self.connection_name,
+				prefix = self.connection_config ["etcd_prefix"])
 
-		elif self.client_config ["etcd_secure"] == "no":
+		elif self.connection_config ["etcd_secure"] == "no":
 
 			return wbsdevops.Client (
-				servers = self.client_config ["etcd_servers"],
-				prefix = self.client_config ["etcd_prefix"])
+				servers = self.connection_config ["etcd_servers"],
+				prefix = self.connection_config ["etcd_prefix"])
 
 		else:
 
@@ -66,18 +72,29 @@ class GenericContext (object):
 	@lazy_property
 	def etcdctl_env (self):
 
-		if self.client_config ["etcd_secure"] == "yes":
+		if self.connection_config ["etcd_secure"] == "yes":
 
 			return {
 
 				"ETCDCTL_PEERS": ",".join ([
 					"https://%s:2379" % server
-					for server in self.client_config ["etcd_servers"]
+					for server in self.connection_config ["etcd_servers"]
 				]),
 
-				"ETCDCTL_CA_FILE": "%s/config/client-ca.cert" % self.home,
-				"ETCDCTL_CERT_FILE": "%s/config/client.cert" % self.home,
-				"ETCDCTL_KEY_FILE": "%s/config/client.key" % self.home,
+				"ETCDCTL_CA_FILE": "%s/config/%s-ca.cert" % (
+					self.home,
+					self.connection_name,
+				),
+
+				"ETCDCTL_CERT_FILE": "%s/config/%s.cert" % (
+					self.home,
+					self.connection_name,
+				),
+
+				"ETCDCTL_KEY_FILE": "%s/config/%s.key" % (
+					self.home,
+					self.connection_name,
+				),
 
 			}
 
@@ -87,7 +104,7 @@ class GenericContext (object):
 
 				"ETCDCTL_PEERS": ",".join ([
 					"http://%s:2379" % server
-					for server in self.client_config ["etcd_servers"]
+					for server in self.connection_config ["etcd_servers"]
 				]),
 
 			}
@@ -170,9 +187,16 @@ class GenericContext (object):
 	@lazy_property
 	def ansible_roles_path (self):
 
+		roles_parent_dirs = [
+			"%s/playbooks" % self.home,
+			"%s/roles" % self.wbs_devops_tools_home,
+		]
+
 		return [
-			"%s/playbooks/%s" % (self.home, item)
-			for item in os.listdir ("%s/playbooks" % self.home)
+			"%s/%s" % (roles_parent_dir, roles_dir)
+			for roles_parent_dir in roles_parent_dirs
+			for roles_dir in os.listdir (roles_parent_dir)
+			if os.path.isdir ("%s/%s" % (roles_parent_dir, roles_dir))
 		]
 
 	@lazy_property
