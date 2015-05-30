@@ -329,4 +329,68 @@ class GenericContext (object):
 
 		return schemas
 
+	@lazy_property
+	def ansible_ssh_args (self):
+
+		return [
+			"-o ControlMaster=auto",
+			"-o ControlPersist=60s",
+			"-o ForwardAgent=yes",
+			"-o StrictHostKeyChecking=yes",
+			"-o UserKnownHostsFile=%s/work/known-hosts" % self.home,
+		]
+
+	def ansible_init (self):
+
+		with open ("%s/work/known-hosts" % self.home, "w") as file_handle:
+
+			for host_name, host_data in self.hosts.get_all_list ():
+
+				addresses = [ host_name ] + sorted (set (filter (None, [
+					host_data.get ("private_address", None),
+					host_data.get ("public_address", None),
+					host_data.get ("amazon_public_ip", None),
+					host_data.get ("amazon_public_dns_name", None),
+					host_data.get ("amazon_private_ip", None),
+					host_data.get ("amazon_private_dns_name", None),
+				])))
+
+				for key_type in [ "rsa", "ecdsa" ]:
+
+					if self.hosts.exists_file (
+						host_name,
+						"ssh-host-key/%s/public" % key_type):
+
+						host_key = self.hosts.get_file (
+							host_name,
+							"ssh-host-key/%s/public" % key_type)
+
+						file_handle.write ("%s %s\n" % (
+							",".join (addresses),
+							host_key,
+						))
+
+					elif "ssh_host_key_%s" % key_type in host_data:
+
+						file_handle.write ("%s %s\n" % (
+							",".join (addresses),
+							host_data ["ssh_host_key_%s" % key_type],
+						))
+
+		for key_path, key_data in self.client.get_tree ("/ssh-key"):
+
+			if not key_path.endswith ("/private"):
+				continue
+
+			key_name = key_path [ 1 : - len ("/private") ]
+
+			if not os.path.isdir ("%s/work/ssh-keys" % self.home):
+				os.mkdir ("%s/work/ssh-keys" % self.home)
+
+			file_path = "%s/work/ssh-keys/%s" % (self.home, key_name)
+
+			with open (file_path, "w") as file_handle:
+				os.fchmod (file_handle.fileno (), 0o600)
+				file_handle.write (key_data)
+
 # ex: noet ts=4 filetype=yaml

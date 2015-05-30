@@ -20,6 +20,6 @@
     group: "nagios"
   sudo: "yes"
   notify: "restart icinga"
-  with_items: "icinga_master_security)_files"
+  with_items: "icinga_master_security_files"
 
 # ex: et ts=2 filetype=yaml

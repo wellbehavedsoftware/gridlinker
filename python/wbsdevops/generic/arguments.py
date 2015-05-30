@@ -299,6 +299,14 @@ class NameArgument:
 			metavar = "NAME",
 			help = "name of %s to create" % helper.name)
 
+	def args_show (self, parser, helper):
+
+		parser.add_argument (
+			"--name",
+			required = False,
+			metavar = "NAME",
+			help = "name of %s to show" % helper.name)
+
 	def args_update (self, parser, helper):
 
 		parser.add_argument (
