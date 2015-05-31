@@ -23,10 +23,15 @@ class ActionModule (object):
 		options = {}
 
 		for key, value in complex_args.items ():
-			dynamic_key = template.template (self.runner.basedir, key, inject)
+
+			dynamic_path = template.template (self.runner.basedir, key, inject)
+			options [dynamic_path] = value
+
+			dynamic_key = dynamic_path.replace ('.', '_')
 			options [dynamic_key] = value
 
 		return ReturnData (
+
 			conn = conn,
 				result = dict (
 				ansible_facts = options)) 

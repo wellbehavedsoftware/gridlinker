@@ -3,25 +3,26 @@ from __future__ import unicode_literals
 
 from wbsdevops.generic import *
 
-group_command = GenericCommand (
+resource_command = GenericCommand (
 
 	CommandHelper (
 
-		name = "group",
-		help = "manage group definitions",
+		name = "resource",
+		help = "manage resource definitions",
 
 		custom_args = [
 
 			ArgumentGroup (
-				label = "group identity",
+				label = "resource identity",
 				arguments = [
 
 				NameArgument (),
 				ClassArgument (),
-				ParentArgument (),
+				GroupArgument (),
+				IndexArgument (),
 
 			]),
-
+			
 			ArgumentGroup (
 				label = "arbitrary configuration",
 				arguments = [
@@ -47,21 +48,9 @@ group_command = GenericCommand (
 				default = True),
 
 			SimpleColumn (
-				section = "identity",
-				name = "class",
-				label = "Class",
-				default = True),
-
-			SimpleColumn (
-				section = "identity",
-				name = "parent",
-				label = "Parent",
-				default = True),
-
-			SimpleColumn (
-				section = "identity",
-				name = "description",
-				label = "Description",
+				section = "private",
+				name = "address",
+				label = "Private IP",
 				default = True),
 
 		],
@@ -72,6 +61,6 @@ group_command = GenericCommand (
 
 def args (sub_parsers):
 
-	group_command.args (sub_parsers)
+	resource_command.args (sub_parsers)
 
 # ex: noet ts=4 filetype=yaml

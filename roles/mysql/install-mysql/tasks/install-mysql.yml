@@ -1,7 +1,7 @@
 ---
 
-- set_fact:
-    mysql_state: "installing"
+- set_fact_dynamic:
+    mysql.state: "installing"
   when: "mysql_state is not defined"
 
 - name: "install mysql packages"
@@ -15,36 +15,40 @@
     - "python-mysqldb"
 
 - name: "install mysql config"
+  sudo: "yes"
+  notify: "restart mysql"
   action:
+
     module: "template"
     src: "{{ item.template }}"
     dest: "{{ item.target }}"
-  sudo: "yes"
-  notify: "restart mysql"
+
   with_items:
 
     - template: "mysql-global-config"
       target: "/etc/mysql/my.cnf"
 
 - name: "create mysql root user"
-  when: "inventory_hostname == mysql_master"
+  when: "inventory_hostname == mysql_master and mysql_state == 'installing'"
   action:
+
     module: "mysql_user"
     name: "root"
     password: "{{ mysql_root_password }}"
     priv: "*.*:ALL,GRANT"
-  when: "mysql_state == 'installing'"
 
 - name: "install mysql user config"
+  when: "mysql_state == 'installing'"
+  sudo: "yes"
   action:
+
     module: "template"
     src: "mysql-user-config"
     dest: "{{ item.home }}/.my.cnf"
     owner: "{{ item.user }}"
     group: "{{ item.user }}"
     mode: "0600"
-  sudo: "yes"
-  when: "mysql_state == 'installing'"
+
   with_items:
 
     - user: "root"
@@ -70,8 +74,8 @@
   sudo: "yes"
   notify: [ "reload upstart config", "restart mysql" ]
 
-- set_fact:
-    mysql_state: "unconfigured"
+- set_fact_dynamic:
+    mysql.state: "unconfigured"
   when: "mysql_state == 'installing'"
 
 - meta: "flush_handlers"

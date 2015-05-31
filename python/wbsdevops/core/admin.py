@@ -41,8 +41,8 @@ admin_command = GenericCommand (
 				arguments = [
 
 				MiscSetArgument (),
-				MiscAddArgument (),
-				GeneratePasswordArgument (),
+				#MiscAddArgument (),
+				#GeneratePasswordArgument (),
 
 			]),
 
@@ -51,12 +51,14 @@ admin_command = GenericCommand (
 		custom_columns = [
 
 			SimpleColumn (
-				name = "admin_name",
+				section = "identity",
+				name = "name",
 				label = "Name",
 				default = True),
 
 			SimpleColumn (
-				name = "admin_full_description",
+				section = "identity",
+				name = "full_name",
 				label = "Full name",
 				default = True),
 

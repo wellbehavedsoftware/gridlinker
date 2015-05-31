@@ -3,13 +3,13 @@ from __future__ import unicode_literals
 
 from wbsdevops.core import admin
 from wbsdevops.core import group
-from wbsdevops.core import host
+from wbsdevops.core import resource
 from wbsdevops.core import sshkey
 
 modules = [
 	admin,
 	group,
-	host,
+	resource,
 	sshkey,
 ]
 

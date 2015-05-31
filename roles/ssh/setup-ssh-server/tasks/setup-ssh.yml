@@ -26,7 +26,7 @@
   action:
     module: "copy"
     dest: "/root/.ssh/id_rsa"
-    content: "{{ lookup ('etcd', root_ssh_key) }}"
+    content: "{{ lookup ('etcd', ssh_root_key) }}"
     mode: "0600"
   sudo: "yes"
 

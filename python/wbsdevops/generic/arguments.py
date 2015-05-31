@@ -102,22 +102,14 @@ class ClassArgument:
 			metavar = "CLASS",
 			help = "class this {0} belongs to".format (helper.name))
 
-	def args_update (self, parser, helper):
-
-		parser.add_argument (
-			"--class",
-			required = False,
-			metavar = "CLASS",
-			help = "class of {0}s to update".format (helper.name))
+	# TODO args_update
 
 	def update_record (self, arg_vars, record_data, helper):
 
 		value = arg_vars ["class"]
 
-		key = "%s_class" % helper.short_name
-
 		if value:
-			record_data [key] = value
+			record_data ["identity"] ["class"] = value
 
 	def filter_record (self, arg_vars, record_data):
 
@@ -141,22 +133,14 @@ class ParentArgument:
 			metavar = "PARENT",
 			help = "parent {0} of this {0}".format (helper.name))
 
-	def args_update (self, parser, helper):
-
-		parser.add_argument (
-			"--parent",
-			required = False,
-			metavar = "PARENT",
-			help = "parent {0} of {0}s to update".format (helper.name))
+	# TODO args_update
 
 	def update_record (self, arg_vars, record_data, helper):
 
 		value = arg_vars ["parent"]
 
-		key = "%s_parent" % helper.short_name
-
 		if value:
-			record_data [key] = value
+			record_data ["identity"] ["parent"] = value
 
 	def filter_record (self, arg_vars, record_data):
 
@@ -196,19 +180,37 @@ class GroupArgument:
 		value = arg_vars ["group"]
 
 		if value:
-			record_data ["%s_group" % helper.short_name] = value
+			record_data ["identity"] ["group"] = value
 
 	def filter_record (self, arg_vars, record_data):
 
 		if not "group" in arg_vars:
 			return True
 
-		group_key = "%s_group" % helper.short_name
-
-		if not group_key in record_data:
+		if not "group" in record_data ["identity"]:
 			return False
 
-		return record_data [group_key] == arg_vars ["group"]
+		return record_data ["identity"] ["group"] == arg_vars ["group"]
+
+class IndexArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--index",
+			required = False,
+			metavar = "INDEX",
+			help = "index of this %s" % helper.name)
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		if not "index" in arg_vars:
+			return	
+
+		value = arg_vars ["index"]
+
+		if value:
+			record_data ["identity"] ["index"] = value
 
 class AddListArgument:
 
@@ -322,9 +324,7 @@ class NameArgument:
 		if not value:
 			return
 
-		key = "%s_name" % helper.short_name
-
-		record_data [key] = value
+		record_data ["identity"] ["name"] = value
 
 class FileArgument:
 
@@ -371,7 +371,7 @@ class MiscSetArgument:
 			action = "append",
 			nargs = 2,
 			default = [],
-			metavar = ("KEY", "VALUE"),
+			metavar = ("GROUP.KEY", "VALUE"),
 			help = "miscellaneous value to store")
 
 	def args_update (self, parser, helper):
@@ -381,13 +381,19 @@ class MiscSetArgument:
 			action = "append",
 			nargs = 2,
 			default = [],
-			metavar = ("KEY", "VALUE"),
+			metavar = ("GROUP.KEY", "VALUE"),
 			help = "miscellaneous value to store")
 
 	def update_record (self, arg_vars, record_data, helper):
 
-		for key, value in arg_vars ["set"]:
-			record_data [key] = value
+		for section_key, value in arg_vars ["set"]:
+
+			section, key = section_key.split (".")
+
+			if not section in record_data:
+				record_data [section] = {}
+
+			record_data [section] [key] = value
 
 class MiscUnsetArgument:
 
@@ -397,7 +403,7 @@ class MiscUnsetArgument:
 			"--unset",
 			action = "append",
 			default = [],
-			metavar = "KEY",
+			metavar = "GROUP.KEY",
 			help = "miscellaneous value to unset")
 
 	def update_record (self, arg_vars, record_data, helper):
@@ -405,9 +411,20 @@ class MiscUnsetArgument:
 		if not "unset" in arg_vars:
 			return
 
-		for key in arg_vars ["unset"]:
-			if key in record_data:
-				del record_data [key]
+		for section_key in arg_vars ["unset"]:
+
+			section, key = section_key.split (".")
+
+			if not section in record_data:
+				continue
+
+			if not key in record_data [section]:
+				continue
+
+			del record_data [section] [key]
+
+			if not record_data [section]:
+				del record_data [section]
 
 class MiscRemoveArgument:
 
@@ -426,12 +443,20 @@ class MiscRemoveArgument:
 		if not "remove" in arg_vars:
 			return
 
-		for key, value in arg_vars ["remove"]:
+		for section_key, value in arg_vars ["remove"]:
 
-			if not key in record_data:
-				return
+			section, key = section_key.split (".")
 
-			record_data [key].remove (value)
+			if not section in record_data:
+				continue
+
+			if not key in record_data [section]:
+				continue
+
+			if not value in record_data [section] [key]:
+				continue
+
+			del (record_data [section] [key] [value])
 
 class MiscAddArgument:
 
@@ -456,12 +481,20 @@ class MiscAddArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
-		for key, value in arg_vars ["add"]:
+		for section_key, value in arg_vars ["add"]:
 
-			if not key in record_data:
-				record_data [key] = []
+			section, key = section_key.split (".")
 
-			record_data [key].append (value)
+			if not section in record_data:
+				record_data [section] = {}
+
+			if not key in record_data [section]:
+				record_data [section] [key] = []
+
+			if value in record_data [section] [key]:
+				continue
+
+			record_data [section] [key].append (value)
 
 class GeneratePasswordArgument:
 
@@ -485,7 +518,13 @@ class GeneratePasswordArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
-		for key in arg_vars ["generate_password"]:
-			record_data [key] = generate_password ()
+		for section_key in arg_vars ["generate_password"]:
+
+			section, key = section_key.split (".")
+
+			if not section in record_data:
+				record_data [section] = {}
+
+			record_data [section] [key] = generate_password ()
 
 # ex: noet ts=4 filetype=yaml

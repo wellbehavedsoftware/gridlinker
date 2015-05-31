@@ -268,41 +268,35 @@ class GenericContext (object):
 		return [
 			self.admins,
 			self.groups,
-			self.hosts,
-			self.amazon_accounts,
-			self.amazon_balancers,
-			self.amazon_vpcs,
+			self.resources,
 		]
 
 	@lazy_property
 	def admins (self):
 
-		return GenericCollection (self, "/admin", self.schemas ["admin"])
+		return GenericCollection (
+			context = self,
+			path = "/admin",
+			type = "admin",
+			schema = self.schemas ["admin"])
 
 	@lazy_property
 	def groups (self):
 
-		return GenericCollection (self, "/group", self.schemas ["group"])
+		return GenericCollection (
+			context = self,
+			path = "/group",
+			type = "group",
+			schema = self.schemas ["group"])
 
 	@lazy_property
-	def hosts (self):
+	def resources (self):
 
-		return GenericCollection (self, "/host", self.schemas ["host"])
-
-	@lazy_property
-	def amazon_accounts (self):
-
-		return GenericCollection (self, "/amazon/account", self.schemas ["amazon-account"])
-
-	@lazy_property
-	def amazon_balancers (self):
-
-		return GenericCollection (self, "/amazon/balancer", self.schemas ["amazon-balancer"])
-
-	@lazy_property
-	def amazon_vpcs (self):
-
-		return GenericCollection (self, "/amazon/vpc", self.schemas ["amazon-vpc"])
+		return GenericCollection (
+			context = self,
+			path = "/resource",
+			type = "resource",
+			schema = self.schemas ["resource"])
 
 	@lazy_property
 	def local_data (self):
@@ -342,39 +336,45 @@ class GenericContext (object):
 
 	def ansible_init (self):
 
+		print "IIIIIINNNNNIIIIIIIIITTTT"
+
 		with open ("%s/work/known-hosts" % self.home, "w") as file_handle:
 
-			for host_name, host_data in self.hosts.get_all_list ():
+			for resource_name, resource_data in self.resources.get_all_list ():
 
-				addresses = [ host_name ] + sorted (set (filter (None, [
-					host_data.get ("private_address", None),
-					host_data.get ("public_address", None),
-					host_data.get ("amazon_public_ip", None),
-					host_data.get ("amazon_public_dns_name", None),
-					host_data.get ("amazon_private_ip", None),
-					host_data.get ("amazon_private_dns_name", None),
+				addresses = [ resource_name ] + sorted (set (filter (None, [
+					resource_data.get ("private", {}).get ("address", None),
+					resource_data.get ("public", {}).get ("address", None),
+					resource_data.get ("amazon", {}).get ("public_ip", None),
+					resource_data.get ("amazon", {}).get ("public_dns_name", None),
+					resource_data.get ("amazon", {}).get ("private_ip", None),
+					resource_data.get ("amazon", {}).get ("private_dns_name", None),
 				])))
+
+				if not addresses:
+					continue
 
 				for key_type in [ "rsa", "ecdsa" ]:
 
-					if self.hosts.exists_file (
-						host_name,
+					if self.resources.exists_file (
+						resource_name,
 						"ssh-host-key/%s/public" % key_type):
 
-						host_key = self.hosts.get_file (
-							host_name,
+						resource_key = self.resources.get_file (
+							resource_name,
 							"ssh-host-key/%s/public" % key_type)
 
 						file_handle.write ("%s %s\n" % (
 							",".join (addresses),
-							host_key,
+							resource_key,
 						))
 
-					elif "ssh_host_key_%s" % key_type in host_data:
+					elif "ssh" in resource_data \
+					and "host_key_%s" % key_type in resource_data ["ssh"]:
 
 						file_handle.write ("%s %s\n" % (
 							",".join (addresses),
-							host_data ["ssh_host_key_%s" % key_type],
+							resource_data ["ssh"] ["host_key_%s" % key_type],
 						))
 
 		for key_path, key_data in self.client.get_tree ("/ssh-key"):

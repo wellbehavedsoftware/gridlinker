@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import collections
 import json
 import sys
 
@@ -22,241 +23,105 @@ def main (context, args):
 
 		raise Exception ()
 
-def load_types (context, all_groups):
-
-	type_list = context.local_data ["types"].items ()
-
-	for type_name, type_data in type_list:
-
-		if not type_data:
-			type_data = {}
-
-		type_data.setdefault ("type_name", type_name)
-
-		if type_name != type_data ["type_name"]:
-			raise Exception ()
-
-		type_data ["record_type"] = "type"
-
-		all_groups [type_name] = {
-			"children": [],
-			"hosts": [],
-			"vars": type_data,
-		}
-
-	# add to parents
-
-	for type_name, type_data in type_list:
-
-		if not "type_parent" in type_data:
-			continue
-
-		type_parent = type_data ["type_parent"]
-
-		if not type_parent in all_groups:
-			raise Exception (
-				"Parent type of %s does not exist: %s" % (
-					type_name,
-					type_parent))
-
-		all_groups [type_parent] ["children"].append (type_name)
-
-def load_classes (context, all_groups):
+def load_classes (context, world):
 
 	class_list = context.local_data ["classes"].items ()
 
 	for class_name, class_data in class_list:
 
-		# check "class_name"
+		# check basics
 
-		class_data.setdefault ("class_name", class_name)
+		if not "identity" in class_data:
 
-		if class_name != class_data ["class_name"]:
 			raise Exception ()
+
+		if class_data ["identity"] ["type"] != "class":
+
+			raise Exception (
+				"Class does not contain correct type: %s" % class_name)
+
+		if class_name != class_data ["identity"] ["name"]:
+
+			raise Exception (
+				"Class does not contain correct name: %s" % class_name)
 
 		# check for duplicates
 
-		if class_name in all_groups:
-			raise Exception ()
-
-		# check "class_type"
-
-		if not "class_type" in class_data:
+		if class_name in world:
 
 			raise Exception (
-				"Class %s has no type" % (
-					class_name))
-
-		class_type = class_data ["class_type"]
-
-		if not class_type in all_groups:
-
-			raise Exception (
-				"Class %s has unrecognised type: %s" % (
-					class_name,
-					class_type))
+				"Class is duplicated: %s" % class_name)
 
 		# create class
 
-		class_data ["record_type"] = "class"
+		world [class_name] = class_data
 
-		all_groups [class_name] = {
-			"children": [],
-			"hosts": [],
-			"vars": class_data,
-		}
-
-	# add to parents
-
-	for class_name, class_data in class_list:
-
-		if not "class_parent" in class_data:
-			continue
-
-		class_parent = class_data ["class_parent"]
-
-		if not class_parent in all_groups:
-			raise Exception (
-				"Parent class of %s does not exist: %s" % (
-					class_name,
-					class_parent))
-
-		all_groups [class_parent] ["children"].append (class_name)
-
-def load_groups (context, all_groups):
+def load_groups (context, world):
 
 	group_list = context.groups.get_all_list ()
 
 	for group_name, group_data in group_list:
 
-		# check "group_name"
+		# check basics
 
-		group_data.setdefault ("group_name", group_name)
+		if not "identity" in group_data:
 
-		if group_name != group_data ["group_name"]:
 			raise Exception (
-				"Group name mismatch: %s / %s" % (
-					group_name,
-					group_data ["group_name"]))
+				"Group does not have identity: %s" % group_name)
+
+		if not "type" in group_data ["identity"]:
+
+			raise Exception ()
+
+		if group_data ["identity"] ["type"] != "group":
+
+			raise Exception ()
+
+		if group_name != group_data ["identity"] ["name"]:
+
+			raise Exception (
+				"Group does not contain correct name: %s" % class_group)
 
 		# check for duplicates
 
-		if group_name in all_groups:
+		if group_name in world:
 
 			raise Exception (
-				"Duplicate group name: %s" % (
-					group_name))
-
-		# check "group_class"
-
-		if not "group_class" in group_data:
-
-			raise Exception (
-				"Group %s has no class" % (
-					group_name))
-
-		group_class = group_data ["group_class"]
-
-		if not group_class in all_groups:
-
-			raise Exception (
-				"Group %s has unrecognised class: %s" % (
-					group_name,
-					group_class))
+				"Group is duplicated: %s" % group_name)
 
 		# create group
 
-		group_data ["record_type"] = "group"
+		world [group_name] = group_data
 
-		all_groups [group_name] = {
-			"children": [],
-			"hosts": [],
-			"vars": group_data,
-		}
+def load_resources (context, world):
 
-	# add to parents
+	for resource_name, resource_data in context.resources.get_all_list ():
 
-	for group_name, group_data in group_list:
+		# check basics
 
-		if not "group_parent" in group_data:
-			continue
+		if not "identity" in resource_data:
 
-		group_parent = group_data ["group_parent"]
+			raise Exception ()
 
-		if not group_parent in all_groups:
+		if resource_data ["identity"] ["type"] != "resource":
+
+			raise Exception ()
+
+		if resource_name != resource_data ["identity"] ["name"]:
 
 			raise Exception (
-				"Group %s has unrecognised parent: %s" % (
-					group_name,
-					group_parent))
+				"Resource does not contain correct name: %s" % resource_name)
 
-		all_groups [group_parent] ["children"].append (group_name)
+		# check for duplicates
 
-def load_hosts (context, all_groups, all_hosts):
+		if resource_name in world:
 
-	for host_name, host_data in context.hosts.get_all_list ():
-
-		host_data ["collection_name"] = "hosts"
-
-		if host_name in all_groups:
-			raise Exception ()
-
-		if host_name in all_hosts:
-			raise Exception ()
-
-		all_hosts [host_name] = host_data
-
-		add_group_class_type (context, all_groups, "host", "host", host_data)
-
-def load_amazon_accounts (context, all_groups, all_hosts):
-
-	for account_name, account_data in context.amazon_accounts.get_all_list ():
-
-		account_data ["collection_name"] = "amazon_accounts"
-
-		if account_name in all_groups:
 			raise Exception (
-				"Duplicated name: %s" % account_name)
+				"Resource is duplicated: %s" % resource_name)
 
-		if account_name in all_hosts:
-			raise Exception (
-				"Duplicated name: %s" % account_name)
+		# create resource
 
-		all_hosts [account_name] = account_data
-
-		add_group_class_type (context, all_groups, "amazon account", "account", account_data)
-
-def load_amazon_vpcs (context, all_groups, all_hosts):
-
-	for vpc_name, vpc_data in context.amazon_vpcs.get_all_list ():
-
-		vpc_data ["collection_name"] = "amazon_vpcs"
-
-		if vpc_name in all_groups:
-			raise Exception ()
-
-		if vpc_name in all_hosts:
-			raise Exception ()
-
-		all_hosts [vpc_name] = vpc_data
-
-		add_group_class_type (context, all_groups, "amazon vpc", "vpc", vpc_data)
-
-def load_amazon_balancers (context, all_groups, all_hosts):
-
-	for balancer_name, balancer_data in context.amazon_balancers.get_all_list ():
-
-		balancer_data ["collection_name"] = "amazon_balancers"
-
-		if balancer_name in all_groups:
-			raise Exception ()
-
-		if balancer_name in all_hosts:
-			raise Exception ()
-
-		all_hosts [balancer_name] = balancer_data
-
-		add_group_class_type (context, all_groups, "amazon balancer", "balancer", balancer_data)
+		world [resource_name] = resource_data
 
 def add_group_class_type (context,
 	all_groups,
@@ -319,61 +184,145 @@ def add_group_class_type (context,
 		type_data = all_groups [group_type]
 		all_groups [group_type] ["hosts"].append (item_name)
 
-def load_all (context):
+def resolve_group (group_name, group_data, world):
 
-	all_groups = {}
-	all_hosts = {}
+	group_vars = group_data.get ("global", {})
 
-	load_types (context, all_groups)
-	load_classes (context, all_groups)
-	load_groups (context, all_groups)
+	for prefix, data in group_data.items ():
 
-	load_hosts (context, all_groups, all_hosts)
-	load_amazon_accounts (context, all_groups, all_hosts)
-	load_amazon_vpcs (context, all_groups, all_hosts)
-	load_amazon_balancers (context, all_groups, all_hosts)
+		if prefix == "identity":
+			continue
 
-	# special case for group "all"
-
-	if not "all" in all_groups:
-
-		all_groups ["all"] = {
-			"children": [],
-			"hosts": [],
-			"vars": {},
-		}
-
-	all_groups ["all"] ["vars"] ["HOME"] = context.home
-	all_groups ["all"] ["vars"] ["WORK"] = "%s/work" % context.home
-
-	all_groups ["all"] ["vars"].update (context.local_data ["defaults"])
-	all_groups ["all"] ["vars"].update (context.overrides_data)
-
-	all_groups ["all"] ["vars"] ["amazon_accounts"] = \
-		context.amazon_accounts.get_all_dictionary ()
-
-	all_groups ["all"] ["vars"] ["amazon_vpcs"] = \
-		context.amazon_vpcs.get_all_dictionary ()
+		for name, value in data.items ():
+			group_vars [prefix + "_" + name] = value
 
 	return {
-		"groups": all_groups,
-		"hosts": all_hosts,
+		"hosts": [
+			entity_name
+			for entity_name, entity_data in world.items ()
+			if entity_data ["identity"] ["type"] == "resource"
+			and "group" in entity_data ["identity"]
+			and entity_data ["identity"] ["group"] == group_name
+		],
+		"vars": group_vars,
 	}
 
+def resolve_class (class_name, class_data, world):
+
+	class_vars = class_data.get ("global", {})
+
+	for prefix, data in class_data.items ():
+
+		if prefix == "identity":
+			continue
+
+		for name, value in data.items ():
+			class_vars [prefix + "_" + name] = value
+
+	return {
+		"hosts": [
+			entity_name
+			for entity_name, entity_data in world.items ()
+			if entity_data ["identity"] ["type"] == "resource"
+			and "class" in entity_data ["identity"]
+			and entity_data ["identity"] ["class"] == class_name
+		],
+		"children": [
+			entity_name
+			for entity_name, entity_data in world.items ()
+			if entity_data ["identity"] ["type"] == "group"
+			and "class" in entity_data ["identity"]
+			and entity_data ["identity"] ["class"] == class_name
+		],
+		"vars": class_vars,
+	}
+
+def resolve_resource (resource_name, resource_data, world):
+
+	resource_vars = {}
+
+	for prefix, data in resource_data.items ():
+
+		for name, value in data.items ():
+			resource_vars [prefix + "_" + name] = value
+
+	if "parent" in resource_data ["identity"]:
+
+		resource_vars ["parent"] = "{{ hostvars ['%s'] }}" % (
+			resource_data ["identity"] ["parent"])
+
+	elif "group" in resource_data ["identity"]:
+
+		group_data = world [resource_data ["identity"] ["group"]]
+
+		if "parent" in group_data ["identity"]:
+
+			resource_vars ["parent"] = "{{ hostvars ['%s'] }}" % (
+				group_data ["identity"] ["parent"])
+
+	return resource_vars
+
+def load_world (context):
+
+	world = {}
+
+	world ["all"] = {
+		"identity": {
+			"type": "group",
+		},
+		"global": {
+			"HOME": context.home,
+			"WORK": "%s/work" % context.home,
+		},
+	}
+
+	load_classes (context, world)
+	load_groups (context, world)
+
+	load_resources (context, world)
+
+	return {
+
+		"groups": dict ([
+
+			(entity_name, resolve_class (entity_name, entity_data, world))
+			for entity_name, entity_data in world.items ()
+			if entity_data ["identity"] ["type"] == "class"
+
+		] + [
+
+			(entity_name, resolve_group (entity_name, entity_data, world))
+			for entity_name, entity_data in world.items ()
+			if entity_data ["identity"] ["type"] == "group"
+
+		]),
+
+		"hosts": dict ([
+
+			(entity_name, resolve_resource (entity_name, entity_data, world))
+			for entity_name, entity_data in world.items ()
+			if entity_data ["identity"] ["type"] == "resource"
+
+		]),
+
+	}
 
 def do_list (context):
 
-	output = {}
-
-	data = load_all (context)
-
-	for key, value in data ["groups"].items ():
-		output [key] = value
-
-	output ["_meta"] = {
-		"hostvars": data ["hosts"],
+	output = {
+		"_meta": {
+			"hostvars": {},
+		},
 	}
 
+	world = load_world (context)
+
+	for group_name, group_data in world ["groups"].items ():
+		output [group_name] = group_data
+	
+	for host_name, host_data in world ["hosts"].items ():
+		output ["_meta"] ["hostvars"] [host_name] = host_data
+	
 	print_json (output)
 
 def do_host (context, host_name):

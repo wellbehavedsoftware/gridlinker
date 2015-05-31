@@ -42,7 +42,16 @@ class CallbackModule (object):
 
 		collection, record_data = found_records [0]
 
-		for key, value in facts.items ():
-			record_data [key] = value
+		for section_key, value in facts.items ():
+
+			if not "." in section_key:
+				continue
+
+			section, key = section_key.split (".")
+
+			if not section in record_data:
+				record_data [section] = {}
+
+			record_data [section] [key] = value
 
 		collection.set (record_name, record_data)

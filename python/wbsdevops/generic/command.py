@@ -57,7 +57,11 @@ class GenericCommand:
 					self.helper.name.title (),
 					args.name))
 
-		record_data = {}
+		record_data = {
+			"identity": {
+				"type": collection.type,
+			},
+		}
 
 		self.helper.update_record (context, args, record_data)
 
@@ -137,10 +141,13 @@ class GenericCommand:
 
 			for record_data in records_by_name.values ():
 
-				if not column.name in record_data:
+				if not column.section in record_data:
 					continue
 
-				value = record_data [column.name]
+				if not column.name in record_data [column.section]:
+					continue
+
+				value = record_data [column.section] [column.name]
 				length = len (value)
 
 				if length > max_size:
@@ -180,10 +187,12 @@ class GenericCommand:
 
 				column_size = column_sizes [column.name]
 
-				if column.name in record_data:
-					value = record_data [column.name]
-				else:
+				if not column.section in record_data:
 					value = ""
+				elif not column.name in record_data [column.section]:
+					value = ""
+				else:
+					value = record_data [column.section] [column.name]
 
 				sys.stdout.write (value.ljust (column_size + 1))
 

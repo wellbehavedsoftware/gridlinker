@@ -512,16 +512,19 @@ def args_issue (sub_parsers):
 		"store")
 
 	parser_store.add_argument (
-		"--store-host",
-		help = "TODO")
+		"--store-resource",
+		metavar = "RESOURCE",
+		help = "store this certificate's identity in a resource")
 
 	parser_store.add_argument (
 		"--store-certificate",
-		help = "TODO")
+		metavar = "SECTION.KEY",
+		help = "key to store the certificate's path")
 
 	parser_store.add_argument (
 		"--store-private-key",
-		help = "TODO")
+		metavar = "SECTION.KEY",
+		help = "key to store the private key's path")
 
 	# alt names
 
@@ -575,20 +578,32 @@ def do_issue (context, args):
 		certificate.digest,
 		args.common_name))
 
-	if args.store_host:
+	if args.store_resource:
 
-		host_data = context.hosts.get (args.store_host)
+		resource_data = context.resources.get (args.store_resource)
 
 		if args.store_certificate:
-			host_data [args.store_certificate] = certificate.certificate_path
+
+			section, key = args.store_certificate.split (".")
+
+			if not section in resource_data:
+				resource_data [section] = {}
+
+			resource_data [section] [key] = certificate.certificate_path
 
 		if args.store_private_key:
-			host_data [args.store_private_key] = certificate.private_key_path
 
-		context.hosts.set (args.store_host, host_data)
+			section, key = args.store_private_key.split (".")
 
-		print ("Stored certificate in host %s" % (
-			args.store_host))
+			if not section in resource_data:
+				resource_data [section] = {}
+
+			resource_data [section] [key] = certificate.private_key_path
+
+		context.resources.set (args.store_resource, resource_data)
+
+		print ("Stored certificate in resource %s" % (
+			args.store_resource))
 
 def args_export (sub_parsers):
 

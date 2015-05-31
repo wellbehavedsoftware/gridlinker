@@ -1,7 +1,7 @@
 ---
 
-- set_fact:
-    etcd_state: "installing"
+- set_fact_dynamic:
+    etcd.state: "installing"
   when: "etcd_state is not defined"
 
 - name: "install etcd"
@@ -56,8 +56,8 @@
 
 - meta: "flush_handlers"
 
-- set_fact:
-    etcd_state: "unconfigured"
+- set_fact_dynamic:
+    etcd.state: "unconfigured"
   when: "etcd_state == 'installing'"
 
 # ex: et ts=2 filetype=yaml

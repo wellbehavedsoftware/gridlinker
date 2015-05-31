@@ -4,7 +4,7 @@
   connection: "local"
   wait_for:
     host: "{{ ansible_ssh_host }}"
-    delay: "5"
+    delay: "1"
     timeout: "300"
     port: "22"
     search_regex: "OpenSSH"
