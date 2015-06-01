@@ -1,11 +1,7 @@
 ---
 
-- set_fact:
-    mysql_state: "synchronizing"
-  when: "mysql_state == 'stopped'"
-
 - name: "start master"
-  when: "inventory_hostname == mysql_master and mysql_state == 'synchronizing'"
+  when: "inventory_hostname == mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -15,7 +11,7 @@
     sudo start mysql || true;
 
 - name: "create mysql replication user"
-  when: "inventory_hostname == mysql_master and mysql_state == 'synchronizing'"
+  when: "inventory_hostname == mysql_master"
   action:
     module: "mysql_user"
     name: "{{ mysql_replication_user }}"
@@ -24,7 +20,7 @@
     priv: "*.*:REPLICATION SLAVE"
 
 - name: "get replication info from master"
-  when: "inventory_hostname == mysql_master and mysql_state == 'synchronizing'"
+  when: "inventory_hostname == mysql_master"
   args:
     executable: "/bin/bash"
   register: "mysql_master_status"
@@ -42,24 +38,8 @@
 
     test -s /tmp/mysql-master-status;
 
-- name: "save replication info from master"
-  when: "inventory_hostname == mysql_master and mysql_state == 'synchronizing'"
-  delegate_to: "localhost"
-  args:
-    chdir: "../.."
-    executable: "/bin/bash"
-  shell:
-
-    set -euf -o pipefail;
-
-    echo "{{ mysql_master_status.stdout.split ('\t') [0] }}"
-      >work/mysql-master-status-log-file;
-
-    echo "{{ mysql_master_status.stdout.split ('\t') [1] }}"
-      >work/mysql-master-status-log-position;
-
 - name: "shut down master"
-  when: "inventory_hostname == mysql_master and mysql_state == 'synchronizing'"
+  when: "inventory_hostname == mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -71,7 +51,7 @@
     sleep 0.1;
 
 - name: "shut down slave"
-  when: "inventory_hostname != mysql_master and mysql_state == 'synchronizing'"
+  when: "inventory_hostname != mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -81,7 +61,7 @@
     sudo stop mysql || true;
 
 - name: "synchronize data"
-  when: "inventory_hostname != mysql_master and mysql_state == 'synchronizing'"
+  when: "inventory_hostname != mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -93,7 +73,7 @@
     /var/lib/mysql/;
 
 - name: "start master"
-  when: "inventory_hostname == mysql_master and mysql_state == 'synchronizing'"
+  when: "inventory_hostname == mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -103,7 +83,7 @@
     sudo start mysql;
 
 - name: "start slave"
-  when: "inventory_hostname != mysql_master and mysql_state == 'synchronizing'"
+  when: "inventory_hostname != mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -113,7 +93,7 @@
     sudo start mysql;
 
 - name: "configure replication"
-  when: "inventory_hostname != mysql_master and mysql_state == 'synchronizing'"
+  when: "inventory_hostname != mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -123,16 +103,23 @@
     mysql --execute "
 
       CHANGE MASTER TO
+
       MASTER_HOST = '{{ mysql_master }}',
       MASTER_USER = '{{ mysql_replication_user }}',
       MASTER_PASSWORD = '{{ mysql_replication_password }}',
-      MASTER_LOG_FILE = '{{ lookup ('file', '../../work/mysql-master-status-log-file') }}',
-      MASTER_LOG_POS = {{ lookup ('file', '../../work/mysql-master-status-log-position') }};
 
-    ";
+      MASTER_LOG_FILE = '{{
+        hostvars [mysql_master].mysql_master_status.stdout.split ('\t') [0]
+      }}',
+
+      MASTER_LOG_POS = {{
+        hostvars [mysql_master].mysql_master_status.stdout.split ('\t') [1]
+      }};
+
+    "
 
 - name: "start replication"
-  when: "inventory_hostname != mysql_master and mysql_state == 'synchronizing'"
+  when: "inventory_hostname != mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -143,8 +130,13 @@
       START SLAVE;
     ";
 
-- set_fact:
-    mysql_state: "running"
-  when: "mysql_state == 'synchronizing'"
+- name: "shut down mysql"
+  args:
+    executable: "/bin/bash"
+  shell:
+
+    set -euf -o pipefail;
+
+    sudo stop mysql || true;
 
 # ex: et ts=2 filetype=yaml

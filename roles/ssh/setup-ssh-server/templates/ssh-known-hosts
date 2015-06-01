@@ -9,7 +9,6 @@
 				host_name,
 				host_data.private_address,
 			] | join (','),
-			'ssh-rsa',
 			host_data.ssh_host_key_rsa,
 		] | join (' ') + '\n' -%}
 
@@ -22,7 +21,6 @@
 				host_name,
 				host_data.private_address,
 			] | join (','),
-			'ssh-ecdsa',
 			host_data.ssh_host_key_ecdsa,
 		] | join (' ') + '\n' -%}
 

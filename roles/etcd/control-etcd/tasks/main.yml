@@ -1,0 +1,32 @@
+---
+
+- name: "set etcd state to 'starting'"
+  set_fact_dynamic:
+    etcd.state: "starting"
+  when: "
+    etcd_control == 'start'
+    and etcd_state == 'stopped'
+  "
+
+- name: "set etcd state to 'stopping'"
+  set_fact_dynamic:
+    etcd.state: "stopping"
+  when: "
+    etcd_control == 'stop'
+    and etcd_state in 'running'
+  "
+
+- include: "control-etcd.yml"
+  tags: "control-etcd"
+
+- name: "set etcd state to 'running'"
+  set_fact_dynamic:
+    etcd.state: "running"
+  when: "etcd_state == 'starting'"
+
+- name: "set etcd state to 'stopped'"
+  set_fact_dynamic:
+    etcd.state: "stopped"
+  when: "etcd_state == 'stopping'"
+
+# ex: et ts=2 filetype=yaml

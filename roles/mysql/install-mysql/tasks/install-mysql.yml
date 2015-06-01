@@ -1,9 +1,5 @@
 ---
 
-- set_fact_dynamic:
-    mysql.state: "installing"
-  when: "mysql_state is not defined"
-
 - name: "install mysql packages"
   action:
     module: "apt"
@@ -14,22 +10,8 @@
     - "mysql-server-5.5"
     - "python-mysqldb"
 
-- name: "install mysql config"
-  sudo: "yes"
-  notify: "restart mysql"
-  action:
-
-    module: "template"
-    src: "{{ item.template }}"
-    dest: "{{ item.target }}"
-
-  with_items:
-
-    - template: "mysql-global-config"
-      target: "/etc/mysql/my.cnf"
-
 - name: "create mysql root user"
-  when: "inventory_hostname == mysql_master and mysql_state == 'installing'"
+  when: "inventory_hostname == mysql_master and mysql_state in [ 'installing', 'running' ]"
   action:
 
     module: "mysql_user"
@@ -38,8 +20,8 @@
     priv: "*.*:ALL,GRANT"
 
 - name: "install mysql user config"
-  when: "mysql_state == 'installing'"
   sudo: "yes"
+  when: "mysql_state in [ 'installing', 'running' ]"
   action:
 
     module: "template"
@@ -56,28 +38,5 @@
 
     - user: "ubuntu"
       home: "/home/ubuntu"
-
-- name: "disable mysql sysv init"
-  sudo: "yes"
-  register: "mysql_sysv_result"
-  changed_when: "mysql_sysv_result.stdout != 'UNCHANGED'"
-  shell:
-    test -e /etc/init.d/mysql || { echo UNCHANGED; exit 0; };
-    service mysql stop;
-    rm -f /etc/init.d/mysql /etc/init.d/rc?.d/[KS]??mysql;
-
-- name: "write mysql upstart config"
-  action:
-    module: "template"
-    src: "mysql-upstart"
-    dest: "/etc/init/mysql.conf"
-  sudo: "yes"
-  notify: [ "reload upstart config", "restart mysql" ]
-
-- set_fact_dynamic:
-    mysql.state: "unconfigured"
-  when: "mysql_state == 'installing'"
-
-- meta: "flush_handlers"
 
 # ex: et ts=2 filetype=yaml

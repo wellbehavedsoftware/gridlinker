@@ -336,8 +336,6 @@ class GenericContext (object):
 
 	def ansible_init (self):
 
-		print "IIIIIINNNNNIIIIIIIIITTTT"
-
 		with open ("%s/work/known-hosts" % self.home, "w") as file_handle:
 
 			for resource_name, resource_data in self.resources.get_all_list ():

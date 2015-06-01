@@ -4,11 +4,12 @@
 
 # other hosts
 
-{% for host_name in groups.all
-	if host_name != inventory_hostname
-	and host_data.private_address is defined %}
+{% for host_name in groups.all %}
 {% set host_data = hostvars [host_name] %}
+{% if host_name != inventory_hostname
+	and host_data.private_address is defined %}
 {{ host_data.private_address }} {{ host_name }}
+{% endif %}
 {% endfor %}
 
 # ipv4 misc
