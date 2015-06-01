@@ -1,0 +1,26 @@
+---
+
+- name: "install mysql config"
+  sudo: "yes"
+  notify: "set mysql.needs_restart to 'yes'"
+  action:
+
+    module: "template"
+    src: "{{ item.template }}"
+    dest: "{{ item.target }}"
+
+  with_items:
+
+    - template: "mysql-global-config"
+      target: "/etc/mysql/my.cnf"
+
+- name: "disable mysql sysv init"
+  sudo: "yes"
+  register: "mysql_sysv_result"
+  changed_when: "mysql_sysv_result.stdout != 'UNCHANGED'"
+  shell:
+    test -e /etc/init.d/mysql || { echo UNCHANGED; exit 0; };
+    service mysql stop;
+    rm -f /etc/init.d/mysql /etc/init.d/rc?.d/[KS]??mysql;
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,29 @@
+---
+
+- name: "install icinga packages"
+  action:
+    module: "apt"
+    package: "{{ item }}"
+  sudo: "yes"
+  with_items:
+    - "icinga2"
+    - "icinga2-ido-mysql"
+
+- name: "add ubuntu to nagios group"
+  action:
+    module: "user"
+    name: "ubuntu"
+    groups: "nagios"
+    append: "yes"
+  sudo: "yes"
+
+- name: "disable icinga sysv init"
+  sudo: "yes"
+  register: "icinga_sysv_result"
+  changed_when: "icinga_sysv_result.stdout != 'UNCHANGED'"
+  shell:
+    test -e /etc/init.d/icinga2 || { echo UNCHANGED; exit 0; };
+    service icinga2 stop;
+    rm -f /etc/init.d/icinga2 /etc/init.d/rc?.d/[KS]??icinga2;
+
+# ex: et ts=2 filetype=yaml

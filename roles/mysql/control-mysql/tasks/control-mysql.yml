@@ -1,0 +1,15 @@
+---
+
+- name: "write mysql upstart config"
+  action:
+    module: "template"
+    src: "mysql-upstart"
+    dest: "/etc/init/mysql.conf"
+  sudo: "yes"
+  notify:
+    - "reload upstart config"
+    - "set mysql.needs_restart to 'yes'"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

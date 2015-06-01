@@ -1,0 +1,13 @@
+---
+
+icinga_web_version: "no"
+icinga_web_github: "https://github.com/Icinga/icingaweb2/archive"
+icinga_web_temp: "/tmp/icinga-web-install"
+
+icinga_web_flag: "/etc/icinga-{{ icinga_web_version }}-flag"
+icinga_web_url: "{{ icinga_web_github }}/v{{ icinga_web_version }}.tar.gz"
+icinga_web_archive: "v{{ icinga_web_version }}.tar.gz"
+icinga_web_directory: "icingaweb2-{{ icinga_web_version }}"
+icinga_web_target: "/opt/icinga-web-{{ icinga_web_version }}"
+
+# ex: et ts=2 filetype=yaml

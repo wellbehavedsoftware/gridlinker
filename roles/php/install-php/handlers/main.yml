@@ -1,0 +1,10 @@
+---
+
+- name: "restart php"
+  action:
+    module: "service"
+    name: "php5-fpm"
+    state: "restarted"
+  sudo: "yes"
+
+# ex: et ts=2 filetype=yaml

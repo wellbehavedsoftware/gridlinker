@@ -1,0 +1,55 @@
+---
+
+icinga_master_config_templates:
+
+  - template: "icinga-master-commands"
+    target: "commands.conf"
+    mode: "0644"
+
+  - template: "icinga-master-constants"
+    target: "constants.conf"
+    mode: "0644"
+
+  - template: "icinga-master-hosts"
+    target: "hosts.conf"
+    mode: "0644"
+
+  - template: "icinga-master-icinga"
+    target: "icinga2.conf"
+    mode: "0644"
+
+  - template: "icinga-master-secrets"
+    target: "secrets.conf"
+    mode: "0600"
+
+  - template: "icinga-master-services"
+    target: "services.conf"
+    mode: "0644"
+
+  - template: "icinga-master-time-periods"
+    target: "time-periods.conf"
+    mode: "0644"
+
+  - template: "icinga-master-users"
+    target: "users.conf"
+    mode: "0644"
+
+  - template: "icinga-master-zones"
+    target: "zones.conf"
+    mode: "0644"
+
+icinga_master_security_files:
+
+  - source: "{{ icinga_ca_certificate }}"
+    target: "pki/ca.cert"
+    mode: "0644"
+
+  - source: "{{ icinga_certificate }}"
+    target: "pki/{{ inventory_hostname }}.cert"
+    mode: "0644"
+
+  - source: "{{ icinga_private_key }}"
+    target: "pki/{{ inventory_hostname }}.key"
+    mode: "0640"
+
+# ex: et ts=2 filetype=yaml

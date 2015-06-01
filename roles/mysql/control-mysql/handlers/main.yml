@@ -1,0 +1,30 @@
+---
+
+- name: "reload upstart config"
+  shell: "initctl reload-configuration"
+  sudo: "yes"
+
+- name: "set mysql.needs_restart to 'yes'"
+  set_fact_dynamic:
+    mysql.needs_restart: "yes"
+  changed_when: "True"
+  notify:
+    - "start, restart or stop mysql"
+    - "set mysql.needs_restart to 'no'"
+
+- name: "start, restart or stop mysql"
+  action:
+    module: "service"
+    name: "mysql"
+    state: "{{ 'restarted' if mysql_state in [ 'starting', 'running' ] else 'stopped' }}"
+  sudo: "yes"
+  when: "
+    mysql_needs_restart == 'yes'
+    and mysql_state in [ 'starting', 'running', 'stopping', 'stopped' ]
+  "
+
+- name: "set mysql.needs_restart to 'no'"
+  set_fact_dynamic:
+    mysql.needs_restart: "no"
+
+# ex: et ts=2 filetype=yaml

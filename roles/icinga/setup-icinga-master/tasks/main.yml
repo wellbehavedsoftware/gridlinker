@@ -1,0 +1,14 @@
+---
+
+- set_fact_dynamic:
+    icinga.state: "configuring"
+  when: "icinga_state == 'unconfigured'"
+
+- include: "setup-icinga-master.yml"
+  tags: "setup-icinga-master"
+
+- set_fact_dynamic:
+    icinga.state: "stopped"
+  when: "icinga_state == 'configuring'"
+
+# ex: et ts=2 filetype=yaml

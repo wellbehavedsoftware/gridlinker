@@ -1,0 +1,6 @@
+---
+
+- include: "add-amazon-instance-to-balancer.yml"
+  tags: "add-amazon-instance-to-balancer"
+
+# ex: et ts=2 filetype=yaml

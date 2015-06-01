@@ -1,15 +1,10 @@
-import etcd
-import imp
+from __future__ import absolute_import
+
 import os
-import sys
 
 from ansible import utils
 
-HOME = os.path.abspath (os.path.dirname (__file__) + "/../../..")
-
-support_path = "%s/misc/plugin-support.py" % HOME
-
-support = imp.load_source ("support", support_path)
+support = __import__ (os.environ ["WBS_DEVOPS_TOOLS_SUPPORT"]).support
 
 class LookupModule (object):
 
@@ -17,9 +12,7 @@ class LookupModule (object):
 
 		self.basedir = basedir
 
-		context = support.context ()
-
-		self.client = context.client
+		self.client = support.context.client
 
 	def run (self, terms, inject = None, ** kwargs):
 

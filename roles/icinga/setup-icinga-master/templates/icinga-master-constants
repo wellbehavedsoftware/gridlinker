@@ -1,0 +1,8 @@
+const PluginDir = "/usr/lib/nagios/plugins"
+const ManubulonPluginDir = "/usr/lib/nagios/plugins"
+const PluginContribDir = "/usr/lib/nagios/plugins"
+
+const NodeName = "{{ inventory_hostname }}"
+const ZoneName = NodeName
+
+const TicketSalt = "AAAA"

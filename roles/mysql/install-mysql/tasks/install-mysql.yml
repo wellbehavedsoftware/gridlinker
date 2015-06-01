@@ -1,0 +1,42 @@
+---
+
+- name: "install mysql packages"
+  action:
+    module: "apt"
+    name: "{{ item }}"
+  sudo: "yes"
+  with_items:
+
+    - "mysql-server-5.5"
+    - "python-mysqldb"
+
+- name: "create mysql root user"
+  when: "inventory_hostname == mysql_master and mysql_state in [ 'installing', 'running' ]"
+  action:
+
+    module: "mysql_user"
+    name: "root"
+    password: "{{ mysql_root_password }}"
+    priv: "*.*:ALL,GRANT"
+
+- name: "install mysql user config"
+  sudo: "yes"
+  when: "mysql_state in [ 'installing', 'running' ]"
+  action:
+
+    module: "template"
+    src: "mysql-user-config"
+    dest: "{{ item.home }}/.my.cnf"
+    owner: "{{ item.user }}"
+    group: "{{ item.user }}"
+    mode: "0600"
+
+  with_items:
+
+    - user: "root"
+      home: "/root"
+
+    - user: "ubuntu"
+      home: "/home/ubuntu"
+
+# ex: et ts=2 filetype=yaml

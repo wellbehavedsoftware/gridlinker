@@ -1,0 +1,10 @@
+---
+
+- name: "restart sshd"
+  action:
+    module: "service"
+    name: "ssh"
+    state: "restarted"
+  sudo: "yes"
+
+# ex: et ts=2 filetype=yaml
