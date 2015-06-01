@@ -34,11 +34,12 @@
 
 - name: "save amazon instance information"
   connection: "local"
-  set_fact:
-    amazon_instance_id: "{{ ec2_result.tagged_instances.0.id }}"
-    amazon_private_ip: "{{ ec2_result.tagged_instances.0.private_ip }}"
-    amazon_private_dns_name: "{{ ec2_result.tagged_instances.0.private_dns_name }}"
-    amazon_public_ip: "{{ ec2_result.tagged_instances.0.public_ip }}"
-    amazon_public_dns_name: "{{ ec2_result.tagged_instances.0.public_dns_name }}"
+  set_fact_dynamic:
+
+    amazon.instance_id: "{{ ec2_result.tagged_instances.0.id }}"
+    amazon.private_ip: "{{ ec2_result.tagged_instances.0.private_ip }}"
+    amazon.private_dns_name: "{{ ec2_result.tagged_instances.0.private_dns_name }}"
+    amazon.public_ip: "{{ ec2_result.tagged_instances.0.public_ip }}"
+    amazon.public_dns_name: "{{ ec2_result.tagged_instances.0.public_dns_name }}"
 
 # ex: et ts=2 filetype=yaml
