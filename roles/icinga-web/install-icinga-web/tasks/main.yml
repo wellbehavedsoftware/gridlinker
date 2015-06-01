@@ -1,8 +1,14 @@
 ---
 
+- debug:
+    var: "icinga_web_state"
+
 - set_fact_dynamic:
     icinga_web.state: "installing"
   when: "icinga_web_state is not defined"
+
+- debug:
+    var: "icinga_web_state"
 
 - include: "install-icinga-web.yml"
   tags: "install-icinga-web"
