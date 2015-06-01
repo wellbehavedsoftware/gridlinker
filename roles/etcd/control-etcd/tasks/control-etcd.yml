@@ -8,7 +8,7 @@
   sudo: "yes"
   notify:
     - "reload upstart config"
-    - "restart etcd"
+    - "set etcd.needs_restart to 'yes'"
 
 - meta: "flush_handlers"
 

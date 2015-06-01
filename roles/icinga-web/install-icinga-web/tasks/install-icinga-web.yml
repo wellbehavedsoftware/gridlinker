@@ -1,9 +1,5 @@
 ---
 
-- set_fact_dynamic:
-    icinga_web.state: "installing"
-  when: "icinga_web_state is not defined"
-
 - name: "create icingaweb2 group"
   action:
     module: "group"
@@ -48,9 +44,5 @@
     touch {{ icinga_web_flag }};
 
 - meta: "flush_handlers"
-
-- set_fact_dynamic:
-    icinga_web.state: "unconfigured"
-  when: "icinga_web_state == 'installing'"
 
 # ex: et ts=2 filetype=yaml

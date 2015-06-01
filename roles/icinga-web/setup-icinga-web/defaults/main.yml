@@ -66,10 +66,4 @@ icinga_web_config_templates:
     group: "icingaweb2"
     mode: "0640"
 
-  - template: "icinga-web-nginx-site"
-    target: "/etc/nginx/sites-available/icinga-web"
-    owner: "root"
-    group: "root"
-    mode: "0644"
-
 # ex: et ts=2 filetype=yaml

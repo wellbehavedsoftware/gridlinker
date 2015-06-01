@@ -19,6 +19,7 @@ resource_command = GenericCommand (
 				NameArgument (),
 				ClassArgument (),
 				GroupArgument (),
+				ParentArgument (),
 				IndexArgument (),
 
 			]),
@@ -48,6 +49,30 @@ resource_command = GenericCommand (
 				section = "identity",
 				name = "name",
 				label = "Name",
+				default = True),
+
+			SimpleColumn (
+				section = "identity",
+				name = "group",
+				label = "Group",
+				default = True),
+
+			SimpleColumn (
+				section = "identity",
+				name = "class",
+				label = "Class",
+				default = True),
+
+			SimpleColumn (
+				section = "identity",
+				name = "parent",
+				label = "Parent",
+				default = True),
+
+			SimpleColumn (
+				section = "identity",
+				name = "description",
+				label = "Description",
 				default = True),
 
 			SimpleColumn (
