@@ -23,6 +23,19 @@ group_command = GenericCommand (
 			]),
 
 			ArgumentGroup (
+				label = "basic group information",
+				arguments = [
+
+				SimpleArgument (
+					argument = "--description",
+					required = False,
+					key = "group_description",
+					value_name = "DESCRIPTION",
+					help = "user-friendly description"),
+
+			]),
+
+			ArgumentGroup (
 				label = "arbitrary configuration",
 				arguments = [
 

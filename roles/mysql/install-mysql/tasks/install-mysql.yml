@@ -1,5 +1,9 @@
 ---
 
+- set_fact:
+    mysql_state: "installing"
+  when: "mysql_state is not defined"
+
 - name: "install mysql packages"
   action:
     module: "apt"

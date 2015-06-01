@@ -1,0 +1,14 @@
+---
+
+- name: "reload upstart config"
+  shell: "initctl reload-configuration"
+  sudo: "yes"
+
+- name: "restart icinga2"
+  action:
+    module: "service"
+    name: "icinga2"
+    state: "{{ 'restarted' if icinga_state == 'running' else 'stopped' }}"
+  sudo: "yes"
+
+# ex: et ts=2 filetype=yaml
