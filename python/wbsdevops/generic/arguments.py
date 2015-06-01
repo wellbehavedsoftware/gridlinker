@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from collections import OrderedDict
+
 from wbsmisc import generate_password
 
 class ArgumentGroup:
@@ -495,6 +497,78 @@ class MiscAddArgument:
 				continue
 
 			record_data [section] [key].append (value)
+
+class MiscSetDictArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--set-dict",
+			action = "append",
+			nargs = 3,
+			default = [],
+			metavar = ("SECTION.KEY", "KEY", "VALUE"),
+			help = "miscellaneous value to store in dictionary")
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--set-dict",
+			action = "append",
+			nargs = 3,
+			default = [],
+			metavar = ("SECTION.KEY", "KEY", "VALUE"),
+			help = "miscellaneous value to store in dictionary")
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		for section_key, dict_key, value in arg_vars ["set_dict"]:
+
+			section, key = section_key.split (".")
+
+			if not section in record_data:
+				record_data [section] = {}
+
+			if not key in record_data [section]:
+				record_data [section] [key] = OrderedDict ()
+
+			record_data [section] [key] [dict_key] = value
+
+class MiscUnsetDictArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--unset-dict",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("SECTION.KEY", "KEY"),
+			help = "miscellaneous value to unset in dictionary")
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--unset-dict",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("SECTION.KEY", "KEY"),
+			help = "miscellaneous value to unset in dictionary")
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		for section_key, dict_key in arg_vars ["unset_dict"]:
+
+			section, key = section_key.split (".")
+
+			if not section in record_data:
+				return
+
+			if not key in record_data [section]:
+				return
+
+			del (record_data [section] [key] [dict_key])
 
 class GeneratePasswordArgument:
 

@@ -33,6 +33,9 @@ resource_command = GenericCommand (
 				MiscAddArgument (),
 				MiscRemoveArgument (),
 
+				MiscSetDictArgument (),
+				MiscUnsetDictArgument (),
+
 				GeneratePasswordArgument (),
 
 			]),
