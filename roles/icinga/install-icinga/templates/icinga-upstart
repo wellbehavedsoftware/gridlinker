@@ -1,0 +1,13 @@
+description "icinga2"
+
+{% if icinga_state == 'running' %}
+start on runlevel [2345]
+stop on runlevel [!2345]
+{% endif %}
+
+respawn
+respawn limit unlimited
+
+exec /usr/sbin/icinga2 daemon >/var/log/icinga2/startup.log
+
+post-stop exec sleep 2

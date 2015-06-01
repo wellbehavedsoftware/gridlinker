@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import io
 import os
 import paramiko.rsakey
 import StringIO
@@ -46,7 +47,7 @@ def do_generate (context, args):
 		args.comment or args.name,
 	])
 
-	private_key_io = StringIO.StringIO ()
+	private_key_io = io.StringIO ()
 	key.write_private_key (private_key_io)
 	private_key = private_key_io.getvalue ()
 
