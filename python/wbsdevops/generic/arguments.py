@@ -108,6 +108,9 @@ class ClassArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
+		if not "class" in arg_vars:
+			return
+
 		value = arg_vars ["class"]
 
 		if value:

@@ -286,9 +286,7 @@ class Client:
 			accept_response = [ 200, 201, 404 ])
 
 		if status == 404:
-
-			raise LookupError (
-				"No such key: %s" % key)
+			return []
 
 		return self.walk_tree (key, data ["node"])
 
