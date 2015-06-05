@@ -42,7 +42,7 @@
 
     vpc_id: "{{ amazon_vpc_id }}"
     region: "{{ amazon_region_name }}"
-    
+
     aws_access_key: "{{ amazon_access_key_id }}"
     aws_secret_key: "{{ amazon_secret_access_key }}"
 
@@ -66,7 +66,7 @@
 
     vpc_id: "{{ amazon_vpc_id }}"
     region: "{{ amazon_region_name }}"
-    
+
     aws_access_key: "{{ amazon_access_key_id }}"
     aws_secret_key: "{{ amazon_secret_access_key }}"
 

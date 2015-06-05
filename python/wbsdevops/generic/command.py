@@ -50,12 +50,14 @@ class GenericCommand:
 
 		collection = self.helper.get_collection (context)
 
-		if collection.exists (args.name):
+		unique_name = self.helper.get_unique_name (context, args)
+
+		if collection.exists (unique_name):
 
 			raise Exception (
 				"%s already exists: %s" % (
 					self.helper.name.title (),
-					args.name))
+					unique_name))
 
 		record_data = {
 			"identity": {
@@ -83,13 +85,13 @@ class GenericCommand:
 
 			temp_again.close ()
 
-		collection.set (args.name, record_data)
+		collection.set (unique_name, record_data)
 
-		self.helper.update_files (context, args, collection)
+		self.helper.update_files (context, args, unique_name, collection)
 
 		print ("Created %s %s" % (
 			self.helper.name,
-			args.name))
+			unique_name))
 
 	def args_list (self, sub_parsers):
 
@@ -196,9 +198,9 @@ class GenericCommand:
 
 				sys.stdout.write (value.ljust (column_size + 1))
 
-			sys.stdout.write ("\n")		
+			sys.stdout.write ("\n")
 
-		sys.stdout.write ("\n")		
+		sys.stdout.write ("\n")
 
 	def args_update (self, sub_parsers):
 
@@ -336,13 +338,13 @@ class CommandHelper:
 			if hasattr (custom_arg, "update_record"):
 				custom_arg.update_record (arg_vars, record_data, self)
 
-	def update_files (self, context, args, collection):
+	def update_files (self, context, args, unique_name, collection):
 
 		arg_vars = vars (args)
 
 		for custom_arg in self.custom_args:
 			if hasattr (custom_arg, "update_files"):
-				custom_arg.update_files (arg_vars, collection, self)
+				custom_arg.update_files (arg_vars, unique_name, collection, self)
 
 	def get_collection (self, context):
 

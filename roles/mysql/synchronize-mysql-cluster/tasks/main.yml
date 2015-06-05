@@ -13,5 +13,5 @@
   set_fact_dynamic:
     mysql.state: "stopped"
   when: "mysql_state == 'synchronizing'"
-  
+
 # ex: et ts=2 filetype=yaml
