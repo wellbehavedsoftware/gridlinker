@@ -3,9 +3,50 @@ from __future__ import unicode_literals
 
 from wbsdevops.generic import *
 
+class ResourceHelper (CommandHelper):
+
+	def get_unique_name (self, context, args):
+
+		# verify group or class
+
+		if args.group:
+
+			if getattr (args, "class") and args.group:
+				raise Exception ()
+
+			group_name = args.group
+			group_data = context.groups.get (group_name)
+
+			class_name = group_data ["identity"] ["class"]
+			class_data = context.local_data ["classes"] [class_name]
+
+		elif getattr (args, "class"):
+
+			class_name = getattr (args, "class")
+			class_data = context.local_data ["classes"] [class_name]
+
+		else:
+			raise Exception ()
+
+		# determine unique name depending on scope
+
+		if class_data ["class"] ["scope"] == "group":
+			unique_name = "%s/%s" % (group_name, args.name)
+
+		elif class_data ["class"] ["scope"] == "class":
+			unique_name = "%s/%s" % (class_name, args.name)
+
+		elif class_data ["class"] ["scope"] == "global":
+			unique_name = args.name
+
+		else:
+			raise Exception ()
+
+		return unique_name
+
 resource_command = GenericCommand (
 
-	CommandHelper (
+	ResourceHelper (
 
 		name = "resource",
 		help = "manage resource definitions",
