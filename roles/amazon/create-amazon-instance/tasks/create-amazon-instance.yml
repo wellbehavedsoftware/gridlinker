@@ -1,0 +1,45 @@
+---
+
+- name: "create amazon instance"
+  connection: "local"
+  register: "ec2_result"
+  action:
+    module: "ec2"
+
+    exact_count: "1"
+    count_tag: { Name: "{{ inventory_hostname }}" }
+    instance_tags: { Name: "{{ inventory_hostname }}" }
+
+    region: "{{ amazon_region_name }}"
+    zone: "{{ amazon_zone_name }}"
+
+    image: "{{ amazon_image }}"
+    kernel: "{{ amazon_kernel }}"
+
+    group: "{{ amazon_security_group_names }}"
+    key_name: "{{ amazon_key_name }}"
+
+    vpc_subnet_id: "{{ amazon_vpc_subnet_id }}"
+    assign_public_ip: "{{ amazon_assign_public_ip }}"
+    private_ip: "{{ amazon_private_ip }}"
+    source_dest_check: "{{ amazon_source_dest_check }}"
+
+    instance_type: "{{ amazon_instance_type }}"
+    ebs_optimized: "{{ amazon_ebs_optimized }}"
+
+    wait: "yes"
+
+    aws_access_key: "{{ amazon_access_key_id }}"
+    aws_secret_key: "{{ amazon_secret_access_key }}"
+
+- name: "save amazon instance information"
+  connection: "local"
+  set_fact_dynamic:
+
+    amazon.instance_id: "{{ ec2_result.tagged_instances.0.id }}"
+    amazon.private_ip: "{{ ec2_result.tagged_instances.0.private_ip }}"
+    amazon.private_dns_name: "{{ ec2_result.tagged_instances.0.private_dns_name }}"
+    amazon.public_ip: "{{ ec2_result.tagged_instances.0.public_ip }}"
+    amazon.public_dns_name: "{{ ec2_result.tagged_instances.0.public_dns_name }}"
+
+# ex: et ts=2 filetype=yaml

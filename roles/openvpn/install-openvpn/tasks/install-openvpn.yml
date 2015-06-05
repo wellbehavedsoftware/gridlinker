@@ -1,0 +1,23 @@
+---
+
+- name: "install openvpn packages"
+  action:
+    module: "apt"
+    name: "{{ item }}"
+  sudo: "yes"
+  with_items:
+    - "openvpn"
+
+- name: "create tun device"
+  sudo: "yes"
+  args:
+    creates: "/dev/net/tun"
+    executable: "/bin/bash"
+  shell:
+
+    set -euf -o pipefail;
+
+    mkdir -p /dev/net;
+    mknod /dev/net/tun c 10 200;
+
+# ex: et ts=2 filetype=yaml

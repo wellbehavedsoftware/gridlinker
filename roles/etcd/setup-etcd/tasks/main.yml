@@ -1,0 +1,16 @@
+---
+
+- name: "set etcd.state to 'configuring'"
+  set_fact_dynamic:
+    etcd.state: "configuring"
+  when: "etcd_state == 'unconfigured'"
+
+- include: "setup-etcd.yml"
+  tags: "setup-etcd"
+
+- name: "set etcd.state to 'stopped'"
+  set_fact_dynamic:
+    etcd.state: "stopped"
+  when: "etcd_state == 'configuring'"
+
+# ex: et ts=2 filetype=yaml

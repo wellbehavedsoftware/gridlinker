@@ -1,0 +1,30 @@
+---
+
+- name: "reload upstart config"
+  shell: "initctl reload-configuration"
+  sudo: "yes"
+
+- name: "set etcd.needs_restart to 'yes'"
+  set_fact_dynamic:
+    etcd.needs_restart: "yes"
+  changed_when: "True"
+  notify:
+    - "start, restart or stop etcd"
+    - "set etcd.needs_restart to 'no'"
+
+- name: "start, restart or stop etcd"
+  action:
+    module: "service"
+    name: "etcd"
+    state: "{{ 'restarted' if etcd_state in [ 'starting', 'running' ] else 'stopped' }}"
+  sudo: "yes"
+  when: "
+    etcd_needs_restart == 'yes'
+    and etcd_state in [ 'starting', 'running', 'stopping', 'stopped' ]
+  "
+
+- name: "set etcd.needs_restart to 'no'"
+  set_fact_dynamic:
+    etcd.needs_restart: "no"
+
+# ex: et ts=2 filetype=yaml

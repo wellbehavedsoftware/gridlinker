@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from wbsdevops.generic import *
 
@@ -15,35 +16,49 @@ admin_command = GenericCommand (
 
 		custom_args = [
 
-			NameArgument (
-				argument = "--name",
-				key = "admin_name"),
+			ArgumentGroup (
+				label = "basic admin information",
+				arguments = [
 
-			SimpleArgument (
-				argument = "--full-name",
-				key = "admin_full_name",
-				value_name = "NAME",
-				help = "full name of admin"),
+				NameArgument (),
 
-			FileArgument (
-				argument = "--ssh-key",
-				path = "ssh-key",
-				help = "public ssh key to identify admin"),
+				SimpleArgument (
+					argument = "--full-name",
+					required = False,
+					key = "admin_full_name",
+					value_name = "NAME",
+					help = "full name of admin"),
 
-			SetArgument (),
-			GeneratePasswordArgument (),
+				FileArgument (
+					argument = "--ssh-key",
+					path = "ssh-key",
+					help = "public ssh key to identify admin"),
+
+			]),
+
+			ArgumentGroup (
+				label = "arbitrary configuration",
+				arguments = [
+
+				MiscSetArgument (),
+				#MiscAddArgument (),
+				#GeneratePasswordArgument (),
+
+			]),
 
 		],
 
 		custom_columns = [
 
 			SimpleColumn (
-				name = "admin_name",
+				section = "identity",
+				name = "name",
 				label = "Name",
 				default = True),
 
 			SimpleColumn (
-				name = "admin_full_description",
+				section = "identity",
+				name = "full_name",
 				label = "Full name",
 				default = True),
 

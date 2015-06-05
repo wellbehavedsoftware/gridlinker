@@ -1,0 +1,6 @@
+---
+
+- include: "create-amazon-vpc.yml"
+  tags: "create-amazon-vpc"
+
+# ex: et ts=2 filetype=yaml

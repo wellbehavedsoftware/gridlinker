@@ -1,0 +1,26 @@
+---
+
+- name: "install nginx packages"
+  action:
+    module: "apt"
+    name: "{{ item }}"
+  sudo: "yes"
+  with_items:
+    - "nginx"
+
+- name: "configure nginx"
+  action:
+    module: "template"
+    src: "{{ item.template }}"
+    dest: "{{ item.target }}"
+  sudo: "yes"
+  notify: "restart nginx"
+  with_items:
+
+    - template: "install-nginx-main-config"
+      target: "/etc/nginx/nginx.conf"
+
+    - template: "install-nginx-sites-default"
+      target: "/etc/nginx/sites-available/default"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,26 @@
+---
+
+- name: "install etcd"
+  sudo: "yes"
+  when: "etcd_state == 'installing'"
+  args:
+    executable: "/bin/bash"
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ etcd_temp }}";
+    mkdir "{{ etcd_temp }}";
+    cd "{{ etcd_temp }}";
+
+    wget --quiet "{{ etcd_url }}";
+
+    tar -xzf "{{ etcd_archive }}";
+
+    rsync --archive --delete
+      "{{ etcd_directory }}/"
+      "{{ etcd_target }}/";
+
+    rm -rf "{{ etcd_temp }}";
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,76 @@
+---
+
+- name: "setup amazon vpcs"
+  register: "amazon_vpc_result"
+  action:
+    module: "ec2_vpc"
+
+    resource_tags: { Name: "{{ amazon_vpc_name }}" }
+
+    cidr_block: "{{ private_network }}/{{ private_netmask_bits }}"
+    internet_gateway: "yes"
+
+    dns_hostnames: "yes"
+    dns_support: "yes"
+
+    region: "{{ amazon_region_name }}"
+
+    subnets: "{{ amazon_vpc_subnets }}"
+    route_tables: "{{ amazon_vpc_route_tables }}"
+
+    aws_access_key: "{{ amazon_access_key_id }}"
+    aws_secret_key: "{{ amazon_secret_access_key }}"
+
+    wait: "yes"
+
+- set_fact_dynamic:
+
+    amazon_vpc.id: "{{ amazon_vpc_result.vpc_id }}"
+    amazon_vpc.subnet_ids: "{{
+      amazon_vpc_result.subnets
+      | list_to_map ('resource_tags.Name', 'id')
+    }}"
+
+- name: "setup security groups pass 1"
+  with_items: "amazon_vpc_security_groups"
+  register: "amazon_vpc_security_groups_result"
+  action:
+    module: "ec2_group"
+
+    name: "{{ item.name }}"
+    description: "{{ item.description | default (item.name) }}"
+
+    vpc_id: "{{ amazon_vpc_id }}"
+    region: "{{ amazon_region_name }}"
+
+    aws_access_key: "{{ amazon_access_key_id }}"
+    aws_secret_key: "{{ amazon_secret_access_key }}"
+
+    purge_rules: "no"
+    purge_rules_egress: "no"
+
+- set_fact_dynamic:
+
+    amazon_vpc.security_group_ids: "{{
+      amazon_vpc_security_groups_result.results
+      | list_to_map ('item.name', 'group_id')
+    }}"
+
+- name: "setup security groups pass 2"
+  with_items: "amazon_vpc_security_groups"
+  action:
+    module: "ec2_group"
+
+    name: "{{ item.name }}"
+    description: "{{ item.description | default (item.name) }}"
+
+    vpc_id: "{{ amazon_vpc_id }}"
+    region: "{{ amazon_region_name }}"
+
+    aws_access_key: "{{ amazon_access_key_id }}"
+    aws_secret_key: "{{ amazon_secret_access_key }}"
+
+    rules: "{{ item.ingress_rules | default ([]) }}"
+    rules_egress: "{{ item.egress_rules | default ([]) }}"
+
+# ex: et ts=2 filetype=yaml

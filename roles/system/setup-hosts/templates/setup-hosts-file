@@ -1,0 +1,25 @@
+# this host
+
+{{ private_address }} {{ inventory_hostname }}
+
+# other hosts
+
+{% for host_name in groups.all %}
+{% set host_data = hostvars [host_name] %}
+{% if host_name != inventory_hostname
+	and host_data.private_address is defined %}
+{{ host_data.private_address }} {{ host_name }}
+{% endif %}
+{% endfor %}
+
+# ipv4 misc
+
+127.0.0.1 localhost localhost.localdomain
+
+# ipv6 misc
+
+::1 ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters

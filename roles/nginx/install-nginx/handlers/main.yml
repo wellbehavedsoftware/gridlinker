@@ -1,0 +1,10 @@
+---
+
+- name: "restart nginx"
+  action:
+    module: "service"
+    name: "nginx"
+    state: "restarted"
+  sudo: "yes"
+
+# ex: et ts=2 filetype=yaml
