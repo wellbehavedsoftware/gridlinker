@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 from ansible import utils
 from ansible.runner.return_data import ReturnData
 from ansible.utils import template

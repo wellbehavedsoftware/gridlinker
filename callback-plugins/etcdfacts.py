@@ -1,10 +1,15 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
+import importlib
 import os
 
-support = __import__ (os.environ ["WBS_DEVOPS_TOOLS_SUPPORT"]).support
-
 class CallbackModule (object):
+
+	def __init__ (self):
+
+		self.support = importlib.import_module (os.environ ["WBS_DEVOPS_TOOLS_SUPPORT"]).support
+		self.context = self.support.get_context ()
 
 	def runner_on_ok (self, record_name, result):
 
@@ -24,7 +29,7 @@ class CallbackModule (object):
 
 		found_records = []
 
-		for collection in support.context.collections:
+		for collection in self.context.collections:
 
 			if not collection.exists (record_name):
 				continue

@@ -17,15 +17,36 @@ from wbsmisc import SchemaDatabase
 
 from wbsdevops.certificate import CertificateAuthority
 
-from wbsdevops.generic import GenericCollection
+from wbsdevops.generic.collection import GenericCollection
 
 class GenericContext (object):
 
-	def __init__ (self, home, connection_name, args):
+	def __init__ (self, home, connection_name, project_metadata):
 
 		self.home = home
 		self.connection_name = connection_name
-		self.args = args
+		self.project_metadata = project_metadata
+
+	@lazy_property
+	def support_package (self):
+
+		return "wbsdevops.generic"
+
+	@lazy_property
+	def devops_script (self):
+
+		return os.environ [
+			self.project_metadata ["environment"] ["devops_script"]]
+
+	@lazy_property
+	def ansible_inventory_file (self):
+	
+		return "%s/misc/inventory-script" % self.wbs_devops_tools_home
+
+	@lazy_property
+	def certificate_data (self):
+
+		return self.project_metadata ["certificate_data"]
 
 	@lazy_property
 	def connections_config (self):
@@ -134,6 +155,7 @@ class GenericContext (object):
 			"WBS_DEVOPS_PARENT_WORK": "%s/work" % self.home,
 			"WBS_DEVOPS_TOOLS_SUPPORT": self.support_package,
 			"WBS_DEVOPS_KNOWN_HOSTS": "%s/work/known-hosts" % self.home,
+			"WBS_DEVOPS_CONNECTION": self.connection_name,
 
 			"ANSIBLE_CONFIG": "work/ansible.cfg",
 			"ANSIBLE_HOME": self.ansible_home,
@@ -237,13 +259,9 @@ class GenericContext (object):
 	def ansible_args (self):
 
 		return [
-			"--inventory-file", "%s/misc/inventory-script" % self.home,
+			"--inventory-file", self.ansible_inventory_file,
 			"--extra-vars", "@%s/config/overrides.yml" % self.home,
 		]
-
-	def ansible_init (self):
-
-		pass
 
 	@lazy_property
 	def authorities (self):
@@ -347,6 +365,7 @@ class GenericContext (object):
 					resource_data.get ("amazon", {}).get ("public_dns_name", None),
 					resource_data.get ("amazon", {}).get ("private_ip", None),
 					resource_data.get ("amazon", {}).get ("private_dns_name", None),
+					resource_data.get ("ansible", {}).get ("ssh_host", None),
 				])))
 
 				if not addresses:
