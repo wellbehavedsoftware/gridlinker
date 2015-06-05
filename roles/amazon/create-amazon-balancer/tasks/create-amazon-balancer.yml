@@ -1,0 +1,22 @@
+---
+
+- name: "create amazon balancer"
+  register: "balancer_result"
+  action:
+    module: "ec2_elb_lb"
+
+    name: "{{ amazon_balancer_name }}"
+    state: "present"
+
+    listeners: "{{ amazon_balancer_listeners }}"
+    health_check: "{{ amazon_balancer_health_check }}"
+
+    subnets: "{{ amazon_vpc_subnet_ids }}"
+    security_group_ids: "{{ amazon_security_group_ids }}"
+
+    region: "{{ amazon_region_name }}"
+
+    aws_access_key: "{{ amazon_access_key_id }}"
+    aws_secret_key: "{{ amazon_secret_access_key }}"
+
+# ex: et ts=2 filetype=yaml

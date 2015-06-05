@@ -1,0 +1,16 @@
+---
+
+- name: "set mysql.state to 'configuring'"
+  set_fact_dynamic:
+    mysql.state: "configuring"
+  when: "mysql_state == 'unconfigured'"
+
+- include: "setup-mysql.yml"
+  tags: "setup-mysql"
+
+- name: "set mysql.state to 'unsynchronized'"
+  set_fact_dynamic:
+    mysql.state: "unsynchronized"
+  when: "mysql_state == 'configuring'"
+
+# ex: et ts=2 filetype=yaml

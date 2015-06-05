@@ -1,0 +1,12 @@
+---
+
+- name: "wait for host"
+  connection: "local"
+  wait_for:
+    host: "{{ ansible_ssh_host }}"
+    delay: "1"
+    timeout: "300"
+    port: "22"
+    search_regex: "OpenSSH"
+
+# ex: et ts=2 filetype=yaml

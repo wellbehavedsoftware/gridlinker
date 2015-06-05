@@ -1,39 +1,16 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
+import httplib
+import ipaddress
 import json
 import os
 import ssl
-import urllib3
+import urllib
 
 from wbsmisc import yamlx
 
 class Client:
-
-	def http (self):
-
-		if os.getpid () != self.pid:
-
-			if self.secure:
-
-				self.pool = urllib3.PoolManager (
-					num_pools = 10,
-					ca_certs = self.client_ca_cert,
-					cert_file = self.client_cert,
-					key_file = self.client_key,
-					cert_reqs = ssl.CERT_REQUIRED)
-
-				self.server_url = "https://%s:%s" % (self.servers [0], self.port)
-
-			else:
-
-				self.pool = urllib3.PoolManager (
-					num_pools = 10)
-
-				self.server_url = "http://%s:%s" % (self.servers [0], self.port)
-
-			self.pid = os.getpid ()
-
-		return self.pool
 
 	def __init__ (
 		self,
@@ -54,71 +31,209 @@ class Client:
 		self.client_key = client_key
 		self.prefix = prefix
 
+		if self.secure:
+
+			self.server_url = "https://%s:%s" % (self.servers [0], self.port)
+
+			self.ssl_context = ssl.SSLContext (
+				ssl.PROTOCOL_TLSv1_2)
+
+			self.ssl_context.verify_mode = ssl.CERT_REQUIRED
+			self.ssl_context.check_hostname = False
+
+			self.ssl_context.load_verify_locations (
+				cafile = self.client_ca_cert)
+
+		else:
+
+			self.server_url = "http://%s:%s" % (self.servers [0], self.port)
+
 		self.pid = None
+
+	def get_connection (self):
+
+		if os.getpid () != self.pid:
+
+			if self.secure:
+
+				connection = httplib.HTTPSConnection (
+					host = self.servers [0],
+					port = self.port,
+					key_file = self.client_key,
+					cert_file = self.client_cert,
+					context = self.ssl_context)
+
+				connection.connect ()
+
+				peer_certificate = connection.sock.getpeercert ()
+				peer_alt_names = peer_certificate ["subjectAltName"]
+
+				# check if the server is an ip address
+
+				try:
+
+					ipaddress.ip_address (
+						unicode (self.servers [0].encode ("utf-8")))
+
+					is_ip_address = True
+
+				except ValueError:
+
+					is_ip_address = False
+
+				if is_ip_address:
+
+					# match ip addresses with custom code
+
+					if not self.servers [0] in [
+						alt_value
+						for alt_type, alt_value in peer_alt_names
+						if alt_type == 'IP Address'
+					]:
+
+						raise Exception ()
+
+				else:
+
+					# match hostnames using python implementation
+
+					ssl.match_hostname (
+						peer_certificate,
+						self.servers [0])
+
+				self.connection = connection
+	
+			else:
+
+				connection = httplib.HTTPConnection (
+					host = self.servers [0],
+					port = self.port)
+
+				connection.connect ()
+
+				self.connection = connection
+
+			self.pid = os.getpid ()
+
+		return self.connection
 
 	def key_url (self, key):
 
-		url_string = "%s/v2/keys%s%s" % (
-			self.server_url,
+		url_string = u"/v2/keys%s%s" % (
 			self.prefix,
 			key)
 
-		return url_string.encode ("utf-8")
+		return url_string
 
 	def exists (self, key):
 
-		response = self.http ().request (
-			"GET",
-			self.key_url (key))
+		result, _ = self.make_request (
+			method = "GET",
+			url = self.key_url (key),
+			accept_response = [ 200, 404 ])
 
-		if response.status == 200:
+		if result == 200:
 			return True
 
-		if response.status == 404:
+		if result == 404:
 			return False
 
 		raise Exception ()
 
 	def get_raw (self, key):
 
-		response = self.http ().request (
-			"GET",
-			self.key_url (key))
+		result, data = self.make_request (
+			method = "GET",
+			url = self.key_url (key),
+			accept_response = [ 200, 404 ])		
 
-		if response.status == 404:
+		if result == 404:
 
 			raise LookupError (
 				"No such key: %s" % key)
 
-		if response.status != 200:
-
-			raise Exception (
-				"Error %s: %s" % (
-					response.status,
-					response.reason))
-
-		value_etcd = json.loads (response.data)
-
-		return value_etcd ["node"] ["value"]
+		return data ["node"] ["value"]
 
 	def set_raw (self, key, value):
 
-		payload = {
-			"value": value,
-		}
+		self.make_request (
+			method = "PUT",
+			url = self.key_url (key),
+			payload_data = {
+				"value": value,
+			})
 
-		response = self.http ().request_encode_body (
-			"PUT",
-			self.key_url (key),
-			payload,
-			encode_multipart = False)
+	def make_request (self, method, url,
+		query_data = {},
+		payload_data = {},
+		accept_response = [ 200, 201 ]):
 
-		if not response.status in [200, 201]:
+		# prepare query
+
+		query_string = urllib.urlencode (query_data)
+
+		if query_string:
+			url += "&" if "?" in url else "?"
+			url += query_string
+
+		# prepare payload
+
+		payload_string = urllib.urlencode (payload_data)
+		payload_bytes = payload_string.encode ("utf-8")
+
+		# get connection
+
+		connection = self.get_connection ()
+
+		# send request
+
+		connection.putrequest (method, url)
+
+		if payload_string:
+
+			connection.putheader (
+				"Content-Length",
+				len (payload_bytes))
+
+			connection.putheader (
+				"Content-Type",
+				"application/x-www-form-urlencoded")
+
+		connection.endheaders ()		
+
+		if payload_data:
+			connection.send (payload_bytes)
+
+		# read response
+
+		response = connection.getresponse ()
+
+		response_bytes = response.read ()
+
+		# check response
+
+		if not response.status in accept_response:
 
 			raise Exception (
 				"Error %s: %s" % (
 					response.status,
 					response.reason))
+
+		# decode response
+
+		if response.getheader ("Content-Type") == "application/json":
+
+			return (
+				response.status,
+				json.loads (response_bytes.decode ("utf-8")),
+			)
+
+		else:
+
+			return (
+				response.status,
+				None,
+			)
 
 	def update_raw (self, key, old_value, new_value):
 
@@ -162,30 +277,18 @@ class Client:
 
 	def get_tree (self, key):
 
-		payload = {
-			"recursive": "true",
-		}
+		status, data = self.make_request (
+			method = "GET",
+			url = self.key_url (key),
+			query_data = {
+				"recursive": "true",
+			},
+			accept_response = [ 200, 201, 404 ])
 
-		response = self.http ().request (
-			"GET",
-			self.key_url (key),
-			payload)
+		if status == 404:
+			return []
 
-		if response.status == 404:
-
-			raise LookupError (
-				"No such key: %s" % key)
-
-		if not response.status in [200, 201]:
-
-			raise Exception (
-				"Error %s: %s" % (
-					response.status,
-					response.reason))
-
-		tree_etcd = json.loads (response.data)
-
-		return self.walk_tree (key, tree_etcd ["node"])
+		return self.walk_tree (key, data ["node"])
 
 	def walk_tree (self, prefix, node):
 

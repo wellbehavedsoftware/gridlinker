@@ -453,7 +453,7 @@ def do_create (context, args):
 
 	authority.create (args.common_name)
 
-	print "Created certificate authority %s" % args.authority
+	print ("Created certificate authority %s" % args.authority)
 
 def args_issue (sub_parsers):
 
@@ -512,16 +512,19 @@ def args_issue (sub_parsers):
 		"store")
 
 	parser_store.add_argument (
-		"--store-host",
-		help = "TODO")
+		"--store-resource",
+		metavar = "RESOURCE",
+		help = "store this certificate's identity in a resource")
 
 	parser_store.add_argument (
 		"--store-certificate",
-		help = "TODO")
+		metavar = "SECTION.KEY",
+		help = "key to store the certificate's path")
 
 	parser_store.add_argument (
 		"--store-private-key",
-		help = "TODO")
+		metavar = "SECTION.KEY",
+		help = "key to store the private key's path")
 
 	# alt names
 
@@ -565,30 +568,42 @@ def do_issue (context, args):
 
 	except AlreadyExistsError:
 
-		print "Certificate already exists for %s" % (
-			args.common_name)
+		print ("Certificate already exists for %s" % (
+			args.common_name))
 
 		sys.exit (1)
 
-	print "Issued certificate %s %s %s" % (
+	print ("Issued certificate %s %s %s" % (
 		certificate.serial,
 		certificate.digest,
-		args.common_name)
+		args.common_name))
 
-	if args.store_host:
+	if args.store_resource:
 
-		host_data = context.hosts.get (args.store_host)
+		resource_data = context.resources.get (args.store_resource)
 
 		if args.store_certificate:
-			host_data [args.store_certificate] = certificate.certificate_path
+
+			section, key = args.store_certificate.split (".")
+
+			if not section in resource_data:
+				resource_data [section] = {}
+
+			resource_data [section] [key] = certificate.certificate_path
 
 		if args.store_private_key:
-			host_data [args.store_private_key] = certificate.private_key_path
 
-		context.hosts.set (args.store_host, host_data)
+			section, key = args.store_private_key.split (".")
 
-		print "Stored certificate in host %s" % (
-			args.store_host)
+			if not section in resource_data:
+				resource_data [section] = {}
+
+			resource_data [section] [key] = certificate.private_key_path
+
+		context.resources.set (args.store_resource, resource_data)
+
+		print ("Stored certificate in resource %s" % (
+			args.store_resource))
 
 def args_export (sub_parsers):
 
@@ -644,7 +659,7 @@ def do_export (context, args):
 
 	except KeyError:
 
-		print "not found"
+		print ("not found")
 		sys.exit (1)
 
 	if args.certificate:
@@ -653,8 +668,8 @@ def do_export (context, args):
 
 			file_handle.write (certificate.certificate)
 
-		print "Wrote certificate to %s" % (
-			args.certificate)
+		print ("Wrote certificate to %s" % (
+			args.certificate))
 
 	if args.chain:
 
@@ -662,8 +677,8 @@ def do_export (context, args):
 
 			file_handle.write (authority.root_certificate ())
 
-		print "Wrote chain to %s" % (
-			args.chain)
+		print ("Wrote chain to %s" % (
+			args.chain))
 
 	if args.certificate_and_chain:
 
@@ -672,19 +687,19 @@ def do_export (context, args):
 			file_handle.write (certificate.certificate)
 			file_handle.write (authority.root_certificate ())
 
-		print "Wrote certificate and chain to %s" % (
-			args.certificate_and_chain)
+		print ("Wrote certificate and chain to %s" % (
+			args.certificate_and_chain))
 
 	if args.private_key:
 
 		with open (args.private_key, "w") as file_handle:
 
-			os.fchmod (file_handle.fileno (), 0600)
+			os.fchmod (file_handle.fileno (), 0o600)
 
 			file_handle.write (certificate.private_key)
 
-		print "Wrote private key to %s" % (
-			args.private_key)
+		print ("Wrote private key to %s" % (
+			args.private_key))
 
 def args_revoke (sub_parsers):
 

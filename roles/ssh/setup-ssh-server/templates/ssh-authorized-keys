@@ -1,0 +1,6 @@
+{% for admin in cluster_admins %}
+{{ lookup ('etcd', '/admin/' + admin + '/ssh-key') }}
+{% endfor %}
+{% for additional_ssh_key in ssh_additional_keys %}
+{{ lookup ('etcd', additional_ssh_key) }}
+{% endfor %}

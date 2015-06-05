@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from wbsdevops.generic import *
 
@@ -11,30 +12,55 @@ group_command = GenericCommand (
 
 		custom_args = [
 
-			NameArgument (
-				argument = "--name",
-				key = "group_name"),
+			ArgumentGroup (
+				label = "group identity",
+				arguments = [
 
-			SimpleArgument (
-				argument = "--description",
-				key = "group_description",
-				value_name = "DESCRIPTION",
-				help = "user-friendly description"),
+				NameArgument (),
+				ClassArgument (),
+				ParentArgument (),
 
-			SetArgument (),
-			GeneratePasswordArgument (),
+			]),
+
+			ArgumentGroup (
+				label = "arbitrary configuration",
+				arguments = [
+
+				MiscSetArgument (),
+				MiscUnsetArgument (),
+
+				MiscAddArgument (),
+				MiscRemoveArgument (),
+
+				GeneratePasswordArgument (),
+
+			]),
 
 		],
 
 		custom_columns = [
 
 			SimpleColumn (
-				name = "group_name",
+				section = "identity",
+				name = "name",
 				label = "Name",
 				default = True),
 
 			SimpleColumn (
-				name = "group_description",
+				section = "identity",
+				name = "class",
+				label = "Class",
+				default = True),
+
+			SimpleColumn (
+				section = "identity",
+				name = "parent",
+				label = "Parent",
+				default = True),
+
+			SimpleColumn (
+				section = "identity",
+				name = "description",
 				label = "Description",
 				default = True),
 

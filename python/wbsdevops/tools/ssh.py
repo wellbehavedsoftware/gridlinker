@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 def args (sub_parsers):
 
@@ -20,6 +21,6 @@ def args_ssh (prev_sub_parsers):
 
 def do_ssh (context, args):
 
-	print args.host
+	print (args.host)
 
 # ex: noet ts=4 filetype=yaml

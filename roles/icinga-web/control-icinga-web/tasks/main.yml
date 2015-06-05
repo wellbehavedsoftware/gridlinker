@@ -1,0 +1,28 @@
+---
+
+- set_fact_dynamic:
+    icinga_web.state: "starting"
+  when: "
+    icinga_web_control == 'start'
+    and icinga_web_state in [ 'configured', 'stopped' ]
+  "
+
+- set_fact_dynamic:
+    icinga_web.state: "stopping"
+  when: "
+    icinga_web_control == 'stop'
+    and icinga_web_state in [ 'configured', 'running' ]
+  "
+
+- include: "control-icinga-web.yml"
+  tags: "control-icinga-web"
+
+- set_fact_dynamic:
+    icinga_web.state: "running"
+  when: "icinga_web_state == 'starting'"
+
+- set_fact_dynamic:
+    icinga_web.state: "stopped"
+  when: "icinga_web_state == 'stopping'"
+
+# ex: et ts=2 filetype=yaml

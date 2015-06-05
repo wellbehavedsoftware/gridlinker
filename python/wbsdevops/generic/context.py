@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import os
 import threading
@@ -20,37 +21,43 @@ from wbsdevops.generic import GenericCollection
 
 class GenericContext (object):
 
-	def __init__ (self, home, args):
+	def __init__ (self, home, connection_name, args):
 
 		self.home = home
+		self.connection_name = connection_name
 		self.args = args
 
 	@lazy_property
-	def client_config (self):
+	def connections_config (self):
 
-		file_path = "%s/config/client.yml" % self.home
+		file_path = "%s/config/connections.yml" % self.home
 
 		with open (file_path) as file_handle:
 			return yaml.load (file_handle)
 
 	@lazy_property
+	def connection_config (self):
+
+		return self.connections_config [self.connection_name]
+
+	@lazy_property
 	def client (self):
 
-		if self.client_config ["etcd_secure"] == "yes":
+		if self.connection_config ["etcd_secure"] == "yes":
 
 			return wbsdevops.Client (
-				servers = self.client_config ["etcd_servers"],
+				servers = self.connection_config ["etcd_servers"],
 				secure = True,
-				client_ca_cert = "config/client-ca.cert",
-				client_cert = "config/client.cert",
-				client_key = "config/client.key",
-				prefix = self.client_config ["etcd_prefix"])
+				client_ca_cert = "config/%s-ca.cert" % self.connection_name,
+				client_cert = "config/%s.cert" % self.connection_name,
+				client_key = "config/%s.key" % self.connection_name,
+				prefix = self.connection_config ["etcd_prefix"])
 
-		elif self.client_config ["etcd_secure"] == "no":
+		elif self.connection_config ["etcd_secure"] == "no":
 
 			return wbsdevops.Client (
-				servers = self.client_config ["etcd_servers"],
-				prefix = self.client_config ["etcd_prefix"])
+				servers = self.connection_config ["etcd_servers"],
+				prefix = self.connection_config ["etcd_prefix"])
 
 		else:
 
@@ -66,18 +73,29 @@ class GenericContext (object):
 	@lazy_property
 	def etcdctl_env (self):
 
-		if self.client_config ["etcd_secure"] == "yes":
+		if self.connection_config ["etcd_secure"] == "yes":
 
 			return {
 
 				"ETCDCTL_PEERS": ",".join ([
 					"https://%s:2379" % server
-					for server in self.client_config ["etcd_servers"]
+					for server in self.connection_config ["etcd_servers"]
 				]),
 
-				"ETCDCTL_CA_FILE": "%s/config/client-ca.cert" % self.home,
-				"ETCDCTL_CERT_FILE": "%s/config/client.cert" % self.home,
-				"ETCDCTL_KEY_FILE": "%s/config/client.key" % self.home,
+				"ETCDCTL_CA_FILE": "%s/config/%s-ca.cert" % (
+					self.home,
+					self.connection_name,
+				),
+
+				"ETCDCTL_CERT_FILE": "%s/config/%s.cert" % (
+					self.home,
+					self.connection_name,
+				),
+
+				"ETCDCTL_KEY_FILE": "%s/config/%s.key" % (
+					self.home,
+					self.connection_name,
+				),
 
 			}
 
@@ -87,7 +105,7 @@ class GenericContext (object):
 
 				"ETCDCTL_PEERS": ",".join ([
 					"http://%s:2379" % server
-					for server in self.client_config ["etcd_servers"]
+					for server in self.connection_config ["etcd_servers"]
 				]),
 
 			}
@@ -112,7 +130,10 @@ class GenericContext (object):
 
 		return {
 
-			"WBS_DEVOPS_TOOLS_SUPPORT": "monidevops",
+			"WBS_DEVOPS_PARENT_HOME": self.home,
+			"WBS_DEVOPS_PARENT_WORK": "%s/work" % self.home,
+			"WBS_DEVOPS_TOOLS_SUPPORT": self.support_package,
+			"WBS_DEVOPS_KNOWN_HOSTS": "%s/work/known-hosts" % self.home,
 
 			"ANSIBLE_CONFIG": "work/ansible.cfg",
 			"ANSIBLE_HOME": self.ansible_home,
@@ -126,6 +147,13 @@ class GenericContext (object):
 			"PYTHONUNBUFFERED": "1",
 
 		}
+
+	@lazy_property
+	def ansible_action_plugins (self):
+
+		return [
+			"%s/wbs-devops-tools/action-plugins" % self.third_party_home,
+		]
 
 	@lazy_property
 	def ansible_lookup_plugins (self):
@@ -160,9 +188,16 @@ class GenericContext (object):
 	@lazy_property
 	def ansible_roles_path (self):
 
+		roles_parent_dirs = [
+			"%s/playbooks" % self.home,
+			"%s/roles" % self.wbs_devops_tools_home,
+		]
+
 		return [
-			"%s/playbooks/%s" % (self.home, item)
-			for item in os.listdir ("%s/playbooks" % self.home)
+			"%s/%s" % (roles_parent_dir, roles_dir)
+			for roles_parent_dir in roles_parent_dirs
+			for roles_dir in os.listdir (roles_parent_dir)
+			if os.path.isdir ("%s/%s" % (roles_parent_dir, roles_dir))
 		]
 
 	@lazy_property
@@ -183,6 +218,7 @@ class GenericContext (object):
 				"force_color": "True",
 				"gathering": "explicit",
 				"library": ":".join (self.ansible_library),
+				"action_plugins": ":".join (self.ansible_action_plugins),
 				"filter_plugins": ":".join (self.ansible_filter_plugins),
 				"lookup_plugins": ":".join (self.ansible_lookup_plugins),
 				"callback_plugins": ":".join (self.ansible_callback_plugins),
@@ -232,41 +268,35 @@ class GenericContext (object):
 		return [
 			self.admins,
 			self.groups,
-			self.hosts,
-			self.amazon_accounts,
-			self.amazon_balancers,
-			self.amazon_vpcs,
+			self.resources,
 		]
 
 	@lazy_property
 	def admins (self):
 
-		return GenericCollection (self, "/admin", self.schemas ["admin"])
+		return GenericCollection (
+			context = self,
+			path = "/admin",
+			type = "admin",
+			schema = self.schemas ["admin"])
 
 	@lazy_property
 	def groups (self):
 
-		return GenericCollection (self, "/group", self.schemas ["group"])
+		return GenericCollection (
+			context = self,
+			path = "/group",
+			type = "group",
+			schema = self.schemas ["group"])
 
 	@lazy_property
-	def hosts (self):
+	def resources (self):
 
-		return GenericCollection (self, "/host", self.schemas ["host"])
-
-	@lazy_property
-	def amazon_accounts (self):
-
-		return GenericCollection (self, "/amazon/account", self.schemas ["amazon-account"])
-
-	@lazy_property
-	def amazon_balancers (self):
-
-		return GenericCollection (self, "/amazon/balancer", self.schemas ["amazon-balancer"])
-
-	@lazy_property
-	def amazon_vpcs (self):
-
-		return GenericCollection (self, "/amazon/vpc", self.schemas ["amazon-vpc"])
+		return GenericCollection (
+			context = self,
+			path = "/resource",
+			type = "resource",
+			schema = self.schemas ["resource"])
 
 	@lazy_property
 	def local_data (self):
@@ -292,5 +322,73 @@ class GenericContext (object):
 		schemas.read_all (self.local_data ["schemas"])
 
 		return schemas
+
+	@lazy_property
+	def ansible_ssh_args (self):
+
+		return [
+			"-o ControlMaster=auto",
+			"-o ControlPersist=60s",
+			"-o ForwardAgent=yes",
+			"-o StrictHostKeyChecking=yes",
+			"-o UserKnownHostsFile=%s/work/known-hosts" % self.home,
+		]
+
+	def ansible_init (self):
+
+		with open ("%s/work/known-hosts" % self.home, "w") as file_handle:
+
+			for resource_name, resource_data in self.resources.get_all_list ():
+
+				addresses = [ resource_name ] + sorted (set (filter (None, [
+					resource_data.get ("private", {}).get ("address", None),
+					resource_data.get ("public", {}).get ("address", None),
+					resource_data.get ("amazon", {}).get ("public_ip", None),
+					resource_data.get ("amazon", {}).get ("public_dns_name", None),
+					resource_data.get ("amazon", {}).get ("private_ip", None),
+					resource_data.get ("amazon", {}).get ("private_dns_name", None),
+				])))
+
+				if not addresses:
+					continue
+
+				for key_type in [ "rsa", "ecdsa" ]:
+
+					if self.resources.exists_file (
+						resource_name,
+						"ssh-host-key/%s/public" % key_type):
+
+						resource_key = self.resources.get_file (
+							resource_name,
+							"ssh-host-key/%s/public" % key_type)
+
+						file_handle.write ("%s %s\n" % (
+							",".join (addresses),
+							resource_key,
+						))
+
+					elif "ssh" in resource_data \
+					and "host_key_%s" % key_type in resource_data ["ssh"]:
+
+						file_handle.write ("%s %s\n" % (
+							",".join (addresses),
+							resource_data ["ssh"] ["host_key_%s" % key_type],
+						))
+
+		for key_path, key_data in self.client.get_tree ("/ssh-key"):
+
+			if not key_path.endswith ("/private"):
+				continue
+
+			key_name = key_path [ 1 : - len ("/private") ]
+
+			if not os.path.isdir ("%s/work/ssh-keys" % self.home):
+				os.mkdir ("%s/work/ssh-keys" % self.home)
+
+			file_path = "%s/work/ssh-keys/%s" % (self.home, key_name)
+
+			with open (file_path, "w") as file_handle:
+				os.fchmod (file_handle.fileno (), 0o600)
+				file_handle.write (key_data)
 
 # ex: noet ts=4 filetype=yaml

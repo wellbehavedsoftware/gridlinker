@@ -1,0 +1,25 @@
+---
+
+- name: "create etcd directories"
+  action:
+    module: "file"
+    path: "{{ item.path }}"
+    state: "directory"
+    mode: "{{ item.mode }}"
+  sudo: "yes"
+  notify: "set etcd.needs_restart to 'yes'"
+  with_items: "etcd_directories"
+
+- name: "write etcd security config"
+  action:
+    module: "copy"
+    dest: "/etc/etcd/{{ item.target }}"
+    content: "{{ lookup ('etcd', item.source) }}"
+    mode: "{{ item.mode }}"
+  sudo: "yes"
+  notify: "set etcd.needs_restart to 'yes'"
+  with_items: "etcd_security_config"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

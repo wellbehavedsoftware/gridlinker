@@ -1,0 +1,12 @@
+{% for host_name in groups [identity_group] %}
+{% set host = hostvars [host_name] %}
+
+object Endpoint "{{ host_name }}" {
+	host = "{{ host_name }}"
+}
+
+{% endfor %}
+
+object Zone "master" {
+	endpoints = [ "{{ groups [identity_group] | join ('", "') }}" ]
+}

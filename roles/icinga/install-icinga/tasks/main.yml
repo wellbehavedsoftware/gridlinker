@@ -1,0 +1,14 @@
+---
+
+- set_fact_dynamic:
+    icinga.state: "installing"
+  when: "icinga_state is not defined"
+
+- include: "install-icinga.yml"
+  tags: "install-icinga"
+
+- set_fact_dynamic:
+    icinga.state: "unconfigured"
+  when: "icinga_state == 'installing'"
+
+# ex: et ts=2 filetype=yaml

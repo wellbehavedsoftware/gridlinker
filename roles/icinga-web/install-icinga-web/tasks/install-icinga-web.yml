@@ -1,0 +1,48 @@
+---
+
+- name: "create icingaweb2 group"
+  action:
+    module: "group"
+    name: "icingaweb2"
+    system: "yes"
+  sudo: "yes"
+
+- name: "add www-data to icingaweb2 group"
+  action:
+    module: "user"
+    name: "www-data"
+    groups: "icingaweb2"
+    append: "yes"
+  sudo: "yes"
+  notify: "restart php"
+
+- name: "install icinga-web"
+  args:
+    creates: "{{ icinga_web_flag }}"
+    executable: "/bin/bash"
+  sudo: "yes"
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf {{ icinga_web_temp }};
+    mkdir -p {{ icinga_web_temp }};
+    cd {{ icinga_web_temp }};
+
+    wget {{ icinga_web_url }};
+    tar xzf {{ icinga_web_archive }};
+
+    mkdir -p {{ icinga_web_target }};
+
+    rsync --archive --delete
+      {{ icinga_web_directory }}/
+      {{ icinga_web_target }}/;
+
+    rm -rf {{ icinga_web_temp }};
+
+    rm -f /etc/icinga-*-flag;
+    touch {{ icinga_web_flag }};
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

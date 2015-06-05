@@ -1,0 +1,10 @@
+---
+
+- name: "restart openvpn"
+  action:
+    module: "service"
+    name: "openvpn"
+    state: "restarted"
+  sudo: "yes"
+
+# ex: et ts=2 filetype=yaml

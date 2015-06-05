@@ -1,0 +1,15 @@
+---
+
+- name: "write etcd upstart config"
+  action:
+    module: "template"
+    src: "etcd-upstart"
+    dest: "/etc/init/etcd.conf"
+  sudo: "yes"
+  notify:
+    - "reload upstart config"
+    - "set etcd.needs_restart to 'yes'"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml
