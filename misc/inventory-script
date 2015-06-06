@@ -19,8 +19,8 @@ HOME = os.path.abspath (os.path.dirname (main_path) + "/../../..")
 with open ("%s/misc/project-metadata" % HOME) as file_handle:
 	METADATA = yaml.load (file_handle)
 
-from wbsdevops.generic import inventory
-from wbsdevops import GenericContext
+from gridlinker.generic import inventory
+from gridlinker import GenericContext
 
 CONNECTION = os.environ [METADATA ["environment"] ["devops_connection_name"]]
 

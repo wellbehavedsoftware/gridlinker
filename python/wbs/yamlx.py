@@ -215,6 +215,8 @@ def load_data (path):
 
 	else:
 
-		raise Exception ()
+		raise Exception (
+			"File or directory doesn't exist: %s" % (
+				path))
 
 # ex: noet ts=4 filetype=yaml

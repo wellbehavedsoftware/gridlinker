@@ -11,9 +11,9 @@ class ResourceHelper (CommandHelper):
 
 		# verify group or class
 
-		if "group" in arg_vars:
+		if "group" in arg_vars and arg_vars ["group"]:
 
-			if getattr (args, "class") and args.group:
+			if getattr (args, "class"):
 				raise Exception ()
 
 			group_name = args.group

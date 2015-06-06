@@ -30,7 +30,7 @@ class GenericContext (object):
 	@lazy_property
 	def support_package (self):
 
-		return "wbsdevops.generic"
+		return "gridlinker.generic"
 
 	@lazy_property
 	def devops_script (self):
@@ -72,7 +72,7 @@ class GenericContext (object):
 
 		if self.connection_config ["etcd_secure"] == "yes":
 
-			return wbsdevops.Client (
+			return gridlinker.Client (
 				servers = self.connection_config ["etcd_servers"],
 				secure = True,
 				client_ca_cert = "config/%s-ca.cert" % self.connection_name,
@@ -82,7 +82,7 @@ class GenericContext (object):
 
 		elif self.connection_config ["etcd_secure"] == "no":
 
-			return wbsdevops.Client (
+			return gridlinker.Client (
 				servers = self.connection_config ["etcd_servers"],
 				prefix = self.connection_config ["etcd_prefix"])
 
@@ -150,7 +150,7 @@ class GenericContext (object):
 	@lazy_property
 	def wbs_devops_tools_home (self):
 
-		return "%s/wbs-devops-tools" % self.third_party_home
+		return "%s/gridlinker" % self.third_party_home
 
 	@lazy_property
 	def ansible_env (self):
@@ -180,28 +180,28 @@ class GenericContext (object):
 	def ansible_action_plugins (self):
 
 		return [
-			"%s/wbs-devops-tools/action-plugins" % self.third_party_home,
+			"%s/gridlinker/action-plugins" % self.third_party_home,
 		]
 
 	@lazy_property
 	def ansible_lookup_plugins (self):
 
 		return [
-			"%s/wbs-devops-tools/lookup-plugins" % self.third_party_home,
+			"%s/gridlinker/lookup-plugins" % self.third_party_home,
 		]
 
 	@lazy_property
 	def ansible_callback_plugins (self):
 
 		return [
-			"%s/wbs-devops-tools/callback-plugins" % self.third_party_home,
+			"%s/gridlinker/callback-plugins" % self.third_party_home,
 		]
 
 	@lazy_property
 	def ansible_filter_plugins (self):
 
 		return [
-			"%s/wbs-devops-tools/filter-plugins" % self.third_party_home,
+			"%s/gridlinker/filter-plugins" % self.third_party_home,
 		]
 
 	@lazy_property
