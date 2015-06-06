@@ -8,7 +8,7 @@ class CallbackModule (object):
 
 	def __init__ (self):
 
-		self.support = importlib.import_module (os.environ ["WBS_DEVOPS_TOOLS_SUPPORT"]).support
+		self.support = importlib.import_module (os.environ ["GRIDLINKER_SUPPORT"]).support
 		self.context = self.support.get_context ()
 
 	def runner_on_ok (self, record_name, result):

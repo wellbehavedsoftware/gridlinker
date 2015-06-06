@@ -41,7 +41,7 @@ class GenericContext (object):
 	@lazy_property
 	def ansible_inventory_file (self):
 	
-		return "%s/misc/inventory-script" % self.wbs_devops_tools_home
+		return "%s/misc/inventory-script" % self.gridlinker_home
 
 	@lazy_property
 	def certificate_data (self):
@@ -148,7 +148,7 @@ class GenericContext (object):
 		return "%s/ansible" % self.third_party_home
 
 	@lazy_property
-	def wbs_devops_tools_home (self):
+	def gridlinker_home (self):
 
 		return "%s/gridlinker" % self.third_party_home
 
@@ -157,11 +157,11 @@ class GenericContext (object):
 
 		return {
 
-			"WBS_DEVOPS_PARENT_HOME": self.home,
-			"WBS_DEVOPS_PARENT_WORK": "%s/work" % self.home,
-			"WBS_DEVOPS_TOOLS_SUPPORT": self.support_package,
-			"WBS_DEVOPS_KNOWN_HOSTS": "%s/work/known-hosts" % self.home,
-			"WBS_DEVOPS_CONNECTION": self.connection_name,
+			"GRIDLINKER_PARENT_HOME": self.home,
+			"GRIDLINKER_PARENT_WORK": "%s/work" % self.home,
+			"GRIDLINKER_SUPPORT": self.support_package,
+			"GRIDLINKER_KNOWN_HOSTS": "%s/work/known-hosts" % self.home,
+			"GRIDLINKER_CONNECTION": self.connection_name,
 
 			"ANSIBLE_CONFIG": "work/ansible.cfg",
 			"ANSIBLE_HOME": self.ansible_home,
@@ -169,7 +169,7 @@ class GenericContext (object):
 			"PATH": [ "%s/bin" % self.ansible_home ],
 			"PYTHONPATH": [
 				"%s/python" % self.home,
-				"%s/python" % self.wbs_devops_tools_home,
+				"%s/python" % self.gridlinker_home,
 				"%s/lib" % self.ansible_home,
 			],
 			"PYTHONUNBUFFERED": "1",
@@ -210,7 +210,7 @@ class GenericContext (object):
 		return [
 			"%s/ansible-modules-core" % self.third_party_home,
 			"%s/ansible-modules-extras" % self.third_party_home,
-			"%s/modules" % self.wbs_devops_tools_home,
+			"%s/modules" % self.gridlinker_home,
 		]
 
 	@lazy_property
@@ -218,7 +218,7 @@ class GenericContext (object):
 
 		roles_parent_dirs = [
 			"%s/playbooks" % self.home,
-			"%s/roles" % self.wbs_devops_tools_home,
+			"%s/roles" % self.gridlinker_home,
 		]
 
 		return [
@@ -333,16 +333,16 @@ class GenericContext (object):
 		return yamlx.load_data ("config/overrides.yml")
 
 	@lazy_property
-	def wbs_devops_tools_data (self):
+	def gridlinker_data (self):
 
-		return yamlx.load_data ("%s/data" % self.wbs_devops_tools_home)
+		return yamlx.load_data ("%s/data" % self.gridlinker_home)
 
 	@lazy_property
 	def schemas (self):
 
 		schemas = SchemaDatabase ()
 
-		schemas.read_all (self.wbs_devops_tools_data ["schemas"])
+		schemas.read_all (self.gridlinker_data ["schemas"])
 		schemas.read_all (self.local_data ["schemas"])
 
 		return schemas

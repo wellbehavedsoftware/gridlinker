@@ -15,9 +15,6 @@
     state: "directory"
   sudo: "yes"
 
-- debug:
-    var: "ssh_authorized_keys"
-
 - name: "create root authorized keys"
   action:
     module: "template"

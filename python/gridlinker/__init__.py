@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from gridlinker import certificate
 from gridlinker import core
+from gridlinker import env
 from gridlinker import generic
 from gridlinker import tools
 
@@ -19,6 +20,7 @@ from gridlinker.tools import Client
 modules = [
 	certificate,
 	core,
+	env,
 	generic,
 	tools,
 ]

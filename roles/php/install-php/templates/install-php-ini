@@ -1,4 +1,5 @@
 [PHP]
+
 engine = On
 short_open_tag = Off
 asp_tags = Off
@@ -8,11 +9,9 @@ zlib.output_compression = Off
 implicit_flush = Off
 unserialize_callback_func =
 serialize_precision = 17
-disable_functions = pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,
-disable_classes =
 zend.enable_gc = On
 expose_php = On
-max_execution_time = 30
+max_execution_time = {{ php_script_timeout }}
 max_input_time = 60
 memory_limit = 128M
 error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
@@ -42,6 +41,18 @@ max_file_uploads = 20
 allow_url_fopen = On
 allow_url_include = Off
 default_socket_timeout = 60
+
+{% if item.type == 'cli' %}
+
+disable_functions =
+disable_classes =
+
+{% else %}
+
+disable_functions = pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,
+disable_classes =
+
+{% endif %}
 
 [mail function]
 SMTP = localhost

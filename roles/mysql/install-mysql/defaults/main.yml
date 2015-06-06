@@ -1,0 +1,5 @@
+---
+
+mysql_master: "{{ inventory_hostname }}"
+
+# ex: et ts=2 filetype=yaml

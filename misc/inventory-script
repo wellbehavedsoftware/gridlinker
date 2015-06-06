@@ -16,7 +16,7 @@ SCRIPT = os.path.basename (__file__)
 
 HOME = os.path.abspath (os.path.dirname (main_path) + "/../../..")
 
-with open ("%s/misc/project-metadata" % HOME) as file_handle:
+with open ("%s/data/project" % HOME) as file_handle:
 	METADATA = yaml.load (file_handle)
 
 from gridlinker.generic import inventory

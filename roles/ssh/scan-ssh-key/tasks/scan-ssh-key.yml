@@ -21,7 +21,7 @@
     set -euf -o pipefail;
 
     echo "{{ ansible_ssh_host }} {{ ssh_keyscan_result.stdout }}"
-      >>"$WBS_DEVOPS_KNOWN_HOSTS";
+      >>"$GRIDLINKER_KNOWN_HOSTS";
 
 - name: "store host key {{ scan_ssh_key_type }}"
   connection: "local"

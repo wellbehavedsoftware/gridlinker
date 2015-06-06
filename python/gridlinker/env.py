@@ -23,6 +23,12 @@ def args_env (sub_parsers):
 def do_env (context, args):
 
 	for key in sorted (context.env.keys ()):
-		print "export %s=\"%s\"" % (key, context.env [key])
+
+		value = context.env [key]
+
+		if isinstance (value, list):
+			value = ":".join (value)
+
+		print "export %s=\"%s\"" % (key, value)
 
 # ex: noet ts=4 filetype=yaml
