@@ -7,327 +7,355 @@ import sys
 
 def main (context, args):
 
+	inventory = Inventory (context)
+
 	if args == []:
 
 		raise Exception ()
 
 	elif args [0] == "--list":
 
-		do_list (context)
+		inventory.do_list ()
 
 	elif args [0] == "--host":
 
-		do_host (context, args [1])
+		inventory.do_host (args [1])
 
 	else:
 
 		raise Exception ()
 
-def load_classes (context, world):
+class Inventory (object):
 
-	class_list = context.local_data ["classes"].items ()
+	def __init__ (self, context):
 
-	for class_name, class_data in class_list:
+		self.context = context
 
-		# check basics
+		self.world = {}
 
-		if not "identity" in class_data:
+		self.classes = {}
+		self.groups = {}
+		self.resources = {}
 
-			raise Exception ()
+		self.children = collections.defaultdict (list)
+		self.members = collections.defaultdict (list)
 
-		if class_data ["identity"] ["type"] != "class":
+	def load_classes (self):
 
-			raise Exception (
-				"Class does not contain correct type: %s" % class_name)
+		class_list = self.context.local_data ["classes"].items ()
 
-		if class_name != class_data ["identity"] ["name"]:
+		for class_name, class_data in class_list:
 
-			raise Exception (
-				"Class does not contain correct name: %s" % class_name)
+			# check basics
 
-		# check for duplicates
+			if not "identity" in class_data:
 
-		if class_name in world:
+				raise Exception ()
 
-			raise Exception (
-				"Class is duplicated: %s" % class_name)
+			if class_data ["identity"] ["type"] != "class":
 
-		# create class
+				raise Exception (
+					"Class does not contain correct type: %s" % class_name)
 
-		world [class_name] = class_data
+			if class_name != class_data ["identity"] ["name"]:
 
-def load_groups (context, world):
+				raise Exception (
+					"Class does not contain correct name: %s" % class_name)
 
-	group_list = context.groups.get_all_list ()
+			# check for duplicates
 
-	for group_name, group_data in group_list:
+			if class_name in self.world:
 
-		# check basics
+				raise Exception (
+					"Class is duplicated: %s" % class_name)
 
-		if not "identity" in group_data:
+			# create class
 
-			raise Exception (
-				"Group does not have identity: %s" % group_name)
+			self.world [class_name] = class_data
+			self.classes [class_name] = class_data
 
-		if not "type" in group_data ["identity"]:
+	def load_groups (self):
 
-			raise Exception ()
+		group_list = self.context.groups.get_all_list ()
 
-		if group_data ["identity"] ["type"] != "group":
+		for group_name, group_data in group_list:
 
-			raise Exception ()
+			# check basics
 
-		if group_name != group_data ["identity"] ["name"]:
+			if not "identity" in group_data:
 
-			raise Exception (
-				"Group does not contain correct name: %s" % class_group)
+				raise Exception (
+					"Group does not have identity: %s" % group_name)
 
-		# check for duplicates
+			if not "type" in group_data ["identity"]:
 
-		if group_name in world:
+				raise Exception ()
 
-			raise Exception (
-				"Group is duplicated: %s" % group_name)
+			if group_data ["identity"] ["type"] != "group":
 
-		# create group
+				raise Exception ()
 
-		world [group_name] = group_data
+			if group_name != group_data ["identity"] ["name"]:
 
-def load_resources (context, world):
+				raise Exception (
+					"Group does not contain correct name: %s" % class_group)
 
-	for resource_name, resource_data in context.resources.get_all_list ():
+			# check for duplicates
 
-		# check basics
+			if group_name in world:
 
-		if not "identity" in resource_data:
+				raise Exception (
+					"Group is duplicated: %s" % group_name)
 
-			raise Exception ()
+			# create group
 
-		if resource_data ["identity"] ["type"] != "resource":
+			self.world [group_name] = group_data
+			self.groups [group_name] = group_data
 
-			raise Exception ()
+			self.children [class_name].append (group_name)
 
-		if resource_name != resource_data ["identity"] ["name"]:
+	def load_resources (self):
 
-			raise Exception (
-				"Resource does not contain correct name: %s" % resource_name)
+		for resource_name, resource_data in self.context.resources.get_all_list ():
 
-		# check for duplicates
+			print resource_name
 
-		if resource_name in world:
+			# check basics
 
-			raise Exception (
-				"Resource is duplicated: %s" % resource_name)
+			if not "identity" in resource_data:
 
-		# create resource
+				raise Exception ()
 
-		world [resource_name] = resource_data
+			if resource_data ["identity"] ["type"] != "resource":
+				raise Exception ()
 
-def add_group_class_type (context,
-	all_groups,
-	item_friendly_name,
-	item_short_name,
-	item_data
-):
+			class_name = resource_data ["identity"] ["class"]
 
-	item_name = item_data [item_short_name + "_name"]
+			class_data = self.classes [class_name]
 
-	if item_short_name + "_group" in item_data:
+			if class_data ["class"] ["scope"] == "global":
 
-		# add to group
+				unique_name = resource_data ["identity"] ["name"]
 
-		item_group = item_data [item_short_name + "_group"]
+			elif class_data ["class"] ["scope"] == "class":
 
-		if not item_group in all_groups:
+				unique_name = "%s/%s" % (
+					class_name,
+					resource_data ["identity"] ["name"])
 
-			raise Exception (
-				"%s %s has invalid group: %s" % (
-					item_friendly_name,
-					item_name,
-					item_group))
+			elif class_data ["class"] ["scope"] == "group":
+				raise Exception ("TODO")
 
-		group_data = all_groups [item_group]
+			else:
+				raise Exception ()
 
-		all_groups [item_group] ["hosts"].append (item_name)
+			if resource_name != unique_name:
 
-		# add to class
+				raise Exception (
+					"Resource does not contain correct name: %s" % resource_name)
 
-		group_class = group_data ["vars"] ["group_class"]
+			# check for duplicates
 
-		if not group_class in all_groups:
+			if resource_name in self.world:
 
-			raise Exception ()
+				raise Exception (
+					"Resource is duplicated: %s" % resource_name)
 
-		class_data = all_groups [group_class]
+			# create resource
 
-		all_groups [group_class] ["hosts"].append (item_name)
+			self.world [resource_name] = resource_data
+			self.resources [resource_name] = resource_data
 
-		# add to type
+			if "group" in resource_data ["identity"]:
 
-		group_type = class_data ["vars"] ["class_type"]
+				group_name = resource_data ["identity"] ["group"]
 
-		if not group_type in all_groups:
+				self.members [group_name].append (resource_name)
 
-			raise Exception ()
+			elif "class" in resource_data ["identity"]:
 
-		type_data = all_groups [group_type]
+				class_name = resource_data ["identity"] ["class"]
 
-		all_groups [group_type] ["hosts"].append (item_name)
+				self.members [class_name].append (resource_name)
 
-	elif item_short_name + "_class" in item_data:
+			else:
 
-		item_class = item_data [item_short_name + "_class"]
-		class_data = all_groups [item_class]
-		all_groups [item_class] ["hosts"].append (item_name)
+				print resource_data
 
-		group_type = class_data ["vars"] ["class_type"]
-		type_data = all_groups [group_type]
-		all_groups [group_type] ["hosts"].append (item_name)
+				raise Exception ()
 
-def resolve_group (group_name, group_data, world):
+	def add_group_class_type (self,
+			item_friendly_name,
+			item_short_name,
+			item_data):
 
-	group_vars = group_data.get ("global", {})
+		item_name = item_data [item_short_name + "_name"]
 
-	for prefix, data in group_data.items ():
+		if item_short_name + "_group" in item_data:
 
-		if prefix == "identity":
-			continue
+			# add to group
 
-		for name, value in data.items ():
-			group_vars [prefix + "_" + name] = value
+			item_group = item_data [item_short_name + "_group"]
 
-	return {
-		"hosts": [
-			entity_name
-			for entity_name, entity_data in world.items ()
-			if entity_data ["identity"] ["type"] == "resource"
-			and "group" in entity_data ["identity"]
-			and entity_data ["identity"] ["group"] == group_name
-		],
-		"vars": group_vars,
-	}
+			if not item_group in all_groups:
 
-def resolve_class (class_name, class_data, world):
+				raise Exception (
+					"%s %s has invalid group: %s" % (
+						item_friendly_name,
+						item_name,
+						item_group))
 
-	class_vars = class_data.get ("global", {})
+			group_data = all_groups [item_group]
 
-	for prefix, data in class_data.items ():
+			all_groups [item_group] ["hosts"].append (item_name)
 
-		if prefix == "identity":
-			continue
+			# add to class
 
-		for name, value in data.items ():
-			class_vars [prefix + "_" + name] = value
+			group_class = group_data ["vars"] ["group_class"]
 
-	return {
-		"hosts": [
-			entity_name
-			for entity_name, entity_data in world.items ()
-			if entity_data ["identity"] ["type"] == "resource"
-			and "class" in entity_data ["identity"]
-			and entity_data ["identity"] ["class"] == class_name
-		],
-		"children": [
-			entity_name
-			for entity_name, entity_data in world.items ()
-			if entity_data ["identity"] ["type"] == "group"
-			and "class" in entity_data ["identity"]
-			and entity_data ["identity"] ["class"] == class_name
-		],
-		"vars": class_vars,
-	}
+			if not group_class in all_groups:
 
-def resolve_resource (resource_name, resource_data, world):
+				raise Exception ()
 
-	resource_vars = {}
+			class_data = all_groups [group_class]
 
-	for prefix, data in resource_data.items ():
+			all_groups [group_class] ["hosts"].append (item_name)
 
-		for name, value in data.items ():
-			resource_vars [prefix + "_" + name] = value
+			# add to type
 
-	if "parent" in resource_data ["identity"]:
+			group_type = class_data ["vars"] ["class_type"]
 
-		resource_vars ["parent"] = "{{ hostvars ['%s'] }}" % (
-			resource_data ["identity"] ["parent"])
+			if not group_type in all_groups:
 
-	elif "group" in resource_data ["identity"]:
+				raise Exception ()
 
-		group_data = world [resource_data ["identity"] ["group"]]
+			type_data = all_groups [group_type]
 
-		if "parent" in group_data ["identity"]:
+			all_groups [group_type] ["hosts"].append (item_name)
+
+		elif item_short_name + "_class" in item_data:
+
+			item_class = item_data [item_short_name + "_class"]
+			class_data = all_groups [item_class]
+			all_groups [item_class] ["hosts"].append (item_name)
+
+			group_type = class_data ["vars"] ["class_type"]
+			type_data = all_groups [group_type]
+			all_groups [group_type] ["hosts"].append (item_name)
+
+	def resolve_group (self, group_name, group_data):
+
+		group_vars = group_data.get ("global", {})
+
+		for prefix, data in group_data.items ():
+
+			if prefix == "identity":
+				continue
+
+			group_vars [prefix] = data
+
+			for name, value in data.items ():
+				group_vars [prefix + "_" + name] = value
+
+		return group_vars
+
+	def resolve_class (self, class_name, class_data):
+
+		class_vars = class_data.get ("global", {})
+
+		for prefix, data in class_data.items ():
+
+			if prefix == "identity":
+				continue
+
+			class_vars [prefix] = data
+
+			for name, value in data.items ():
+				class_vars [prefix + "_" + name] = value
+
+		return class_vars
+
+	def resolve_resource (self, resource_name, resource_data):
+
+		resource_vars = {}
+
+		for prefix, data in resource_data.items ():
+
+			resource_vars [prefix] = data
+
+			for name, value in data.items ():
+				resource_vars [prefix + "_" + name] = value
+
+		if "parent" in resource_data ["identity"]:
 
 			resource_vars ["parent"] = "{{ hostvars ['%s'] }}" % (
-				group_data ["identity"] ["parent"])
+				resource_data ["identity"] ["parent"])
 
-	return resource_vars
+		elif "group" in resource_data ["identity"]:
 
-def load_world (context):
+			group_data = world [resource_data ["identity"] ["group"]]
 
-	world = {}
+			if "parent" in group_data ["identity"]:
 
-	world ["all"] = {
-		"identity": {
-			"type": "group",
-		},
-		"global": {
-			"HOME": context.home,
-			"WORK": "%s/work" % context.home,
-		},
-	}
+				resource_vars ["parent"] = "{{ hostvars ['%s'] }}" % (
+					group_data ["identity"] ["parent"])
 
-	load_classes (context, world)
-	load_groups (context, world)
+		return resource_vars
 
-	load_resources (context, world)
+	def load_world (self):
 
-	return {
+		world = {}
 
-		"groups": dict ([
+		self.all = {
+			"identity": {
+				"type": "group",
+			},
+			"global": {
+				"HOME": self.context.home,
+				"WORK": "%s/work" % self.context.home,
+			},
+		}
 
-			(entity_name, resolve_class (entity_name, entity_data, world))
-			for entity_name, entity_data in world.items ()
-			if entity_data ["identity"] ["type"] == "class"
+		self.load_classes ()
+		self.load_groups ()
+		self.load_resources ()
 
-		] + [
+	def do_list (self):
 
-			(entity_name, resolve_group (entity_name, entity_data, world))
-			for entity_name, entity_data in world.items ()
-			if entity_data ["identity"] ["type"] == "group"
+		output = {
+			"_meta": {
+				"hostvars": {},
+			},
+		}
 
-		]),
+		self.load_world ()
 
-		"hosts": dict ([
+		output ["all"] = {
+			"vars": self.all,
+		}
 
-			(entity_name, resolve_resource (entity_name, entity_data, world))
-			for entity_name, entity_data in world.items ()
-			if entity_data ["identity"] ["type"] == "resource"
+		for class_name, class_data in self.classes.items ():
 
-		]),
+			output [class_name] = {
+				"children": self.children [class_name],
+				"hosts": self.members [class_name],
+				"vars": self.resolve_class (class_name, class_data),
+			}
 
-	}
+		for group_name, group_data in self.groups.items ():
 
-def do_list (context):
+			output [group_name] = group_data
 
-	output = {
-		"_meta": {
-			"hostvars": {},
-		},
-	}
+		for resource_name, resource_data in self.resources.items ():
 
-	world = load_world (context)
+			output ["_meta"] ["hostvars"] [resource_name] = \
+				self.resolve_resource (resource_name, resource_data)
 
-	for group_name, group_data in world ["groups"].items ():
-		output [group_name] = group_data
+		print_json (output)
 
-	for host_name, host_data in world ["hosts"].items ():
-		output ["_meta"] ["hostvars"] [host_name] = host_data
+	def do_host (self, host_name):
 
-	print_json (output)
-
-def do_host (context, host_name):
-
-	print_json (context.local_data ["hosts"] [host_name])
+		print_json (self.local_data ["hosts"] [host_name])
 
 def print_json (data):
 

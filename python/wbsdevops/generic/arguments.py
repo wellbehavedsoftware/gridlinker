@@ -104,7 +104,21 @@ class ClassArgument:
 			metavar = "CLASS",
 			help = "class this {0} belongs to".format (helper.name))
 
-	# TODO args_update
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--class",
+			required = False,
+			metavar = "CLASS",
+			help = "class of {0} to update".format (helper.name))
+
+	def args_show (self, parser, helper):
+
+		parser.add_argument (
+			"--class",
+			required = False,
+			metavar = "CLASS",
+			help = "class of {0} to show".format (helper.name))
 
 	def update_record (self, arg_vars, record_data, helper):
 
@@ -334,6 +348,42 @@ class NameArgument:
 			return
 
 		record_data ["identity"] ["name"] = value
+
+class MiscSetFileArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--set-file",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("NAME", "SOURCE"),
+			help = "miscellaneous file to store")
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--set-file",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("NAME", "SOURCE"),
+			help = "miscellaneous file to store")
+
+	def update_files (self, arg_vars, unique_name, collection, helper):
+
+		value = arg_vars ["set_file"]
+
+		if not value:
+			return
+
+		for name, source in value:
+
+			with open (source) as file_handle:
+				file_contents = file_handle.read ()
+
+			collection.set_file (unique_name, name, file_contents)
 
 class FileArgument:
 

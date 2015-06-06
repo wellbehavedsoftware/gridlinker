@@ -224,15 +224,17 @@ class GenericCommand:
 
 		if args.name:
 
-			if not collection.exists (args.name):
+			unique_name = self.helper.get_unique_name (context, args)
+
+			if not collection.exists (unique_name):
 
 				raise Exception (
 					"%s does not exist: %s" % (
 						self.helper.name.title (),
-						args.name))
+						unique_name))
 
 			all_records = [
-				(args.name, collection.get (args.name))
+				(unique_name, collection.get (unique_name))
 			]
 
 		else:
@@ -245,13 +247,13 @@ class GenericCommand:
 			if self.helper.filter_record (context, args, record_data)
 		]
 
-		for record_name, record_data in filtered_records:
+		for unique_name, record_data in filtered_records:
 
 			self.helper.update_record (context, args, record_data)
 
 			collection.set (record_name, record_data)
 
-			self.helper.update_files (context, args, collection)
+			self.helper.update_files (context, args, unique_name, collection)
 
 			print ("Updated %s %s" % (
 				self.helper.name,
@@ -272,7 +274,9 @@ class GenericCommand:
 
 		collection = self.helper.get_collection (context)
 
-		record_data = collection.get (args.name)
+		unique_name = self.helper.get_unique_name (context, args)
+
+		record_data = collection.get (unique_name)
 
 		record_yaml = collection.to_yaml (record_data)
 

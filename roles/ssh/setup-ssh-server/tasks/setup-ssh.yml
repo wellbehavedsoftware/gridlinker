@@ -15,6 +15,9 @@
     state: "directory"
   sudo: "yes"
 
+- debug:
+    var: "ssh_authorized_keys"
+
 - name: "create root authorized keys"
   action:
     module: "template"
@@ -28,6 +31,7 @@
     dest: "/root/.ssh/id_rsa"
     content: "{{ lookup ('etcd', ssh_root_key) }}"
     mode: "0600"
+  when: "ssh_root_key is defined"
   sudo: "yes"
 
 - name: "create ubuntu ssh directory"

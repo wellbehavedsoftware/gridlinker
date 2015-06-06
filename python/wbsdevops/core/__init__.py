@@ -1,13 +1,11 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from wbsdevops.core import admin
 from wbsdevops.core import group
 from wbsdevops.core import resource
 from wbsdevops.core import sshkey
 
 modules = [
-	admin,
 	group,
 	resource,
 	sshkey,

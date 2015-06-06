@@ -6,6 +6,7 @@ import subprocess
 import sys
 
 from wbsmisc import env_resolve
+import wbsdevops
 
 def args (prev_sub_parsers):
 
@@ -120,13 +121,6 @@ def args_inventory (sub_parsers):
 
 def do_inventory (context, args):
 
-	result = subprocess.call (
-		[
-			"%s/misc/inventory-script" % context.home,
-		] + args.rest,
-		env = env_resolve (os.environ, context.env))
-
-	if result != 0:
-		sys.exit (result)
+	wbsdevops.generic.inventory.main (context, args.rest)
 
 # ex: noet ts=4 filetype=yaml

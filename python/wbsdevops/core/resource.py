@@ -7,9 +7,11 @@ class ResourceHelper (CommandHelper):
 
 	def get_unique_name (self, context, args):
 
+		arg_vars = vars (args)
+
 		# verify group or class
 
-		if args.group:
+		if "group" in arg_vars:
 
 			if getattr (args, "class") and args.group:
 				raise Exception ()
@@ -20,13 +22,25 @@ class ResourceHelper (CommandHelper):
 			class_name = group_data ["identity"] ["class"]
 			class_data = context.local_data ["classes"] [class_name]
 
-		elif getattr (args, "class"):
+		elif "class" in arg_vars \
+		and arg_vars ["class"]:
 
-			class_name = getattr (args, "class")
+			class_name = arg_vars ["class"]
+
+			if not class_name in context.classes:
+
+				raise Exception (
+					"No such class: %s" % (
+						class_name))
+
 			class_data = context.local_data ["classes"] [class_name]
 
 		else:
-			raise Exception ()
+
+			resource_data = context.resources.get (args.name)
+
+			class_name = resource_data ["identity"] ["class"]
+			class_data = context.local_data ["classes"] [class_name]
 
 		# determine unique name depending on scope
 
@@ -77,6 +91,8 @@ resource_command = GenericCommand (
 
 				MiscSetDictArgument (),
 				MiscUnsetDictArgument (),
+
+				MiscSetFileArgument (),
 
 				GeneratePasswordArgument (),
 

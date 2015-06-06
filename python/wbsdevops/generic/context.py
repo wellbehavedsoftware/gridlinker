@@ -59,6 +59,12 @@ class GenericContext (object):
 	@lazy_property
 	def connection_config (self):
 
+		if not self.connection_name in self.connections_config:
+
+			raise Exception (
+				"Connection is not configured: %s" % (
+					self.connection_name))
+
 		return self.connections_config [self.connection_name]
 
 	@lazy_property
@@ -358,15 +364,36 @@ class GenericContext (object):
 
 			for resource_name, resource_data in self.resources.get_all_list ():
 
-				addresses = [ resource_name ] + sorted (set (filter (None, [
-					resource_data.get ("private", {}).get ("address", None),
-					resource_data.get ("public", {}).get ("address", None),
-					resource_data.get ("amazon", {}).get ("public_ip", None),
-					resource_data.get ("amazon", {}).get ("public_dns_name", None),
-					resource_data.get ("amazon", {}).get ("private_ip", None),
-					resource_data.get ("amazon", {}).get ("private_dns_name", None),
-					resource_data.get ("ansible", {}).get ("ssh_host", None),
-				])))
+				if "class" in resource_data ["identity"]:
+
+					class_name = resource_data ["identity"] ["class"]
+
+				else:
+
+					raise Exception ("TODO")
+
+				class_data = self.local_data ["classes"] [class_name]
+
+				if "ssh" in class_data \
+				and "hostnames" in class_data ["ssh"]:
+
+					addresses = map (
+						lambda value: value.replace (
+							"{{ inventory_hostname }}",
+							resource_name),
+						class_data ["ssh"] ["hostnames"])
+
+				else:
+
+					addresses = [ resource_name ] + sorted (set (filter (None, [
+						resource_data.get ("private", {}).get ("address", None),
+						resource_data.get ("public", {}).get ("address", None),
+						resource_data.get ("amazon", {}).get ("public_ip", None),
+						resource_data.get ("amazon", {}).get ("public_dns_name", None),
+						resource_data.get ("amazon", {}).get ("private_ip", None),
+						resource_data.get ("amazon", {}).get ("private_dns_name", None),
+						resource_data.get ("ansible", {}).get ("ssh_host", None),
+					])))
 
 				if not addresses:
 					continue
@@ -409,5 +436,10 @@ class GenericContext (object):
 			with open (file_path, "w") as file_handle:
 				os.fchmod (file_handle.fileno (), 0o600)
 				file_handle.write (key_data)
+
+	@lazy_property
+	def classes (self):
+
+		return self.local_data ["classes"]
 
 # ex: noet ts=4 filetype=yaml

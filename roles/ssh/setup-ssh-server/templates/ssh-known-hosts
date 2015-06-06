@@ -1,15 +1,11 @@
-{%- for host_name in groups.all -%}
+{%- for host_name, host_data in hostvars.items ()
+if 'ssh_hostnames' in host_data -%}
 
-	{%- set host_data = hostvars [host_name] -%}
-
-	{%- if host_data.ssh_host_key_rsa is defined -%}
+	{%- if host_data.ssh.host_key_rsa is defined -%}
 
 		{%- print [
-			[
-				host_name,
-				host_data.private_address,
-			] | join (','),
-			host_data.ssh_host_key_rsa,
+			host_data.ssh.hostnames | join (','),
+			host_data.ssh.host_key_rsa,
 		] | join (' ') + '\n' -%}
 
 	{%- endif -%}
@@ -17,11 +13,8 @@
 	{%- if host_data.ssh_host_key_ecdsa is defined -%}
 
 		{%- print [
-			[
-				host_name,
-				host_data.private_address,
-			] | join (','),
-			host_data.ssh_host_key_ecdsa,
+			host_data.ssh.hostnames | join (','),
+			host_data.ssh.host_key_ecdsa,
 		] | join (' ') + '\n' -%}
 
 	{%- endif -%}
