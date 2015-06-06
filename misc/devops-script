@@ -25,7 +25,7 @@ os.environ [METADATA ["environment"] ["devops_home_path"]] = HOME
 os.chdir (HOME)
 
 sys.path.append (HOME + "/python")
-sys.path.append (HOME + "/third-party/wbs-devops-tools/python")
+sys.path.append (HOME + "/third-party/gridlinker/python")
 
 if not os.path.isdir ("%s/config" % HOME):
 
@@ -73,16 +73,16 @@ else:
 
 os.environ [METADATA ["environment"] ["devops_connection_name"]] = CONNECTION
 
-import wbsdevops
+import gridlinker
 
-from wbsdevops import GenericContext
+from gridlinker import GenericContext
 
 def main ():
 
 	parser = argparse.ArgumentParser ()
 	sub_parsers = parser.add_subparsers ()
 
-	wbsdevops.args (sub_parsers)
+	gridlinker.args (sub_parsers)
 
 	args = parser.parse_args ()
 	context = GenericContext (HOME, CONNECTION, METADATA)
