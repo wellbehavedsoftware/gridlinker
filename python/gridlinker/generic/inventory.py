@@ -316,6 +316,11 @@ class Inventory (object):
 			},
 		}
 
+		if "globals" in self.context.local_data:
+
+			for key, value in self.context.local_data ["globals"].items ():
+				self.all [key] = value
+
 		self.load_classes ()
 		self.load_groups ()
 		self.load_resources ()

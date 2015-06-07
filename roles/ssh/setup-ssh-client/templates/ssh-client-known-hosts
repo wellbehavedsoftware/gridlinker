@@ -20,3 +20,12 @@ if 'ssh_hostnames' in host_data -%}
 	{%- endif -%}
 
 {%- endfor -%}
+{%- for ssh_hostkey in ssh_global_hostkeys -%}
+
+	{%- print [
+		ssh_hostkey.name,
+		ssh_hostkey.type,
+		ssh_hostkey.data | join (''),
+	] | join (' ') + '\n' -%}
+
+{%- endfor -%}
