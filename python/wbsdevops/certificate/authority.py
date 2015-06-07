@@ -167,6 +167,131 @@ class CertificateAuthority:
 			self.data,
 			self.schemas ["certificate-authority"])
 
+	def import_existing (self,
+			certificate_string,
+			private_key_string,
+			issued_certificates):
+
+		if self.state != "none":
+			raise IllegalStateError ()
+
+		# sanity check
+
+		if self.client.exists (self.path):
+			raise AlreadyExistsError ()
+
+		# load certificate
+
+		self.root_cert_string = certificate_string
+
+		self.root_cert = crypto.load_certificate (
+			crypto.FILETYPE_PEM,
+			certificate_string)
+
+		self.root_key_string = private_key_string
+
+		# write data in "creating" state
+
+		self.data = {
+
+			"authority_state":
+				"importing",
+
+			"subject_country":
+				self.root_cert.get_subject ().C,
+
+			"subject_locality":
+				self.root_cert.get_subject ().L,
+
+			"subject_organization":
+				self.root_cert.get_subject ().O,
+
+			"subject_common_name":
+				self.root_cert.get_subject ().CN,
+
+		}
+
+		self.client.set_yaml (
+			self.path + "/data",
+			self.data,
+			self.schemas ["certificate-authority"])
+
+		# write other data
+
+		self.client.set_raw (
+			self.path + "/certificate",
+			self.root_cert_string)
+
+		self.client.set_raw (
+			self.path + "/key",
+			self.root_key_string)
+
+		# import issued certificates
+
+		seen_serial = set ()
+		max_serial = -1
+
+		for issue_cert_string, issue_key_string in issued_certificates:
+
+			# load certificate
+
+			issue_cert = crypto.load_certificate (
+				crypto.FILETYPE_PEM,
+				issue_cert_string)
+
+			# check serial number
+
+			issue_serial = issue_cert.get_serial_number ()
+
+			if issue_serial in seen_serial:
+				raise Exception ()
+
+			if issue_serial > max_serial:
+				max_serial = issue_serial
+
+			# write out
+
+			issue_cert_string = crypto.dump_certificate (
+				crypto.FILETYPE_PEM,
+				issue_cert)
+
+			self.client.set_raw (
+				"%s/issue/%s/certificate" % (
+					self.path,
+					issue_serial),
+				issue_cert_string)
+
+			self.client.set_raw (
+				"%s/issue/%s/key" % (
+					self.path,
+					issue_serial),
+				issue_key_string)
+
+			self.client.set_raw (
+				"%s/named/%s" % (
+					self.path,
+					issue_cert.get_subject ().CN),
+				str (issue_serial))
+
+			print "Imported %s %s" % (
+				issue_serial,
+				issue_cert.get_subject ().CN)
+
+		# set serial
+
+		self.client.set_raw (
+			"%s/serial" % self.path,
+			str (max_serial + 1))
+
+		# write data in "active" state
+
+		self.data ["authority_state"] = "active"
+
+		self.client.set_yaml (
+			self.path + "/data",
+			self.data,
+			self.schemas ["certificate-authority"])
+
 	def load (self):
 
 		self.data = self.client.get_yaml (
@@ -419,6 +544,7 @@ def args (prev_sub_parsers):
 	args_revoke (next_sub_parsers)
 	args_crl (next_sub_parsers)
 	args_sign (next_sub_parsers)
+	args_import (next_sub_parsers)
 
 def args_create (sub_parsers):
 
@@ -778,3 +904,74 @@ def args_sign (sub_parsers):
 def do_sign (context, args):
 
 	raise Exception ("TODO")
+
+def args_import (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"import",
+		help = "import an easy-rsa certificate authority",
+		description = """
+			This tool is used to import an existing easy-rsa certificate
+			authority.
+		""")
+
+	parser.set_defaults (
+		func = do_import)
+
+	parser.add_argument (
+		"--authority",
+		required = True,
+		help = "name of signing certificate authority")
+
+	parser.add_argument (
+		"--source",
+		required = True,
+		help = "easy-rsa directory to import")
+
+def do_import (context, args):
+
+	keys_path = "%s/keys" % args.source
+
+	with open ("%s/ca.crt" % keys_path) as file_handle:
+		ca_certificate_string = file_handle.read ()
+
+	with open ("%s/ca.key" % keys_path) as file_handle:
+		ca_private_key_string = file_handle.read ()
+
+	issued_certificates = []
+
+	with open ("%s/index.txt" % keys_path) as file_handle:
+
+		for line in file_handle:
+
+			cols = line.split ("\t")
+
+			subject_dict = dict (map (
+				lambda part: part.split ("="),
+				cols [5] [1:].split ("/")))
+
+			common_name = subject_dict ["CN"]
+
+			with open ("%s/%s.crt" % (keys_path, common_name)) as file_handle:
+				issued_certificate = file_handle.read ()
+
+			with open ("%s/%s.key" % (keys_path, common_name)) as file_handle:
+				issued_private_key = file_handle.read ()
+
+			issued_certificates.append ((
+				issued_certificate,
+				issued_private_key))
+
+	authority = CertificateAuthority (
+		context,
+		"/authority/" + args.authority,
+		context.certificate_data)
+
+	authority.import_existing (
+		ca_certificate_string,
+		ca_private_key_string,
+		issued_certificates)
+
+	print "Certificate authority %s imported with %s certificates" % (
+		args.authority,
+		len (issued_certificates))

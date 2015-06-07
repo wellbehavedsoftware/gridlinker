@@ -34,4 +34,4 @@ class ActionModule (object):
 
 			conn = conn,
 				result = dict (
-				ansible_facts = options)) 
+				ansible_facts = options))

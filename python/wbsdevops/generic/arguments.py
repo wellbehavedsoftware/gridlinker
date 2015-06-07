@@ -54,11 +54,11 @@ class ArgumentGroup:
 			if hasattr (argument, "update_record"):
 				argument.update_record (arg_vars, record_data, helper)
 
-	def update_files (self, arg_vars, collection, helper):
+	def update_files (self, arg_vars, unique_name, collection, helper):
 
 		for argument in self.arguments:
 			if hasattr (argument, "update_files"):
-				argument.update_files (arg_vars, collection, helper)
+				argument.update_files (arg_vars, unique_name, collection, helper)
 
 class SimpleArgument:
 
@@ -108,6 +108,9 @@ class ClassArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
+		if not "class" in arg_vars:
+			return
+
 		value = arg_vars ["class"]
 
 		if value:
@@ -138,6 +141,9 @@ class ParentArgument:
 	# TODO args_update
 
 	def update_record (self, arg_vars, record_data, helper):
+
+		if not "parent" in arg_vars:
+			return
 
 		value = arg_vars ["parent"]
 
@@ -177,7 +183,7 @@ class GroupArgument:
 	def update_record (self, arg_vars, record_data, helper):
 
 		if not "group" in arg_vars:
-			return	
+			return
 
 		value = arg_vars ["group"]
 
@@ -194,6 +200,7 @@ class GroupArgument:
 
 		return record_data ["identity"] ["group"] == arg_vars ["group"]
 
+
 class IndexArgument:
 
 	def args_create (self, parser, helper):
@@ -207,7 +214,7 @@ class IndexArgument:
 	def update_record (self, arg_vars, record_data, helper):
 
 		if not "index" in arg_vars:
-			return	
+			return
 
 		value = arg_vars ["index"]
 
@@ -352,7 +359,7 @@ class FileArgument:
 			metavar = "FILE",
 			help = self.help)
 
-	def update_files (self, arg_vars, collection, helper):
+	def update_files (self, arg_vars, unique_name, collection, helper):
 
 		value = arg_vars [self.argument_name]
 
@@ -362,7 +369,7 @@ class FileArgument:
 		with open (value) as file_handle:
 			file_contents = file_handle.read ()
 
-		collection.set_file (arg_vars ["name"], self.path, file_contents)
+		collection.set_file (unique_name, self.path, file_contents)
 
 class MiscSetArgument:
 

@@ -317,7 +317,7 @@ class GenericContext (object):
 	def schemas (self):
 
 		schemas = SchemaDatabase ()
-		
+
 		schemas.read_all (self.wbs_devops_tools_data ["schemas"])
 		schemas.read_all (self.local_data ["schemas"])
 

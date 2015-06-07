@@ -18,7 +18,7 @@ def main (context, args):
 	elif args [0] == "--host":
 
 		do_host (context, args [1])
-	
+
 	else:
 
 		raise Exception ()
@@ -319,10 +319,10 @@ def do_list (context):
 
 	for group_name, group_data in world ["groups"].items ():
 		output [group_name] = group_data
-	
+
 	for host_name, host_data in world ["hosts"].items ():
 		output ["_meta"] ["hostvars"] [host_name] = host_data
-	
+
 	print_json (output)
 
 def do_host (context, host_name):

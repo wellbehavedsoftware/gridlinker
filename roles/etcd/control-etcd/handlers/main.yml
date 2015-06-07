@@ -4,15 +4,15 @@
   shell: "initctl reload-configuration"
   sudo: "yes"
 
-- name: "restart etcd"
+- name: "set etcd.needs_restart to 'yes'"
   set_fact_dynamic:
     etcd.needs_restart: "yes"
   changed_when: "True"
   notify:
-    - "restart etcd real"
-    - "restart etcd flag"
+    - "start, restart or stop etcd"
+    - "set etcd.needs_restart to 'no'"
 
-- name: "restart etcd real"
+- name: "start, restart or stop etcd"
   action:
     module: "service"
     name: "etcd"
@@ -23,7 +23,7 @@
     and etcd_state in [ 'starting', 'running', 'stopping', 'stopped' ]
   "
 
-- name: "restart etcd flag"
+- name: "set etcd.needs_restart to 'no'"
   set_fact_dynamic:
     etcd.needs_restart: "no"
 

@@ -5,7 +5,7 @@
   action:
     module: "ec2_elb_lb"
 
-    name: "{{ balancer_name }}"
+    name: "{{ amazon_balancer_name }}"
     state: "present"
 
     listeners: "{{ amazon_balancer_listeners }}"

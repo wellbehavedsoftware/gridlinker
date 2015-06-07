@@ -47,7 +47,7 @@ def do_generate (context, args):
 		args.comment or args.name,
 	])
 
-	private_key_io = io.StringIO ()
+	private_key_io = StringIO.StringIO ()
 	key.write_private_key (private_key_io)
 	private_key = private_key_io.getvalue ()
 

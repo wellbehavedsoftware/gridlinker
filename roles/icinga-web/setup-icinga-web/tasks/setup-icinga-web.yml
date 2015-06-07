@@ -64,4 +64,16 @@
       VALUES ('admin', 1, '$password_hash');
     ";
 
+- name: "create icinga web site"
+  action:
+    module: "template"
+    dest: "/etc/nginx/sites-available/icinga-web"
+    src: "icinga-web-nginx-site"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  sudo: "yes"
+  notify:
+    - "reload nginx"
+
 # ex: et ts=2 filetype=yaml

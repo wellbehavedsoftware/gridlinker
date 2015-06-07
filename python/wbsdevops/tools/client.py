@@ -102,7 +102,7 @@ class Client:
 						self.servers [0])
 
 				self.connection = connection
-	
+
 			else:
 
 				connection = httplib.HTTPConnection (
@@ -145,7 +145,7 @@ class Client:
 		result, data = self.make_request (
 			method = "GET",
 			url = self.key_url (key),
-			accept_response = [ 200, 404 ])		
+			accept_response = [ 200, 404 ])
 
 		if result == 404:
 
@@ -199,7 +199,7 @@ class Client:
 				"Content-Type",
 				"application/x-www-form-urlencoded")
 
-		connection.endheaders ()		
+		connection.endheaders ()
 
 		if payload_data:
 			connection.send (payload_bytes)
@@ -286,9 +286,7 @@ class Client:
 			accept_response = [ 200, 201, 404 ])
 
 		if status == 404:
-
-			raise LookupError (
-				"No such key: %s" % key)
+			return []
 
 		return self.walk_tree (key, data ["node"])
 

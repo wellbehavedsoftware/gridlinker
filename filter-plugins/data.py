@@ -1,11 +1,12 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import itertools
 
 def flatten_hash (values, * inner_names):
 
 	ret = []
-	
+
 	for outer_key, outer_value in values.items ():
 
 		for inner_items in itertools.product (* [
