@@ -127,7 +127,7 @@ class GenericCommand:
 		records_by_name = {}
 
 		for record_name, record_data \
-		in collection.get_all_list ():
+		in collection.get_all_list_quick ():
 
 			if not self.helper.filter_record (context, args, record_data):
 				continue

@@ -331,13 +331,8 @@ class Inventory (object):
 		world = {}
 
 		self.all = {
-			"identity": {
-				"type": "group",
-			},
-			"global": {
-				"HOME": self.context.home,
-				"WORK": "%s/work" % self.context.home,
-			},
+			"HOME": self.context.home,
+			"WORK": "%s/work" % self.context.home,
 		}
 
 		if "globals" in self.context.local_data:
@@ -380,7 +375,9 @@ class Inventory (object):
 			output ["_meta"] ["hostvars"] [resource_name] = \
 				self.resolve_resource (resource_name, resource_data)
 
-		output ["all"] ["vars"] ["data"] = self.context.local_data
+		for key, value in self.context.project_metadata ["data"].items ():
+
+			output ["all"] ["vars"] [key] = self.context.local_data [value]
 
 		print_json (output)
 
