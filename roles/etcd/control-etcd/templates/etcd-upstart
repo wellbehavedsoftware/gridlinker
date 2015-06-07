@@ -8,12 +8,12 @@ stop on runlevel [!2345]
 respawn
 respawn limit unlimited
 
-env ETCD_NAME="{{ inventory_hostname }}"
+env ETCD_NAME="{{ etcd_name }}"
 env ETCD_DATA_DIR="{{ etcd_data }}"
 
 env ETCD_INITIAL_CLUSTER="{{ etcd_initial_cluster }}"
 env ETCD_INITIAL_CLUSTER_STATE="{{ etcd_initial_cluster_state }}"
-env ETCD_INITIAL_ADVERTISE_PEER_URLS="https://{{ private_address }}:2380"
+env ETCD_INITIAL_ADVERTISE_PEER_URLS="{{ etcd_initial_advertise_peer_urls | join (',') }}"
 
 env ETCD_SNAPSHOT_COUNT="{{ etcd_snapshot_count }}"
 env ETCD_HEARTBEAT_INTERVAL="{{ etcd_heartbeat_interval }}"
@@ -27,9 +27,9 @@ env ETCD_CA_FILE="/etc/etcd/client-ca.cert"
 env ETCD_CERT_FILE="/etc/etcd/client-{{ inventory_hostname }}.cert"
 env ETCD_KEY_FILE="/etc/etcd/client-{{ inventory_hostname }}.key"
 
-env ETCD_LISTEN_PEER_URLS="https://{{ private_address }}:2380"
-env ETCD_LISTEN_CLIENT_URLS="https://{{ private_address }}:2379"
-env ETCD_ADVERTISE_CLIENT_URLS="https://{{ private_address }}:2379"
+env ETCD_LISTEN_PEER_URLS="{{ etcd_listen_peer_urls | join (',') }}"
+env ETCD_LISTEN_CLIENT_URLS="{{ etcd_listen_client_urls | join (',') }}"
+env ETCD_ADVERTISE_CLIENT_URLS="{{ etcd_advertise_client_urls | join (',') }}"
 
 script
 

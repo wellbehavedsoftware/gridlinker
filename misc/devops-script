@@ -1,0 +1,94 @@
+#!/usr/bin/env python
+
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
+import argparse
+import os
+import sys
+import yaml
+
+main_path = __file__
+
+while os.path.islink (main_path):
+	main_path = os.readlink (main_path)
+
+SCRIPT = os.path.basename (__file__)
+
+HOME = os.path.abspath (os.path.dirname (main_path) + "/../../..")
+
+with open ("%s/data/project" % HOME) as file_handle:
+	METADATA = yaml.load (file_handle)
+
+os.environ [METADATA ["environment"] ["devops_home_path"]] = HOME
+
+os.chdir (HOME)
+
+sys.path.append (HOME + "/python")
+sys.path.append (HOME + "/third-party/gridlinker/python")
+
+if not os.path.isdir ("%s/config" % HOME):
+
+	os.mkdir ("%s/config" % HOME)
+
+if not os.path.isfile ("%s/config/overrides.yml" % HOME):
+
+	with open ("%s/config/overrides.yml" % HOME, "w") as file_handle:
+
+		file_handle.write ("".join ([
+			"---\n\n",
+			"{}\n\n",
+			"# ex: et ts=2 filetype=yaml\n",
+		]))
+
+if not os.path.isfile ("%s/config/connections.yml" % HOME):
+
+	with open ("%s/config/connections.yml" % HOME, "w") as file_handle:
+
+		file_handle.write ("".join ([
+			"---\n\n",
+			"local:\n\n",
+			"  etcd_servers:\n",
+			"    - \"127.0.0.1\"\n\n",
+			"  etcd_secure: \"no\"\n\n",
+			"  etcd_prefix: \"/%s\"\n\n" % (
+				METADATA ["etcd"] ["default_prefix"]),
+			"# ex: et ts=2 filetype=yaml\n",
+		]))
+
+if not os.path.isdir ("%s/work" % HOME):
+
+	os.mkdir ("%s/work" % HOME)
+
+if not os.path.isdir ("%s/work/control" % HOME):
+
+	os.mkdir ("%s/work/control" % HOME)
+
+os.environ [METADATA ["environment"] ["devops_script"]] = SCRIPT
+
+if SCRIPT.startswith (METADATA ["project"] ["name"] + "-"):
+	CONNECTION = SCRIPT [len (METADATA ["project"] ["name"]) + 1 : ]
+else:
+	CONNECTION = SCRIPT
+
+os.environ [METADATA ["environment"] ["devops_connection_name"]] = CONNECTION
+
+import gridlinker
+
+from gridlinker import GenericContext
+
+def main ():
+
+	parser = argparse.ArgumentParser ()
+	sub_parsers = parser.add_subparsers ()
+
+	gridlinker.args (sub_parsers)
+
+	args = parser.parse_args ()
+	context = GenericContext (HOME, CONNECTION, METADATA)
+
+	args.func (context, args)
+
+main ()
+
+# ex: noet ts=4 filetype=python

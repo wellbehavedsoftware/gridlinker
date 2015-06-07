@@ -1,0 +1,31 @@
+{%- for host_name, host_data in hostvars.items ()
+if 'ssh_hostnames' in host_data -%}
+
+	{%- if host_data.ssh.host_key_rsa is defined -%}
+
+		{%- print [
+			host_data.ssh.hostnames | join (','),
+			host_data.ssh.host_key_rsa,
+		] | join (' ') + '\n' -%}
+
+	{%- endif -%}
+
+	{%- if host_data.ssh_host_key_ecdsa is defined -%}
+
+		{%- print [
+			host_data.ssh.hostnames | join (','),
+			host_data.ssh.host_key_ecdsa,
+		] | join (' ') + '\n' -%}
+
+	{%- endif -%}
+
+{%- endfor -%}
+{%- for ssh_hostkey in ssh_global_hostkeys -%}
+
+	{%- print [
+		ssh_hostkey.name,
+		ssh_hostkey.type,
+		ssh_hostkey.data | join (''),
+	] | join (' ') + '\n' -%}
+
+{%- endfor -%}

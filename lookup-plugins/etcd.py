@@ -1,10 +1,10 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
+import importlib
 import os
 
 from ansible import utils
-
-support = __import__ (os.environ ["WBS_DEVOPS_TOOLS_SUPPORT"]).support
 
 class LookupModule (object):
 
@@ -12,7 +12,10 @@ class LookupModule (object):
 
 		self.basedir = basedir
 
-		self.client = support.context.client
+		self.support = importlib.import_module (os.environ ["GRIDLINKER_SUPPORT"]).support
+		self.context = self.support.get_context ()
+
+		self.client = self.context.client
 
 	def run (self, terms, inject = None, ** kwargs):
 

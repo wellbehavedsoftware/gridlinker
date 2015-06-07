@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
+import os
+import sys
+import yaml
+
+main_path = __file__
+
+while os.path.islink (main_path):
+	main_path = os.readlink (main_path)
+
+SCRIPT = os.path.basename (__file__)
+
+HOME = os.path.abspath (os.path.dirname (main_path) + "/../../..")
+
+with open ("%s/data/project" % HOME) as file_handle:
+	METADATA = yaml.load (file_handle)
+
+from gridlinker.generic import inventory
+from gridlinker import GenericContext
+
+CONNECTION = os.environ [METADATA ["environment"] ["devops_connection_name"]]
+
+context = GenericContext (HOME, CONNECTION, METADATA)
+
+inventory.main (context, sys.argv [1:])
+
+# ex: noet ts=4 filetype=python

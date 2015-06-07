@@ -1,5 +1,10 @@
 ---
 
+- fail:
+    msg: "{{ item }} must be specified"
+  with_items: "etcd_required
+    | difference (hostvars [inventory_hostname].keys ()) | list"
+
 - name: "set etcd.state to 'configuring'"
   set_fact_dynamic:
     etcd.state: "configuring"

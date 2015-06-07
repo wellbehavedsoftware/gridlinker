@@ -1,0 +1,6 @@
+---
+
+- include: "install-dist-package.yml"
+  tags: "install-dist-package"
+
+# ex: et ts=2 filetype=yaml
