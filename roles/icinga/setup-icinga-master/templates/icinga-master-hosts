@@ -1,0 +1,24 @@
+template Host "generic-host" {
+
+	max_check_attempts = 3
+	check_interval = 1m
+	retry_interval = 30s
+
+	check_command = "hostalive"
+
+}
+
+{% for host_name in groups [identity_group] %}
+{% set host = hostvars [host_name] %}
+
+object Host "{{ host_name }}" {
+
+	import "generic-host"
+
+	address = "{{ host.private_address }}"
+
+	vars.http = true
+
+}
+
+{% endfor %}

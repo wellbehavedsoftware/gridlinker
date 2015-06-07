@@ -1,0 +1,32 @@
+---
+
+- name: "set mysql.state to 'starting'"
+  set_fact_dynamic:
+    mysql.state: "starting"
+  when: "
+    mysql_control == 'start'
+    and mysql_state == 'stopped'
+  "
+
+- name: "set mysql.state to 'stopping'"
+  set_fact_dynamic:
+    mysql.state: "stopping"
+  when: "
+    mysql_control == 'stop'
+    and mysql_state == 'running'
+  "
+
+- include: "control-mysql.yml"
+  tags: "control-mysql"
+
+- name: "set mysql.state to 'running'"
+  set_fact_dynamic:
+    mysql.state: "running"
+  when: "mysql_state == 'starting'"
+
+- name: "set mysql.state to 'stopped'"
+  set_fact_dynamic:
+    mysql.state: "stopped"
+  when: "mysql_state == 'stopping'"
+
+# ex: et ts=2 filetype=yaml

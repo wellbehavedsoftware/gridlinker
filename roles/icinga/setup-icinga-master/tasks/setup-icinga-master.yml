@@ -1,0 +1,56 @@
+---
+
+- name: "write icinga config"
+  action:
+    module: "template"
+    src: "{{ item.template }}"
+    dest: "/etc/icinga2/{{ item.target }}"
+    owner: "root"
+    group: "nagios"
+  sudo: "yes"
+  notify: "set icinga.needs_restart to 'yes'"
+  with_items: "icinga_master_config_templates"
+
+- name: "write icinga security config"
+  action:
+    module: "copy"
+    dest: "/etc/icinga2/{{ item.target }}"
+    content: "{{ lookup ('etcd', item.source) }}"
+    owner: "root"
+    group: "nagios"
+  sudo: "yes"
+  notify: "set icinga.needs_restart to 'yes'"
+  with_items: "icinga_master_security_files"
+
+- name: "create ido database"
+  when: "inventory_hostname == mysql_master"
+  action:
+    module: "mysql_db"
+    name: "icingaido"
+
+- name: "create ido user"
+  when: "inventory_hostname == mysql_master"
+  action:
+    module: "mysql_user"
+    name: "icingaido"
+    host: "%"
+    password: "{{ icinga_ido_mysql_password }}"
+    priv: "icingaido.*:ALL"
+
+- name: "initialize ido database"
+  when: "inventory_hostname == mysql_master and icinga_state == 'configuring'"
+  args:
+    executable: "/bin/bash"
+  shell:
+
+    set -euf -o pipefail;
+
+    mysql icingaido
+      </usr/share/icinga2-ido-mysql/schema/mysql.sql;
+
+    mysql icingaido --execute "
+      ALTER TABLE icinga_instances
+      ADD UNIQUE (instance_name);
+    ";
+
+# ex: et ts=2 filetype=yaml

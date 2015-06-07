@@ -1,4 +1,7 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
+
+from wbsdevops.generic import inventory
 
 from wbsdevops.generic.arguments import *
 from wbsdevops.generic.collection import *

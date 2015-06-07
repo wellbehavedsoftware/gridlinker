@@ -1,6 +1,6 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
-from wbsdevops import amazon
 from wbsdevops import certificate
 from wbsdevops import core
 from wbsdevops import generic
@@ -17,7 +17,6 @@ from wbsdevops.generic import GenericCommand
 from wbsdevops.tools import Client
 
 modules = [
-	amazon,
 	certificate,
 	core,
 	generic,

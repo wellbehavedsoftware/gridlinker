@@ -1,0 +1,6 @@
+---
+
+- include: "setup-amazon-keys.yml"
+  tags: "setup-amazon-keys"
+
+# ex: et ts=2 filetype=yaml

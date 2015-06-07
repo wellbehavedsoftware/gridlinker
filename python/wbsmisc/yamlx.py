@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import collections
 import os
 import sys
@@ -53,7 +56,7 @@ class OrderedDictYAMLLoader (yaml.Loader):
 			try:
 				hash (key)
 
-			except TypeError, exc:
+			except TypeError as exc:
 
 				raise yaml.constructor.ConstructorError (
 					"while constructing a mapping",
@@ -75,16 +78,16 @@ def encode (schema, data):
 
 	yaml = "---\n\n"
 
-	yaml += "%s\n" % encode_real (schema, data, "", True)
+	yaml += "%s" % encode_real (schema, data, "", True)
+
+	yaml += "\n\n# ex: et ts=2 filetype=yaml"
 
 	return yaml
 
 def encode_real (schema, data, indent, here):
 
-	if isinstance (data, str):
-		return encode_str (schema, data, indent, here)
-
-	if isinstance (data, unicode):
+	if isinstance (data, str) \
+	or isinstance (data, unicode):
 		return encode_str (schema, data, indent, here)
 
 	if isinstance (data, dict):
@@ -207,7 +210,8 @@ def load_data (path):
 
 	elif os.path.isfile (path):
 
-		return parse (file (path))
+		with open (path) as file_handle:
+			return parse (file_handle)
 
 	else:
 

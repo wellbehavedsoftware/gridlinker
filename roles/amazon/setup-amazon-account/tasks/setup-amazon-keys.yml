@@ -1,0 +1,15 @@
+---
+
+- name: "setup amazon keys"
+  action:
+    module: "ec2_key"
+    name: "{{ item.0 }}"
+    key_material: "{{ lookup ('etcd', ssh_keys [item.0]) }}"
+    region: "{{ item.1 }}"
+    aws_access_key: "{{ access_key_id }}"
+    aws_secret_key: "{{ secret_access_key }}"
+  with_nested:
+    - "ssh_keys"
+    - "amazon_regions"
+
+# ex: et ts=2 filetype=yaml

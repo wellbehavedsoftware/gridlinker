@@ -1,0 +1,7 @@
+{% if system_ip_forwarding == 'yes' %}
+# enable ip forwarding
+net.ipv4.ip_forward = 1
+{% else %}
+# disable ip forwarding
+net.ipv4.ip_forward = 0
+{% endif %}

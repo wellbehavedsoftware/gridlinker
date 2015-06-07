@@ -1,0 +1,74 @@
+description "mysql server"
+
+{% if mysql_state == 'running' %}
+start on (
+	net-device-up
+	and local-filesystems
+	and runlevel [2345]
+)
+stop on runlevel [^2345]
+{% endif %}
+
+expect fork
+
+kill timeout 5
+
+env MYSQL_ETC=/etc/mysql
+env MYSQL_PIDFILE=/var/run/mysql.pid
+env MYSQL_INSTANCE=my
+env MYSQL_HOME=/usr
+
+umask 007
+
+exec $MYSQL_HOME/bin/mysqld_safe \
+	--defaults-file=$MYSQL_ETC/$MYSQL_INSTANCE.cnf \
+	>>/tmp/x.out &
+
+post-start script
+
+	loop=600
+
+	while [ $loop -gt 0 ]; do
+
+		if $MYSQL_HOME/bin/mysqladmin \
+			--defaults-file=$MYSQL_ETC/$MYSQL_INSTANCE.cnf \
+			ping
+		then
+
+			break
+
+		fi
+
+		loop=$(($loop - 1))
+
+		sleep 1
+
+	done
+
+	exit 0
+
+end script
+
+pre-stop script
+
+	exec kill -SIGTERM $(cat $MYSQL_PIDFILE)
+
+	loop=600
+
+	while test $loop -gt 0; do
+
+		if test -e $MYSQL_PIDFILE; then
+
+			loop=$((loop - 1))
+
+			sleep 1
+
+			continue
+
+		fi
+
+		break
+
+	done
+
+end script

@@ -1,0 +1,35 @@
+---
+
+openvpn_config_directories:
+
+  - directory: "/etc/openvpn"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "/etc/openvpn/clients"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+openvpn_config_templates:
+
+  - template: "openvpn-server-config"
+    target: "/etc/openvpn/{{ openvpn_server_name }}.conf"
+    mode: "0644"
+
+openvpn_security_files:
+
+  - source: "openvpn_ca_certificate"
+    target: "/etc/openvpn/{{ openvpn_server_name }}-ca.cert"
+    mode: "0644"
+
+  - source: "openvpn_server_certificate"
+    target: "/etc/openvpn/{{ openvpn_server_name }}.cert"
+    mode: "0644"
+
+  - source: "openvpn_server_private_key"
+    target: "/etc/openvpn/{{ openvpn_server_name }}.key"
+    mode: "0600"
+
+# ex: et ts=2 filetype=yaml

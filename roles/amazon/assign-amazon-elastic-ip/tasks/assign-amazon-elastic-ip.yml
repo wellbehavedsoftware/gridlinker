@@ -1,0 +1,16 @@
+---
+
+- name: "assign elastic ip to instance"
+  connection: "local"
+  action:
+    module: "ec2_eip"
+
+    instance_id: "{{ amazon_instance_id }}"
+    public_ip: "{{ amazon_elastic_ip }}"
+
+    region: "{{ amazon_region_name }}"
+
+    aws_access_key: "{{ amazon_access_key_id }}"
+    aws_secret_key: "{{ amazon_secret_access_key }}"
+
+# ex: et ts=2 filetype=yaml

@@ -1,4 +1,7 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
+
+from collections import OrderedDict
 
 from wbsmisc import generate_password
 
@@ -11,36 +14,62 @@ class ArgumentGroup:
 
 	def args_create (self, parser, helper):
 
-		group = parser.add_argument_group (self.label)
+		group = parser.add_argument_group (
+			self.label)
 
 		for argument in self.arguments:
-			argument.args_create (group, helper)
+			if hasattr (argument, "args_create"):
+				argument.args_create (group, helper)
+
+	def args_list (self, parser, helper):
+
+		group = parser.add_argument_group (
+			self.label)
+
+		for argument in self.arguments:
+			if hasattr (argument, "args_list"):
+				argument.args_list (group, helper)
+
+	def args_show (self, parser, helper):
+
+		group = parser.add_argument_group (
+			self.label)
+
+		for argument in self.arguments:
+			if hasattr (argument, "args_show"):
+				argument.args_show (group, helper)
 
 	def args_update (self, parser, helper):
 
-		group = parser.add_argument_group (self.label)
+		group = parser.add_argument_group (
+			self.label)
 
 		for argument in self.arguments:
-			argument.args_create (group, helper)
+			if hasattr (argument, "args_update"):
+				argument.args_update (group, helper)
 
-	def update_record (self, arg_vars, record_data):
-
-		for argument in self.arguments:
-			argument.update_record (arg_vars, record_data)
-
-	def update_files (self, arg_vars, collection):
+	def update_record (self, arg_vars, record_data, helper):
 
 		for argument in self.arguments:
-			argument.update_files (arg_vars, collection)
+			if hasattr (argument, "update_record"):
+				argument.update_record (arg_vars, record_data, helper)
+
+	def update_files (self, arg_vars, collection, helper):
+
+		for argument in self.arguments:
+			if hasattr (argument, "update_files"):
+				argument.update_files (arg_vars, collection, helper)
 
 class SimpleArgument:
 
-	def __init__ (self, argument, key, value_name, help):
+	def __init__ (self, argument, required, key, value_name, help):
 
 		self.argument = argument
 		self.key = key
 		self.value_name = value_name
 		self.help = help
+
+		self.required = required
 
 		self.argument_name = argument [2:].replace ("-", "_")
 
@@ -58,16 +87,132 @@ class SimpleArgument:
 			metavar = self.value_name,
 			help = self.help)
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
 		value = arg_vars [self.argument_name]
 
 		if value:
 			record_data [self.key] = value
 
-	def update_files (self, arg_vars, collection):
+class ClassArgument:
 
-		pass
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--class",
+			required = False,
+			metavar = "CLASS",
+			help = "class this {0} belongs to".format (helper.name))
+
+	# TODO args_update
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		value = arg_vars ["class"]
+
+		if value:
+			record_data ["identity"] ["class"] = value
+
+	def filter_record (self, arg_vars, record_data):
+
+		if not "class" in arg_vars:
+			return True
+
+		class_key = "%s_class" % helper.short_name
+
+		if not class_key in record_data:
+			return False
+
+		return record_data [class_key] == arg_vars ["class"]
+
+class ParentArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--parent",
+			required = False,
+			metavar = "PARENT",
+			help = "parent {0} of this {0}".format (helper.name))
+
+	# TODO args_update
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		value = arg_vars ["parent"]
+
+		if value:
+			record_data ["identity"] ["parent"] = value
+
+	def filter_record (self, arg_vars, record_data):
+
+		if not "parent" in arg_vars:
+			return True
+
+		class_key = "%s_parent" % helper.short_name
+
+		if not class_key in record_data:
+			return False
+
+		return record_data [class_key] == arg_vars ["parent"]
+
+class GroupArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--group",
+			required = False,
+			metavar = "GROUP",
+			help = "group this %s belongs to" % helper.name)
+
+	def args_list (self, parser, helper):
+
+		parser.add_argument (
+			"--group",
+			required = False,
+			metavar = "GROUP",
+			help = "group to show {0}s belonging to".format (helper.name))
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		if not "group" in arg_vars:
+			return	
+
+		value = arg_vars ["group"]
+
+		if value:
+			record_data ["identity"] ["group"] = value
+
+	def filter_record (self, arg_vars, record_data):
+
+		if not "group" in arg_vars:
+			return True
+
+		if not "group" in record_data ["identity"]:
+			return False
+
+		return record_data ["identity"] ["group"] == arg_vars ["group"]
+
+class IndexArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--index",
+			required = False,
+			metavar = "INDEX",
+			help = "index of this %s" % helper.name)
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		if not "index" in arg_vars:
+			return	
+
+		value = arg_vars ["index"]
+
+		if value:
+			record_data ["identity"] ["index"] = value
 
 class AddListArgument:
 
@@ -98,7 +243,7 @@ class AddListArgument:
 			help = self.help,
 			metavar = self.value_name)
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
 		for value in arg_vars [self.argument_name]:
 
@@ -106,10 +251,6 @@ class AddListArgument:
 				record_data [self.key] = []
 
 			record_data [self.key].append (value)
-
-	def update_files (self, arg_vars, collection):
-
-		pass
 
 class AddDictionaryArgument:
 
@@ -143,7 +284,7 @@ class AddDictionaryArgument:
 			help = self.help,
 			metavar = (self.key_name, self.value_name))
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
 		for key, value in arg_vars [self.argument_name]:
 
@@ -152,38 +293,40 @@ class AddDictionaryArgument:
 
 			record_data [self.key] [key] = value
 
-	def update_files (self, arg_vars, collection):
-
-		pass
-
 class NameArgument:
-
-	def __init__ (self, argument, key):
-
-		self.argument = argument
-		self.key = key
 
 	def args_create (self, parser, helper):
 
 		parser.add_argument (
-			self.argument,
+			"--name",
 			required = True,
+			metavar = "NAME",
 			help = "name of %s to create" % helper.name)
+
+	def args_show (self, parser, helper):
+
+		parser.add_argument (
+			"--name",
+			required = False,
+			metavar = "NAME",
+			help = "name of %s to show" % helper.name)
 
 	def args_update (self, parser, helper):
 
 		parser.add_argument (
 			"--name",
-			required = True,
+			required = False,
+			metavar = "NAME",
 			help = "name of %s to update" % helper.name)
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
-		record_data [self.key] = arg_vars ["name"]
+		value = arg_vars ["name"]
 
-	def update_files (self, arg_vars, collection):
+		if not value:
+			return
 
-		pass
+		record_data ["identity"] ["name"] = value
 
 class FileArgument:
 
@@ -209,11 +352,7 @@ class FileArgument:
 			metavar = "FILE",
 			help = self.help)
 
-	def update_record (self, arg_vars, record_data):
-
-		pass
-
-	def update_files (self, arg_vars, collection):
+	def update_files (self, arg_vars, collection, helper):
 
 		value = arg_vars [self.argument_name]
 
@@ -225,45 +364,213 @@ class FileArgument:
 
 		collection.set_file (arg_vars ["name"], self.path, file_contents)
 
-class SetArgument:
-
-	def __init__ (self):
-
-		pass
+class MiscSetArgument:
 
 	def args_create (self, parser, helper):
 
 		parser.add_argument (
 			"--set",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("GROUP.KEY", "VALUE"),
+			help = "miscellaneous value to store")
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--set",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("GROUP.KEY", "VALUE"),
+			help = "miscellaneous value to store")
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		for section_key, value in arg_vars ["set"]:
+
+			section, key = section_key.split (".")
+
+			if not section in record_data:
+				record_data [section] = {}
+
+			record_data [section] [key] = value
+
+class MiscUnsetArgument:
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--unset",
+			action = "append",
+			default = [],
+			metavar = "GROUP.KEY",
+			help = "miscellaneous value to unset")
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		if not "unset" in arg_vars:
+			return
+
+		for section_key in arg_vars ["unset"]:
+
+			section, key = section_key.split (".")
+
+			if not section in record_data:
+				continue
+
+			if not key in record_data [section]:
+				continue
+
+			del record_data [section] [key]
+
+			if not record_data [section]:
+				del record_data [section]
+
+class MiscRemoveArgument:
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--remove",
 			action = "append",
 			nargs = 2,
 			default = [],
 			metavar = ("KEY", "VALUE"),
-			help = "miscellaneous value to store")
+			help = "miscellaneous value to remove from list")
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		if not "remove" in arg_vars:
+			return
+
+		for section_key, value in arg_vars ["remove"]:
+
+			section, key = section_key.split (".")
+
+			if not section in record_data:
+				continue
+
+			if not key in record_data [section]:
+				continue
+
+			if not value in record_data [section] [key]:
+				continue
+
+			del (record_data [section] [key] [value])
+
+class MiscAddArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--add",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("KEY", "VALUE"),
+			help = "miscellaneous value to add to list")
 
 	def args_update (self, parser, helper):
 
 		parser.add_argument (
-			"--set",
+			"--add",
 			action = "append",
 			nargs = 2,
 			default = [],
-			help = "miscellaneous value to store")
+			help = "miscellaneous value to add to list")
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
-		for key, value in arg_vars ["set"]:
-			record_data [key] = value
+		for section_key, value in arg_vars ["add"]:
 
-	def update_files (self, arg_vars, collection):
+			section, key = section_key.split (".")
 
-		pass
+			if not section in record_data:
+				record_data [section] = {}
+
+			if not key in record_data [section]:
+				record_data [section] [key] = []
+
+			if value in record_data [section] [key]:
+				continue
+
+			record_data [section] [key].append (value)
+
+class MiscSetDictArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--set-dict",
+			action = "append",
+			nargs = 3,
+			default = [],
+			metavar = ("SECTION.KEY", "KEY", "VALUE"),
+			help = "miscellaneous value to store in dictionary")
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--set-dict",
+			action = "append",
+			nargs = 3,
+			default = [],
+			metavar = ("SECTION.KEY", "KEY", "VALUE"),
+			help = "miscellaneous value to store in dictionary")
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		for section_key, dict_key, value in arg_vars ["set_dict"]:
+
+			section, key = section_key.split (".")
+
+			if not section in record_data:
+				record_data [section] = {}
+
+			if not key in record_data [section]:
+				record_data [section] [key] = OrderedDict ()
+
+			record_data [section] [key] [dict_key] = value
+
+class MiscUnsetDictArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--unset-dict",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("SECTION.KEY", "KEY"),
+			help = "miscellaneous value to unset in dictionary")
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--unset-dict",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("SECTION.KEY", "KEY"),
+			help = "miscellaneous value to unset in dictionary")
+
+	def update_record (self, arg_vars, record_data, helper):
+
+		for section_key, dict_key in arg_vars ["unset_dict"]:
+
+			section, key = section_key.split (".")
+
+			if not section in record_data:
+				return
+
+			if not key in record_data [section]:
+				return
+
+			del (record_data [section] [key] [dict_key])
 
 class GeneratePasswordArgument:
-
-	def __init__ (self):
-
-		pass
 
 	def args_create (self, parser, helper):
 
@@ -271,6 +578,7 @@ class GeneratePasswordArgument:
 			"--generate-password",
 			action = "append",
 			default = [],
+			metavar = "KEY",
 			help = "generate random password to store")
 
 	def args_update (self, parser, helper):
@@ -279,13 +587,18 @@ class GeneratePasswordArgument:
 			"--generate-password",
 			action = "append",
 			default = [],
+			metavar = "KEY",
 			help = "generate random password to store")
 
-	def update_record (self, arg_vars, record_data):
+	def update_record (self, arg_vars, record_data, helper):
 
-		for key in arg_vars ["generate_password"]:
-			record_data [key] = generate_password ()
+		for section_key in arg_vars ["generate_password"]:
 
-	def update_files (self, arg_vars, collection):
+			section, key = section_key.split (".")
 
-		pass
+			if not section in record_data:
+				record_data [section] = {}
+
+			record_data [section] [key] = generate_password ()
+
+# ex: noet ts=4 filetype=yaml

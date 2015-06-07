@@ -392,13 +392,13 @@ def do_create (context, args):
 
 	if database.exists ():
 
-		print "Certificate database already exists"
+		print ("Certificate database already exists")
 
 		return
 
 	database.create ()
 
-	print "Certificate database created"
+	print ("Certificate database created")
 
 def args_request (sub_parsers):
 
@@ -440,13 +440,13 @@ def do_request (context, args):
 
 	if success:
 
-		print "Request created for " + args.common_name
+		print ("Request created for " + args.common_name)
 
 		sys.exit (0)
 
 	else:
 
-		print "There is already a request pending for " + args.common_name
+		print ("There is already a request pending for " + args.common_name)
 
 		sys.exit (1)
 
@@ -519,7 +519,7 @@ def do_signed (args):
 		not args.ignore_subject_mismatch,
 		not args.ignore_common_name_mismatch)
 
-	print "Request signed for " + args.common_name
+	print ("Request signed for " + args.common_name)
 
 	sys.exit (0)
 
@@ -561,13 +561,13 @@ def do_cancel (args):
 
 	if success:
 
-		print "Request cancelled for " + args.common_name
+		print ("Request cancelled for " + args.common_name)
 
 		sys.exit (0)
 
 	else:
 
-		print "There is no request pending for " + args.common_name
+		print ("There is no request pending for " + args.common_name)
 
 		sys.exit (1)
 
@@ -619,8 +619,8 @@ def do_export (context, args):
 				for certificate_string in certificate_strings:
 					file_handle.write (certificate_string)
 
-			print "Wrote full chain to %s" % (
-				args.full_certificate_chain)
+			print ("Wrote full chain to %s" % (
+				args.full_certificate_chain))
 
 		if args.private_key:
 
@@ -628,9 +628,9 @@ def do_export (context, args):
 
 				file_handle.write (key_string)
 
-			print "Wrote private key to %s" % (
-				args.private_key)
+			print ("Wrote private key to %s" % (
+				args.private_key))
 
 	else:
 
-		print "failure"
+		print ("failure")
