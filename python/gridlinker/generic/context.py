@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import os
+import re
 import threading
 import yaml
 
@@ -254,7 +255,7 @@ class GenericContext (object):
 			},
 
 			"ssh_connection": {
-				"control_path": "%s/work/control/%%%%h" % self.home,
+				"control_path": self.control_path,
 				"pipelining": "True",
 				"ssh_args": " ".join (self.ansible_ssh_args),
 			},
@@ -358,30 +359,66 @@ class GenericContext (object):
 			"-o UserKnownHostsFile=%s/work/known-hosts" % self.home,
 		]
 
+	@lazy_property
+	def control_path (self):
+
+		return "/tmp/control-%s-%%%%h" % self.project_metadata ["project"] ["name"]
+
 	def ansible_init (self):
 
 		with open ("%s/work/known-hosts" % self.home, "w") as file_handle:
 
-			for resource_name, resource_data in self.resources.get_all_list ():
+			for resource_name, resource_data in self.resources.get_all_list_quick ():
+
+				if not "identity" in resource_data:
+
+					raise Exception (
+						"Invalid resource: %s" % resource_name)
 
 				if "class" in resource_data ["identity"]:
 
 					class_name = resource_data ["identity"] ["class"]
 
+				elif "group" in resource_data ["identity"]:
+
+					group_name = resource_data ["identity"] ["group"]
+					group_data = self.groups.get_quick (group_name)
+
+					class_name = group_data ["identity"] ["class"]
+
 				else:
 
-					raise Exception ("TODO")
+					raise Exception (
+						"Can't deduce class for %s" % resource_name)
+
+				if not class_name in self.local_data ["classes"]:
+
+					raise Exception (
+						"Resource %s has invalid class: %s" % (
+							resource_name,
+							class_name))
 
 				class_data = self.local_data ["classes"] [class_name]
 
 				if "ssh" in class_data \
 				and "hostnames" in class_data ["ssh"]:
 
-					addresses = map (
-						lambda value: value.replace (
-							"{{ inventory_hostname }}",
-							resource_name),
-						class_data ["ssh"] ["hostnames"])
+					try:
+
+						addresses = map (
+
+							lambda value: self.map_resource (
+								resource_name,
+								resource_data,
+								value),
+
+							class_data ["ssh"] ["hostnames"])
+
+					except:
+
+						raise Exception (
+							"Error mapping ssh hostnames for %s" % (
+								resource_name))
 
 				else:
 
@@ -400,7 +437,7 @@ class GenericContext (object):
 
 				for key_type in [ "rsa", "ecdsa" ]:
 
-					if self.resources.exists_file (
+					if self.resources.exists_file_quick (
 						resource_name,
 						"ssh-host-key/%s/public" % key_type):
 
@@ -421,6 +458,14 @@ class GenericContext (object):
 							resource_data ["ssh"] ["host_key_%s" % key_type],
 						))
 
+					elif "ssh" in resource_data \
+					and "key_%s" % key_type in resource_data ["ssh"]:
+
+						file_handle.write ("%s %s\n" % (
+							",".join (addresses),
+							resource_data ["ssh"] ["key_%s" % key_type],
+						))
+
 		for key_path, key_data in self.client.get_tree ("/ssh-key"):
 
 			if not key_path.endswith ("/private"):
@@ -436,6 +481,32 @@ class GenericContext (object):
 			with open (file_path, "w") as file_handle:
 				os.fchmod (file_handle.fileno (), 0o600)
 				file_handle.write (key_data)
+
+	def map_resource (self, resource_name, resource_data, value):
+
+		return re.sub (
+
+			r"\{\{\s*(.*?)\s*\}\}",
+
+			lambda match:
+
+				self.map_resource_variable (
+					resource_name,
+					resource_data,
+					match.group (1)),
+
+			value)
+
+	def map_resource_variable (self, resource_name, resource_data, name):
+
+		if name == "inventory_hostname":
+			return resource_name
+
+		elif name == "private_address":
+			return resource_data ["private"] ["address"]
+
+		else:
+			raise Exception (name)
 
 	@lazy_property
 	def classes (self):

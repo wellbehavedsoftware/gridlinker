@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from collections import OrderedDict
+
 from wbs import yamlx
 
 class GenericCollection:
@@ -14,7 +16,9 @@ class GenericCollection:
 
 		self.client = context.client
 
-	def get (self, record_name):
+		self.cache = None
+
+	def get_slow (self, record_name):
 
 		record_key = "%s/%s" % (
 			self.path,
@@ -25,7 +29,13 @@ class GenericCollection:
 
 		return record_data
 
-	def exists_file (self, record_name, file_name):
+	def get_quick (self, record_name):
+
+		self.auto_update_cache ()
+
+		return self.data_cache [record_name]
+
+	def exists_file_slow (self, record_name, file_name):
 
 		record_key = "%s/%s" % (
 			self.path,
@@ -34,7 +44,52 @@ class GenericCollection:
 		return self.client.exists (
 			key = "%s/%s" % (record_key, file_name))
 
-	def get_file (self, record_name, file_name):
+	def exists_file_quick (self, record_name, file_name):
+
+		self.auto_update_cache ()
+
+		key = "%s/%s/%s" % (
+			self.path,
+			record_name,
+			file_name)
+
+		return key in self.cache
+
+	def auto_update_cache (self):
+
+		if self.cache:
+			return
+
+		self.update_cache ()
+
+	def update_cache (self):
+
+		if not self.client.exists (self.path):
+			self.cache = {}
+			return
+
+		cache = dict (self.client.get_tree (self.path))
+
+		data_cache = OrderedDict ()
+		all_list_cache = []
+
+		for key, string_value in sorted (cache.items ()):
+
+			if not key.endswith ("/data"):
+				continue
+
+			name = key [ 1 : len (key) - 5 ]
+
+			value = yamlx.parse (string_value)
+
+			data_cache [name] = value
+			all_list_cache.append (( name, value ))
+
+		self.cache = cache
+		self.data_cache = data_cache
+		self.all_list_cache = all_list_cache
+
+	def get_file_slow (self, record_name, file_name):
 
 		record_key = "%s/%s" % (
 			self.path,
@@ -64,7 +119,7 @@ class GenericCollection:
 			key = "%s/%s" % (record_key, file_name),
 			value = file_contents)
 
-	def get_all_values (self):
+	def get_all_values_slow (self):
 
 		if not self.client.exists (self.path):
 			return []
@@ -83,7 +138,7 @@ class GenericCollection:
 
 		return ret
 
-	def get_all_list (self):
+	def get_all_list_slow (self):
 
 		if not self.client.exists (self.path):
 			return []
@@ -98,13 +153,26 @@ class GenericCollection:
 
 			record_name = record_key [1:-5]
 
-			record_data = yamlx.parse (record_yaml)
+			try:
+
+				record_data = yamlx.parse (record_yaml)
+
+			except:
+
+				raise Exception (
+					"Error parsing %s" % record_key)
 
 			ret.append ((record_name, record_data))
 
 		return ret
 
-	def get_all_dictionary (self):
+	def get_all_list_quick (self):
+
+		self.auto_update_cache ()
+
+		return self.all_list_cache
+
+	def get_all_dictionary_slow (self):
 
 		if not self.client.exists (self.path):
 			return {}
@@ -119,7 +187,14 @@ class GenericCollection:
 
 			record_name = record_key [1:-5]
 
-			record_data = yamlx.parse (record_yaml)
+			try:
+
+				record_data = yamlx.parse (record_yaml)
+
+			except:
+
+				raise Exception (
+					"Error parsing %s" % record_key)
 
 			ret [record_name] = record_data
 
@@ -131,7 +206,7 @@ class GenericCollection:
 			self.schema,
 			record_data)
 
-	def exists (self, record_name):
+	def exists_slow (self, record_name):
 
 		record_key = "%s/%s" % (
 			self.path,

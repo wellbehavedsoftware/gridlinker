@@ -37,7 +37,7 @@ class ResourceHelper (CommandHelper):
 
 		else:
 
-			resource_data = context.resources.get (args.name)
+			resource_data = context.resources.get_slow (args.name)
 
 			class_name = resource_data ["identity"] ["class"]
 			class_data = context.local_data ["classes"] [class_name]

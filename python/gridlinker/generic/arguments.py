@@ -21,6 +21,15 @@ class ArgumentGroup:
 			if hasattr (argument, "args_create"):
 				argument.args_create (group, helper)
 
+	def args_edit (self, parser, helper):
+
+		group = parser.add_argument_group (
+			self.label)
+
+		for argument in self.arguments:
+			if hasattr (argument, "args_edit"):
+				argument.args_edit (group, helper)
+
 	def args_list (self, parser, helper):
 
 		group = parser.add_argument_group (
@@ -104,6 +113,14 @@ class ClassArgument:
 			metavar = "CLASS",
 			help = "class this {0} belongs to".format (helper.name))
 
+	def args_edit (self, parser, helper):
+
+		parser.add_argument (
+			"--class",
+			required = False,
+			metavar = "CLASS",
+			help = "class to edit {0}s belonging to".format (helper.name))
+
 	def args_update (self, parser, helper):
 
 		parser.add_argument (
@@ -185,6 +202,14 @@ class GroupArgument:
 			required = False,
 			metavar = "GROUP",
 			help = "group this %s belongs to" % helper.name)
+
+	def args_edit (self, parser, helper):
+
+		parser.add_argument (
+			"--group",
+			required = False,
+			metavar = "GROUP",
+			help = "group to edit {0}s belonging to".format (helper.name))
 
 	def args_list (self, parser, helper):
 
@@ -323,6 +348,14 @@ class NameArgument:
 			required = True,
 			metavar = "NAME",
 			help = "name of %s to create" % helper.name)
+
+	def args_edit (self, parser, helper):
+
+		parser.add_argument (
+			"--name",
+			required = True,
+			metavar = "NAME",
+			help = "name of %s to edit" % helper.name)
 
 	def args_show (self, parser, helper):
 

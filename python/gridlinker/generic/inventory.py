@@ -76,7 +76,7 @@ class Inventory (object):
 
 	def load_groups (self):
 
-		group_list = self.context.groups.get_all_list ()
+		group_list = self.context.groups.get_all_list_quick ()
 
 		for group_name, group_data in group_list:
 
@@ -102,12 +102,14 @@ class Inventory (object):
 
 			# check for duplicates
 
-			if group_name in world:
+			if group_name in self.world:
 
 				raise Exception (
 					"Group is duplicated: %s" % group_name)
 
 			# create group
+
+			class_name = group_data ["identity"] ["class"]
 
 			self.world [group_name] = group_data
 			self.groups [group_name] = group_data
@@ -116,22 +118,40 @@ class Inventory (object):
 
 	def load_resources (self):
 
-		for resource_name, resource_data in self.context.resources.get_all_list ():
+		for resource_name, resource_data \
+		in self.context.resources.get_all_list_quick ():
 
 			print resource_name
 
 			# check basics
 
 			if not "identity" in resource_data:
-
 				raise Exception ()
 
 			if resource_data ["identity"] ["type"] != "resource":
 				raise Exception ()
 
-			class_name = resource_data ["identity"] ["class"]
+			# work out class
+
+			if "class" in resource_data ["identity"]:
+
+				class_name = resource_data ["identity"] ["class"]
+
+			elif "group" in resource_data ["identity"]:
+
+				group_name = resource_data ["identity"] ["group"]
+
+				group_data = self.context.groups.get_quick (group_name)
+
+				class_name = group_data ["identity"] ["class"]
+
+			else:
+
+				raise Exception ()
 
 			class_data = self.classes [class_name]
+
+			# work out unique name
 
 			if class_data ["class"] ["scope"] == "global":
 
@@ -144,9 +164,13 @@ class Inventory (object):
 					resource_data ["identity"] ["name"])
 
 			elif class_data ["class"] ["scope"] == "group":
-				raise Exception ("TODO")
+
+				unique_name = "%s/%s" % (
+					group_name,
+					resource_data ["identity"] ["name"])
 
 			else:
+
 				raise Exception ()
 
 			if resource_name != unique_name:
@@ -293,7 +317,7 @@ class Inventory (object):
 
 		elif "group" in resource_data ["identity"]:
 
-			group_data = world [resource_data ["identity"] ["group"]]
+			group_data = self.groups [resource_data ["identity"] ["group"]]
 
 			if "parent" in group_data ["identity"]:
 
@@ -355,6 +379,8 @@ class Inventory (object):
 
 			output ["_meta"] ["hostvars"] [resource_name] = \
 				self.resolve_resource (resource_name, resource_data)
+
+		output ["all"] ["vars"] ["data"] = self.context.local_data
 
 		print_json (output)
 

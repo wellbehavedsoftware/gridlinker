@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import os
 import sys
+import tempfile
 
 from wbs import generate_password
+from wbs import yamlx
 
 class GenericCommand:
 
@@ -21,6 +24,7 @@ class GenericCommand:
 		next_sub_parsers = parser.add_subparsers ()
 
 		self.args_create (next_sub_parsers)
+		self.args_edit (next_sub_parsers)
 		self.args_list (next_sub_parsers)
 		self.args_show (next_sub_parsers)
 		self.args_update (next_sub_parsers)
@@ -259,6 +263,54 @@ class GenericCommand:
 				self.helper.name,
 				record_name))
 
+	def args_edit (self, sub_parsers):
+
+		parser = sub_parsers.add_parser (
+			"edit",
+			help = "edit an existing {0}".format (self.helper.name),
+			description = """
+				Edit an existing {0}. This command opens up a text editor with
+				the data of a {0} from the admin database, allowing you to make
+				changes by hand. It will report an error if the {0} does not
+				already exist.
+			""".format (self.helper.name))
+
+		parser.set_defaults (
+			func = self.do_edit)
+
+		self.helper.args_edit (parser)
+
+	def do_edit (self, context, args):
+
+		collection = self.helper.get_collection (context)
+
+		unique_name = self.helper.get_unique_name (context, args)
+
+		if not collection.exists_slow (unique_name):
+
+			raise Exception (
+				"%s does not exist: %s" % (
+					self.helper.name.title (),
+					unique_name))
+
+		record_data = collection.get_slow (unique_name)
+
+		with tempfile.NamedTemporaryFile () as temp_file:
+
+			record_yaml = collection.to_yaml (record_data)
+
+			temp_file.write (record_yaml)
+			temp_file.flush ()
+
+			os.system ("%s %s" % (os.environ ["EDITOR"], temp_file.name))
+
+			with open (temp_file.name, "r") as temp_file_again:
+				record_yaml = temp_file_again.read ()
+
+		record_data = yamlx.parse (record_yaml)
+
+		collection.set (unique_name, record_data)
+
 	def args_show (self, sub_parsers):
 
 		parser = sub_parsers.add_parser (
@@ -315,6 +367,12 @@ class CommandHelper:
 		for custom_arg in self.custom_args:
 			if hasattr (custom_arg, "args_create"):
 				custom_arg.args_create (parser, self)
+
+	def args_edit (self, parser):
+
+		for custom_arg in self.custom_args:
+			if hasattr (custom_arg, "args_edit"):
+				custom_arg.args_edit (parser, self)
 
 	def args_list (self, parser):
 
