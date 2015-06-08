@@ -257,23 +257,14 @@ class Client:
 
 	def create_raw (self, key, value):
 
-		payload = {
-			"value": value,
-			"prevExist": False,
-		}
-
-		response = self.http ().request_encode_body (
-			"PUT",
-			self.key_url (key),
-			payload,
-			encode_multipart = False)
-
-		if not response.status in [200, 201]:
-
-			raise Exception (
-				"Error %s: %s" % (
-					response.status,
-					response.reason))
+		self.make_request (
+			method = "PUT",
+			url = self.key_url (key),
+			payload_data = {
+				"value": value,
+				"prevExist": False,
+			},
+			accept_response = [ 201 ])
 
 	def get_tree (self, key):
 

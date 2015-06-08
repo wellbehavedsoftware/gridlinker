@@ -121,8 +121,6 @@ class Inventory (object):
 		for resource_name, resource_data \
 		in self.context.resources.get_all_list_quick ():
 
-			print resource_name
-
 			# check basics
 
 			if not "identity" in resource_data:
