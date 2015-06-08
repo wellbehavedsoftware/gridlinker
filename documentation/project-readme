@@ -21,6 +21,21 @@ and [ansible](https://github.com/ansible/ansible) to perform deployments.
 This documentation is generated automatically, so please do not modify it
 directly, or your changes will be overwritten.
 
+## Requirements
+
+This project depends on a recent version of python, currently 2.7.10. You can
+download the [source code](https://www.python.org/downloads/) and compile this
+yourself.
+
+You will also need to download and install
+[pip](https://pypi.python.org/pypi/pip), and a number of packages:
+
+* jinja2
+* netaddr
+* paramiko
+* pyopenssl
+* pyyaml
+
 ## Configuration
 
 Most users will be provided with a copy of this software along with the relevant
@@ -70,4 +85,6 @@ you are working online, use the following configuration:
 # ex: et ts=2 filetype=yaml
 ```
 
+<div style="display:none">
 <!-- ex: noet ts=4 filetype=markdown -->
+</div>
