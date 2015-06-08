@@ -30,11 +30,11 @@ yourself.
 You will also need to download and install
 [pip](https://pypi.python.org/pypi/pip), and a number of packages:
 
-* jinja2
-* netaddr
-* paramiko
-* pyopenssl
-* pyyaml
+* `jinja2`
+* `netaddr`
+* `paramiko`
+* `pyopenssl`
+* `pyyaml`
 
 ## Configuration
 
