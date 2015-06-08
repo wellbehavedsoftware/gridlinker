@@ -40,6 +40,8 @@ class Inventory (object):
 		self.children = collections.defaultdict (list)
 		self.members = collections.defaultdict (list)
 
+		self.virtual_groups = set ()
+
 	def load_classes (self):
 
 		class_list = self.context.local_data ["classes"].items ()
@@ -73,6 +75,21 @@ class Inventory (object):
 
 			self.world [class_name] = class_data
 			self.classes [class_name] = class_data
+
+			if "virtual_groups" in class_data ["class"]:
+
+				for virtual_group_name \
+				in class_data ["class"] ["virtual_groups"]:
+
+					if not virtual_group_name in self.virtual_groups:
+
+						if virtual_group_name in self.world:
+							raise Exception ()
+
+						self.world [virtual_group_name] = {}
+						self.virtual_groups.add (virtual_group_name)
+
+					self.children [virtual_group_name].append (class_name)
 
 	def load_groups (self):
 
@@ -372,6 +389,12 @@ class Inventory (object):
 
 			output ["_meta"] ["hostvars"] [resource_name] = \
 				self.resolve_resource (resource_name, resource_data)
+
+		for virtual_group_name in self.virtual_groups:
+
+			output [virtual_group_name] = {
+				"children": self.children [virtual_group_name],
+			}
 
 		for key, value in self.context.project_metadata ["data"].items ():
 

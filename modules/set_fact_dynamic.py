@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from ansible.module_utils.basic import *
+
 def main ():
 
     module = AnsibleModule (
@@ -9,7 +11,5 @@ def main ():
     )
 
     module.exit_json ()
-
-from ansible.module_utils.basic import *
 
 main ()

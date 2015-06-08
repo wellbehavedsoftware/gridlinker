@@ -414,11 +414,12 @@ class GenericContext (object):
 
 							class_data ["ssh"] ["hostnames"])
 
-					except:
+					except Exception as exception:
 
 						raise Exception (
-							"Error mapping ssh hostnames for %s" % (
-								resource_name))
+							"Error mapping ssh hostnames for %s: %s" % (
+								resource_name,
+								exception))
 
 				else:
 
@@ -503,7 +504,15 @@ class GenericContext (object):
 			return resource_name
 
 		elif name == "private_address":
-			return resource_data ["private"] ["address"]
+
+			if "private" in resource_data \
+			and "address" in resource_data ["private"]:
+
+				return resource_data ["private"] ["address"]
+
+			else:
+
+				return None
 
 		else:
 			raise Exception (name)
