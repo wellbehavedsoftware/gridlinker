@@ -5,5 +5,6 @@ from wbs.env import *
 from wbs.lazy import *
 from wbs.random import *
 from wbs.schema import *
+from wbs.data import *
 
 # ex: noet ts=4 filetype=yaml
