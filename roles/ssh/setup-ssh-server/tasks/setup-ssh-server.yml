@@ -20,6 +20,7 @@
     module: "template"
     src: "ssh-server-authorized-keys"
     dest: "/root/.ssh/authorized_keys"
+  when: "ssh_authorized_keys is defined"
   sudo: "yes"
 
 - name: "create root private key"
@@ -42,5 +43,6 @@
     module: "template"
     src: "ssh-server-authorized-keys"
     dest: "/home/ubuntu/.ssh/authorized_keys"
+  when: "ssh_authorized_keys is defined"
 
 # ex: et ts=2 filetype=yaml

@@ -66,7 +66,11 @@ class GenericCollection:
 	def update_cache (self):
 
 		if not self.client.exists (self.path):
-			self.cache = {}
+
+			self.cache = freeze ({})
+			self.data_cache = freeze ({})
+			self.all_list_cache = freeze ([])
+
 			return
 
 		cache = dict (self.client.get_tree (self.path))

@@ -328,7 +328,7 @@ class GenericCommand:
 
 		unique_name = self.helper.get_unique_name (context, args)
 
-		record_data = collection.get (unique_name)
+		record_data = collection.get_slow (unique_name)
 
 		record_yaml = collection.to_yaml (record_data)
 

@@ -299,7 +299,7 @@ class Inventory (object):
 
 	def resolve_resource (self, resource_name, resource_data):
 
-		resource_vars = {}
+		resource_vars = collections.OrderedDict ()
 
 		for prefix, data in resource_data.items ():
 
@@ -335,8 +335,12 @@ class Inventory (object):
 
 		if "globals" in self.context.local_data:
 
-			for key, value in self.context.local_data ["globals"].items ():
-				self.all [key] = value
+			for prefix, data in self.context.local_data ["globals"].items ():
+			
+				self.all [prefix] = data
+
+				for name, value in data.items ():
+					self.all [prefix + "_" + name] = value
 
 		self.load_classes ()
 		self.load_groups ()
@@ -373,9 +377,11 @@ class Inventory (object):
 			output ["_meta"] ["hostvars"] [resource_name] = \
 				self.resolve_resource (resource_name, resource_data)
 
-		for key, value in self.context.project_metadata ["data"].items ():
+		if "data" in self.context.project_metadata:
 
-			output ["all"] ["vars"] [key] = self.context.local_data [value]
+			for key, value in self.context.project_metadata ["data"].items ():
+
+				output ["all"] ["vars"] [key] = self.context.local_data [value]
 
 		print_json (output)
 
