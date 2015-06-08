@@ -4,6 +4,12 @@ Main website:
 
 * {{ metadata.project.website }}
 
+Developers:
+
+{% for developer in metadata.developers %}
+* {{ developer.name }} <{{ developer.email }}>
+{% endfor %}
+
 This project contains a self-contained automated system for setting up and
 managing {{ metadata.project.subject }}.
 
