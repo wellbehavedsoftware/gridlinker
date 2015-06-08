@@ -510,7 +510,15 @@ class GenericContext (object):
 			return resource_name
 
 		elif name == "private_address":
-			return resource_data ["private"] ["address"]
+
+			if "private" in resource_data \
+			and "address" in resource_data ["private"]:
+
+				return resource_data ["private"] ["address"]
+
+			else:
+
+				return None
 
 		else:
 			raise Exception (name)

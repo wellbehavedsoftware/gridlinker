@@ -31,12 +31,12 @@ class CallbackModule (object):
 
 		for collection in self.context.collections:
 
-			if not collection.exists (record_name):
+			if not collection.exists_slow (record_name):
 				continue
 
 			found_records.append ((
 				collection,
-				collection.get (record_name),
+				collection.get_slow (record_name),
 			))
 
 		if not found_records:

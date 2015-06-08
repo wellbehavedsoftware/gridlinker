@@ -169,7 +169,13 @@ class ParentArgument:
 			metavar = "PARENT",
 			help = "parent {0} of this {0}".format (helper.name))
 
-	# TODO args_update
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--parent",
+			required = False,
+			metavar = "PARENT",
+			help = "parent {0} of this {0}".format (helper.name))
 
 	def update_record (self, arg_vars, record_data, helper):
 

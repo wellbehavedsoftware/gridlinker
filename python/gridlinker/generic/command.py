@@ -56,7 +56,7 @@ class GenericCommand:
 
 		unique_name = self.helper.get_unique_name (context, args)
 
-		if collection.exists (unique_name):
+		if collection.exists_slow (unique_name):
 
 			raise Exception (
 				"%s already exists: %s" % (
@@ -230,7 +230,7 @@ class GenericCommand:
 
 			unique_name = self.helper.get_unique_name (context, args)
 
-			if not collection.exists (unique_name):
+			if not collection.exists_slow (unique_name):
 
 				raise Exception (
 					"%s does not exist: %s" % (
@@ -238,7 +238,7 @@ class GenericCommand:
 						unique_name))
 
 			all_records = [
-				(unique_name, collection.get (unique_name))
+				(unique_name, collection.get_slow (unique_name))
 			]
 
 		else:
