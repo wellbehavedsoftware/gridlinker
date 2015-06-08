@@ -19,7 +19,7 @@ playbooks. It uses [etcd](https://github.com/coreos/etcd) to store runtime data,
 and [ansible](https://github.com/ansible/ansible) to perform deployments.
 
 This documentation is generated automatically, so please do not modify it
-directly, or your changes will likely by overwritten.
+directly, or your changes will be overwritten.
 
 ## Configuration
 
@@ -40,7 +40,7 @@ using the following template:
 
 {{ metadata.project.name }}:
 
-  etcd_servers: {{ metadata.etcd.default_servers | to_json }}
+  etcd_servers: [ "{{ metadata.etcd.default_servers | join ('", "') }}" ]
   etcd_secure: "{{ metadata.etcd.default_secure }}"
   etcd_prefix: "{{ metadata.etcd.default_prefix }}"
 
