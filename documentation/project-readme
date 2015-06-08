@@ -3,7 +3,7 @@
 This project contains a self-contained automated system for setting up and
 managing {{ metadata.project.subject }}.
 
-It is based on [https://github.com/wellbehavedsoftware/gridlinker](gridlinker),
+It is based on [gridlinker](https://github.com/wellbehavedsoftware/gridlinker),
 which provides tools to manage data and a collection of general purpose
-playbooks. It uses [https://github.com/coreos/etcd](etcd) to store runtime data,
-and [https://github.com/ansible/ansible](ansible) to perform deployments.
+playbooks. It uses [etcd](https://github.com/coreos/etcd) to store runtime data,
+and [ansible](https://github.com/ansible/ansible) to perform deployments.
