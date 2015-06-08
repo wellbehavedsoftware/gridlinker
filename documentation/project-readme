@@ -1,0 +1,9 @@
+# {{ metadata.project.title }}
+
+This project contains a self-contained automated system for setting up and
+managing {{ metadata.project.subject }}.
+
+It is based on [https://github.com/wellbehavedsoftware/gridlinker](gridlinker),
+which provides tools to manage data and a collection of general purpose
+playbooks. It uses [https://github.com/coreos/etcd](etcd) to store runtime data,
+and [https://github.com/ansible/ansible](ansible) to perform deployments.

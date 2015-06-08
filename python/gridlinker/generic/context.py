@@ -159,6 +159,7 @@ class GenericContext (object):
 		return {
 
 			"GRIDLINKER_PARENT_HOME": self.home,
+			"GRIDLINKER_HOME": self.gridlinker_home,
 			"GRIDLINKER_PARENT_WORK": "%s/work" % self.home,
 			"GRIDLINKER_SUPPORT": self.support_package,
 			"GRIDLINKER_KNOWN_HOSTS": "%s/work/known-hosts" % self.home,

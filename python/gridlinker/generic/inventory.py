@@ -331,6 +331,7 @@ class Inventory (object):
 		self.all = {
 			"HOME": self.context.home,
 			"WORK": "%s/work" % self.context.home,
+			"GRIDLINKER_HOME": self.context.gridlinker_home,
 		}
 
 		if "globals" in self.context.local_data:
