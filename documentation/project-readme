@@ -45,9 +45,9 @@ You also need to obtain a valid certificate, along with its private key, and the
 ca certificate, from the administrator. These should be placed in the following
 places:
 
-* config/{{ metadata.project.name }}-ca.cert
-* config/{{ metadata.project.name }}.cert
-* config/{{ metadata.project.name }}.key
+* `config/{{ metadata.project.name }}-ca.cert`
+* `config/{{ metadata.project.name }}.cert`
+* `config/{{ metadata.project.name }}.key`
 
 To use a local etcd server, for example during development or testing or when
 you are working online, use the following configuration:
