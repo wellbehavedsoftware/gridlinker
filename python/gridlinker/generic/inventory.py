@@ -454,8 +454,10 @@ class Inventory (object):
 			
 				self.all [prefix] = data
 
-				for name, value in data.items ():
-					self.all [prefix + "_" + name] = value
+				if isinstance (data, dict):
+
+					for name, value in data.items ():
+						self.all [prefix + "_" + name] = value
 
 		self.load_classes ()
 		self.load_groups ()
