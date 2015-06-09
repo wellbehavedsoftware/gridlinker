@@ -11,7 +11,11 @@ import yaml
 main_path = __file__
 
 while os.path.islink (main_path):
-	main_path = os.readlink (main_path)
+
+	main_path = os.path.normpath (
+		os.path.join (
+			os.path.dirname (main_path),
+			os.readlink (main_path)))
 
 SCRIPT = os.path.basename (__file__)
 
