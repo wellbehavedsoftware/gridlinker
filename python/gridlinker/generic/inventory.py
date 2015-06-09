@@ -390,6 +390,13 @@ class Inventory (object):
 			resource_vars ["parent"] = "{{ hostvars ['%s'] }}" % (
 				resource_data ["identity"] ["parent"])
 
+		resource_vars ["identity"] ["children"] = [
+			other_name
+			for other_name, other_data in self.resources.items ()
+			if "parent" in other_data ["identity"]
+			and other_data ["identity"] ["parent"] == resource_name
+		]
+
 		return resource_vars
 
 	def resolve_value (self, resource_name, combined_data, value):
