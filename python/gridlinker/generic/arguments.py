@@ -217,13 +217,29 @@ class GroupArgument:
 			metavar = "GROUP",
 			help = "group to edit {0}s belonging to".format (helper.name))
 
-	def args_list (self, parser, helper):
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--group",
+			required = False,
+			metavar = "GROUP",
+			help = "group to update {0}s belonging to".format (helper.name))
+
+	def args_show (self, parser, helper):
 
 		parser.add_argument (
 			"--group",
 			required = False,
 			metavar = "GROUP",
 			help = "group to show {0}s belonging to".format (helper.name))
+
+	def args_list (self, parser, helper):
+
+		parser.add_argument (
+			"--group",
+			required = False,
+			metavar = "GROUP",
+			help = "group to list {0}s belonging to".format (helper.name))
 
 	def update_record (self, arg_vars, record_data, helper):
 
