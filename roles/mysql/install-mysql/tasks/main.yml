@@ -4,13 +4,16 @@
   set_fact_dynamic:
     mysql.state: "installing"
   when: "mysql_state is not defined"
+  tags: [ "mysql", "install-mysql" ]
 
 - include: "install-mysql.yml"
   tags: "install-mysql"
+  tags: [ "mysql", "install-mysql" ]
 
 - name: "set mysql.state to 'unconfigured'"
   set_fact_dynamic:
     mysql.state: "unconfigured"
   when: "mysql_state == 'installing'"
+  tags: [ "mysql", "install-mysql" ]
 
 # ex: et ts=2 filetype=yaml

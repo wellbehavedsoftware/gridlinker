@@ -1,0 +1,6 @@
+---
+
+nginx_http_port: "80"
+nginx_https_port: "443"
+
+# ex: et ts=2 filetype=yaml

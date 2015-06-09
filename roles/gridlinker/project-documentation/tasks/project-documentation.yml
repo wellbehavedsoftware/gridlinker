@@ -1,0 +1,9 @@
+---
+
+- name: "create readme"
+  action:
+    module: "template"
+    dest: "{{ HOME }}/README.md"
+    src: "{{ GRIDLINKER_HOME }}/documentation/project-readme"
+
+# ex: et ts=2 filetype=yaml

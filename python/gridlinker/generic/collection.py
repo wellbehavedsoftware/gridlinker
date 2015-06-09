@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from collections import OrderedDict
 
+from wbs import freeze
 from wbs import yamlx
 
 class GenericCollection:
@@ -65,7 +66,11 @@ class GenericCollection:
 	def update_cache (self):
 
 		if not self.client.exists (self.path):
-			self.cache = {}
+
+			self.cache = freeze ({})
+			self.data_cache = freeze ({})
+			self.all_list_cache = freeze ([])
+
 			return
 
 		cache = dict (self.client.get_tree (self.path))
@@ -85,9 +90,9 @@ class GenericCollection:
 			data_cache [name] = value
 			all_list_cache.append (( name, value ))
 
-		self.cache = cache
-		self.data_cache = data_cache
-		self.all_list_cache = all_list_cache
+		self.cache = freeze (cache)
+		self.data_cache = freeze (data_cache)
+		self.all_list_cache = freeze (all_list_cache)
 
 	def get_file_slow (self, record_name, file_name):
 

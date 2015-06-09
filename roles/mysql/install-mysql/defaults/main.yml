@@ -1,5 +1,12 @@
 ---
 
-mysql_master: "{{ inventory_hostname }}"
+mysql_replication: "no"
+
+mysql_port: "{{
+  '3306' if (
+    mysql_replication == 'yes'
+    and inventory_hostname == mysql_master
+  ) else '3307'
+}}"
 
 # ex: et ts=2 filetype=yaml

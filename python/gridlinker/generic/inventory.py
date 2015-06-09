@@ -445,12 +445,17 @@ class Inventory (object):
 		self.all = {
 			"HOME": self.context.home,
 			"WORK": "%s/work" % self.context.home,
+			"GRIDLINKER_HOME": self.context.gridlinker_home,
 		}
 
 		if "globals" in self.context.local_data:
 
-			for key, value in self.context.local_data ["globals"].items ():
-				self.all [key] = value
+			for prefix, data in self.context.local_data ["globals"].items ():
+			
+				self.all [prefix] = data
+
+				for name, value in data.items ():
+					self.all [prefix + "_" + name] = value
 
 		self.load_classes ()
 		self.load_groups ()
@@ -487,15 +492,16 @@ class Inventory (object):
 			output ["_meta"] ["hostvars"] [resource_name] = \
 				self.resolve_resource (resource_name, resource_data)
 
+		if "data" in self.context.project_metadata:
+
+			for key, value in self.context.project_metadata ["data"].items ():
+				output ["all"] ["vars"] [key] = self.context.local_data [value]
+
 		for virtual_group_name in self.virtual_groups:
 
 			output [virtual_group_name] = {
 				"children": self.children [virtual_group_name],
 			}
-
-		for key, value in self.context.project_metadata ["data"].items ():
-
-			output ["all"] ["vars"] [key] = self.context.local_data [value]
 
 		print_json (output)
 

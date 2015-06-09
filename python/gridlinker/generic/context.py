@@ -159,6 +159,7 @@ class GenericContext (object):
 		return {
 
 			"GRIDLINKER_PARENT_HOME": self.home,
+			"GRIDLINKER_HOME": self.gridlinker_home,
 			"GRIDLINKER_PARENT_WORK": "%s/work" % self.home,
 			"GRIDLINKER_SUPPORT": self.support_package,
 			"GRIDLINKER_KNOWN_HOSTS": "%s/work/known-hosts" % self.home,
@@ -181,37 +182,42 @@ class GenericContext (object):
 	def ansible_action_plugins (self):
 
 		return [
-			"%s/gridlinker/action-plugins" % self.third_party_home,
+			"%s/misc/action-plugins" % self.home,
+			"%s/misc/action-plugins" % self.gridlinker_home,
 		]
 
 	@lazy_property
 	def ansible_lookup_plugins (self):
 
 		return [
-			"%s/gridlinker/lookup-plugins" % self.third_party_home,
+			"%s/misc/lookup-plugins" % self.home,
+			"%s/misc/lookup-plugins" % self.gridlinker_home,
 		]
 
 	@lazy_property
 	def ansible_callback_plugins (self):
 
 		return [
-			"%s/gridlinker/callback-plugins" % self.third_party_home,
+			"%s/misc/callback-plugins" % self.home,
+			"%s/misc/callback-plugins" % self.gridlinker_home,
 		]
 
 	@lazy_property
 	def ansible_filter_plugins (self):
 
 		return [
-			"%s/gridlinker/filter-plugins" % self.third_party_home,
+			"%s/misc/filter-plugins" % self.home,
+			"%s/misc/filter-plugins" % self.gridlinker_home,
 		]
 
 	@lazy_property
 	def ansible_library (self):
 
 		return [
+			"%s/misc/modules" % self.home,
+			"%s/misc/modules" % self.gridlinker_home,
 			"%s/ansible-modules-core" % self.third_party_home,
 			"%s/ansible-modules-extras" % self.third_party_home,
-			"%s/modules" % self.gridlinker_home,
 		]
 
 	@lazy_property

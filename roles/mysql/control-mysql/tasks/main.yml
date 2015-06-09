@@ -7,6 +7,7 @@
     mysql_control == 'start'
     and mysql_state == 'stopped'
   "
+  tags: [ "mysql", "control-mysql" ]
 
 - name: "set mysql.state to 'stopping'"
   set_fact_dynamic:
@@ -15,18 +16,21 @@
     mysql_control == 'stop'
     and mysql_state == 'running'
   "
+  tags: [ "mysql", "control-mysql" ]
 
 - include: "control-mysql.yml"
-  tags: "control-mysql"
+  tags: [ "mysql", "control-mysql" ]
 
 - name: "set mysql.state to 'running'"
   set_fact_dynamic:
     mysql.state: "running"
   when: "mysql_state == 'starting'"
+  tags: [ "mysql", "control-mysql" ]
 
 - name: "set mysql.state to 'stopped'"
   set_fact_dynamic:
     mysql.state: "stopped"
   when: "mysql_state == 'stopping'"
+  tags: [ "mysql", "control-mysql" ]
 
 # ex: et ts=2 filetype=yaml
