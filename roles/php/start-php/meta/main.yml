@@ -1,0 +1,8 @@
+---
+
+dependencies:
+
+  - role: "control-php"
+    php_control: "start"
+
+# ex: et ts=2 filetype=yaml

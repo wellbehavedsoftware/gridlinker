@@ -10,6 +10,11 @@
 
     sudo start mysql || true;
 
+- name: "generate mysql replication password"
+  set_fact_dynamic:
+    mysql.replication_password: "{{ 20 | generate_random }}"
+  when: "mysql_replication_password is not defined"
+
 - name: "create mysql replication user"
   when: "inventory_hostname == mysql_master"
   action:

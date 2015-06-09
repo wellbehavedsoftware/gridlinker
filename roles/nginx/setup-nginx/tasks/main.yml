@@ -1,0 +1,18 @@
+---
+
+- name: "set nginx.state to 'configuring'"
+  set_fact_dynamic:
+    nginx.state: "configuring"
+  when: "nginx_state == 'unconfigured'"
+  tags: [ "nginx", "setup-nginx" ]
+
+- include: "setup-nginx.yml"
+  tags: [ "nginx", "setup-nginx" ]
+
+- name: "set nginx.state to 'stopped'"
+  set_fact_dynamic:
+    nginx.state: "stopped"
+  when: "nginx_state == 'configuring'"
+  tags: [ "nginx", "setup-nginx" ]
+
+# ex: et ts=2 filetype=yaml

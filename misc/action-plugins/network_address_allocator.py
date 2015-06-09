@@ -59,7 +59,7 @@ class ActionModule (object):
 		return ReturnData (
 			conn = conn,
 			result = dict (
+				changed = True,
 				address = ip_address),
-			changed = True)
 
 # ex: noet ts=4 filetype=python

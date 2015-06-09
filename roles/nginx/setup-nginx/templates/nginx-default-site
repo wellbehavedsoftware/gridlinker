@@ -1,6 +1,6 @@
 server {
 
-	listen 80 default_server;
+	listen {{ nginx_http_port }} default_server;
 
 	server_name {{ inventory_hostname }};
 

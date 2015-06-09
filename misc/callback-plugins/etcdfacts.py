@@ -54,6 +54,8 @@ class CallbackModule (object):
 
 			section, key = section_key.split (".")
 
+			print "UPDATE " + section
+
 			if not section in record_data:
 				record_data [section] = {}
 
