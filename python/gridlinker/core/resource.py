@@ -5,7 +5,7 @@ from gridlinker.generic import *
 
 class ResourceHelper (CommandHelper):
 
-	def get_unique_name (self, context, args):
+	def create_unique_name (self, context, args):
 
 		arg_vars = vars (args)
 
@@ -58,6 +58,37 @@ class ResourceHelper (CommandHelper):
 
 		return unique_name
 
+	def existing_unique_name (self, context, resource_data):
+
+		resource_name = resource_data ["identity"] ["name"]
+
+		if "group" in resource_data ["identity"]:
+
+			group_name = resource_data ["identity"] ["group"]
+			group_data = context.groups.get_quick (resource)
+
+			class_name = group_data ["identity"] ["class"]
+			class_data = context.local_data ["classes"] [class_name]
+
+		else:
+
+			class_name = resource_data ["identity"] ["class"]
+			class_data = context.local_data ["classes"] [class_name]
+
+		# determine unique name depending on scope
+
+		if class_data ["class"] ["scope"] == "group":
+			return "%s/%s" % (group_name, resource_name)
+
+		elif class_data ["class"] ["scope"] == "class":
+			return "%s/%s" % (class_name, resource_name)
+
+		elif class_data ["class"] ["scope"] == "global":
+			return resource_name
+
+		else:
+			raise Exception ()
+
 resource_command = GenericCommand (
 
 	ResourceHelper (
@@ -102,11 +133,7 @@ resource_command = GenericCommand (
 
 		custom_columns = [
 
-			SimpleColumn (
-				section = "identity",
-				name = "name",
-				label = "Name",
-				default = True),
+			UniqueNameColumn (),
 
 			SimpleColumn (
 				section = "identity",

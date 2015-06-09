@@ -298,6 +298,10 @@ class Client:
 				] for item in sub_list
 			]
 
+		else:
+
+			return []
+
 	def rm (self, key):
 
 		self.etcd_client.delete (

@@ -13,7 +13,7 @@
 - name: "generate mysql root password"
   set_fact_dynamic:
     mysql.root_password: "{{ 20 | generate_random }}"
-  when: "mysql.root_password is not defined"
+  when: "mysql_root_password is not defined"
 
 - name: "create mysql root user"
   action:

@@ -54,7 +54,7 @@ class GenericCommand:
 
 		collection = self.helper.get_collection (context)
 
-		unique_name = self.helper.get_unique_name (context, args)
+		unique_name = self.helper.create_unique_name (context, args)
 
 		if collection.exists_slow (unique_name):
 
@@ -147,13 +147,10 @@ class GenericCommand:
 
 			for record_data in records_by_name.values ():
 
-				if not column.section in record_data:
+				if not column.exists (context, self.helper, record_data):
 					continue
 
-				if not column.name in record_data [column.section]:
-					continue
-
-				value = record_data [column.section] [column.name]
+				value = column.get (context, self.helper, record_data)
 				length = len (value)
 
 				if length > max_size:
@@ -166,7 +163,9 @@ class GenericCommand:
 		sys.stdout.write ("\n ")
 
 		for column in columns:
+
 			column_size = column_sizes [column.name]
+
 			sys.stdout.write (column.label.ljust (column_size + 1))
 
 		sys.stdout.write ("\n")
@@ -176,7 +175,9 @@ class GenericCommand:
 		sys.stdout.write ("-")
 
 		for column in columns:
+
 			column_size = column_sizes [column.name]
+
 			sys.stdout.write ("-" * (column_size + 1))
 
 		sys.stdout.write ("\n")
@@ -193,12 +194,10 @@ class GenericCommand:
 
 				column_size = column_sizes [column.name]
 
-				if not column.section in record_data:
-					value = ""
-				elif not column.name in record_data [column.section]:
+				if not column.exists (context, self.helper, record_data):
 					value = ""
 				else:
-					value = record_data [column.section] [column.name]
+					value = column.get (context, self.helper, record_data)
 
 				sys.stdout.write (value.ljust (column_size + 1))
 
@@ -228,7 +227,7 @@ class GenericCommand:
 
 		if args.name:
 
-			unique_name = self.helper.get_unique_name (context, args)
+			unique_name = self.helper.existing_unique_name (context, args)
 
 			if not collection.exists_slow (unique_name):
 
@@ -284,7 +283,7 @@ class GenericCommand:
 
 		collection = self.helper.get_collection (context)
 
-		unique_name = self.helper.get_unique_name (context, args)
+		unique_name = self.helper.create_unique_name (context, args)
 
 		if not collection.exists_slow (unique_name):
 
@@ -326,7 +325,7 @@ class GenericCommand:
 
 		collection = self.helper.get_collection (context)
 
-		unique_name = self.helper.get_unique_name (context, args)
+		unique_name = self.helper.create_unique_name (context, args)
 
 		record_data = collection.get_slow (unique_name)
 

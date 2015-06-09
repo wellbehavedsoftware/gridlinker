@@ -435,6 +435,9 @@ class Inventory (object):
 		if name == "inventory_hostname":
 			return resource_name
 
+		if name == "identity_name":
+			return combined_data ["identity"] ["name"]
+
 		else:
 			return "{{ %s }}" % name
 

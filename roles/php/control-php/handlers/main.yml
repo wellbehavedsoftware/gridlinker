@@ -16,7 +16,7 @@
     name: "php5-fpm"
     state: "{{
       'restarted' if nginx_needs_restart == 'yes'
-      else 'started' if nginx_state in [ 'starting', 'running' ]
+      else 'started' if php_state in [ 'starting', 'running' ]
       else 'stopped'
     }}"
   sudo: "yes"
