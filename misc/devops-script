@@ -26,8 +26,6 @@ with open ("%s/data/project" % HOME) as file_handle:
 
 os.environ [METADATA ["environment"] ["devops_home_path"]] = HOME
 
-os.chdir (HOME)
-
 sys.path.append (HOME + "/python")
 sys.path.append (HOME + "/third-party/gridlinker/python")
 

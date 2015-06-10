@@ -29,6 +29,11 @@ class GenericContext (object):
 		self.project_metadata = project_metadata
 
 	@lazy_property
+	def config (self):
+
+		return "%s/config" % self.home
+
+	@lazy_property
 	def support_package (self):
 
 		return "gridlinker.generic"
@@ -76,9 +81,12 @@ class GenericContext (object):
 			return gridlinker.Client (
 				servers = self.connection_config ["etcd_servers"],
 				secure = True,
-				client_ca_cert = "config/%s-ca.cert" % self.connection_name,
-				client_cert = "config/%s.cert" % self.connection_name,
-				client_key = "config/%s.key" % self.connection_name,
+				client_ca_cert = "%s/%s-ca.cert" % (
+					self.config, self.connection_name),
+				client_cert = "%s/%s.cert" % (
+					self.config, self.connection_name),
+				client_key = "%s/%s.key" % (
+					self.config, self.connection_name),
 				prefix = self.connection_config ["etcd_prefix"])
 
 		elif self.connection_config ["etcd_secure"] == "no":
