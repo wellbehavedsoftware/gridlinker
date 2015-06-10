@@ -12,7 +12,11 @@ def flatten_hash (values, * inner_names):
 		for inner_items in itertools.product (* [
 			outer_value [inner_name]
 			for inner_name in inner_names
+			if inner_name in outer_value
 		]):
+
+			if len (inner_items) < len (inner_names):
+				continue
 
 			item = {
 				"outer": {
