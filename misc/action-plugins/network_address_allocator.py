@@ -47,7 +47,7 @@ class ActionModule (object):
 			complex_args ["end_address"])
 
 		ip_address = next (
-			ip_address for ip_address in address_range
+			str (ip_address) for ip_address in address_range
 			if not str (ip_address) in taken_addresses)
 
 		allocation_name = complex_args ["name"]
