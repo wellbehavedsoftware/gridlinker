@@ -50,6 +50,11 @@ class GenericCommand:
 			action = "store_true",
 			help = "edit {0} data before creating".format (self.helper.name))
 
+		parser.add_argument (
+			"--update-existing",
+			action = "store_true",
+			help = "update existing {0} if present".format (self.helper.name))
+
 	def do_create (self, context, args):
 
 		collection = self.helper.get_collection (context)
@@ -58,16 +63,26 @@ class GenericCommand:
 
 		if collection.exists_slow (unique_name):
 
-			raise Exception (
-				"%s already exists: %s" % (
-					self.helper.name.title (),
-					unique_name))
+			if not args.update_existing:
 
-		record_data = {
-			"identity": {
-				"type": collection.type,
-			},
-		}
+				raise Exception (
+					"%s already exists: %s" % (
+						self.helper.name.title (),
+						unique_name))
+
+			record_data = collection.get_slow (unique_name)
+
+			already_exists = True
+
+		else:
+
+			record_data = {
+				"identity": {
+					"type": collection.type,
+				},
+			}
+
+			already_exists = False
 
 		self.helper.update_record (context, args, record_data)
 
@@ -93,9 +108,17 @@ class GenericCommand:
 
 		self.helper.update_files (context, args, unique_name, collection)
 
-		print ("Created %s %s" % (
-			self.helper.name,
-			unique_name))
+		if already_exists:
+
+			print ("Updated %s %s" % (
+				self.helper.name,
+				unique_name))
+
+		else:
+
+			print ("Created %s %s" % (
+				self.helper.name,
+				unique_name))
 
 	def args_list (self, sub_parsers):
 

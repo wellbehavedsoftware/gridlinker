@@ -36,24 +36,24 @@ class ActionModule (object):
 		if not self.context.resources.exists_slow (resource_name):
 			raise Exception ("Not found: " + resource_name)
 
-		resource_data = self.context.resources.get (resource_name)
+		resource_data = self.context.resources.get_slow (resource_name)
 
 		for key, value in complex_args.items ():
 
 			dynamic_path = template.template (self.runner.basedir, key, inject)
-			resource_data [dynamic_path] = value
-			options [dynamic_path] = value
 
-			if "." in dynamic_path:
+			if not "." in dynamic_path:
+				raise Exception ()
 
-				prefix, rest = dynamic_path.split (".", 2)
+			prefix, rest = dynamic_path.split (".", 2)
 
-				resource_data.setdefault (prefix, {})
-				resource_data [prefix] [rest] = value
+			resource_data.setdefault (prefix, {})
+			resource_data [prefix] [rest] = value
 
-				options [prefix] = resource_data [prefix]
+			options [prefix] = resource_data [prefix]
+			options [prefix + "_" + rest] = value
 
-		collection.set (record_name, record_data)
+		self.context.resources.set (resource_name, resource_data)
 
 		return ReturnData (
 
