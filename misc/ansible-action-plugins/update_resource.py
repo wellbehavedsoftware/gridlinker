@@ -43,7 +43,9 @@ class ActionModule (object):
 			dynamic_path = template.template (self.runner.basedir, key, inject)
 
 			if not "." in dynamic_path:
-				raise Exception ()
+
+				raise Exception (
+					"Invalid path for update_resource: %s" % dynamic_path)
 
 			prefix, rest = dynamic_path.split (".", 2)
 

@@ -1,6 +1,20 @@
 ---
 
-# TODO install dependencies
+- name: "install python dependencies"
+  action:
+    module: "apt"
+    name: "{{ item }}"
+  sudo: "yes"
+  with_items:
+    - "build-essential"
+    - "libz-dev"
+    - "libreadline-dev"
+    - "libncursesw5-dev"
+    - "libssl-dev"
+    - "libgdm-dev"
+    - "libsqlite3-dev"
+    - "libbz2-dev"
+    - "liblzma-dev"
 
 - name: "build python"
   args:
