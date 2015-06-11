@@ -257,15 +257,6 @@ class GenericContext (object):
 		]
 
 	@lazy_property
-	def ansible_ssh_args (self):
-
-		return [
-			"-o ControlMaster=auto",
-			"-o ControlPersist=60s",
-			"-o ForwardAgent=yes",
-		]
-
-	@lazy_property
 	def ansible_config (self):
 
 		return {
@@ -379,13 +370,13 @@ class GenericContext (object):
 	@lazy_property
 	def ansible_ssh_args (self):
 
-		return [
+		return self.project_metadata.get ("ansible", {}).get ("ssh_args", [
 			"-o ControlMaster=auto",
 			"-o ControlPersist=60s",
 			"-o ForwardAgent=yes",
 			"-o StrictHostKeyChecking=yes",
 			"-o UserKnownHostsFile=%s/work/known-hosts" % self.home,
-		]
+		])
 
 	@lazy_property
 	def control_path (self):
