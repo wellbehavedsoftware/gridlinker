@@ -1,13 +1,13 @@
 ---
 
-- set_fact_dynamic:
+- update_resource:
     icinga_web.state: "configuring"
   when: "icinga_web_state == 'unconfigured'"
 
 - include: "setup-icinga-web.yml"
   tags: "setup-icinga-web"
 
-- set_fact_dynamic:
+- update_resource:
     icinga_web.state: "configured"
   when: "icinga_web_state == 'configuring'"
 

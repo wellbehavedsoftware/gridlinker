@@ -47,7 +47,7 @@ class ActionModule (object):
 			complex_args ["end_address"])
 
 		ip_address = next (
-			str (ip_address) for ip_address in address_range
+			ip_address for ip_address in address_range
 			if not str (ip_address) in taken_addresses)
 
 		allocation_name = complex_args ["name"]
@@ -60,6 +60,6 @@ class ActionModule (object):
 			conn = conn,
 			result = dict (
 				changed = True,
-				address = ip_address))
+				address = ip_address),
 
 # ex: noet ts=4 filetype=python

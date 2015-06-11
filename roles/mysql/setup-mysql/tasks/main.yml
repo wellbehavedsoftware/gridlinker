@@ -1,7 +1,7 @@
 ---
 
 - name: "set mysql.state to 'configuring'"
-  set_fact_dynamic:
+  update_resource:
     mysql.state: "configuring"
   when: "mysql_state == 'unconfigured'"
   tags: [ "mysql", "setup-mysql" ]
@@ -10,7 +10,7 @@
   tags: [ "mysql", "setup-mysql" ]
 
 - name: "set mysql.state to 'unsynchronized'"
-  set_fact_dynamic:
+  update_resource:
     mysql.state: "unsynchronized"
   when: "mysql_state == 'configuring'"
   tags: [ "mysql", "setup-mysql" ]

@@ -433,6 +433,12 @@ def args_request (sub_parsers):
 		required = True,
 		help = "common name of certificate request to create")
 
+	parser.add_argument (
+		"--print-request",
+		required = False,
+		action = "store_true",
+		help = "print the pem encoded request to stdout")
+
 def do_request (context, args):
 
 	database = CertificateDatabase (
@@ -446,6 +452,11 @@ def do_request (context, args):
 	if success:
 
 		print ("Request created for " + args.common_name)
+
+		if args.print_request:
+
+			print ("")
+			print (csr)
 
 		sys.exit (0)
 

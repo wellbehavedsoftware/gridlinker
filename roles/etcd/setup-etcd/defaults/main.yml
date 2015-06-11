@@ -1,6 +1,15 @@
 ---
 
-etcd_required:
+etcd_clustered: "no"
+etcd_secured: "no"
+
+etcd_required: "{{
+  etcd_required_clustered
+  if etcd_clustered == 'yes'
+  else []
+}}"
+
+etcd_required_clustered:
 
   - "etcd_peer_ca_certificate"
   - "etcd_peer_certificate"

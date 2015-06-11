@@ -11,7 +11,7 @@
     sudo start mysql || true;
 
 - name: "generate mysql replication password"
-  set_fact_dynamic:
+  update_resource:
     mysql.replication_password: "{{ 20 | generate_random }}"
   when: "mysql_replication_password is not defined"
 

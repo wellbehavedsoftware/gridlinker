@@ -33,8 +33,7 @@
     aws_secret_key: "{{ amazon_secret_access_key }}"
 
 - name: "save amazon instance information"
-  connection: "local"
-  set_fact_dynamic:
+  update_resource:
 
     amazon.instance_id: "{{ ec2_result.tagged_instances.0.id }}"
     amazon.private_ip: "{{ ec2_result.tagged_instances.0.private_ip }}"

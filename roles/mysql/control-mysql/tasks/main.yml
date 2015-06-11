@@ -1,7 +1,7 @@
 ---
 
 - name: "set mysql.state to 'starting'"
-  set_fact_dynamic:
+  update_resource:
     mysql.state: "starting"
   when: "
     mysql_control == 'start'
@@ -10,7 +10,7 @@
   tags: [ "mysql", "control-mysql" ]
 
 - name: "set mysql.state to 'stopping'"
-  set_fact_dynamic:
+  update_resource:
     mysql.state: "stopping"
   when: "
     mysql_control == 'stop'
@@ -22,13 +22,13 @@
   tags: [ "mysql", "control-mysql" ]
 
 - name: "set mysql.state to 'running'"
-  set_fact_dynamic:
+  update_resource:
     mysql.state: "running"
   when: "mysql_state == 'starting'"
   tags: [ "mysql", "control-mysql" ]
 
 - name: "set mysql.state to 'stopped'"
-  set_fact_dynamic:
+  update_resource:
     mysql.state: "stopped"
   when: "mysql_state == 'stopping'"
   tags: [ "mysql", "control-mysql" ]

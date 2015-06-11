@@ -12,7 +12,7 @@
   register: "allocate_ip_result"
   when: "private_address is not defined"
 
-- set_fact_dynamic:
+- update_resource:
     "private.address": "{{ allocate_ip_result.address }}"
   when: "private_address is not defined"
 

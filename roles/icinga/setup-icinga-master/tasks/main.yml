@@ -1,13 +1,13 @@
 ---
 
-- set_fact_dynamic:
+- update_resource:
     icinga.state: "configuring"
   when: "icinga_state == 'unconfigured'"
 
 - include: "setup-icinga-master.yml"
   tags: "setup-icinga-master"
 
-- set_fact_dynamic:
+- update_resource:
     icinga.state: "stopped"
   when: "icinga_state == 'configuring'"
 
