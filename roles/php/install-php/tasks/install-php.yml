@@ -1,0 +1,26 @@
+---
+
+- name: "install php packages"
+  action:
+    module: "apt"
+    name: "{{ item }}"
+  sudo: "yes"
+  with_items: "php_packages"
+
+- name: "disable php upstart"
+  sudo: "yes"
+  args:
+    executable: "/bin/bash"
+    removes: "/etc/init.d/php5-fpm"
+  shell:
+
+    set -euf -o pipefail;
+
+    stop php5-fpm;
+
+    rm -f
+      /etc/init.d/php5-fpm
+      /etc/init.d/rc?.d/[KS]??php5-fpm
+      /etc/init/php5-fpm.conf;
+
+# ex: et ts=2 filetype=yaml

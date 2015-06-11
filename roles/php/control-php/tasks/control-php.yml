@@ -1,0 +1,23 @@
+---
+
+- name: "write php upstart config"
+  action:
+    module: "template"
+    src: "php-upstart"
+    dest: "/etc/init/php5-fpm.conf"
+  sudo: "yes"
+  notify:
+    - "reload upstart config"
+    - "set php.needs_restart to 'yes'"
+
+- name: "restart php"
+  when: "php_needs_restart == 'yes'"
+  set_fact: {}
+  changed_when: "True"
+  notify:
+    - "start, restart or stop php"
+    - "set php.needs_restart to 'no'"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

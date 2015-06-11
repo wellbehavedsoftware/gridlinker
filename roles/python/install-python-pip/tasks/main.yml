@@ -1,0 +1,20 @@
+---
+
+- update_resource:
+    python_pip_state: "installing"
+  when: "
+    python_pip_version != 'no'
+    and python_pip_state is not defined
+  "
+  tags: [ "python", "install-python-pip" ]
+
+- include: "install-python-pip.yml"
+  when: "python_pip_state == 'installing'"
+  tags: [ "python", "install-python-pip" ]
+
+- update_resource:
+    python_pip_state: "installed"
+  when: "python_pip_state == 'installing'"
+  tags: [ "python", "install-python-pip" ]
+
+# ex: et ts=2 filetype=yaml

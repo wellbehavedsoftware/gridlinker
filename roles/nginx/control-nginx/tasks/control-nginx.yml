@@ -1,0 +1,20 @@
+---
+
+- name: "write nginx upstart config"
+  action:
+    module: "template"
+    src: "nginx-upstart"
+    dest: "/etc/init/nginx.conf"
+  sudo: "yes"
+  notify:
+    - "reload upstart config"
+    - "set nginx.needs_restart to 'yes'"
+
+- name: "control nginx"
+  set_fact: {}
+  changed_when: "True"
+  notify: "start, restart or stop nginx"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

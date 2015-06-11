@@ -17,7 +17,7 @@ class ResourceHelper (CommandHelper):
 				raise Exception ()
 
 			group_name = args.group
-			group_data = context.groups.get (group_name)
+			group_data = context.groups.get_quick (group_name)
 
 			class_name = group_data ["identity"] ["class"]
 			class_data = context.local_data ["classes"] [class_name]

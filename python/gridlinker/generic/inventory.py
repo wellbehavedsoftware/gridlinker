@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import collections
 import json
+import re
 import sys
 
 def main (context, args):
@@ -40,6 +41,8 @@ class Inventory (object):
 		self.children = collections.defaultdict (list)
 		self.members = collections.defaultdict (list)
 
+		self.virtual_groups = set ()
+
 	def load_classes (self):
 
 		class_list = self.context.local_data ["classes"].items ()
@@ -73,6 +76,21 @@ class Inventory (object):
 
 			self.world [class_name] = class_data
 			self.classes [class_name] = class_data
+
+			if "virtual_groups" in class_data ["class"]:
+
+				for virtual_group_name \
+				in class_data ["class"] ["virtual_groups"]:
+
+					if not virtual_group_name in self.virtual_groups:
+
+						if virtual_group_name in self.world:
+							raise Exception ()
+
+						self.world [virtual_group_name] = {}
+						self.virtual_groups.add (virtual_group_name)
+
+					self.children [virtual_group_name].append (class_name)
 
 	def load_groups (self):
 
@@ -299,30 +317,126 @@ class Inventory (object):
 
 	def resolve_resource (self, resource_name, resource_data):
 
-		resource_vars = collections.OrderedDict ()
+		# combine data from resource, group and class
+
+		combined_data = collections.OrderedDict ()
+
+		if "group" in resource_data ["identity"]:
+
+			group_data = self.groups [resource_data ["identity"] ["group"]]
+
+			class_data = self.classes [group_data ["identity"] ["class"]]
+
+		elif "class" in resource_data ["identity"]:
+
+			group_data = None
+
+			class_data = self.classes [resource_data ["identity"] ["class"]]
+
+		if class_data:
+
+			for prefix, data in class_data.items ():
+
+				if prefix == "identity":
+					continue
+
+				if not prefix in combined_data:
+					combined_data [prefix] = collections.OrderedDict ()
+
+				for name, value in data.items ():
+					combined_data [prefix] [name] = value
+
+		if group_data:
+
+			for prefix, data in group_data.items ():
+
+				if prefix == "identity":
+					continue
+
+				if not prefix in combined_data:
+					combined_data [prefix] = collections.OrderedDict ()
+
+				for name, value in data.items ():
+					combined_data [prefix] [name] = value
 
 		for prefix, data in resource_data.items ():
 
-			resource_vars [prefix] = data
+			if not prefix in combined_data:
+				combined_data [prefix] = collections.OrderedDict ()
 
 			for name, value in data.items ():
-				resource_vars [prefix + "_" + name] = value
+				combined_data [prefix] [name] = value
+
+		# now resolve values where possible
+
+		resource_vars = collections.OrderedDict ()
+
+		for prefix, data in combined_data.items ():
+
+			resource_vars [prefix] = collections.OrderedDict ()
+
+			for name, value in data.items ():
+
+				resolved = self.resolve_value (
+					resource_name,
+					combined_data,
+					value)
+
+				resource_vars [prefix] [name] = resolved
+				resource_vars [prefix + "_" + name] = resolved
 
 		if "parent" in resource_data ["identity"]:
 
 			resource_vars ["parent"] = "{{ hostvars ['%s'] }}" % (
 				resource_data ["identity"] ["parent"])
 
-		elif "group" in resource_data ["identity"]:
-
-			group_data = self.groups [resource_data ["identity"] ["group"]]
-
-			if "parent" in group_data ["identity"]:
-
-				resource_vars ["parent"] = "{{ hostvars ['%s'] }}" % (
-					group_data ["identity"] ["parent"])
+		resource_vars ["identity"] ["children"] = [
+			other_name
+			for other_name, other_data in self.resources.items ()
+			if "parent" in other_data ["identity"]
+			and other_data ["identity"] ["parent"] == resource_name
+		]
 
 		return resource_vars
+
+	def resolve_value (self, resource_name, combined_data, value):
+
+		if isinstance (value, list):
+
+			return [
+				self.resolve_value (resource_name, combined_data, item)
+				for item in value
+			]
+
+		elif isinstance (value, dict):
+
+			return collections.OrderedDict ([
+				(key, self.resolve_value (resource_name, combined_data, item))
+				for key, item in value.items ()
+			])
+
+		else:
+
+			return re.sub (
+
+				r"\{\{\s*(.*?)\s*\}\}",
+
+				lambda match:
+
+					self.resolve_variable (
+						resource_name,
+						combined_data,
+						match.group (1)),
+
+				value)
+
+	def resolve_variable (self, resource_name, combined_data, name):
+
+		if name == "inventory_hostname":
+			return resource_name
+
+		else:
+			return "{{ %s }}" % name
 
 	def load_world (self):
 
@@ -340,8 +454,10 @@ class Inventory (object):
 			
 				self.all [prefix] = data
 
-				for name, value in data.items ():
-					self.all [prefix + "_" + name] = value
+				if isinstance (data, dict):
+
+					for name, value in data.items ():
+						self.all [prefix + "_" + name] = value
 
 		self.load_classes ()
 		self.load_groups ()
@@ -381,8 +497,13 @@ class Inventory (object):
 		if "data" in self.context.project_metadata:
 
 			for key, value in self.context.project_metadata ["data"].items ():
-
 				output ["all"] ["vars"] [key] = self.context.local_data [value]
+
+		for virtual_group_name in self.virtual_groups:
+
+			output [virtual_group_name] = {
+				"children": self.children [virtual_group_name],
+			}
 
 		print_json (output)
 

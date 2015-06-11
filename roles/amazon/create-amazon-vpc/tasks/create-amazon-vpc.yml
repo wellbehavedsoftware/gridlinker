@@ -23,7 +23,7 @@
 
     wait: "yes"
 
-- set_fact_dynamic:
+- update_resource:
 
     amazon_vpc.id: "{{ amazon_vpc_result.vpc_id }}"
     amazon_vpc.subnet_ids: "{{
@@ -49,7 +49,7 @@
     purge_rules: "no"
     purge_rules_egress: "no"
 
-- set_fact_dynamic:
+- update_resource:
 
     amazon_vpc.security_group_ids: "{{
       amazon_vpc_security_groups_result.results

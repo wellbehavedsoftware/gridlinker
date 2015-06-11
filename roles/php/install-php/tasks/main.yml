@@ -1,27 +1,18 @@
 ---
 
-- name: "install php packages"
-  action:
-    module: "apt"
-    name: "{{ item }}"
-  sudo: "yes"
-  with_items: "php_packages"
+- name: "set php.state to 'installing'"
+  update_resource:
+    php.state: "installing"
+  when: "php_state is not defined"
+  tags: [ "php", "install-php" ]
 
-- name: "configure php"
-  action:
-    module: "template"
-    src: "{{ item.template }}"
-    dest: "{{ item.target }}"
-  sudo: "yes"
-  notify: "restart php"
-  with_items:
+- include: "install-php.yml"
+  tags: [ "php", "install-php" ]
 
-    - template: "install-php-ini"
-      target: "/etc/php5/fpm/php.ini"
-      type: "fpm"
-
-    - template: "install-php-ini"
-      target: "/etc/php5/cli/php.ini"
-      type: "cli"
+- name: "set php.state to 'unconfigured'"
+  update_resource:
+    php.state: "unconfigured"
+  when: "php_state == 'installing'"
+  tags: [ "php", "install-php" ]
 
 # ex: et ts=2 filetype=yaml

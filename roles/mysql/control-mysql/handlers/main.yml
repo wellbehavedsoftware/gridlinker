@@ -5,26 +5,27 @@
   sudo: "yes"
 
 - name: "set mysql.needs_restart to 'yes'"
-  set_fact_dynamic:
+  update_resource:
     mysql.needs_restart: "yes"
   changed_when: "True"
-  notify:
-    - "start, restart or stop mysql"
-    - "set mysql.needs_restart to 'no'"
+  notify: "start, restart or stop mysql"
 
 - name: "start, restart or stop mysql"
   action:
     module: "service"
     name: "mysql"
-    state: "{{ 'restarted' if mysql_state in [ 'starting', 'running' ] else 'stopped' }}"
+    state: "{{
+      'restarted' if mysql_needs_restart == 'yes'
+      else 'started' if mysql_state in [ 'starting', 'running' ]
+      else 'stopped'
+    }}"
   sudo: "yes"
-  when: "
-    mysql_needs_restart == 'yes'
-    and mysql_state in [ 'starting', 'running', 'stopping', 'stopped' ]
-  "
+  changed_when: "True"
+  notify: "set mysql.needs_restart to 'no'"
 
 - name: "set mysql.needs_restart to 'no'"
-  set_fact_dynamic:
+  update_resource:
     mysql.needs_restart: "no"
+  changed_when: "True"
 
 # ex: et ts=2 filetype=yaml

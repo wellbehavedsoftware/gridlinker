@@ -1,0 +1,8 @@
+---
+
+dependencies:
+
+  - role: "control-nginx"
+    nginx_control: "start"
+
+# ex: et ts=2 filetype=yaml

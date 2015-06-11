@@ -1,0 +1,50 @@
+---
+
+# TODO install dependencies
+
+- name: "build python"
+  args:
+    executable: "/bin/bash"
+  sudo: "yes"
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ python_temp }}";
+    mkdir -p "{{ python_temp }}";
+    cd "{{ python_temp }}";
+
+    wget "{{ python_url }}";
+    tar --extract --xz --file "{{ python_archive }}";
+    cd "{{ python_name }}";
+
+    ./configure
+      --prefix="{{ python_target }}"
+      --enable-shared
+      --enable-ipv6
+      --enable-unicode="ucs4"
+      --with-dbmliborder="bdb:gdbm"
+      --with-system-expat
+      --with-system-ffi
+      --with-fpectl
+      CC="x86_64-linux-gnu-gcc"
+      CFLAGS="
+        -g
+        -D_FORTIFY_SOURCE=2
+        -fstack-protector
+        --param=ssp-buffer-size=4
+        -Wformat
+        -Werror=format-security
+      "
+      LDFLAGS="
+        -Wl,-Bsymbolic-functions
+        -Wl,-z,relro
+        -Wl,--rpath={{ python_target }}/lib
+      ";
+
+    make install;
+
+    cd /;
+    rm -rf "{{ python_temp }}"
+
+# ex: et ts=2 filetype=yaml

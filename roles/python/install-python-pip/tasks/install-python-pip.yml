@@ -1,0 +1,22 @@
+---
+
+- name: "install pip"
+  args:
+    executable: "/bin/bash"
+  sudo: "yes"
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ python_temp }}";
+    mkdir -p "{{ python_temp }}";
+    cd "{{ python_temp }}";
+
+    wget "{{ python_pip_url }}";
+
+    "{{ python_target }}/bin/python" "{{ python_pip_archive }}";
+
+    cd /;
+    rm -rf "{{ python_temp }}"
+
+# ex: et ts=2 filetype=yaml

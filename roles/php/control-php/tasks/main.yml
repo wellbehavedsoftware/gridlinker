@@ -1,0 +1,36 @@
+---
+
+- name: "set php.state to 'starting'"
+  update_resource:
+    php.state: "starting"
+  when: "
+    php_control == 'start'
+    and php_state == 'stopped'
+  "
+  tags: [ "php", "control-php" ]
+
+- name: "set php.state to 'stopping'"
+  update_resource:
+    php.state: "stopping"
+  when: "
+    php_control == 'stop'
+    and php_state == 'running'
+  "
+  tags: [ "php", "control-php" ]
+
+- include: "control-php.yml"
+  tags: [ "php", "control-php" ]
+
+- name: "set php.state to 'running'"
+  update_resource:
+    php.state: "running"
+  when: "php_state == 'starting'"
+  tags: [ "php", "control-php" ]
+
+- name: "set php.state to 'stopped'"
+  update_resource:
+    php.state: "stopped"
+  when: "php_state == 'stopping'"
+  tags: [ "php", "control-php" ]
+
+# ex: et ts=2 filetype=yaml

@@ -11,7 +11,11 @@ import yaml
 main_path = __file__
 
 while os.path.islink (main_path):
-	main_path = os.readlink (main_path)
+
+	main_path = os.path.normpath (
+		os.path.join (
+			os.path.dirname (main_path),
+			os.readlink (main_path)))
 
 SCRIPT = os.path.basename (__file__)
 
@@ -20,20 +24,23 @@ HOME = os.path.abspath (os.path.dirname (main_path) + "/../../..")
 with open ("%s/data/project" % HOME) as file_handle:
 	METADATA = yaml.load (file_handle)
 
-os.environ [METADATA ["environment"] ["devops_home_path"]] = HOME
+METADATA_PATHS = METADATA.setdefault ("paths", {})
+CONFIG = METADATA_PATHS.setdefault ("config", "config")
+OVERRIDES = METADATA_PATHS.setdefault ("overrides", "%s/overrides.yml" % CONFIG)
+CONNECTIONS = METADATA_PATHS.setdefault ("connections", "%s/connections.yml" % CONFIG)
+WORK = METADATA_PATHS.setdefault ("work", "work")
 
-os.chdir (HOME)
+os.environ [METADATA ["environment"] ["devops_home_path"]] = HOME
 
 sys.path.append (HOME + "/python")
 sys.path.append (HOME + "/third-party/gridlinker/python")
 
-if not os.path.isdir ("%s/config" % HOME):
+if not os.path.isdir ("%s/%s" % (HOME, CONFIG)):
+	os.mkdir ("%s/%s" % (HOME, CONFIG))
 
-	os.mkdir ("%s/config" % HOME)
+if not os.path.isfile ("%s/%s" % (HOME, OVERRIDES)):
 
-if not os.path.isfile ("%s/config/overrides.yml" % HOME):
-
-	with open ("%s/config/overrides.yml" % HOME, "w") as file_handle:
+	with open ("%s/%s" % (HOME, OVERRIDES), "w") as file_handle:
 
 		file_handle.write ("".join ([
 			"---\n\n",
@@ -41,9 +48,9 @@ if not os.path.isfile ("%s/config/overrides.yml" % HOME):
 			"# ex: et ts=2 filetype=yaml\n",
 		]))
 
-if not os.path.isfile ("%s/config/connections.yml" % HOME):
+if not os.path.isfile ("%s/%s" % (HOME, CONNECTIONS)):
 
-	with open ("%s/config/connections.yml" % HOME, "w") as file_handle:
+	with open ("%s/%s" % (HOME, CONNECTIONS), "w") as file_handle:
 
 		file_handle.write ("".join ([
 			"---\n\n",
@@ -56,9 +63,9 @@ if not os.path.isfile ("%s/config/connections.yml" % HOME):
 			"# ex: et ts=2 filetype=yaml\n",
 		]))
 
-if not os.path.isdir ("%s/work" % HOME):
+if not os.path.isdir ("%s/%s" % (HOME, WORK)):
 
-	os.mkdir ("%s/work" % HOME)
+	os.mkdir ("%s/%s" % (HOME, WORK))
 
 if not os.path.isdir ("%s/work/control" % HOME):
 

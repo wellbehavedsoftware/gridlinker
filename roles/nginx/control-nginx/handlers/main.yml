@@ -1,0 +1,31 @@
+---
+
+- name: "reload upstart config"
+  shell: "initctl reload-configuration"
+  sudo: "yes"
+
+- name: "set nginx.needs_restart to 'yes'"
+  update_resource:
+    nginx.needs_restart: "yes"
+  changed_when: "True"
+  notify: "start, restart or stop nginx"
+
+- name: "start, restart or stop nginx"
+  action:
+    module: "service"
+    name: "nginx"
+    state: "{{
+      'restarted' if nginx_needs_restart == 'yes'
+      else 'started' if nginx_state in [ 'starting', 'running' ]
+      else 'stopped'
+    }}"
+  sudo: "yes"
+  changed_when: "True"
+  notify: "set nginx.needs_restart to 'no'"
+
+- name: "set nginx.needs_restart to 'no'"
+  update_resource:
+    nginx.needs_restart: "no"
+  changed_when: "True"
+
+# ex: et ts=2 filetype=yaml

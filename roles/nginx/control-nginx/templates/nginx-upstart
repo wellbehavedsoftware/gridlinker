@@ -1,0 +1,29 @@
+description "nginx web server"
+
+{% if nginx_state in [ 'starting', 'running' ] %}
+start on (
+	net-device-up
+	and local-filesystems
+	and runlevel [2345]
+)
+stop on runlevel [^2345]
+{% endif %}
+
+expect fork
+
+respawn
+respawn limit unlimited
+
+umask 007
+
+pre-start script
+
+	/usr/sbin/nginx -t
+
+	if test "$?" -ne "0"
+		then exit $?
+	fi
+
+end script
+ 
+exec /usr/sbin/nginx

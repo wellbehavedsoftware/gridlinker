@@ -1,26 +1,18 @@
 ---
 
-- name: "install nginx packages"
-  action:
-    module: "apt"
-    name: "{{ item }}"
-  sudo: "yes"
-  with_items:
-    - "nginx"
+- name: "set nginx.state to 'installing'"
+  update_resource:
+    nginx.state: "installing"
+  when: "nginx_state is not defined"
+  tags: [ "nginx", "install-nginx" ]
 
-- name: "configure nginx"
-  action:
-    module: "template"
-    src: "{{ item.template }}"
-    dest: "{{ item.target }}"
-  sudo: "yes"
-  notify: "restart nginx"
-  with_items:
+- include: "install-nginx.yml"
+  tags: [ "nginx", "install-nginx" ]
 
-    - template: "install-nginx-main-config"
-      target: "/etc/nginx/nginx.conf"
-
-    - template: "install-nginx-sites-default"
-      target: "/etc/nginx/sites-available/default"
+- name: "set nginx.state to 'unconfigured'"
+  update_resource:
+    nginx.state: "unconfigured"
+  when: "nginx_state == 'installing'"
+  tags: [ "nginx", "install-nginx" ]
 
 # ex: et ts=2 filetype=yaml

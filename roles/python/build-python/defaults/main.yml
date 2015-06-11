@@ -1,0 +1,20 @@
+---
+
+python_version: "no"
+python_mirror: "https://www.python.org/ftp/python"
+python_default: "yes"
+
+python_temp: "/tmp/python-install"
+python_target: "/opt/python-{{ python_version }}"
+
+python_name: "Python-{{ python_version }}"
+python_archive: "{{ python_name }}.tar.xz"
+python_url: "{{ python_mirror }}/{{ python_version }}/{{ python_archive }}"
+
+python_pip_version: "no"
+python_pip_mirror: "https://bootstrap.pypa.io/"
+
+python_pip_archive: "get-pip.py"
+python_pip_url: "{{ python_pip_mirror }}/{{ python_pip_archive }}"
+
+# ex: et ts=2 filetype=yaml
