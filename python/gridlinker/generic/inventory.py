@@ -42,6 +42,7 @@ class Inventory (object):
 		self.members = collections.defaultdict (list)
 
 		self.virtual_groups = set ()
+		self.dynamic_groups = set ()
 
 	def load_classes (self):
 
@@ -223,6 +224,23 @@ class Inventory (object):
 				print resource_data
 
 				raise Exception ()
+
+			# dynamic groups
+
+			for dynamic_group \
+			in self.context.project_metadata.get ("dynamic_groups", []):
+
+				prefix, rest = dynamic_group ["field"].split (".")
+
+				if not prefix in resource_data \
+				or not rest in resource_data [prefix]:
+					continue
+
+				value = resource_data [prefix] [rest]
+				dynamic_group_name = dynamic_group ["prefix"] + value
+
+				self.dynamic_groups.add (dynamic_group_name)
+				self.members [dynamic_group_name].append (resource_name)
 
 	def add_group_class_type (self,
 			item_friendly_name,
@@ -503,6 +521,12 @@ class Inventory (object):
 
 			output [virtual_group_name] = {
 				"children": self.children [virtual_group_name],
+			}
+
+		for dynamic_group_name in self.dynamic_groups:
+
+			output [dynamic_group_name] = {
+				"hosts": self.members [dynamic_group_name],
 			}
 
 		print_json (output)
