@@ -11,7 +11,7 @@
     - "python-mysqldb"
 
 - name: "generate mysql root password"
-  set_fact_dynamic:
+  update_resource:
     mysql.root_password: "{{ 20 | generate_random }}"
   when: "mysql.root_password is not defined"
 

@@ -4,18 +4,21 @@
     msg: "{{ item }} must be specified"
   with_items: "etcd_required
     | difference (hostvars [inventory_hostname].keys ()) | list"
+  tags: [ "etcd", "setup-etcd" ]
 
 - name: "set etcd.state to 'configuring'"
-  set_fact_dynamic:
+  update_resource:
     etcd.state: "configuring"
   when: "etcd_state == 'unconfigured'"
+  tags: [ "etcd", "setup-etcd" ]
 
 - include: "setup-etcd.yml"
-  tags: "setup-etcd"
+  tags: [ "etcd", "setup-etcd" ]
 
 - name: "set etcd.state to 'stopped'"
-  set_fact_dynamic:
+  update_resource:
     etcd.state: "stopped"
   when: "etcd_state == 'configuring'"
+  tags: [ "etcd", "setup-etcd" ]
 
 # ex: et ts=2 filetype=yaml

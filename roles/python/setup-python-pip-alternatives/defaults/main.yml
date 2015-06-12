@@ -1,0 +1,29 @@
+---
+
+python_pip_alternatives:
+
+  - name: "easy_install"
+    link: "/usr/bin/easy_install"
+    target: "{{ python_target }}/bin/easy_install"
+
+  - name: "easy_install-2.7"
+    link: "/usr/bin/easy_install-2.7"
+    target: "{{ python_target }}/bin/easy_install-2.7"
+
+  - name: "pip"
+    link: "/usr/bin/pip"
+    target: "{{ python_target }}/bin/pip"
+
+  - name: "pip2"
+    link: "/usr/bin/pip2"
+    target: "{{ python_target }}/bin/pip2"
+
+  - name: "pip2.7"
+    link: "/usr/bin/pip2.7"
+    target: "{{ python_target }}/bin/pip2.7"
+
+  - name: "wheel"
+    link: "/usr/bin/wheel"
+    target: "{{ python_target }}/bin/wheel"
+
+# ex: et ts=2 filetype=yaml

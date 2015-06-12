@@ -3,7 +3,6 @@
 etcd_initial_cluster: ""
 etcd_initial_cluster_state: ""
 
-etcd_version: "2.1.0-alpha.0"
 etcd_mirror: "https://github.com/coreos/etcd/releases/download"
 etcd_temp: "/tmp/etcd-install"
 etcd_data: "/var/lib/etcd"

@@ -300,14 +300,20 @@ class Client:
 
 	def rm (self, key):
 
-		self.etcd_client.delete (
-			key = self.prefix + key)
+		self.make_request (
+			method = "DELETE",
+			url = self.key_url (key),
+			accept_response = [ 200 ])
 
 	def rmdir (self, key):
 
-		self.etcd_client.delete (
-			key = self.prefix + key,
-			dir = True)
+		self.make_request (
+			method = "DELETE",
+			url = self.key_url (key),
+			query_data = {
+				"dir": "true",
+			},
+			accept_response = [ 200 ])
 
 	def mkdir_queue (self, key):
 

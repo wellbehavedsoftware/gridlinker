@@ -1,7 +1,7 @@
 ---
 
 - name: "set php.state to 'installing'"
-  set_fact_dynamic:
+  update_resource:
     php.state: "installing"
   when: "php_state is not defined"
   tags: [ "php", "install-php" ]
@@ -10,7 +10,7 @@
   tags: [ "php", "install-php" ]
 
 - name: "set php.state to 'unconfigured'"
-  set_fact_dynamic:
+  update_resource:
     php.state: "unconfigured"
   when: "php_state == 'installing'"
   tags: [ "php", "install-php" ]

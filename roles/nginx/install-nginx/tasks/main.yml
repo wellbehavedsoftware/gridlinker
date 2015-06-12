@@ -1,7 +1,7 @@
 ---
 
 - name: "set nginx.state to 'installing'"
-  set_fact_dynamic:
+  update_resource:
     nginx.state: "installing"
   when: "nginx_state is not defined"
   tags: [ "nginx", "install-nginx" ]
@@ -10,7 +10,7 @@
   tags: [ "nginx", "install-nginx" ]
 
 - name: "set nginx.state to 'unconfigured'"
-  set_fact_dynamic:
+  update_resource:
     nginx.state: "unconfigured"
   when: "nginx_state == 'installing'"
   tags: [ "nginx", "install-nginx" ]

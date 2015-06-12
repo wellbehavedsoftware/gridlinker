@@ -1,0 +1,6 @@
+---
+
+python_apt_name: "python-apt-{{ python_apt_version }}"
+python_apt_archive: "{{ python_apt_name }}.tar.gz"
+
+# ex: et ts=2 filetype=yaml

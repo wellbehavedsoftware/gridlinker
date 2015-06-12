@@ -1,7 +1,7 @@
 ---
 
 - name: "set php.state to 'starting'"
-  set_fact_dynamic:
+  update_resource:
     php.state: "starting"
   when: "
     php_control == 'start'
@@ -10,7 +10,7 @@
   tags: [ "php", "control-php" ]
 
 - name: "set php.state to 'stopping'"
-  set_fact_dynamic:
+  update_resource:
     php.state: "stopping"
   when: "
     php_control == 'stop'
@@ -22,13 +22,13 @@
   tags: [ "php", "control-php" ]
 
 - name: "set php.state to 'running'"
-  set_fact_dynamic:
+  update_resource:
     php.state: "running"
   when: "php_state == 'starting'"
   tags: [ "php", "control-php" ]
 
 - name: "set php.state to 'stopped'"
-  set_fact_dynamic:
+  update_resource:
     php.state: "stopped"
   when: "php_state == 'stopping'"
   tags: [ "php", "control-php" ]

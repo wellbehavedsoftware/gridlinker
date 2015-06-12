@@ -1,13 +1,13 @@
 ---
 
-- set_fact_dynamic:
+- update_resource:
     icinga_web.state: "starting"
   when: "
     icinga_web_control == 'start'
     and icinga_web_state in [ 'configured', 'stopped' ]
   "
 
-- set_fact_dynamic:
+- update_resource:
     icinga_web.state: "stopping"
   when: "
     icinga_web_control == 'stop'
@@ -17,11 +17,11 @@
 - include: "control-icinga-web.yml"
   tags: "control-icinga-web"
 
-- set_fact_dynamic:
+- update_resource:
     icinga_web.state: "running"
   when: "icinga_web_state == 'starting'"
 
-- set_fact_dynamic:
+- update_resource:
     icinga_web.state: "stopped"
   when: "icinga_web_state == 'stopping'"
 

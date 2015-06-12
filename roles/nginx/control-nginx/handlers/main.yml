@@ -5,7 +5,7 @@
   sudo: "yes"
 
 - name: "set nginx.needs_restart to 'yes'"
-  set_fact_dynamic:
+  update_resource:
     nginx.needs_restart: "yes"
   changed_when: "True"
   notify: "start, restart or stop nginx"
@@ -24,7 +24,7 @@
   notify: "set nginx.needs_restart to 'no'"
 
 - name: "set nginx.needs_restart to 'no'"
-  set_fact_dynamic:
+  update_resource:
     nginx.needs_restart: "no"
   changed_when: "True"
 
