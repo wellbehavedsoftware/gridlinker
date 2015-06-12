@@ -4,6 +4,8 @@ etcd_needs_restart: "no"
 
 etcd_name: "{{ inventory_hostname }}"
 etcd_hostname: "{{ inventory_hostname }}"
+etcd_peer_hostname: "{{ etcd_hostname }}"
+etcd_client_hostname: "{{ etcd_hostname }}"
 
 etcd_peer_protocol: "{{ 'https' if etcd_secured == 'yes' else 'http' }}"
 etcd_peer_port: "2380"
