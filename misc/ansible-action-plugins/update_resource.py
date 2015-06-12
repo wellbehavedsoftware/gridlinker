@@ -36,27 +36,31 @@ class ActionModule (object):
 		if not self.context.resources.exists_slow (resource_name):
 			raise Exception ("Not found: " + resource_name)
 
-		resource_data = self.context.resources.get (resource_name)
+		resource_data = self.context.resources.get_slow (resource_name)
 
 		for key, value in complex_args.items ():
 
 			dynamic_path = template.template (self.runner.basedir, key, inject)
-			resource_data [dynamic_path] = value
-			options [dynamic_path] = value
 
-			if "." in dynamic_path:
+			if not "." in dynamic_path:
 
-				prefix, rest = dynamic_path.split (".", 2)
+				raise Exception (
+					"Invalid path for update_resource: %s" % dynamic_path)
 
-				resource_data.setdefault (prefix, {})
-				resource_data [prefix] [rest] = value
+			prefix, rest = dynamic_path.split (".", 2)
 
-				options [prefix] = resource_data [prefix]
+			resource_data.setdefault (prefix, {})
+			resource_data [prefix] [rest] = value
 
-		collection.set (record_name, record_data)
+			options [prefix] = resource_data [prefix]
+			options [prefix + "_" + rest] = value
+
+		self.context.resources.set (resource_name, resource_data)
 
 		return ReturnData (
 
 			conn = conn,
 			result = dict (
 				ansible_facts = options))
+
+# ex: noet ts=4 filetype=python

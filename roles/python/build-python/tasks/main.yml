@@ -1,13 +1,11 @@
 ---
 
 - update_resource:
-    python_state: "building"
+    python.state: "building"
   when: "
-    python_version != 'no' and (
-      python_state is not defined
-      or python_installed_version is not defined
-      or python_installed_version != python_version
-    )
+    python_state is not defined
+    or python_installed_version is not defined
+    or python_installed_version != python_version
   "
   tags: [ "python", "build-python" ]
 
@@ -16,8 +14,8 @@
   tags: [ "python", "build-python" ]
 
 - update_resource:
-    python_state: "installed"
-    python_installed_version: "{{ python_version }}"
+    python.state: "installed"
+    python.installed_version: "{{ python_version }}"
   when: "python_state == 'building'"
   tags: [ "python", "build-python" ]
 

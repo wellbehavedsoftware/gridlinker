@@ -535,6 +535,9 @@ class GenericContext (object):
 
 				return None
 
+		elif name == "public_address":
+			return resource_data.get ("public", {}).get ("address", None)
+
 		else:
 			raise Exception (name)
 
