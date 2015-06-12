@@ -52,16 +52,13 @@ if not os.path.isfile ("%s/%s" % (HOME, CONNECTIONS)):
 
 	with open ("%s/%s" % (HOME, CONNECTIONS), "w") as file_handle:
 
-		file_handle.write ("".join ([
-			"---\n\n",
-			"local:\n\n",
-			"  etcd_servers:\n",
-			"    - \"127.0.0.1\"\n\n",
-			"  etcd_secure: \"no\"\n\n",
-			"  etcd_prefix: \"/%s\"\n\n" % (
-				METADATA ["etcd"] ["default_prefix"]),
-			"# ex: et ts=2 filetype=yaml\n",
-		]))
+		file_handle.write ("---\n\n")
+
+		yaml.safe_dump (
+			METADATA ["etcd"] ["default_connections"],
+			file_handle)
+
+		file_handle.write ("\n# ex: et ts=2 filetype=yaml\n")
 
 if not os.path.isdir ("%s/%s" % (HOME, WORK)):
 
