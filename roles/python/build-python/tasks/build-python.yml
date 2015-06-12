@@ -28,7 +28,7 @@
     mkdir -p "{{ python_temp }}";
     cd "{{ python_temp }}";
 
-    wget "{{ python_url }}";
+    wget --timeout=10 "{{ python_url }}";
     tar --extract --xz --file "{{ python_archive }}";
     cd "{{ python_name }}";
 
