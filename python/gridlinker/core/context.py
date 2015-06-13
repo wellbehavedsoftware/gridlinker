@@ -521,10 +521,10 @@ class GenericContext (object):
 
 	def map_resource_variable (self, resource_name, resource_data, name):
 
-		if name == "inventory_hostname":
+		if name == "identity.name":
 			return resource_name
 
-		elif name == "private_address":
+		elif name == "private.address":
 
 			if "private" in resource_data \
 			and "address" in resource_data ["private"]:
@@ -535,7 +535,7 @@ class GenericContext (object):
 
 				return None
 
-		elif name == "public_address":
+		elif name == "public.address":
 			return resource_data.get ("public", {}).get ("address", None)
 
 		else:
