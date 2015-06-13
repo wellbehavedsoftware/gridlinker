@@ -178,7 +178,7 @@ def encode_dict (schema, data, indent, here):
 		if key in done_keys:
 			continue;
 
-		sys.stderr.write ("warning: unrecognised key: %s\n" % key)
+		#sys.stderr.write ("warning: unrecognised key: %s\n" % key)
 
 		value = data [key]
 
