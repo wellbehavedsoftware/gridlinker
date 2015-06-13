@@ -10,7 +10,7 @@ import urllib
 
 from wbs import yamlx
 
-class Client:
+class EtcdClient:
 
 	def __init__ (
 		self,

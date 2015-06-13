@@ -13,19 +13,15 @@ while os.path.islink (main_path):
 	main_path = os.readlink (main_path)
 
 SCRIPT = os.path.basename (__file__)
-
 HOME = os.path.abspath (os.path.dirname (main_path) + "/../../..")
 
-with open ("%s/data/project" % HOME) as file_handle:
-	METADATA = yaml.load (file_handle)
+import gridlinker
 
-from gridlinker.generic import inventory
-from gridlinker import GenericContext
-
+METADATA = gridlinker.metadata.load (HOME)
 CONNECTION = os.environ [METADATA ["environment"] ["devops_connection_name"]]
 
-context = GenericContext (HOME, CONNECTION, METADATA)
+context = gridlinker.GenericContext (HOME, CONNECTION, METADATA)
 
-inventory.main (context, sys.argv [1:])
+gridlinker.ansible.inventory.main (context, sys.argv [1:])
 
 # ex: noet ts=4 filetype=python

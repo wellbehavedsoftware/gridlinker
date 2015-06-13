@@ -73,25 +73,27 @@ class Inventory (object):
 				raise Exception (
 					"Class is duplicated: %s" % class_name)
 
+			# fill in defaults
+
+			class_data.setdefault ("class", {})
+			class_data ["class"].setdefault ("virtual_groups", [])
+
 			# create class
 
 			self.world [class_name] = class_data
 			self.classes [class_name] = class_data
 
-			if "virtual_groups" in class_data ["class"]:
+			for virtual_group_name in class_data ["class"] ["virtual_groups"]:
 
-				for virtual_group_name \
-				in class_data ["class"] ["virtual_groups"]:
+				if not virtual_group_name in self.virtual_groups:
 
-					if not virtual_group_name in self.virtual_groups:
+					if virtual_group_name in self.world:
+						raise Exception ()
 
-						if virtual_group_name in self.world:
-							raise Exception ()
+					self.world [virtual_group_name] = {}
+					self.virtual_groups.add (virtual_group_name)
 
-						self.world [virtual_group_name] = {}
-						self.virtual_groups.add (virtual_group_name)
-
-					self.children [virtual_group_name].append (class_name)
+				self.children [virtual_group_name].append (class_name)
 
 	def load_groups (self):
 
@@ -157,10 +159,10 @@ class Inventory (object):
 			elif "group" in resource_data ["identity"]:
 
 				group_name = resource_data ["identity"] ["group"]
-
 				group_data = self.context.groups.get_quick (group_name)
 
 				class_name = group_data ["identity"] ["class"]
+				resource_data ["identity"] ["class"] = class_name
 
 			else:
 
@@ -312,9 +314,6 @@ class Inventory (object):
 
 			group_vars [prefix] = data
 
-			for name, value in data.items ():
-				group_vars [prefix + "_" + name] = value
-
 		return group_vars
 
 	def resolve_class (self, class_name, class_data):
@@ -328,9 +327,6 @@ class Inventory (object):
 
 			class_vars [prefix] = data
 
-			for name, value in data.items ():
-				class_vars [prefix + "_" + name] = value
-
 		return class_vars
 
 	def resolve_resource (self, resource_name, resource_data):
@@ -340,29 +336,23 @@ class Inventory (object):
 		combined_data = collections.OrderedDict ()
 
 		if "group" in resource_data ["identity"]:
-
 			group_data = self.groups [resource_data ["identity"] ["group"]]
-
-			class_data = self.classes [group_data ["identity"] ["class"]]
-
-		elif "class" in resource_data ["identity"]:
-
+		else:
 			group_data = None
 
-			class_data = self.classes [resource_data ["identity"] ["class"]]
+		class_name = resource_data ["identity"] ["class"]
+		class_data = self.classes [class_name]
 
-		if class_data:
+		for prefix, data in class_data.items ():
 
-			for prefix, data in class_data.items ():
+			if prefix == "identity":
+				continue
 
-				if prefix == "identity":
-					continue
+			if not prefix in combined_data:
+				combined_data [prefix] = collections.OrderedDict ()
 
-				if not prefix in combined_data:
-					combined_data [prefix] = collections.OrderedDict ()
-
-				for name, value in data.items ():
-					combined_data [prefix] [name] = value
+			for name, value in data.items ():
+				combined_data [prefix] [name] = value
 
 		if group_data:
 
@@ -401,7 +391,9 @@ class Inventory (object):
 					value)
 
 				resource_vars [prefix] [name] = resolved
-				resource_vars [prefix + "_" + name] = resolved
+
+				if prefix == "ansible":
+					resource_vars [prefix + "_" + name] = resolved
 
 		if "parent" in resource_data ["identity"]:
 
@@ -450,11 +442,18 @@ class Inventory (object):
 
 	def resolve_variable (self, resource_name, combined_data, name):
 
+		if " " in name or "|" in name or "(" in name:
+			return "{{ %s }}" % name
+
 		if name == "inventory_hostname":
 			return resource_name
 
-		else:
-			return "{{ %s }}" % name
+		prefix, rest = name.split (".")
+		value = combined_data [prefix] [rest]
+
+		print name + " = " + value
+
+		return value
 
 	def load_world (self):
 
@@ -500,7 +499,6 @@ class Inventory (object):
 			output [class_name] = {
 				"children": self.children [class_name],
 				"hosts": self.members [class_name],
-				"vars": self.resolve_class (class_name, class_data),
 			}
 
 		for group_name, group_data in self.groups.items ():
@@ -512,10 +510,8 @@ class Inventory (object):
 			output ["_meta"] ["hostvars"] [resource_name] = \
 				self.resolve_resource (resource_name, resource_data)
 
-		if "data" in self.context.project_metadata:
-
-			for key, value in self.context.project_metadata ["data"].items ():
-				output ["all"] ["vars"] [key] = self.context.local_data [value]
+		for key, value in self.context.project_metadata ["data"].items ():
+			output ["all"] ["vars"] [key] = self.context.local_data [value]
 
 		for virtual_group_name in self.virtual_groups:
 

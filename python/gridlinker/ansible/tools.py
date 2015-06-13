@@ -122,6 +122,6 @@ def args_inventory (sub_parsers):
 
 def do_inventory (context, args):
 
-	gridlinker.generic.inventory.main (context, args.rest)
+	gridlinker.ansible.inventory.main (context, args.rest)
 
 # ex: noet ts=4 filetype=yaml

@@ -2,7 +2,7 @@ import os
 import sys
 import yaml
 
-from gridlinker.generic.context import GenericContext
+from gridlinker.core import GenericContext
 
 existing_context = None
 

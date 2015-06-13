@@ -21,8 +21,12 @@ SCRIPT = os.path.basename (__file__)
 
 HOME = os.path.abspath (os.path.dirname (main_path) + "/../../..")
 
-with open ("%s/data/project" % HOME) as file_handle:
-	METADATA = yaml.load (file_handle)
+sys.path.append (HOME + "/python")
+sys.path.append (HOME + "/third-party/gridlinker/python")
+
+import gridlinker
+
+METADATA = gridlinker.metadata.load (HOME)
 
 METADATA_PATHS = METADATA.setdefault ("paths", {})
 CONFIG = METADATA_PATHS.setdefault ("config", "config")
@@ -31,9 +35,6 @@ CONNECTIONS = METADATA_PATHS.setdefault ("connections", "%s/connections.yml" % C
 WORK = METADATA_PATHS.setdefault ("work", "work")
 
 os.environ [METADATA ["environment"] ["devops_home_path"]] = HOME
-
-sys.path.append (HOME + "/python")
-sys.path.append (HOME + "/third-party/gridlinker/python")
 
 if not os.path.isdir ("%s/%s" % (HOME, CONFIG)):
 	os.mkdir ("%s/%s" % (HOME, CONFIG))
