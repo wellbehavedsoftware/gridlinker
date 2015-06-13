@@ -552,6 +552,16 @@ class MiscRemoveArgument:
 			metavar = ("KEY", "VALUE"),
 			help = "miscellaneous value to remove from list")
 
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--remove",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("KEY", "VALUE"),
+			help = "miscellaneous value to remove from list")
+
 	def update_record (self, arg_vars, record_data, helper):
 
 		if not "remove" in arg_vars:
@@ -570,7 +580,7 @@ class MiscRemoveArgument:
 			if not value in record_data [section] [key]:
 				continue
 
-			del (record_data [section] [key] [value])
+			record_data [section] [key].remove (value)
 
 class MiscAddArgument:
 

@@ -345,9 +345,6 @@ class Inventory (object):
 
 		for prefix, data in class_data.items ():
 
-			if prefix == "identity":
-				continue
-
 			if not prefix in combined_data:
 				combined_data [prefix] = collections.OrderedDict ()
 
@@ -391,9 +388,7 @@ class Inventory (object):
 					value)
 
 				resource_vars [prefix] [name] = resolved
-
-				if prefix == "ansible":
-					resource_vars [prefix + "_" + name] = resolved
+				resource_vars [prefix + "_" + name] = resolved
 
 		if "parent" in resource_data ["identity"]:
 
@@ -442,18 +437,36 @@ class Inventory (object):
 
 	def resolve_variable (self, resource_name, combined_data, name):
 
-		if " " in name or "|" in name or "(" in name:
+		if " " in name or "|" in name or "(" in name or "[" in name:
 			return "{{ %s }}" % name
 
 		if name == "inventory_hostname":
 			return resource_name
 
-		prefix, rest = name.split (".")
-		value = combined_data [prefix] [rest]
+		if "." in name:
 
-		print name + " = " + value
+			prefix, rest = name.split (".", 1)
 
-		return value
+			if prefix in self.all:
+				return "{{ %s }}" % name
+
+			if not prefix in combined_data:
+				#raise Exception ("Can't resolve %s" % name)
+				return "{{ %s }}" % name
+
+			if not rest in combined_data [prefix]:
+				#raise Exception ("Can't resolve %s" % name)
+				return "{{ %s }}" % name
+
+			value = combined_data [prefix] [rest]
+
+			return value
+
+		if name in self.all:
+			return "{{ %s }}" % name
+
+		#raise Exception ("Can't resolve %s" % name)
+		return "{{ %s }}" % name
 
 	def load_world (self):
 
@@ -512,6 +525,26 @@ class Inventory (object):
 
 		for key, value in self.context.project_metadata ["data"].items ():
 			output ["all"] ["vars"] [key] = self.context.local_data [value]
+
+		for key, value in self.context.project_metadata ["resource_data"].items ():
+
+			if value in self.classes:
+
+				class_name = value
+
+				output ["all"] ["vars"] [key] = dict ([
+					(
+						self.resources [resource_name] ["identity"] ["name"],
+						self.resolve_resource (
+							resource_name,
+							self.resources [resource_name]),
+					)
+					for resource_name in self.members [class_name]
+				])
+
+			else:
+
+				raise Exception ()
 
 		for virtual_group_name in self.virtual_groups:
 

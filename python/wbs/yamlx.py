@@ -104,6 +104,9 @@ def encode_str (schema, data, indent, here):
 
 def encode_list (schema, data, indent, here):
 
+	if not data:
+		return "[]"
+
 	yaml = ""
 	next_indent = indent + "  "
 
@@ -122,6 +125,9 @@ def encode_list (schema, data, indent, here):
 	return yaml
 
 def encode_dict (schema, data, indent, here):
+
+	if not data:
+		return "{}"
 
 	yaml = ""
 	next_indent = indent + "  "
@@ -193,7 +199,7 @@ def encode_dict (schema, data, indent, here):
 		here = False
 		new_group = False
 
-	return yaml
+	return yaml + "\n"
 
 def load_data (path):
 
