@@ -262,15 +262,19 @@ class GenericContext (object):
 		return {
 
 			"defaults": {
+
+				"display_skipped_hosts": "False",
 				"force_color": "True",
 				"gathering": "explicit",
+
 				"library": ":".join (self.ansible_library),
+				"roles_path": ":".join (self.ansible_roles_path),
+
 				"action_plugins": ":".join (self.ansible_action_plugins),
 				"connection_plugins": ":".join (self.ansible_connection_plugins),
 				"filter_plugins": ":".join (self.ansible_filter_plugins),
 				"lookup_plugins": ":".join (self.ansible_lookup_plugins),
 				"callback_plugins": ":".join (self.ansible_callback_plugins),
-				"roles_path": ":".join (self.ansible_roles_path),
 			},
 
 			"ssh_connection": {
