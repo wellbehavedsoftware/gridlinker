@@ -6,15 +6,17 @@
     name: "{{ item }}"
   sudo: "yes"
   with_items:
+
     - "build-essential"
-    - "libz-dev"
-    - "libreadline-dev"
-    - "libncursesw5-dev"
-    - "libssl-dev"
-    - "libgdm-dev"
-    - "libsqlite3-dev"
     - "libbz2-dev"
+    - "libffi-dev"
+    - "libgdm-dev"
     - "liblzma-dev"
+    - "libncursesw5-dev"
+    - "libreadline-dev"
+    - "libssl-dev"
+    - "libsqlite3-dev"
+    - "libz-dev"
 
 - name: "build python"
   args:
