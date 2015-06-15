@@ -60,6 +60,6 @@ class ActionModule (object):
 			conn = conn,
 			result = dict (
 				changed = True,
-				address = ip_address),
+				address = ip_address))
 
 # ex: noet ts=4 filetype=python

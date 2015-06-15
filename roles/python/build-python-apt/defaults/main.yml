@@ -2,5 +2,7 @@
 
 python_apt_name: "python-apt-{{ python_apt_version }}"
 python_apt_archive: "{{ python_apt_name }}.tar.gz"
+python_apt_mirror: "https://dist.wellbehavedsoftware.com/python-apt"
+python_apt_url: "{{ python_apt_mirror }}/{{ python_apt_archive }}"
 
 # ex: et ts=2 filetype=yaml

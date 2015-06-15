@@ -330,4 +330,31 @@ def freeze (value):
 	else:
 		return Frozen (value)
 
+def deep_copy (value):
+
+	if isinstance (value, unicode):
+		return value
+
+	if isinstance (value, str):
+		return value
+
+	if isinstance (value, int):
+		return value
+
+	if isinstance (value, dict):
+
+		return collections.OrderedDict ([
+			(key, deep_copy (item))
+			for key, item in value.items ()
+		])
+
+	if isinstance (value, list):
+
+		return [
+			deep_copy (item)
+			for item in value
+		]
+
+	raise Exception ()
+
 # ex: noet ts=4 filetype=pyton

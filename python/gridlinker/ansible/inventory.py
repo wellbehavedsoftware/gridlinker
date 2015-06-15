@@ -5,6 +5,7 @@ import collections
 import json
 import re
 import sys
+import wbs
 
 def main (context, args):
 
@@ -141,6 +142,8 @@ class Inventory (object):
 
 		for resource_name, resource_data \
 		in self.context.resources.get_all_list_quick ():
+
+			resource_data = wbs.deep_copy (resource_data)
 
 			# check basics
 
