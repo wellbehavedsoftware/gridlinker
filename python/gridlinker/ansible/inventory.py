@@ -391,9 +391,7 @@ class Inventory (object):
 					value)
 
 				resource_vars [prefix] [name] = resolved
-
-				if prefix == "ansible":
-					resource_vars [prefix + "_" + name] = resolved
+				resource_vars [prefix + "_" + name] = resolved
 
 		if "parent" in resource_data ["identity"]:
 

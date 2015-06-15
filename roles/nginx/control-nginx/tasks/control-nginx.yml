@@ -10,10 +10,25 @@
     - "reload upstart config"
     - "set nginx.needs_restart to 'yes'"
 
-- name: "control nginx"
-  set_fact: {}
+- name: "start or stop nginx"
+  action:
+    module: "service"
+    name: "nginx"
+    state: "{{
+      'started'
+      if nginx_state in [ 'starting', 'running' ]
+      else 'stopped'
+    }}"
+  sudo: "yes"
+  notify: "set nginx.needs_restart to 'no'"
+
+- meta: "flush_handlers"
+
+- name: "restart nginx"
+  update_resource: {}
   changed_when: "True"
-  notify: "start, restart or stop nginx"
+  notify: "restart nginx"
+  when: "nginx_needs_restart == 'yes'"
 
 - meta: "flush_handlers"
 
