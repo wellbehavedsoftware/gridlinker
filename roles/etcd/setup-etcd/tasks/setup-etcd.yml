@@ -19,6 +19,7 @@
   sudo: "yes"
   notify: "set etcd.needs_restart to 'yes'"
   with_items: "etcd_security_config"
+  when: "etcd_secured == 'yes'"
 
 - meta: "flush_handlers"
 

@@ -1,23 +1,32 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from gridlinker.tools import ansible
-from gridlinker.tools import client
-from gridlinker.tools import etcd
-from gridlinker.tools import ssh
+from gridlinker.tools import arguments
+from gridlinker.tools.arguments import ArgumentGroup
+from gridlinker.tools.arguments import ClassArgument
+from gridlinker.tools.arguments import GeneratePasswordArgument
+from gridlinker.tools.arguments import GroupArgument
+from gridlinker.tools.arguments import IndexArgument
+from gridlinker.tools.arguments import MiscAddArgument
+from gridlinker.tools.arguments import MiscRemoveArgument
+from gridlinker.tools.arguments import MiscSetArgument
+from gridlinker.tools.arguments import MiscSetDictArgument
+from gridlinker.tools.arguments import MiscSetFileArgument
+from gridlinker.tools.arguments import MiscUnsetArgument
+from gridlinker.tools.arguments import MiscUnsetDictArgument
+from gridlinker.tools.arguments import NameArgument
+from gridlinker.tools.arguments import ParentArgument
 
-from gridlinker.tools.client import Client
+from gridlinker.tools import command
+from gridlinker.tools.command import GenericCommand
+from gridlinker.tools.command import CommandHelper
 
-modules = [
-	ansible,
-	client,
-	etcd,
-	ssh,
-]
+from gridlinker.tools import columns
+from gridlinker.tools.columns import SimpleColumn
 
-def args (sub_parsers):
+from gridlinker.tools import env
 
-	for module in modules:
-		module.args (sub_parsers)
+def args (parser):
+	env.args (parser)
 
-# ex: noet ts=4 filetype=python
+# ex: noet ts=4 filetype=yaml

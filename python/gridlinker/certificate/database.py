@@ -1,37 +1,42 @@
 from __future__ import absolute_import
 
-from wbs import SchemaField, SchemaGroup
+import sys
+
+from OpenSSL import crypto
 
 class CertificateDatabase:
 
-	def __init__ (self, dnode_client, path, data):
+	def __init__ (self, context, path, data):
 
 		self.state = "none"
 
-		self.dnode_client = dnode_client
+		self.context = context
 		self.path = path
 		self.data = data
 
+		self.client = context.client
+		self.schemas = context.schemas
+
 	def exists (self):
 
-		return self.dnode_client.exists (self.path + "/data")
+		return self.client.exists (self.path + "/data")
 
 	def create (self):
 
 		if (self.state != "none"):
 			raise Exception ()
 
-		if self.dnode_client.exists (self.path + "/data"):
+		if self.client.exists (self.path + "/data"):
 			raise Exception ()
 
 		self.root_data = dict ({})
 
 		self.root_data ["database_state"] = "active"
 
-		self.dnode_client.set_yaml (
-			"certificate-database",
+		self.client.set_yaml (
 			self.path + "/data",
-			self.root_data)
+			self.root_data,
+			self.schemas ["certificate-database"])
 
 	def load (self):
 
@@ -76,15 +81,15 @@ class CertificateDatabase:
 
 		request_path = self.path + "/" + name
 
-		if self.dnode_client.exists (request_path + "/pending"):
+		if self.client.exists (request_path + "/pending"):
 
 			return (False, None, None)
 
-		self.dnode_client.set_raw (
+		self.client.set_raw (
 			request_path + "/pending/request",
 			request_csr_string)
 
-		self.dnode_client.set_raw (
+		self.client.set_raw (
 			request_path + "/pending/key",
 			request_key_string)
 
@@ -100,40 +105,40 @@ class CertificateDatabase:
 
 		# sanity check
 
-		if not self.dnode_client.exists (request_path + "/pending"):
+		if not self.client.exists (request_path + "/pending"):
 
 			return False
 
 		# read pending
 
-		request_csr_string = self.dnode_client.get_raw (
+		request_csr_string = self.client.get_raw (
 			request_path + "/pending/request")
 
-		request_key_string = self.dnode_client.get_raw (
+		request_key_string = self.client.get_raw (
 			request_path + "/pending/key")
 
 		# create cancelled
 
-		cancelled_path, cancelled_index = self.dnode_client.make_queue_dir (
+		cancelled_path, cancelled_index = self.client.make_queue_dir (
 			request_path + "/cancelled")
 
-		self.dnode_client.set_raw (
+		self.client.set_raw (
 			cancelled_path + "/request",
 			request_csr_string)
 
-		self.dnode_client.set_raw (
+		self.client.set_raw (
 			cancelled_path + "/key",
 			request_key_string)
 
 		# remove pending
 
-		self.dnode_client.rm_raw (
+		self.client.rm_raw (
 			request_path + "/pending/request")
 
-		self.dnode_client.rm_raw (
+		self.client.rm_raw (
 			request_path + "/pending/key")
 
-		self.dnode_client.rmdir_raw (
+		self.client.rmdir_raw (
 			request_path + "/pending")
 
 		return True
@@ -148,16 +153,16 @@ class CertificateDatabase:
 
 		# sanity check
 
-		if not self.dnode_client.exists (request_path + "/pending"):
+		if not self.client.exists (request_path + "/pending"):
 
 			raise Error ("No request pending")
 
 		# read pending
 
-		request_csr_string = self.dnode_client.get_raw (
+		request_csr_string = self.client.get_raw (
 			request_path + "/pending/request")
 
-		request_key_string = self.dnode_client.get_raw (
+		request_key_string = self.client.get_raw (
 			request_path + "/pending/key")
 
 		request_csr = crypto.load_certificate_request (
@@ -220,83 +225,217 @@ class CertificateDatabase:
 
 		# archive existing certificate
 
-		if self.dnode_client.exists (request_path + "/current"):
+		if self.client.exists (request_path + "/current"):
 
 			raise Exception ("TODO need to move chain somehow")
 
 			# read current
 
-			archive_csr_string = self.dnode_client.get_raw (
+			archive_csr_string = self.client.get_raw (
 				request_path + "/current/request")
 
-			archive_certificate_string = self.dnode_client.get_raw (
+			archive_certificate_string = self.client.get_raw (
 				request_path + "/current/certificate")
 
-			archive_key_string = self.dnode_client.get_raw (
+			archive_key_string = self.client.get_raw (
 				request_path + "/current/key")
 
 			# write to archive
 
-			archive_path, archive_index = self.dnode_client.make_queue_dir (
+			archive_path, archive_index = self.client.make_queue_dir (
 				request_path + "/archive")
 
-			self.dnode_client.set_raw (
+			self.client.set_raw (
 				archive_path + "/request",
 				archive_csr_string)
 
-			self.dnode_client.set_raw (
+			self.client.set_raw (
 				archive_path + "/certificate",
 				archive_certificate_string)
 
-			self.dnode_client.set_raw (
+			self.client.set_raw (
 				archive_path + "/key",
 				archive_key_string)
 
 			# remove current
 
-			self.dnode_client.rm_raw (
+			self.client.rm_raw (
 				request_path + "/current/request")
 
-			self.dnode_client.rm_raw (
+			self.client.rm_raw (
 				request_path + "/current/certificate")
 
-			self.dnode_client.rm_raw (
+			self.client.rm_raw (
 				request_path + "/current/key")
 
-			self.dnode_client.rmdir_raw (
+			self.client.rmdir_raw (
 				request_path + "/current")
 
 		# store new certificate
 
-		self.dnode_client.set_raw (
+		self.client.set_raw (
 			request_path + "/current/request",
 			request_csr_string)
 
-		self.dnode_client.set_raw (
+		self.client.set_raw (
 			request_path + "/current/key",
 			request_key_string)
 
-		self.dnode_client.set_raw (
+		self.client.set_raw (
 			request_path + "/current/certificate",
 			certificate_strings [0])
 
 		for chain_index, chain_string \
 			in enumerate (certificate_strings [1:]):
 
-			self.dnode_client.set_raw (
+			self.client.set_raw (
 				request_path + "/current/chain/" + str (chain_index),
 				chain_string)
 
 		# remove pending
 
-		self.dnode_client.rm_raw (
+		self.client.rm (
 			request_path + "/pending/request")
 
-		self.dnode_client.rm_raw (
+		self.client.rm (
 			request_path + "/pending/key")
 
-		self.dnode_client.rmdir_raw (
+		self.client.rmdir (
 			request_path + "/pending")
+
+	def import_existing (self,
+			name,
+			certificate_strings,
+			private_key_string,
+			verify_subject = True,
+			verify_common_name = True):
+
+		request_path = self.path + "/" + name
+
+		# read certificates and private key
+
+		certificates = [
+
+			crypto.load_certificate (
+				crypto.FILETYPE_PEM,
+				certificate_string)
+
+			for certificate_string
+				in certificate_strings
+
+		]
+
+		private_key = crypto.load_privatekey (
+			crypto.FILETYPE_PEM,
+			private_key_string)
+
+		# verify chain
+
+		try:
+
+			test_string = "HELLO WORLD"
+			test_hash = "sha512"
+
+			crypto.verify (
+				certificates [0],
+				crypto.sign (
+					private_key,
+					test_string,
+					test_hash),
+				test_string,
+				test_hash)
+
+		except crypto.Error:
+
+			raise Exception (
+				"Private key and certificate do not match")
+
+		if verify_common_name \
+		and name != certificates [0].get_subject ().CN:
+
+			raise Exception (
+				"Common name of certificate does not match request")
+
+		for child, parent in zip (
+			certificates [:-1],
+			certificates [1:]):
+
+			if not child.get_issuer () == parent.get_subject ():
+
+				raise Exception (
+					"Certificate chain subjects and issues do not match")
+
+		if certificates [-1].get_issuer () != certificates [-1].get_subject ():
+
+			raise Exception (
+				"Root certificate is not self-signed")
+
+		# TODO verify the actual signatures of the chain
+
+		# archive existing certificate
+
+		if self.client.exists (request_path + "/current"):
+
+			raise Exception ("TODO need to move chain somehow")
+
+			# read current
+
+			archive_csr_string = self.client.get_raw (
+				request_path + "/current/request")
+
+			archive_certificate_string = self.client.get_raw (
+				request_path + "/current/certificate")
+
+			archive_key_string = self.client.get_raw (
+				request_path + "/current/key")
+
+			# write to archive
+
+			archive_path, archive_index = self.client.make_queue_dir (
+				request_path + "/archive")
+
+			self.client.set_raw (
+				archive_path + "/request",
+				archive_csr_string)
+
+			self.client.set_raw (
+				archive_path + "/certificate",
+				archive_certificate_string)
+
+			self.client.set_raw (
+				archive_path + "/key",
+				archive_key_string)
+
+			# remove current
+
+			self.client.rm_raw (
+				request_path + "/current/request")
+
+			self.client.rm_raw (
+				request_path + "/current/certificate")
+
+			self.client.rm_raw (
+				request_path + "/current/key")
+
+			self.client.rmdir_raw (
+				request_path + "/current")
+
+		# store new certificate
+
+		self.client.set_raw (
+			request_path + "/current/key",
+			private_key_string)
+
+		self.client.set_raw (
+			request_path + "/current/certificate",
+			certificate_strings [0])
+
+		for chain_index, chain_string \
+			in enumerate (certificate_strings [1:]):
+
+			self.client.set_raw (
+				request_path + "/current/chain/" + str (chain_index),
+				chain_string)
 
 	def get (self, name):
 
@@ -305,13 +444,13 @@ class CertificateDatabase:
 			name,
 		)
 
-		if not self.dnode_client.exists (
+		if not self.client.exists (
 			entry_path):
 
 			raise Exception (
 				"No certificate for " + name)
 
-		if not self.dnode_client.exists (
+		if not self.client.exists (
 			entry_path):
 
 			raise Exception (
@@ -320,21 +459,21 @@ class CertificateDatabase:
 		certificate_strings = []
 
 		certificate_strings.append (
-			self.dnode_client.get_raw (
+			self.client.get_raw (
 				entry_path + "/current/certificate"))
 
 		for chain_index in range (0, 999):
 
-			if not self.dnode_client.exists (
+			if not self.client.exists (
 				entry_path + "/current/chain/" + str (chain_index)):
 
 				break
 
 			certificate_strings.append (
-				self.dnode_client.get_raw (
+				self.client.get_raw (
 					entry_path + "/current/chain/" + str (chain_index)))
 
-		key_string = self.dnode_client.get_raw (
+		key_string = self.client.get_raw (
 			entry_path + "/current/key")
 
 		return (
@@ -362,6 +501,7 @@ def args (prev_sub_parsers):
 	args_cancel (next_sub_parsers)
 	args_signed (next_sub_parsers)
 	args_export (next_sub_parsers)
+	args_import (next_sub_parsers)
 
 def args_create (sub_parsers):
 
@@ -386,7 +526,7 @@ def args_create (sub_parsers):
 def do_create (context, args):
 
 	database = CertificateDatabase (
-		context.client,
+		context,
 		"/certificate/" + args.database,
 		context.certificate_data)
 
@@ -428,10 +568,16 @@ def args_request (sub_parsers):
 		required = True,
 		help = "common name of certificate request to create")
 
+	parser.add_argument (
+		"--print-request",
+		required = False,
+		action = "store_true",
+		help = "print the pem encoded request to stdout")
+
 def do_request (context, args):
 
-	database = dnode.certificate.Database (
-		context.client,
+	database = CertificateDatabase (
+		context,
 		"/certificate/" + args.database,
 		context.certificate_data)
 
@@ -442,6 +588,11 @@ def do_request (context, args):
 
 		print ("Request created for " + args.common_name)
 
+		if args.print_request:
+
+			print ("")
+			print (csr)
+
 		sys.exit (0)
 
 	else:
@@ -449,6 +600,80 @@ def do_request (context, args):
 		print ("There is already a request pending for " + args.common_name)
 
 		sys.exit (1)
+
+def args_import (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"import",
+		help = "import a complete certificate",
+		description = """
+			Import a signed certificate, which has been generated externally.
+			This could be used to import certificates which already existed when
+			the certificate database was created, or if a certificate needs to
+			be generated by a third party along with the private key. You will
+			need to repeat the --certificate option once for every certificate
+			in the chain, starting with the certificate itself, and ending with
+			the self-signed root certificate authority.
+		""")
+
+	parser.set_defaults (
+		func = do_import)
+
+	parser.add_argument (
+		"--database",
+		required = True,
+		help = "name of certificate database to use")
+
+	parser.add_argument (
+		"--common-name",
+		required = True,
+		help = "common name of certificate to store")
+
+	parser.add_argument (
+		"--certificate",
+		action = "append",
+		required = True,
+		help = "path to signed certificate file, specify once for each in chain")
+
+	parser.add_argument (
+		"--private-key",
+		required = True,
+		help = "path to private key")
+
+	parser.add_argument (
+		"--ignore-common-name-mismatch",
+		action = "store_true",
+		help = "unless set, the signed certificate common name must exactly match the one specified")
+
+def do_import (context, args):
+
+	database = CertificateDatabase (
+		context,
+		"/certificate/" + args.database,
+		context.certificate_data)
+
+	certificate_strings = []
+
+	for certificate_filename in args.certificate:
+
+		with open (certificate_filename) as file_handle:
+
+			certificate_strings.append (
+				file_handle.read ())
+
+	with open (args.private_key) as file_handle:
+
+		private_key_string = file_handle.read ()
+
+	database.import_existing (
+		args.common_name,
+		certificate_strings,
+		private_key_string,
+		not args.ignore_common_name_mismatch)
+
+	print ("Certificate imported for " + args.common_name)
+
+	sys.exit (0)
 
 def args_signed (sub_parsers):
 
@@ -495,14 +720,12 @@ def args_signed (sub_parsers):
 		action = "store_true",
 		help = "unless set, the signed certificate common name must exactly match the request")
 
-def do_signed (args):
+def do_signed (context, args):
 
-	dnode_client = dnode.get_client ()
-
-	database = dnode.certificate.Database (
-		dnode_client,
+	database = CertificateDatabase (
+		context,
 		"/certificate/" + args.database,
-		dnode.certificate_data)
+		context.certificate_data)
 
 	certificate_strings = []
 
@@ -547,14 +770,12 @@ def args_cancel (sub_parsers):
 		required = True,
 		help = "common name of pending certificate request to cancel")
 
-def do_cancel (args):
+def do_cancel (context, args):
 
-	dnode_client = dnode.get_client ()
-
-	database = dnode.certificate.Database (
-		dnode_client,
+	database = CertificateDatabase (
+		context,
 		"/certificate/" + args.database,
-		dnode.certificate_data)
+		context.certificate_data)
 
 	success = database.cancel (
 		args.common_name)
@@ -600,8 +821,8 @@ def args_export (sub_parsers):
 
 def do_export (context, args):
 
-	database = dnode.certificate.Database (
-		context.client,
+	database = CertificateDatabase (
+		context,
 		"/certificate/" + args.database,
 		context.certificate_data)
 

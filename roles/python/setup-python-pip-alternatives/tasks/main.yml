@@ -1,0 +1,6 @@
+---
+
+- include: "setup-python-pip-alternatives.yml"
+  tags: [ "python", "setup-python-pip-alternatives" ]
+
+# ex: et ts=2 filetype=yaml

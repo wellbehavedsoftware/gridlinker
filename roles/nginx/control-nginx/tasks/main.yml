@@ -1,7 +1,7 @@
 ---
 
 - name: "set nginx.state to 'starting'"
-  set_fact_dynamic:
+  update_resource:
     nginx.state: "starting"
   when: "
     nginx_control == 'start'
@@ -10,7 +10,7 @@
   tags: [ "nginx", "control-nginx" ]
 
 - name: "set nginx.state to 'stopping'"
-  set_fact_dynamic:
+  update_resource:
     nginx.state: "stopping"
   when: "
     nginx_control == 'stop'
@@ -22,13 +22,13 @@
   tags: [ "nginx", "control-nginx" ]
 
 - name: "set nginx.state to 'running'"
-  set_fact_dynamic:
+  update_resource:
     nginx.state: "running"
   when: "nginx_state == 'starting'"
   tags: [ "nginx", "control-nginx" ]
 
 - name: "set nginx.state to 'stopped'"
-  set_fact_dynamic:
+  update_resource:
     nginx.state: "stopped"
   when: "nginx_state == 'stopping'"
   tags: [ "nginx", "control-nginx" ]

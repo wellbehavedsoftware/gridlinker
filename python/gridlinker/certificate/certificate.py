@@ -10,7 +10,3 @@ Certificate = collections.namedtuple ("Certificate", [
 	"certificate_path",
 	"private_key_path",
 ])
-
-def args (sub_parsers):
-
-	pass

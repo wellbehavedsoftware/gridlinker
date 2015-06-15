@@ -5,7 +5,7 @@
   sudo: "yes"
 
 - name: "set php.needs_restart to 'yes'"
-  set_fact_dynamic:
+  update_resource:
     php.needs_restart: "yes"
   changed_when: "True"
   notify: "start, restart or stop php"
@@ -16,7 +16,7 @@
     name: "php5-fpm"
     state: "{{
       'restarted' if nginx_needs_restart == 'yes'
-      else 'started' if php_state in [ 'starting', 'running' ]
+      else 'started' if nginx_state in [ 'starting', 'running' ]
       else 'stopped'
     }}"
   sudo: "yes"
@@ -24,7 +24,7 @@
   notify: "set php.needs_restart to 'no'"
 
 - name: "set php.needs_restart to 'no'"
-  set_fact_dynamic:
+  update_resource:
     php.needs_restart: "no"
   changed_when: "True"
 

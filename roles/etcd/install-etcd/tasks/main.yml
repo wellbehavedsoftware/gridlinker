@@ -1,16 +1,18 @@
 ---
 
 - name: "set etcd.state to 'installing'"
-  set_fact_dynamic:
+  update_resource:
     etcd.state: "installing"
   when: "etcd_state is not defined"
+  tags: [ "etcd", "install-etcd" ]
 
 - include: "install-etcd.yml"
-  tags: "install-etcd"
+  tags: [ "etcd", "install-etcd" ]
 
 - name: "set etcd.state to 'unconfigured'"
-  set_fact_dynamic:
+  update_resource:
     etcd.state: "unconfigured"
   when: "etcd_state == 'installing'"
+  tags: [ "etcd", "install-etcd" ]
 
 # ex: et ts=2 filetype=yaml

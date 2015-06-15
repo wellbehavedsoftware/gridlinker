@@ -1,7 +1,7 @@
 ---
 
 - name: "set php.state to 'configuring'"
-  set_fact_dynamic:
+  update_resource:
     php.state: "configuring"
   when: "php_state == 'unconfigured'"
   tags: [ "php", "setup-php" ]
@@ -9,8 +9,8 @@
 - include: "setup-php.yml"
   tags: [ "php", "setup-php" ]
 
-- name: "set php.state to 'unsynchronized'"
-  set_fact_dynamic:
+- name: "set php.state to 'stopped'"
+  update_resource:
     php.state: "stopped"
   when: "php_state == 'configuring'"
   tags: [ "php", "setup-php" ]

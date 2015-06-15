@@ -1,0 +1,13 @@
+---
+
+- name: "setup python alternatives"
+  action:
+    module: "alternatives"
+    name: "{{ item.name }}"
+    link: "{{ item.link }}"
+    path: "{{ item.target }}"
+    force: "yes"
+  sudo: "yes"
+  with_items: "python_alternatives"
+
+# ex: et ts=2 filetype=yaml

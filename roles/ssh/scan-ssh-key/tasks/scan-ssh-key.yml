@@ -24,8 +24,7 @@
       >>"$GRIDLINKER_KNOWN_HOSTS";
 
 - name: "store host key {{ scan_ssh_key_type }}"
-  connection: "local"
-  set_fact_dynamic:
+  update_resource:
     "ssh.host_key_{{ scan_ssh_key_type }}": "{{ ssh_keyscan_result.stdout }}"
 
 # ex: et ts=2 filetype=yaml
