@@ -275,6 +275,7 @@ class GenericContext (object):
 				"filter_plugins": ":".join (self.ansible_filter_plugins),
 				"lookup_plugins": ":".join (self.ansible_lookup_plugins),
 				"callback_plugins": ":".join (self.ansible_callback_plugins),
+
 			},
 
 			"ssh_connection": {
