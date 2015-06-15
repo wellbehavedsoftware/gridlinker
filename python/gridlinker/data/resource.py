@@ -44,7 +44,10 @@ class ResourceHelper (CommandHelper):
 
 		# determine unique name depending on scope
 
-		if class_data ["class"] ["scope"] == "group":
+		if "/" in args.name:
+			unique_name = args.name
+
+		elif class_data ["class"] ["scope"] == "group":
 			unique_name = "%s/%s" % (group_name, args.name)
 
 		elif class_data ["class"] ["scope"] == "class":

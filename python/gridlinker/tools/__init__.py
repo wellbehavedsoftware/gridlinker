@@ -23,6 +23,7 @@ from gridlinker.tools.command import CommandHelper
 
 from gridlinker.tools import columns
 from gridlinker.tools.columns import SimpleColumn
+from gridlinker.tools.columns import UniqueNameColumn
 
 from gridlinker.tools import env
 
