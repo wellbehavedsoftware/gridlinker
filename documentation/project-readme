@@ -7,7 +7,7 @@ Main website:
 Developers:
 
 {% for developer in METADATA.developers %}
-* {{ developer.name }} <{{ developer.email }}>
+* {{ developer.name }} &lt;{{ developer.email }}&gt;
 {% endfor %}
 
 This project contains a self-contained automated system for setting up and
