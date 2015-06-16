@@ -10,25 +10,13 @@
     - "reload upstart config"
     - "set icinga.needs_restart to 'yes'"
 
-- name: "start or stop icinga"
-  action:
-    module: "service"
-    name: "icinga"
-    state: "{{
-      'started'
-      if icinga_state in [ 'starting', 'running' ]
-      else 'stopped'
-    }}"
-  sudo: "yes"
-  notify: "set icinga.needs_restart to 'no'"
-
 - meta: "flush_handlers"
 
-- name: "restart icinga"
+- name: "trigger icinga restart"
+  when: "icinga.needs_restart == 'yes'"
   update_resource: {}
   changed_when: "True"
   notify: "restart icinga"
-  when: "icinga_needs_restart == 'yes'"
 
 - meta: "flush_handlers"
 

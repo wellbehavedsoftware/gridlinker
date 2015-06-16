@@ -1,5 +1,19 @@
 ---
 
+- name: "configure icinga apt key"
+  action:
+    module: "apt_key"
+    id: "4A132479423673E80ACCA85420EEDAFD36862847"
+    keyserver: "keyserver.ubuntu.com"
+  sudo: "yes"
+
+- name: "configure icinga apt source"
+  action:
+    module: "apt_repository"
+    repo: "deb {{ icinga_source }}/ubuntu trusty main"
+    update_cache: "yes"
+  sudo: "yes"
+
 - name: "install icinga packages"
   action:
     module: "apt"
