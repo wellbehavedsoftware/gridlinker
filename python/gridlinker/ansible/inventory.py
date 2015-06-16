@@ -83,7 +83,7 @@ class Inventory (object):
 			self.world [class_name] = class_data
 			self.classes [class_name] = class_data
 
-	def load_resources (self):
+	def load_resources_1 (self):
 
 		for resource_name, resource_data \
 		in self.context.resources.get_all_list_quick ():
@@ -162,6 +162,52 @@ class Inventory (object):
 
 					resource_data [prefix] [name] = value
 
+			# create resource
+
+			self.world [resource_name] = resource_data
+			self.resources [resource_name] = resource_data
+
+			self.members [class_name].append (resource_name)
+
+	def load_resources_2 (self):
+
+		for resource_name, resource_data \
+		in self.resources.items ():
+
+			class_name = resource_data ["identity"] ["class"]
+			class_data = self.classes [class_name]
+
+			# set identity parent and grandparent
+
+			if "parent" in resource_data ["identity"]:
+
+				parent_name = resource_data ["identity"] ["parent"]
+				parent_data = self.resources [parent_name]
+
+				if "parent" in parent_data ["identity"]:
+
+					grandparent_name = parent_data ["identity"] ["parent"]
+
+					resource_data ["identity"] ["grandparent"] = \
+						grandparent_name
+
+			# set children
+
+			resource_data ["identity"] ["children"] = [
+				other_name
+				for other_name, other_data in self.resources.items ()
+				if "parent" in other_data ["identity"]
+				and other_data ["identity"] ["parent"] == resource_name
+			]
+
+	def load_resources_3 (self):
+
+		for resource_name, resource_data \
+		in self.resources.items ():
+
+			class_name = resource_data ["identity"] ["class"]
+			class_data = self.classes [class_name]
+
 			# resolve values where possible
 
 			for prefix, data in resource_data.items ():
@@ -176,19 +222,33 @@ class Inventory (object):
 					resource_data [prefix] [name] = resolved
 					resource_data [prefix + "_" + name] = resolved
 
-			# set parent
+	def load_resources_4 (self):
+
+		for resource_name, resource_data \
+		in self.resources.items ():
+
+			class_name = resource_data ["identity"] ["class"]
+			class_data = self.classes [class_name]
+
+			# set parent and grandparent
 
 			if "parent" in resource_data ["identity"]:
 
 				resource_data ["parent"] = "{{ hostvars ['%s'] }}" % (
 					resource_data ["identity"] ["parent"])
 
-			# create resource
+			if "grandparent" in resource_data ["identity"]:
 
-			self.world [resource_name] = resource_data
-			self.resources [resource_name] = resource_data
+				resource_data ["grandparent"] = "{{ hostvars ['%s'] }}" % (
+					resource_data ["identity"] ["grandparent"])
 
-			self.members [class_name].append (resource_name)
+	def load_resources_5 (self):
+
+		for resource_name, resource_data \
+		in self.resources.items ():
+
+			class_name = resource_data ["identity"] ["class"]
+			class_data = self.classes [class_name]
 
 			# groups
 
@@ -207,18 +267,6 @@ class Inventory (object):
 					self.class_groups.add (group_name)
 
 				self.members [group_name].append (resource_name)
-
-		for resource_name, resource_data \
-		in self.resources.items ():
-
-			# set children
-
-			resource_data ["identity"] ["children"] = [
-				other_name
-				for other_name, other_data in self.resources.items ()
-				if "parent" in other_data ["identity"]
-				and other_data ["identity"] ["parent"] == resource_name
-			]
 
 	def add_group_class_type (self,
 			item_friendly_name,
@@ -332,42 +380,63 @@ class Inventory (object):
 					self.resolve_variable (
 						resource_name,
 						combined_data,
-						match.group (1)),
+						match.group (1),
+					) or "{{ %s }}" % match.group (1),
 
 				str (value))
 
 	def resolve_variable (self, resource_name, combined_data, name):
 
 		if " " in name or "|" in name or "(" in name or "[" in name:
-			return "{{ %s }}" % name
+			return None
 
 		if name == "inventory_hostname":
 			return resource_name
 
-		if "." in name:
+		parts = name.split (".")
 
-			prefix, rest = name.split (".", 1)
+		if parts [0] in self.all:
+			return None
 
-			if prefix in self.all:
-				return "{{ %s }}" % name
+		if parts [0] == "parent":
 
-			if not prefix in combined_data:
-				#raise Exception ("Can't resolve %s" % name)
-				return "{{ %s }}" % name
+			parent_name = combined_data ["identity"] ["parent"]
+			parent_data = self.resources [parent_name]
 
-			if not rest in combined_data [prefix]:
-				#raise Exception ("Can't resolve %s" % name)
-				return "{{ %s }}" % name
+			return self.resolve_variable (
+				parent_name,
+				parent_data,
+				".".join (parts [1:]))
 
-			value = combined_data [prefix] [rest]
+		if parts [0] == "grandparent":
 
-			return value
+			parent_name = combined_data ["identity"] ["parent"]
+			parent_data = self.resources [parent_name]
 
-		if name in self.all:
-			return "{{ %s }}" % name
+			grandparent_name = parent_data ["identity"] ["parent"]
+			grandparent_data = self.resources [grandparent_name]
 
-		#raise Exception ("Can't resolve %s" % name)
-		return "{{ %s }}" % name
+			return self.resolve_variable (
+				grandparent_name,
+				grandparent_data,
+				".".join (parts [1:]))
+
+		current = combined_data
+
+		for part in parts:
+
+			if not part in current:
+				return None
+
+			current = current [part]
+
+		if isinstance (current, str):
+			return current
+
+		if isinstance (current, unicode):
+			return current
+
+		return None
 
 	def load_world (self):
 
@@ -392,7 +461,11 @@ class Inventory (object):
 						self.all [prefix + "_" + name] = value
 
 		self.load_classes ()
-		self.load_resources ()
+		self.load_resources_1 ()
+		self.load_resources_2 ()
+		self.load_resources_3 ()
+		self.load_resources_4 ()
+		self.load_resources_5 ()
 
 	def do_list (self):
 
