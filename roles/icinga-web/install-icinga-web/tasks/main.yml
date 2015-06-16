@@ -1,13 +1,15 @@
 ---
 
-- set_fact_dynamic:
+- name: "set icinga_web.state to 'installing'"
+  update_resource:
     icinga_web.state: "installing"
   when: "icinga_web_state is not defined"
 
 - include: "install-icinga-web.yml"
   tags: "install-icinga-web"
 
-- set_fact_dynamic:
+- name: "set icinga_web.state to 'unconfigured'"
+  update_resource:
     icinga_web.state: "unconfigured"
   when: "icinga_web_state == 'installing'"
 

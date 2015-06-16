@@ -1,13 +1,13 @@
 ---
 
-- set_fact_dynamic:
+- update_resource:
     icinga.state: "installing"
   when: "icinga_state is not defined"
 
 - include: "install-icinga.yml"
   tags: "install-icinga"
 
-- set_fact_dynamic:
+- update_resource:
     icinga.state: "unconfigured"
   when: "icinga_state == 'installing'"
 

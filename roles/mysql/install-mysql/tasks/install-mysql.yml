@@ -10,14 +10,23 @@
     - "mysql-server-5.5"
     - "python-mysqldb"
 
-- name: "create mysql root user"
-  when: "inventory_hostname == mysql_master and mysql_state in [ 'installing', 'running' ]"
-  action:
+- name: "generate mysql root password"
+  update_resource:
+    mysql.root_password: "{{ 20 | generate_random }}"
+  when: "mysql.root_password is not defined"
 
+- name: "create mysql root user"
+  action:
     module: "mysql_user"
     name: "root"
     password: "{{ mysql_root_password }}"
     priv: "*.*:ALL,GRANT"
+  when: "
+    (
+      mysql_replication == 'no'
+      or inventory_hostname == mysql_master
+    ) and mysql_state in [ 'installing', 'running' ]
+  "
 
 - name: "install mysql user config"
   sudo: "yes"
@@ -38,5 +47,14 @@
 
     - user: "ubuntu"
       home: "/home/ubuntu"
+
+- name: "disable mysql sysv init"
+  sudo: "yes"
+  register: "mysql_sysv_result"
+  changed_when: "mysql_sysv_result.stdout != 'UNCHANGED'"
+  shell:
+    test -e /etc/init.d/mysql || { echo UNCHANGED; exit 0; };
+    service mysql stop;
+    rm -f /etc/init.d/mysql /etc/init.d/rc?.d/[KS]??mysql;
 
 # ex: et ts=2 filetype=yaml

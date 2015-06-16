@@ -1,0 +1,3 @@
+{% for ssh_key in ssh_authorized_keys %}
+{{ ssh_key }}
+{% endfor %}

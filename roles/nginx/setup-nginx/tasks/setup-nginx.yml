@@ -1,0 +1,18 @@
+---
+
+- name: "configure nginx"
+  action:
+    module: "template"
+    src: "{{ item.template }}"
+    dest: "{{ item.target }}"
+  sudo: "yes"
+  notify: "set nginx.needs_restart to 'yes'"
+  with_items:
+
+    - template: "nginx-main-config"
+      target: "/etc/nginx/nginx.conf"
+
+    - template: "nginx-default-site"
+      target: "/etc/nginx/sites-available/default"
+
+# ex: et ts=2 filetype=yaml

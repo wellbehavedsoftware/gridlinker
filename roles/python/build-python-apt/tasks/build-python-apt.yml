@@ -1,0 +1,33 @@
+---
+
+- name: "build python-apt"
+  args:
+    executable: "/bin/bash"
+  sudo: "yes"
+  shell:
+
+    set -euf -o pipefail;
+
+    sudo apt-get install -y
+      build-essential
+      libapt-pkg-dev;
+
+    sudo pip install
+      sphinx;
+
+    rm -rf "{{ python_temp }}";
+    mkdir -p "{{ python_temp }}";
+    cd "{{ python_temp }}";
+
+    wget "{{ python_apt_url }}";
+    tar --extract --gzip --file "{{ python_apt_archive }}";
+    cd "{{ python_apt_name }}";
+
+    python setup.py build;
+
+    python setup.py install;
+
+    cd /;
+    rm -rf "{{ python_temp }}"
+
+# ex: et ts=2 filetype=yaml

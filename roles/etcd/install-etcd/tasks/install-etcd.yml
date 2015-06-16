@@ -21,6 +21,6 @@
       "{{ etcd_directory }}/"
       "{{ etcd_target }}/";
 
-    rm -rf "{{ etcd_temp }}";    
+    rm -rf "{{ etcd_temp }}";
 
 # ex: et ts=2 filetype=yaml

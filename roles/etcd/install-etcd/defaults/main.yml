@@ -3,7 +3,6 @@
 etcd_initial_cluster: ""
 etcd_initial_cluster_state: ""
 
-etcd_version: "2.1.0-alpha.0"
 etcd_mirror: "https://github.com/coreos/etcd/releases/download"
 etcd_temp: "/tmp/etcd-install"
 etcd_data: "/var/lib/etcd"
@@ -18,31 +17,5 @@ etcd_directories:
 
   - path: "/etc/etcd"
     mode: "0755"
-
-etcd_security_config:
-
-  - source: "{{ etcd_peer_ca_certificate }}"
-    target: "peer-ca.cert"
-    mode: "0644"
-
-  - source: "{{ etcd_peer_certificate }}"
-    target: "peer-{{ inventory_hostname }}.cert"
-    mode: "0644"
-
-  - source: "{{ etcd_peer_private_key }}"
-    target: "peer-{{ inventory_hostname }}.key"
-    mode: "0600"
-
-  - source: "{{ etcd_client_ca_certificate }}"
-    target: "client-ca.cert"
-    mode: "0644"
-
-  - source: "{{ etcd_client_certificate }}"
-    target: "client-{{ inventory_hostname }}.cert"
-    mode: "0644"
-
-  - source: "{{ etcd_client_private_key }}"
-    target: "client-{{ inventory_hostname }}.key"
-    mode: "0600"
 
 # ex: et ts=2 filetype=yaml

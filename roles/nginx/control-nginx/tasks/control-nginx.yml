@@ -1,0 +1,35 @@
+---
+
+- name: "write nginx upstart config"
+  action:
+    module: "template"
+    src: "nginx-upstart"
+    dest: "/etc/init/nginx.conf"
+  sudo: "yes"
+  notify:
+    - "reload upstart config"
+    - "set nginx.needs_restart to 'yes'"
+
+- name: "start or stop nginx"
+  action:
+    module: "service"
+    name: "nginx"
+    state: "{{
+      'started'
+      if nginx_state in [ 'starting', 'running' ]
+      else 'stopped'
+    }}"
+  sudo: "yes"
+  notify: "set nginx.needs_restart to 'no'"
+
+- meta: "flush_handlers"
+
+- name: "restart nginx"
+  update_resource: {}
+  changed_when: "True"
+  notify: "restart nginx"
+  when: "nginx_needs_restart == 'yes'"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

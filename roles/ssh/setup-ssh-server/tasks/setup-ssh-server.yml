@@ -1,0 +1,48 @@
+---
+
+- name: "configure ssh daemon"
+  action:
+    module: "template"
+    src: "ssh-server-sshd-config"
+    dest: "/etc/ssh/sshd_config"
+  sudo: "yes"
+  notify: "restart sshd"
+
+- name: "create root ssh directory"
+  action:
+    module: "file"
+    path: "/root/.ssh"
+    state: "directory"
+  sudo: "yes"
+
+- name: "create root authorized keys"
+  action:
+    module: "template"
+    src: "ssh-server-authorized-keys"
+    dest: "/root/.ssh/authorized_keys"
+  when: "ssh_authorized_keys is defined"
+  sudo: "yes"
+
+- name: "create root private key"
+  action:
+    module: "copy"
+    dest: "/root/.ssh/id_rsa"
+    content: "{{ lookup ('etcd', ssh_root_key) }}"
+    mode: "0600"
+  when: "ssh_root_key is defined"
+  sudo: "yes"
+
+- name: "create ubuntu ssh directory"
+  action:
+    module: "file"
+    path: "/home/ubuntu/.ssh"
+    state: "directory"
+
+- name: "create ubuntu authorized keys"
+  action:
+    module: "template"
+    src: "ssh-server-authorized-keys"
+    dest: "/home/ubuntu/.ssh/authorized_keys"
+  when: "ssh_authorized_keys is defined"
+
+# ex: et ts=2 filetype=yaml

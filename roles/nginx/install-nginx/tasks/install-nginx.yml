@@ -1,0 +1,27 @@
+---
+
+- name: "install nginx packages"
+  action:
+    module: "apt"
+    name: "{{ item }}"
+  sudo: "yes"
+  with_items:
+    - "nginx"
+
+- name: "disable nginx sysv init"
+  sudo: "yes"
+  register: "nginx_sysv_result"
+  changed_when: "nginx_sysv_result.stdout != 'UNCHANGED'"
+  args:
+    executable: "/bin/bash"
+  shell:
+
+    set -euf -o pipefail;
+
+    test -e /etc/init.d/nginx || { echo UNCHANGED; exit 0; };
+
+    service nginx stop;
+
+    rm -f /etc/init.d/rc?.d/[KS]??nginx /etc/init.d/nginx;
+
+# ex: et ts=2 filetype=yaml

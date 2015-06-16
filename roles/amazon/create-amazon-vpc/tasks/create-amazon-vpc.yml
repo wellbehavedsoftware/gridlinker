@@ -23,7 +23,7 @@
 
     wait: "yes"
 
-- set_fact_dynamic:
+- update_resource:
 
     amazon_vpc.id: "{{ amazon_vpc_result.vpc_id }}"
     amazon_vpc.subnet_ids: "{{
@@ -42,14 +42,14 @@
 
     vpc_id: "{{ amazon_vpc_id }}"
     region: "{{ amazon_region_name }}"
-    
+
     aws_access_key: "{{ amazon_access_key_id }}"
     aws_secret_key: "{{ amazon_secret_access_key }}"
 
     purge_rules: "no"
     purge_rules_egress: "no"
 
-- set_fact_dynamic:
+- update_resource:
 
     amazon_vpc.security_group_ids: "{{
       amazon_vpc_security_groups_result.results
@@ -66,7 +66,7 @@
 
     vpc_id: "{{ amazon_vpc_id }}"
     region: "{{ amazon_region_name }}"
-    
+
     aws_access_key: "{{ amazon_access_key_id }}"
     aws_secret_key: "{{ amazon_secret_access_key }}"
 

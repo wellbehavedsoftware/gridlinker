@@ -1,0 +1,17 @@
+description "php fpm"
+
+{% if mysql_state == 'running' %}
+start on (
+	net-device-up
+	and local-filesystems
+	and runlevel [2345]
+)
+stop on runlevel [^2345]
+{% endif %}
+
+pre-start exec /usr/lib/php5/php5-fpm-checkconf
+
+respawn
+respawn limit unlimited
+
+exec /usr/sbin/php5-fpm --nodaemonize --fpm-config /etc/php5/fpm/php-fpm.conf
