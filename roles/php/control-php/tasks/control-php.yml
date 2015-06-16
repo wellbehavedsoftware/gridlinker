@@ -12,12 +12,21 @@
 
 - name: "restart php"
   when: "php_needs_restart == 'yes'"
-  set_fact: {}
+  update_resource: {}
   changed_when: "True"
-  notify:
-    - "start, restart or stop php"
-    - "set php.needs_restart to 'no'"
+  notify: "restart php"
 
 - meta: "flush_handlers"
+
+- name: "start or stop php"
+  action:
+    module: "service"
+    name: "php5-fpm"
+    state: "{{
+      'started'
+      if php_state in [ 'starting', 'running' ]
+      else 'stopped'
+    }}"
+  sudo: "yes"
 
 # ex: et ts=2 filetype=yaml

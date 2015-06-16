@@ -706,7 +706,7 @@ def do_issue (context, args):
 
 	if args.store_resource:
 
-		resource_data = context.resources.get (args.store_resource)
+		resource_data = context.resources.get_slow (args.store_resource)
 
 		if args.store_certificate:
 

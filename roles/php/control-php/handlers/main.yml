@@ -5,22 +5,19 @@
   sudo: "yes"
 
 - name: "set php.needs_restart to 'yes'"
+  when: "php_state == 'running'"
   update_resource:
     php.needs_restart: "yes"
   changed_when: "True"
-  notify: "start, restart or stop php"
+  notify: "restart php"
 
-- name: "start, restart or stop php"
+- name: "restart php"
+  when: "php_state == 'running'"
   action:
     module: "service"
     name: "php5-fpm"
-    state: "{{
-      'restarted' if nginx_needs_restart == 'yes'
-      else 'started' if nginx_state in [ 'starting', 'running' ]
-      else 'stopped'
-    }}"
+    state: "restarted"
   sudo: "yes"
-  changed_when: "True"
   notify: "set php.needs_restart to 'no'"
 
 - name: "set php.needs_restart to 'no'"

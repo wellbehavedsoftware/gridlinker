@@ -1,0 +1,25 @@
+---
+
+- name: "write icinga config"
+  action:
+    module: "template"
+    src: "{{ item.template }}"
+    dest: "/etc/icinga2/{{ item.target }}"
+    owner: "root"
+    group: "nagios"
+  sudo: "yes"
+  notify: "set icinga.needs_restart to 'yes'"
+  with_items: "icinga_agent_config_templates"
+
+- name: "write icinga security config"
+  action:
+    module: "copy"
+    dest: "/etc/icinga2/{{ item.target }}"
+    content: "{{ lookup ('etcd', item.source) }}"
+    owner: "root"
+    group: "nagios"
+  sudo: "yes"
+  notify: "set icinga.needs_restart to 'yes'"
+  with_items: "icinga_agent_security_files"
+
+# ex: et ts=2 filetype=yaml

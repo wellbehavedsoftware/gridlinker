@@ -1,11 +1,5 @@
 ---
 
-- fail:
-    msg: "{{ item }} must be specified"
-  with_items: "etcd_required
-    | difference (hostvars [inventory_hostname].keys ()) | list"
-  tags: [ "etcd", "setup-etcd" ]
-
 - name: "set etcd.state to 'configuring'"
   update_resource:
     etcd.state: "configuring"

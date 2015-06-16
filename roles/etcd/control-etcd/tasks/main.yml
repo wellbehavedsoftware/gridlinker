@@ -1,36 +1,6 @@
 ---
 
-- name: "set etcd state to 'starting'"
-  update_resource:
-    etcd.state: "starting"
-  when: "
-    etcd_control == 'start'
-    and etcd_state == 'stopped'
-  "
-  tags: [ "etcd", "control-etcd" ]
-
-- name: "set etcd state to 'stopping'"
-  update_resource:
-    etcd.state: "stopping"
-  when: "
-    etcd_control == 'stop'
-    and etcd_state in 'running'
-  "
-  tags: [ "etcd", "control-etcd" ]
-
 - include: "control-etcd.yml"
-  tags: [ "etcd", "control-etcd" ]
-
-- name: "set etcd state to 'running'"
-  update_resource:
-    etcd.state: "running"
-  when: "etcd_state == 'starting'"
-  tags: [ "etcd", "control-etcd" ]
-
-- name: "set etcd state to 'stopped'"
-  update_resource:
-    etcd.state: "stopped"
-  when: "etcd_state == 'stopping'"
   tags: [ "etcd", "control-etcd" ]
 
 # ex: et ts=2 filetype=yaml

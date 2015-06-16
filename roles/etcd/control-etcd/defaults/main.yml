@@ -9,11 +9,11 @@ etcd_client_hostname: "{{ etcd_hostname }}"
 
 etcd_peer_protocol: "{{ 'https' if etcd_secured == 'yes' else 'http' }}"
 etcd_peer_port: "2380"
-etcd_peer_url: "{{ etcd_peer_protocol }}://{{ etcd_hostname }}:{{ etcd_peer_port }}"
+etcd_peer_url: "{{ etcd_peer_protocol }}://{{ etcd_peer_hostname }}:{{ etcd_peer_port }}"
 etcd_peer_urls: "{{ [ etcd_peer_url ] }}"
 
 etcd_client_protocol: "{{ 'https' if etcd_secured == 'yes' else 'http' }}"
-etcd_client_url: "{{ etcd_client_protocol }}://{{ etcd_hostname }}:{{ etcd_client_port }}"
+etcd_client_url: "{{ etcd_client_protocol }}://{{ etcd_client_hostname }}:{{ etcd_client_port }}"
 etcd_client_port: "2379"
 etcd_client_urls: "{{ [ etcd_client_url ] }}"
 

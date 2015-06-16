@@ -1,0 +1,12 @@
+---
+
+- name: "start icinga"
+  action:
+    module: "service"
+    name: "icinga"
+    state: "started"
+  sudo: "yes"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,18 @@
+---
+
+- name: "set icinga.state to 'configuring'"
+  when: "icinga_state == 'unconfigured'"
+  update_resource:
+    icinga.state: "configuring"
+  tags: [ "icinga", "setup-icinga-agent" ]
+
+- include: "setup-icinga-agent.yml"
+  tags: [ "icinga", "setup-icinga-agent" ]
+
+- name: "set icinga.state to 'stopped'"
+  when: "icinga_state == 'configuring'"
+  update_resource:
+    icinga.state: "stopped"
+  tags: [ "icinga", "setup-icinga-agent" ]
+
+# ex: et ts=2 filetype=yaml
