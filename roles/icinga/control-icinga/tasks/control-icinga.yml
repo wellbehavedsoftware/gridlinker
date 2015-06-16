@@ -1,0 +1,35 @@
+---
+
+- name: "write icinga upstart config"
+  action:
+    module: "template"
+    src: "icinga-upstart"
+    dest: "/etc/init/icinga.conf"
+  sudo: "yes"
+  notify:
+    - "reload upstart config"
+    - "set icinga.needs_restart to 'yes'"
+
+- name: "start or stop icinga"
+  action:
+    module: "service"
+    name: "icinga"
+    state: "{{
+      'started'
+      if icinga_state in [ 'starting', 'running' ]
+      else 'stopped'
+    }}"
+  sudo: "yes"
+  notify: "set icinga.needs_restart to 'no'"
+
+- meta: "flush_handlers"
+
+- name: "restart icinga"
+  update_resource: {}
+  changed_when: "True"
+  notify: "restart icinga"
+  when: "icinga_needs_restart == 'yes'"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

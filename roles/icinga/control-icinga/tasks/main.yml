@@ -1,0 +1,36 @@
+---
+
+- name: "set icinga.state to 'starting'"
+  update_resource:
+    icinga.state: "starting"
+  when: "
+    icinga_control == 'start'
+    and icinga_state == 'stopped'
+  "
+  tags: [ "icinga", "control-icinga" ]
+
+- name: "set icinga.state to 'stopping'"
+  update_resource:
+    icinga.state: "stopping"
+  when: "
+    icinga_control == 'stop'
+    and icinga_state == 'running'
+  "
+  tags: [ "icinga", "control-icinga" ]
+
+- include: "control-icinga.yml"
+  tags: [ "icinga", "control-icinga" ]
+
+- name: "set icinga.state to 'running'"
+  update_resource:
+    icinga.state: "running"
+  when: "icinga_state == 'starting'"
+  tags: [ "icinga", "control-icinga" ]
+
+- name: "set icinga.state to 'stopped'"
+  update_resource:
+    icinga.state: "stopped"
+  when: "icinga_state == 'stopping'"
+  tags: [ "icinga", "control-icinga" ]
+
+# ex: et ts=2 filetype=yaml

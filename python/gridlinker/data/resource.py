@@ -9,20 +9,9 @@ class ResourceHelper (CommandHelper):
 
 		arg_vars = vars (args)
 
-		# verify group or class
+		# verify class
 
-		if "group" in arg_vars and arg_vars ["group"]:
-
-			if getattr (args, "class"):
-				raise Exception ()
-
-			group_name = args.group
-			group_data = context.groups.get_quick (group_name)
-
-			class_name = group_data ["identity"] ["class"]
-			class_data = context.local_data ["classes"] [class_name]
-
-		elif "class" in arg_vars \
+		if "class" in arg_vars \
 		and arg_vars ["class"]:
 
 			class_name = arg_vars ["class"]
@@ -47,9 +36,6 @@ class ResourceHelper (CommandHelper):
 		if "/" in args.name:
 			unique_name = args.name
 
-		elif class_data ["class"] ["scope"] == "group":
-			unique_name = "%s/%s" % (group_name, args.name)
-
 		elif class_data ["class"] ["scope"] == "class":
 			unique_name = "%s/%s" % (class_name, args.name)
 
@@ -65,25 +51,12 @@ class ResourceHelper (CommandHelper):
 
 		resource_name = resource_data ["identity"] ["name"]
 
-		if "group" in resource_data ["identity"]:
-
-			group_name = resource_data ["identity"] ["group"]
-			group_data = context.groups.get_quick (resource)
-
-			class_name = group_data ["identity"] ["class"]
-			class_data = context.local_data ["classes"] [class_name]
-
-		else:
-
-			class_name = resource_data ["identity"] ["class"]
-			class_data = context.local_data ["classes"] [class_name]
+		class_name = resource_data ["identity"] ["class"]
+		class_data = context.local_data ["classes"] [class_name]
 
 		# determine unique name depending on scope
 
-		if class_data ["class"] ["scope"] == "group":
-			return "%s/%s" % (group_name, resource_name)
-
-		elif class_data ["class"] ["scope"] == "class":
+		if class_data ["class"] ["scope"] == "class":
 			return "%s/%s" % (class_name, resource_name)
 
 		elif class_data ["class"] ["scope"] == "global":
@@ -107,7 +80,6 @@ resource_command = GenericCommand (
 
 				NameArgument (),
 				ClassArgument (),
-				GroupArgument (),
 				ParentArgument (),
 				IndexArgument (),
 
@@ -137,12 +109,6 @@ resource_command = GenericCommand (
 		custom_columns = [
 
 			UniqueNameColumn (),
-
-			SimpleColumn (
-				section = "identity",
-				name = "group",
-				label = "Group",
-				default = True),
 
 			SimpleColumn (
 				section = "identity",

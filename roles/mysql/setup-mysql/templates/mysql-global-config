@@ -43,7 +43,7 @@ log_error = /var/log/mysql/error.log
 server-id = {{ mysql_server_id }}
 {% if inventory_hostname == mysql_master %}
 log-bin = /var/log/mysql/mysql-bin.log
-expire-logs-days = 30
+expire-logs-days = 1
 max-binlog-size = 128M
 {% else %}
 read-only

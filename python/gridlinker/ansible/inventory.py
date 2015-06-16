@@ -436,7 +436,7 @@ class Inventory (object):
 						combined_data,
 						match.group (1)),
 
-				value)
+				str (value))
 
 	def resolve_variable (self, resource_name, combined_data, name):
 
@@ -479,6 +479,7 @@ class Inventory (object):
 			"HOME": self.context.home,
 			"WORK": "%s/work" % self.context.home,
 			"GRIDLINKER_HOME": self.context.gridlinker_home,
+			"METADATA": self.context.project_metadata,
 		}
 
 		if "globals" in self.context.local_data:
@@ -519,7 +520,10 @@ class Inventory (object):
 
 		for group_name, group_data in self.groups.items ():
 
-			output [group_name] = group_data
+			output [group_name] = {
+				"vars": group_data,
+				"hosts": self.members [group_name],
+			}
 
 		for resource_name, resource_data in self.resources.items ():
 

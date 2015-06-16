@@ -250,7 +250,7 @@ class GenericCommand:
 
 		if args.name:
 
-			unique_name = self.helper.existing_unique_name (context, args)
+			unique_name = self.helper.create_unique_name (context, args)
 
 			if not collection.exists_slow (unique_name):
 
@@ -324,7 +324,14 @@ class GenericCommand:
 			temp_file.write (record_yaml)
 			temp_file.flush ()
 
-			os.system ("%s %s" % (os.environ ["EDITOR"], temp_file.name))
+			if "VISUAL" in os.environ:
+				editor = os.environ ["VISUAL"]
+			elif "EDITOR" in os.environ:
+				editor = os.environ ["EDITOR"]
+			else:
+				raise Exception ()
+
+			os.system ("%s %s" % (editor, temp_file.name))
 
 			with open (temp_file.name, "r") as temp_file_again:
 				record_yaml = temp_file_again.read ()

@@ -1,4 +1,4 @@
-{% for host_name in groups [identity_group] %}
+{% for host_name in icinga_master_hosts %}
 {% set host = hostvars [host_name] %}
 
 object Endpoint "{{ host_name }}" {
@@ -8,5 +8,5 @@ object Endpoint "{{ host_name }}" {
 {% endfor %}
 
 object Zone "master" {
-	endpoints = [ "{{ groups [identity_group] | join ('", "') }}" ]
+	endpoints = [ "{{ icinga_master_hosts | join ('", "') }}" ]
 }

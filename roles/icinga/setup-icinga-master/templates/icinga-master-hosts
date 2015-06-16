@@ -8,7 +8,7 @@ template Host "generic-host" {
 
 }
 
-{% for host_name in groups [identity_group] %}
+{% for host_name in icinga_master_hosts %}
 {% set host = hostvars [host_name] %}
 
 object Host "{{ host_name }}" {
