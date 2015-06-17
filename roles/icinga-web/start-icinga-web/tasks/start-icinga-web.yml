@@ -1,0 +1,14 @@
+---
+
+- name: "enable icinga-web nginx site"
+  action:
+    module: "file"
+    path: "/etc/nginx/sites-enabled/icinga-web"
+    state: "link"
+    src: "../sites-available/icinga-web"
+  sudo: "yes"
+  notify: "set nginx.needs_restart to 'yes'"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

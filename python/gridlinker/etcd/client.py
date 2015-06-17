@@ -5,6 +5,7 @@ import httplib
 import ipaddress
 import json
 import os
+import random
 import ssl
 import urllib
 
@@ -30,6 +31,8 @@ class EtcdClient:
 		self.client_cert = client_cert
 		self.client_key = client_key
 		self.prefix = prefix
+
+		random.shuffle (self.servers)
 
 		if self.secure:
 
@@ -297,6 +300,10 @@ class EtcdClient:
 					for child_node in node ["nodes"]
 				] for item in sub_list
 			]
+
+		else:
+
+			return []
 
 	def rm (self, key):
 

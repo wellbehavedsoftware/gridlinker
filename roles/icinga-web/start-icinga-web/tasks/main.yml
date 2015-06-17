@@ -1,0 +1,18 @@
+---
+
+- name: "set icinga_web.state to 'starting'"
+  when: "icinga_web_state in [ 'configured', 'stopped' ]"
+  update_resource:
+    icinga_web.state: "starting"
+  tags: [ "icinga-web", "start-icinga-web" ]
+
+- include: "start-icinga-web.yml"
+  tags: [ "icinga-web", "start-icinga-web" ]
+
+- name: "set icinga_web.state to 'running'"
+  when: "icinga_web_state == 'starting'"
+  update_resource:
+    icinga_web.state: "running"
+  tags: [ "icinga-web", "start-icinga-web" ]
+
+# ex: et ts=2 filetype=yaml

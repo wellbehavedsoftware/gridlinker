@@ -199,69 +199,6 @@ class ParentArgument:
 
 		return record_data [class_key] == arg_vars ["parent"]
 
-class GroupArgument:
-
-	def args_create (self, parser, helper):
-
-		parser.add_argument (
-			"--group",
-			required = False,
-			metavar = "GROUP",
-			help = "group this %s belongs to" % helper.name)
-
-	def args_edit (self, parser, helper):
-
-		parser.add_argument (
-			"--group",
-			required = False,
-			metavar = "GROUP",
-			help = "group to edit {0}s belonging to".format (helper.name))
-
-	def args_update (self, parser, helper):
-
-		parser.add_argument (
-			"--group",
-			required = False,
-			metavar = "GROUP",
-			help = "group to update {0}s belonging to".format (helper.name))
-
-	def args_show (self, parser, helper):
-
-		parser.add_argument (
-			"--group",
-			required = False,
-			metavar = "GROUP",
-			help = "group to show {0}s belonging to".format (helper.name))
-
-	def args_list (self, parser, helper):
-
-		parser.add_argument (
-			"--group",
-			required = False,
-			metavar = "GROUP",
-			help = "group to list {0}s belonging to".format (helper.name))
-
-	def update_record (self, arg_vars, record_data, helper):
-
-		if not "group" in arg_vars:
-			return
-
-		value = arg_vars ["group"]
-
-		if value:
-			record_data ["identity"] ["group"] = value
-
-	def filter_record (self, arg_vars, record_data):
-
-		if not "group" in arg_vars:
-			return True
-
-		if not "group" in record_data ["identity"]:
-			return False
-
-		return record_data ["identity"] ["group"] == arg_vars ["group"]
-
-
 class IndexArgument:
 
 	def args_create (self, parser, helper):

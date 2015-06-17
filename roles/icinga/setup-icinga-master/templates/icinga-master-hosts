@@ -8,17 +8,36 @@ template Host "generic-host" {
 
 }
 
-{% for host_name in groups [identity_group] %}
+{% for host_name in groups [icinga_master.endpoints] %}
 {% set host = hostvars [host_name] %}
 
 object Host "{{ host_name }}" {
 
 	import "generic-host"
 
-	address = "{{ host.private_address }}"
+	address = "{{ host.icinga_host.address }}"
 
 	vars.http = true
 
 }
 
 {% endfor %}
+
+{% for host_name in groups [icinga_master.hosts] %}
+{% set host = hostvars [host_name] %}
+
+object Host "{{ host_name }}" {
+
+	import "generic-host"
+
+	address = "{{ host.icinga_host.address }}"
+
+	vars.http = true
+
+	vars.endpoint = "{{ host.icinga_host.endpoint }}"
+
+}
+
+{% endfor %}
+
+

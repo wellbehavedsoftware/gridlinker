@@ -73,7 +73,8 @@
     group: "root"
     mode: "0644"
   sudo: "yes"
-  notify:
-    - "reload nginx"
+  notify: "set nginx.needs_restart to 'yes'"
+
+- meta: "flush_handlers"
 
 # ex: et ts=2 filetype=yaml

@@ -12,6 +12,8 @@ apply Service "http" {
 
 	check_command = "http"
 
+	command_endpoint = host.vars.endpoint
+
 	assign where host.vars.http
 
 }
@@ -21,7 +23,8 @@ apply Service "disk" {
 	import "generic-service"
 
 	check_command = "disk"
-	command_endpoint = host.name
+
+	command_endpoint = host.vars.endpoint
 
 	assign where true
 

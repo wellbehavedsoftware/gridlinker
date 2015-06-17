@@ -1,0 +1,29 @@
+---
+
+- name: "reload upstart config"
+  shell: "initctl reload-configuration"
+  sudo: "yes"
+
+- name: "set icinga.needs_restart to 'yes'"
+  when: "icinga_state == 'running'"
+  update_resource:
+    icinga.needs_restart: "yes"
+  changed_when: "True"
+  notify: "restart icinga"
+
+- name: "restart icinga"
+  when: "icinga_state == 'running'"
+  action:
+    module: "service"
+    name: "icinga"
+    state: "restarted"
+  sudo: "yes"
+  when: "icinga_state == 'running'"
+  notify: "set icinga.needs_restart to 'no'"
+
+- name: "set icinga.needs_restart to 'no'"
+  update_resource:
+    icinga.needs_restart: "no"
+  changed_when: "True"
+
+# ex: et ts=2 filetype=yaml

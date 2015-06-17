@@ -1,19 +1,15 @@
 ---
 
-- debug:
-    var: "icinga_web_state"
-
-- update_resource:
+- name: "set icinga_web.state to 'installing'"
+  update_resource:
     icinga_web.state: "installing"
   when: "icinga_web_state is not defined"
-
-- debug:
-    var: "icinga_web_state"
 
 - include: "install-icinga-web.yml"
   tags: "install-icinga-web"
 
-- update_resource:
+- name: "set icinga_web.state to 'unconfigured'"
+  update_resource:
     icinga_web.state: "unconfigured"
   when: "icinga_web_state == 'installing'"
 
