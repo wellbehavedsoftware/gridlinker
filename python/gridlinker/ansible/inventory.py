@@ -153,12 +153,7 @@ class Inventory (object):
 				for name, value in data.items ():
 
 					if name in resource_data [prefix]:
-
-						raise Exception (
-							"Specified %s.%s twice for %s" % (
-							prefix,
-							name,
-							resource_name))
+						continue
 
 					resource_data [prefix] [name] = value
 
@@ -254,10 +249,17 @@ class Inventory (object):
 
 			for group_template in class_data ["class"] ["groups"]:
 
-				group_name = self.resolve_value (
-					resource_name,
-					resource_data,
-					group_template)
+				try:
+
+					group_name = self.resolve_value (
+						resource_name,
+						resource_data,
+						group_template,
+						strict = True)
+
+				except:
+
+					continue
 
 				if not group_name in self.class_groups:
 
@@ -353,20 +355,42 @@ class Inventory (object):
 
 		return class_vars
 
-	def resolve_value (self, resource_name, combined_data, value):
+	def resolve_value (self,
+		resource_name,
+		combined_data,
+		value,
+		strict = False,
+	):
 
 		if isinstance (value, list):
 
 			return [
-				self.resolve_value (resource_name, combined_data, item)
+
+				self.resolve_value (
+					resource_name,
+					combined_data,
+					item,
+					strict = strict)
+
 				for item in value
+
 			]
 
 		elif isinstance (value, dict):
 
 			return collections.OrderedDict ([
-				(key, self.resolve_value (resource_name, combined_data, item))
+
+				(
+					key,
+					self.resolve_value (
+						resource_name,
+						combined_data,
+						item,
+						strict = strict)
+				)
+
 				for key, item in value.items ()
+
 			])
 
 		else:
@@ -381,11 +405,25 @@ class Inventory (object):
 						resource_name,
 						combined_data,
 						match.group (1),
+						strict,
 					) or "{{ %s }}" % match.group (1),
 
 				str (value))
 
-	def resolve_variable (self, resource_name, combined_data, name):
+	def resolve_variable (self, resource_name, combined_data, name, strict):
+
+		value = self.resolve_variable_real (
+			resource_name,
+			combined_data,
+			name)
+
+		if not value and strict:
+			raise Exception ()
+
+		else:
+			return value
+
+	def resolve_variable_real (self, resource_name, combined_data, name):
 
 		if " " in name or "|" in name or "(" in name or "[" in name:
 			return None
@@ -403,7 +441,7 @@ class Inventory (object):
 			parent_name = combined_data ["identity"] ["parent"]
 			parent_data = self.resources [parent_name]
 
-			return self.resolve_variable (
+			return self.resolve_variable_real (
 				parent_name,
 				parent_data,
 				".".join (parts [1:]))
@@ -416,7 +454,7 @@ class Inventory (object):
 			grandparent_name = parent_data ["identity"] ["parent"]
 			grandparent_data = self.resources [grandparent_name]
 
-			return self.resolve_variable (
+			return self.resolve_variable_real (
 				grandparent_name,
 				grandparent_data,
 				".".join (parts [1:]))
