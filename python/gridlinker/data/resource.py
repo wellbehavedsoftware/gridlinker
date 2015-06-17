@@ -56,14 +56,9 @@ class ResourceHelper (CommandHelper):
 
 		# determine unique name depending on scope
 
-		if class_data ["class"] ["scope"] == "class":
-			return "%s/%s" % (class_name, resource_name)
-
-		elif class_data ["class"] ["scope"] == "global":
-			return resource_name
-
-		else:
-			raise Exception ()
+		return "%s/%s" % (
+			class_data ["class"] ["namespace"],
+			resource_data ["identity"] ["name"])
 
 resource_command = GenericCommand (
 
