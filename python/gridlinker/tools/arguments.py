@@ -332,15 +332,6 @@ class NameArgument:
 			metavar = "NAME",
 			help = "name of %s to update" % helper.name)
 
-	def update_record (self, arg_vars, record_data, helper):
-
-		value = arg_vars ["name"]
-
-		if not value:
-			return
-
-		record_data ["identity"] ["name"] = value
-
 class MiscSetFileArgument:
 
 	def args_create (self, parser, helper):

@@ -11,41 +11,19 @@ class ResourceHelper (CommandHelper):
 
 		# verify class
 
-		if "class" in arg_vars \
-		and arg_vars ["class"]:
+		class_name = arg_vars ["class"]
 
-			class_name = arg_vars ["class"]
+		if not class_name in context.classes:
 
-			if not class_name in context.classes:
+			raise Exception (
+				"No such class: %s" % (
+					class_name))
 
-				raise Exception (
-					"No such class: %s" % (
-						class_name))
+		class_data = context.local_data ["classes"] [class_name]
 
-			class_data = context.local_data ["classes"] [class_name]
-
-		else:
-
-			resource_data = context.resources.get_slow (args.name)
-
-			class_name = resource_data ["identity"] ["class"]
-			class_data = context.local_data ["classes"] [class_name]
-
-		# determine unique name depending on scope
-
-		if "/" in args.name:
-			unique_name = args.name
-
-		elif class_data ["class"] ["scope"] == "class":
-			unique_name = "%s/%s" % (class_name, args.name)
-
-		elif class_data ["class"] ["scope"] == "global":
-			unique_name = args.name
-
-		else:
-			raise Exception ()
-
-		return unique_name
+		return "%s/%s" % (
+			class_data ["class"] ["namespace"],
+			args.name)
 
 	def existing_unique_name (self, context, resource_data):
 
@@ -56,14 +34,9 @@ class ResourceHelper (CommandHelper):
 
 		# determine unique name depending on scope
 
-		if class_data ["class"] ["scope"] == "class":
-			return "%s/%s" % (class_name, resource_name)
-
-		elif class_data ["class"] ["scope"] == "global":
-			return resource_name
-
-		else:
-			raise Exception ()
+		return "%s/%s" % (
+			class_data ["class"] ["namespace"],
+			resource_data ["identity"] ["name"])
 
 resource_command = GenericCommand (
 
@@ -126,12 +99,6 @@ resource_command = GenericCommand (
 				section = "identity",
 				name = "description",
 				label = "Description",
-				default = True),
-
-			SimpleColumn (
-				section = "private",
-				name = "address",
-				label = "Private IP",
 				default = True),
 
 		],

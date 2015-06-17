@@ -39,6 +39,7 @@ class Inventory (object):
 		self.groups = {}
 		self.resources = {}
 
+		self.namespaces = collections.defaultdict (list)
 		self.children = collections.defaultdict (list)
 		self.members = collections.defaultdict (list)
 
@@ -113,24 +114,16 @@ class Inventory (object):
 
 			# work out unique name
 
-			if class_data ["class"] ["scope"] == "global":
-
-				unique_name = resource_data ["identity"] ["name"]
-
-			elif class_data ["class"] ["scope"] == "class":
-
-				unique_name = "%s/%s" % (
-					class_name,
-					resource_data ["identity"] ["name"])
-
-			else:
-
-				raise Exception ()
+			unique_name = "%s/%s" % (
+				class_data ["class"] ["namespace"],
+				resource_data ["identity"] ["name"])
 
 			if resource_name != unique_name:
 
 				raise Exception (
 					"Resource does not contain correct name: %s" % resource_name)
+
+			namespace = class_data ["class"] ["namespace"]
 
 			# check for duplicates
 
@@ -445,6 +438,8 @@ class Inventory (object):
 		self.all = {
 			"HOME": self.context.home,
 			"WORK": "%s/work" % self.context.home,
+			"NAME": self.context.project_metadata ["project"] ["name"],
+			"CONNECTION": self.context.connection_name,
 			"GRIDLINKER_HOME": self.context.gridlinker_home,
 			"METADATA": self.context.project_metadata,
 		}
@@ -500,26 +495,21 @@ class Inventory (object):
 			output ["_meta"] ["hostvars"] [resource_name] = \
 				self.resources [resource_name]
 
-		for key, value in self.context.project_metadata ["data"].items ():
+		for key, value in self.context.project_metadata ["project_data"].items ():
 			output ["all"] ["vars"] [key] = self.context.local_data [value]
 
 		for key, value in self.context.project_metadata ["resource_data"].items ():
 
-			if value in self.classes:
-
-				class_name = value
-
-				output ["all"] ["vars"] [key] = dict ([
-					(
-						self.resources [resource_name] ["identity"] ["name"],
-						self.resources [resource_name],
-					)
-					for resource_name in self.members [class_name]
-				])
-
-			else:
-
+			if not value in self.namespaces:
 				raise Exception ()
+
+			output ["all"] ["vars"] [key] = dict ([
+				(
+					self.resources [resource_name] ["identity"] ["name"],
+					self.resources [resource_name],
+				)
+				for resource_name in self.namespaces [value]
+			])
 
 		for group_name in self.class_groups:
 

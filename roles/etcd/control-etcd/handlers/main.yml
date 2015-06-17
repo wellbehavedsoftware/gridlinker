@@ -16,7 +16,14 @@
     name: "etcd"
     state: "restarted"
   sudo: "yes"
-  notify: "set etcd.needs_restart to 'no'"
+  notify:
+    - "pause after etcd restart"
+    - "set etcd.needs_restart to 'no'"
+
+- name: "pause after etcd restart"
+  action:
+    module: "pause"
+    seconds: "5"
 
 - name: "set etcd.needs_restart to 'no'"
   update_resource:
