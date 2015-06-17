@@ -9,7 +9,7 @@
 - include: "setup-php.yml"
   tags: [ "php", "setup-php" ]
 
-- name: "set php.state to 'unsynchronized'"
+- name: "set php.state to 'stopped'"
   update_resource:
     php.state: "stopped"
   when: "php_state == 'configuring'"

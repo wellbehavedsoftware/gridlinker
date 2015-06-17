@@ -5,24 +5,13 @@ from gridlinker.tools import *
 
 class ResourceHelper (CommandHelper):
 
-	def get_unique_name (self, context, args):
+	def create_unique_name (self, context, args):
 
 		arg_vars = vars (args)
 
-		# verify group or class
+		# verify class
 
-		if "group" in arg_vars and arg_vars ["group"]:
-
-			if getattr (args, "class"):
-				raise Exception ()
-
-			group_name = args.group
-			group_data = context.groups.get_quick (group_name)
-
-			class_name = group_data ["identity"] ["class"]
-			class_data = context.local_data ["classes"] [class_name]
-
-		elif "class" in arg_vars \
+		if "class" in arg_vars \
 		and arg_vars ["class"]:
 
 			class_name = arg_vars ["class"]
@@ -44,8 +33,8 @@ class ResourceHelper (CommandHelper):
 
 		# determine unique name depending on scope
 
-		if class_data ["class"] ["scope"] == "group":
-			unique_name = "%s/%s" % (group_name, args.name)
+		if "/" in args.name:
+			unique_name = args.name
 
 		elif class_data ["class"] ["scope"] == "class":
 			unique_name = "%s/%s" % (class_name, args.name)
@@ -57,6 +46,24 @@ class ResourceHelper (CommandHelper):
 			raise Exception ()
 
 		return unique_name
+
+	def existing_unique_name (self, context, resource_data):
+
+		resource_name = resource_data ["identity"] ["name"]
+
+		class_name = resource_data ["identity"] ["class"]
+		class_data = context.local_data ["classes"] [class_name]
+
+		# determine unique name depending on scope
+
+		if class_data ["class"] ["scope"] == "class":
+			return "%s/%s" % (class_name, resource_name)
+
+		elif class_data ["class"] ["scope"] == "global":
+			return resource_name
+
+		else:
+			raise Exception ()
 
 resource_command = GenericCommand (
 
@@ -73,7 +80,6 @@ resource_command = GenericCommand (
 
 				NameArgument (),
 				ClassArgument (),
-				GroupArgument (),
 				ParentArgument (),
 				IndexArgument (),
 
@@ -102,17 +108,7 @@ resource_command = GenericCommand (
 
 		custom_columns = [
 
-			SimpleColumn (
-				section = "identity",
-				name = "name",
-				label = "Name",
-				default = True),
-
-			SimpleColumn (
-				section = "identity",
-				name = "group",
-				label = "Group",
-				default = True),
+			UniqueNameColumn (),
 
 			SimpleColumn (
 				section = "identity",

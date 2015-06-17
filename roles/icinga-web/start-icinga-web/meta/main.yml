@@ -1,9 +1,0 @@
----
-
-dependencies:
-
-  - role: "control-icinga-web"
-    icinga_web_control: "start"
-    tags: "start-icinga-web"
-
-# ex: et ts=2 filetype=yaml

@@ -5,6 +5,7 @@ import collections
 import json
 import re
 import sys
+import wbs
 
 def main (context, args):
 
@@ -41,8 +42,7 @@ class Inventory (object):
 		self.children = collections.defaultdict (list)
 		self.members = collections.defaultdict (list)
 
-		self.virtual_groups = set ()
-		self.dynamic_groups = set ()
+		self.class_groups = set ()
 
 	def load_classes (self):
 
@@ -76,71 +76,19 @@ class Inventory (object):
 			# fill in defaults
 
 			class_data.setdefault ("class", {})
-			class_data ["class"].setdefault ("virtual_groups", [])
+			class_data ["class"].setdefault ("groups", [])
 
 			# create class
 
 			self.world [class_name] = class_data
 			self.classes [class_name] = class_data
 
-			for virtual_group_name in class_data ["class"] ["virtual_groups"]:
-
-				if not virtual_group_name in self.virtual_groups:
-
-					if virtual_group_name in self.world:
-						raise Exception ()
-
-					self.world [virtual_group_name] = {}
-					self.virtual_groups.add (virtual_group_name)
-
-				self.children [virtual_group_name].append (class_name)
-
-	def load_groups (self):
-
-		group_list = self.context.groups.get_all_list_quick ()
-
-		for group_name, group_data in group_list:
-
-			# check basics
-
-			if not "identity" in group_data:
-
-				raise Exception (
-					"Group does not have identity: %s" % group_name)
-
-			if not "type" in group_data ["identity"]:
-
-				raise Exception ()
-
-			if group_data ["identity"] ["type"] != "group":
-
-				raise Exception ()
-
-			if group_name != group_data ["identity"] ["name"]:
-
-				raise Exception (
-					"Group does not contain correct name: %s" % class_group)
-
-			# check for duplicates
-
-			if group_name in self.world:
-
-				raise Exception (
-					"Group is duplicated: %s" % group_name)
-
-			# create group
-
-			class_name = group_data ["identity"] ["class"]
-
-			self.world [group_name] = group_data
-			self.groups [group_name] = group_data
-
-			self.children [class_name].append (group_name)
-
-	def load_resources (self):
+	def load_resources_1 (self):
 
 		for resource_name, resource_data \
 		in self.context.resources.get_all_list_quick ():
+
+			resource_data = wbs.deep_copy (resource_data)
 
 			# check basics
 
@@ -152,21 +100,14 @@ class Inventory (object):
 
 			# work out class
 
-			if "class" in resource_data ["identity"]:
+			class_name = resource_data ["identity"] ["class"]
 
-				class_name = resource_data ["identity"] ["class"]
+			if not class_name in self.classes:
 
-			elif "group" in resource_data ["identity"]:
-
-				group_name = resource_data ["identity"] ["group"]
-				group_data = self.context.groups.get_quick (group_name)
-
-				class_name = group_data ["identity"] ["class"]
-				resource_data ["identity"] ["class"] = class_name
-
-			else:
-
-				raise Exception ()
+				raise Exception (
+					"Invalid class %s for resource %s" % (
+						class_name,
+						resource_name))
 
 			class_data = self.classes [class_name]
 
@@ -180,12 +121,6 @@ class Inventory (object):
 
 				unique_name = "%s/%s" % (
 					class_name,
-					resource_data ["identity"] ["name"])
-
-			elif class_data ["class"] ["scope"] == "group":
-
-				unique_name = "%s/%s" % (
-					group_name,
 					resource_data ["identity"] ["name"])
 
 			else:
@@ -204,45 +139,134 @@ class Inventory (object):
 				raise Exception (
 					"Resource is duplicated: %s" % resource_name)
 
+			# add class data
+
+			for prefix, data in class_data.items ():
+
+				if prefix in [ "identity", "class" ]:
+					continue
+
+				if not prefix in resource_data:
+
+					resource_data [prefix] = collections.OrderedDict ()
+
+				for name, value in data.items ():
+
+					if name in resource_data [prefix]:
+
+						raise Exception (
+							"Specified %s.%s twice for %s" % (
+							prefix,
+							name,
+							resource_name))
+
+					resource_data [prefix] [name] = value
+
 			# create resource
 
 			self.world [resource_name] = resource_data
 			self.resources [resource_name] = resource_data
 
-			if "group" in resource_data ["identity"]:
+			self.members [class_name].append (resource_name)
 
-				group_name = resource_data ["identity"] ["group"]
+	def load_resources_2 (self):
+
+		for resource_name, resource_data \
+		in self.resources.items ():
+
+			class_name = resource_data ["identity"] ["class"]
+			class_data = self.classes [class_name]
+
+			# set identity parent and grandparent
+
+			if "parent" in resource_data ["identity"]:
+
+				parent_name = resource_data ["identity"] ["parent"]
+				parent_data = self.resources [parent_name]
+
+				if "parent" in parent_data ["identity"]:
+
+					grandparent_name = parent_data ["identity"] ["parent"]
+
+					resource_data ["identity"] ["grandparent"] = \
+						grandparent_name
+
+			# set children
+
+			resource_data ["identity"] ["children"] = [
+				other_name
+				for other_name, other_data in self.resources.items ()
+				if "parent" in other_data ["identity"]
+				and other_data ["identity"] ["parent"] == resource_name
+			]
+
+	def load_resources_3 (self):
+
+		for resource_name, resource_data \
+		in self.resources.items ():
+
+			class_name = resource_data ["identity"] ["class"]
+			class_data = self.classes [class_name]
+
+			# resolve values where possible
+
+			for prefix, data in resource_data.items ():
+
+				for name, value in data.items ():
+
+					resolved = self.resolve_value (
+						resource_name,
+						resource_data,
+						value)
+
+					resource_data [prefix] [name] = resolved
+					resource_data [prefix + "_" + name] = resolved
+
+	def load_resources_4 (self):
+
+		for resource_name, resource_data \
+		in self.resources.items ():
+
+			class_name = resource_data ["identity"] ["class"]
+			class_data = self.classes [class_name]
+
+			# set parent and grandparent
+
+			if "parent" in resource_data ["identity"]:
+
+				resource_data ["parent"] = "{{ hostvars ['%s'] }}" % (
+					resource_data ["identity"] ["parent"])
+
+			if "grandparent" in resource_data ["identity"]:
+
+				resource_data ["grandparent"] = "{{ hostvars ['%s'] }}" % (
+					resource_data ["identity"] ["grandparent"])
+
+	def load_resources_5 (self):
+
+		for resource_name, resource_data \
+		in self.resources.items ():
+
+			class_name = resource_data ["identity"] ["class"]
+			class_data = self.classes [class_name]
+
+			# groups
+
+			for group_template in class_data ["class"] ["groups"]:
+
+				group_name = self.resolve_value (
+					resource_name,
+					resource_data, 				
+					group_template)
+
+				if not group_name in self.class_groups:
+
+					if group_name in self.world:
+						raise Exception ()
+
+					self.class_groups.add (group_name)
 
 				self.members [group_name].append (resource_name)
-
-			elif "class" in resource_data ["identity"]:
-
-				class_name = resource_data ["identity"] ["class"]
-
-				self.members [class_name].append (resource_name)
-
-			else:
-
-				print resource_data
-
-				raise Exception ()
-
-			# dynamic groups
-
-			for dynamic_group \
-			in self.context.project_metadata.get ("dynamic_groups", []):
-
-				prefix, rest = dynamic_group ["field"].split (".")
-
-				if not prefix in resource_data \
-				or not rest in resource_data [prefix]:
-					continue
-
-				value = resource_data [prefix] [rest]
-				dynamic_group_name = dynamic_group ["prefix"] + value
-
-				self.dynamic_groups.add (dynamic_group_name)
-				self.members [dynamic_group_name].append (resource_name)
 
 	def add_group_class_type (self,
 			item_friendly_name,
@@ -329,81 +353,6 @@ class Inventory (object):
 
 		return class_vars
 
-	def resolve_resource (self, resource_name, resource_data):
-
-		# combine data from resource, group and class
-
-		combined_data = collections.OrderedDict ()
-
-		if "group" in resource_data ["identity"]:
-			group_data = self.groups [resource_data ["identity"] ["group"]]
-		else:
-			group_data = None
-
-		class_name = resource_data ["identity"] ["class"]
-		class_data = self.classes [class_name]
-
-		for prefix, data in class_data.items ():
-
-			if not prefix in combined_data:
-				combined_data [prefix] = collections.OrderedDict ()
-
-			for name, value in data.items ():
-				combined_data [prefix] [name] = value
-
-		if group_data:
-
-			for prefix, data in group_data.items ():
-
-				if prefix == "identity":
-					continue
-
-				if not prefix in combined_data:
-					combined_data [prefix] = collections.OrderedDict ()
-
-				for name, value in data.items ():
-					combined_data [prefix] [name] = value
-
-		for prefix, data in resource_data.items ():
-
-			if not prefix in combined_data:
-				combined_data [prefix] = collections.OrderedDict ()
-
-			for name, value in data.items ():
-				combined_data [prefix] [name] = value
-
-		# now resolve values where possible
-
-		resource_vars = collections.OrderedDict ()
-
-		for prefix, data in combined_data.items ():
-
-			resource_vars [prefix] = collections.OrderedDict ()
-
-			for name, value in data.items ():
-
-				resolved = self.resolve_value (
-					resource_name,
-					combined_data,
-					value)
-
-				resource_vars [prefix] [name] = resolved
-				resource_vars [prefix + "_" + name] = resolved
-
-		if "parent" in resource_data ["identity"]:
-
-			resource_vars ["parent"] = "{{ hostvars ['%s'] }}" % (
-				resource_data ["identity"] ["parent"])
-
-		resource_vars ["identity"] ["children"] = [
-			other_name
-			for other_name, other_data in self.resources.items ()
-			if "parent" in other_data ["identity"]
-			and other_data ["identity"] ["parent"] == resource_name
-		]
-
-		return resource_vars
-
 	def resolve_value (self, resource_name, combined_data, value):
 
 		if isinstance (value, list):
@@ -431,42 +380,63 @@ class Inventory (object):
 					self.resolve_variable (
 						resource_name,
 						combined_data,
-						match.group (1)),
+						match.group (1),
+					) or "{{ %s }}" % match.group (1),
 
-				value)
+				str (value))
 
 	def resolve_variable (self, resource_name, combined_data, name):
 
 		if " " in name or "|" in name or "(" in name or "[" in name:
-			return "{{ %s }}" % name
+			return None
 
 		if name == "inventory_hostname":
 			return resource_name
 
-		if "." in name:
+		parts = name.split (".")
 
-			prefix, rest = name.split (".", 1)
+		if parts [0] in self.all:
+			return None
 
-			if prefix in self.all:
-				return "{{ %s }}" % name
+		if parts [0] == "parent":
 
-			if not prefix in combined_data:
-				#raise Exception ("Can't resolve %s" % name)
-				return "{{ %s }}" % name
+			parent_name = combined_data ["identity"] ["parent"]
+			parent_data = self.resources [parent_name]
 
-			if not rest in combined_data [prefix]:
-				#raise Exception ("Can't resolve %s" % name)
-				return "{{ %s }}" % name
+			return self.resolve_variable (
+				parent_name,
+				parent_data,
+				".".join (parts [1:]))
 
-			value = combined_data [prefix] [rest]
+		if parts [0] == "grandparent":
 
-			return value
+			parent_name = combined_data ["identity"] ["parent"]
+			parent_data = self.resources [parent_name]
 
-		if name in self.all:
-			return "{{ %s }}" % name
+			grandparent_name = parent_data ["identity"] ["parent"]
+			grandparent_data = self.resources [grandparent_name]
 
-		#raise Exception ("Can't resolve %s" % name)
-		return "{{ %s }}" % name
+			return self.resolve_variable (
+				grandparent_name,
+				grandparent_data,
+				".".join (parts [1:]))
+
+		current = combined_data
+
+		for part in parts:
+
+			if not part in current:
+				return None
+
+			current = current [part]
+
+		if isinstance (current, str):
+			return current
+
+		if isinstance (current, unicode):
+			return current
+
+		return None
 
 	def load_world (self):
 
@@ -476,6 +446,7 @@ class Inventory (object):
 			"HOME": self.context.home,
 			"WORK": "%s/work" % self.context.home,
 			"GRIDLINKER_HOME": self.context.gridlinker_home,
+			"METADATA": self.context.project_metadata,
 		}
 
 		if "globals" in self.context.local_data:
@@ -490,8 +461,11 @@ class Inventory (object):
 						self.all [prefix + "_" + name] = value
 
 		self.load_classes ()
-		self.load_groups ()
-		self.load_resources ()
+		self.load_resources_1 ()
+		self.load_resources_2 ()
+		self.load_resources_3 ()
+		self.load_resources_4 ()
+		self.load_resources_5 ()
 
 	def do_list (self):
 
@@ -516,12 +490,15 @@ class Inventory (object):
 
 		for group_name, group_data in self.groups.items ():
 
-			output [group_name] = group_data
+			output [group_name] = {
+				"vars": group_data,
+				"hosts": self.members [group_name],
+			}
 
 		for resource_name, resource_data in self.resources.items ():
 
 			output ["_meta"] ["hostvars"] [resource_name] = \
-				self.resolve_resource (resource_name, resource_data)
+				self.resources [resource_name]
 
 		for key, value in self.context.project_metadata ["data"].items ():
 			output ["all"] ["vars"] [key] = self.context.local_data [value]
@@ -535,9 +512,7 @@ class Inventory (object):
 				output ["all"] ["vars"] [key] = dict ([
 					(
 						self.resources [resource_name] ["identity"] ["name"],
-						self.resolve_resource (
-							resource_name,
-							self.resources [resource_name]),
+						self.resources [resource_name],
 					)
 					for resource_name in self.members [class_name]
 				])
@@ -546,16 +521,10 @@ class Inventory (object):
 
 				raise Exception ()
 
-		for virtual_group_name in self.virtual_groups:
+		for group_name in self.class_groups:
 
-			output [virtual_group_name] = {
-				"children": self.children [virtual_group_name],
-			}
-
-		for dynamic_group_name in self.dynamic_groups:
-
-			output [dynamic_group_name] = {
-				"hosts": self.members [dynamic_group_name],
+			output [group_name] = {
+				"hosts": self.members [group_name],
 			}
 
 		print_json (output)

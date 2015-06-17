@@ -1,14 +1,18 @@
 ---
 
-- update_resource:
-    icinga_web.state: "configuring"
+- name: "set icinga_web.state to 'configuring'"
   when: "icinga_web_state == 'unconfigured'"
+  update_resource:
+    icinga_web.state: "configuring"
+  tags: [ "icinga-web", "setup-icinga-web" ]
 
 - include: "setup-icinga-web.yml"
-  tags: "setup-icinga-web"
+  tags: [ "icinga-web", "setup-icinga-web" ]
 
-- update_resource:
-    icinga_web.state: "configured"
+- name: "set icinga_web.state to 'configured'"
   when: "icinga_web_state == 'configuring'"
+  update_resource:
+    icinga_web.state: "configured"
+  tags: [ "icinga-web", "setup-icinga-web" ]
 
 # ex: et ts=2 filetype=yaml

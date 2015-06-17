@@ -8,23 +8,19 @@
   update_resource:
     etcd.needs_restart: "yes"
   changed_when: "True"
-  notify:
-    - "start, restart or stop etcd"
-    - "set etcd.needs_restart to 'no'"
+  notify: "restart etcd"
 
-- name: "start, restart or stop etcd"
+- name: "restart etcd"
   action:
     module: "service"
     name: "etcd"
-    state: "{{ 'restarted' if etcd_state in [ 'starting', 'running' ] else 'stopped' }}"
+    state: "restarted"
   sudo: "yes"
-  when: "
-    etcd_needs_restart == 'yes'
-    and etcd_state in [ 'starting', 'running', 'stopping', 'stopped' ]
-  "
+  notify: "set etcd.needs_restart to 'no'"
 
 - name: "set etcd.needs_restart to 'no'"
   update_resource:
     etcd.needs_restart: "no"
+  changed_when: "True"
 
 # ex: et ts=2 filetype=yaml

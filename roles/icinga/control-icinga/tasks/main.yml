@@ -1,0 +1,6 @@
+---
+
+- include: "control-icinga.yml"
+  tags: [ "icinga", "control-icinga" ]
+
+# ex: et ts=2 filetype=yaml

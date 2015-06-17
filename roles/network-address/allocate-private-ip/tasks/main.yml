@@ -1,6 +1,0 @@
----
-
-- include: "allocate-private-ip.yml"
-  tags: "allocate-private-ip"
-
-# ex: et ts=2 filetype=yaml

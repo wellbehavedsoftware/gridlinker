@@ -1,24 +1,5 @@
 ---
 
-etcd_clustered: "no"
-etcd_secured: "no"
-
-etcd_required: "{{
-  etcd_required_clustered
-  if etcd_clustered == 'yes'
-  else []
-}}"
-
-etcd_required_clustered:
-
-  - "etcd_peer_ca_certificate"
-  - "etcd_peer_certificate"
-  - "etcd_peer_private_key"
-
-  - "etcd_client_ca_certificate"
-  - "etcd_client_certificate"
-  - "etcd_client_private_key"
-
 etcd_security_config:
 
   - source: "{{ etcd_peer_ca_certificate }}"

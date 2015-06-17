@@ -10,6 +10,7 @@ class FilterModule (object):
         return {
 
 			"generate_random": generate_random,
+			"generate_mac_address": generate_mac_address,
 
 		}
 
