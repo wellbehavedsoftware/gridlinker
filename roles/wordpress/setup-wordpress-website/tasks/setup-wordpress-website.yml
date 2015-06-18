@@ -1,0 +1,15 @@
+---
+
+- name: "generate database password"
+  update_resource:
+    database.password: "{{ 20 | generate_random }}"
+  changed_when: "True"
+  when: "database_password is not defined"
+
+- name: "generate wordpress secure"
+  update_resource:
+    wordpress.secure: "{{ 20 | generate_random }}"
+  changed_when: "True"
+  when: "wordpress_secure is not defined"
+
+# ex: et ts=2 filetype=yaml
