@@ -15,12 +15,25 @@
     state: "directory"
   sudo: "yes"
 
-- name: "create root authorized keys"
+- name: "create root authorized_keys directory"
+  action:
+    module: "file"
+    path: "/root/.ssh/authorized_keys.d"
+    state: "directory"
+  sudo: "yes"
+
+- name: "create root authorized_keys"
   action:
     module: "template"
+    dest: "/root/.ssh/authorized_keys.d/{{ NAME }}"
     src: "ssh-server-authorized-keys"
+  sudo: "yes"
+
+- name: "assemble root authorized_keys"
+  action:
+    module: "assemble"
     dest: "/root/.ssh/authorized_keys"
-  when: "ssh_authorized_keys is defined"
+    src: "/root/.ssh/authorized_keys.d"
   sudo: "yes"
 
 - name: "create ubuntu ssh directory"
@@ -29,11 +42,23 @@
     path: "/home/ubuntu/.ssh"
     state: "directory"
 
-- name: "create ubuntu authorized keys"
+- name: "create ubuntu authorized_keys directory"
+  action:
+    module: "file"
+    path: "/home/ubuntu/.ssh/authorized_keys.d"
+    state: "directory"
+  sudo: "yes"
+
+- name: "create ubuntu authorized_keys"
   action:
     module: "template"
+    dest: "/home/ubuntu/.ssh/authorized_keys.d/{{ NAME }}"
     src: "ssh-server-authorized-keys"
+
+- name: "assemble ubuntu authorized_keys"
+  action:
+    module: "assemble"
     dest: "/home/ubuntu/.ssh/authorized_keys"
-  when: "ssh_authorized_keys is defined"
+    src: "/home/ubuntu/.ssh/authorized_keys.d"
 
 # ex: et ts=2 filetype=yaml

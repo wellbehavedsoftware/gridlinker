@@ -11,7 +11,7 @@
     - "set etcd.needs_restart to 'yes'"
 
 - name: "trigger etcd restart"
-  when: "etcd.needs_restart == 'yes'"
+  when: "etcd_needs_restart == 'yes'"
   update_resource: {}
   changed_when: "True"
   notify: "restart etcd"
