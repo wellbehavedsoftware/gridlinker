@@ -13,9 +13,4 @@ etcd_directory: "etcd-v{{ etcd_version }}-linux-amd64"
 etcd_url: "{{ etcd_mirror }}/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
 etcd_target: "/opt/etcd-{{ etcd_version }}"
 
-etcd_directories:
-
-  - path: "/etc/etcd"
-    mode: "0755"
-
 # ex: et ts=2 filetype=yaml

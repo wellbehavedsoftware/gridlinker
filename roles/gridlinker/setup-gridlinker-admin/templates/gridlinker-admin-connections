@@ -1,0 +1,15 @@
+---
+
+{{ gridlinker_admin_connection }}:
+
+  etcd_servers:
+
+{% for server in gridlinker_admin_servers %}
+    - "{{ server }}"
+{% endfor %}
+
+  etcd_secure: "yes"
+
+  etcd_prefix: "{{ gridlinker_admin_prefix }}"
+
+# ex: et ts=2 filetype=yaml

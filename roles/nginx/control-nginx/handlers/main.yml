@@ -18,7 +18,6 @@
     name: "nginx"
     state: "restarted"
   sudo: "yes"
-  when: "nginx_state == 'running'"
   notify: "set nginx.needs_restart to 'no'"
 
 - name: "set nginx.needs_restart to 'no'"

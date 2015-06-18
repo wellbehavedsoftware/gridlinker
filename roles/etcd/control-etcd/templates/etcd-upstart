@@ -25,14 +25,14 @@ env ETCD_ELECTION_TIMEOUT="{{ etcd_election_timeout }}"
 
 {% if etcd_clustered == 'yes' and etcd_secured == 'yes' %}
 env ETCD_PEER_CA_FILE="/etc/etcd/peer-ca.cert"
-env ETCD_PEER_CERT_FILE="/etc/etcd/peer-{{ inventory_hostname }}.cert"
-env ETCD_PEER_KEY_FILE="/etc/etcd/peer-{{ inventory_hostname }}.key"
+env ETCD_PEER_CERT_FILE="/etc/etcd/peer-{{ etcd_name }}.cert"
+env ETCD_PEER_KEY_FILE="/etc/etcd/peer-{{ etcd_name }}.key"
 {% endif %}
 
 {% if etcd_secured == 'yes' %}
 env ETCD_CA_FILE="/etc/etcd/client-ca.cert"
-env ETCD_CERT_FILE="/etc/etcd/client-{{ inventory_hostname }}.cert"
-env ETCD_KEY_FILE="/etc/etcd/client-{{ inventory_hostname }}.key"
+env ETCD_CERT_FILE="/etc/etcd/client-{{ etcd_name }}.cert"
+env ETCD_KEY_FILE="/etc/etcd/client-{{ etcd_name }}.key"
 {% endif %}
 
 env ETCD_LISTEN_CLIENT_URLS="{{ etcd_listen_client_urls | join (',') }}"

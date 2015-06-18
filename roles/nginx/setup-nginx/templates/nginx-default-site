@@ -2,7 +2,7 @@ server {
 
 	listen {{ nginx_http_port }} default_server;
 
-	server_name {{ inventory_hostname }};
+	server_name {{ identity.name }};
 
 	root /usr/share/nginx/html;
 	index index.html;

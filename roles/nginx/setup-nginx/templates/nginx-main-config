@@ -29,4 +29,8 @@ http {
 	include /etc/nginx/conf.d/*.conf;
 	include /etc/nginx/sites-enabled/*;
 
+	fastcgi_read_timeout {{ nginx_fastcgi_read_timeout }};
+	fastcgi_send_timeout {{ nginx_fastcgi_send_timeout }};
+	fastcgi_connect_timeout {{ nginx_fastcgi_connect_timeout }};
+
 }

@@ -2,8 +2,8 @@
 
 etcd_needs_restart: "no"
 
-etcd_name: "{{ inventory_hostname }}"
-etcd_hostname: "{{ inventory_hostname }}"
+etcd_name: "{{ identity.name }}"
+etcd_hostname: "{{ etcd_name }}"
 etcd_peer_hostname: "{{ etcd_hostname }}"
 etcd_client_hostname: "{{ etcd_hostname }}"
 
