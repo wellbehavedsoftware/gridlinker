@@ -1,14 +1,24 @@
 # this host
 
-{{ private_address }} {{ inventory_hostname }}
+{{ private_address }} {{ private_hostnames [0] }}
 
 # other hosts
 
 {% for host_name in groups.all %}
 {% set host_data = hostvars [host_name] %}
 {% if host_name != inventory_hostname
-	and host_data.private_address is defined %}
-{{ host_data.private_address }} {{ host_name }}
+	and host_data.private_address is defined
+	and host_data.private_hostnames is defined %}
+{{ host_data.private_address }} {{ host_data.private_hostnames | join (' ') }}
+{% endif %}
+{% endfor %}
+
+{% for host_name in groups.all %}
+{% set host_data = hostvars [host_name] %}
+{% if host_name != inventory_hostname
+	and host_data.public_address is defined
+	and host_data.public_hostnames is defined %}
+{{ host_data.public_address }} {{ host_data.public_hostnames | join (' ') }}
 {% endif %}
 {% endfor %}
 

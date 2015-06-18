@@ -23,15 +23,6 @@
   when: "ssh_authorized_keys is defined"
   sudo: "yes"
 
-- name: "create root private key"
-  action:
-    module: "copy"
-    dest: "/root/.ssh/id_rsa"
-    content: "{{ lookup ('etcd', ssh_root_key) }}"
-    mode: "0600"
-  when: "ssh_root_key is defined"
-  sudo: "yes"
-
 - name: "create ubuntu ssh directory"
   action:
     module: "file"

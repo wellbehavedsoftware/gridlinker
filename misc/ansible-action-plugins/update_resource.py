@@ -59,7 +59,6 @@ class ActionModule (object):
 		self.context.resources.set (resource_name, resource_data)
 
 		return ReturnData (
-
 			conn = conn,
 			result = dict (
 				ansible_facts = options))

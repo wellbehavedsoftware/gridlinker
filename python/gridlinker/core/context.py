@@ -17,6 +17,9 @@ from wbs import LazyDictionary
 from wbs import SchemaDatabase
 
 from gridlinker.certificate.authority import CertificateAuthority
+
+from gridlinker.core.inventory import Inventory
+
 from gridlinker.etcd import GenericCollection
 from gridlinker.etcd import EtcdClient
 
@@ -267,6 +270,8 @@ class GenericContext (object):
 				"force_color": "True",
 				"gathering": "explicit",
 
+				"retry_files_save_path": "%s/work/retry" % self.home,
+
 				"library": ":".join (self.ansible_library),
 				"roles_path": ":".join (self.ansible_roles_path),
 
@@ -431,23 +436,22 @@ class GenericContext (object):
 
 						continue
 
-					try:
+					addresses = [
 
-						addresses = map (
+						address for address in map (
 
-							lambda value: self.map_resource (
+							lambda value: self.inventory.resolve_value_or_none (
 								resource_name,
-								resource_data,
 								value),
 
 							class_data ["ssh"] ["hostnames"])
 
-					except Exception as exception:
+						if address is not None
 
-						raise Exception (
-							"Error mapping ssh hostnames for %s: %s" % (
-								resource_name,
-								exception))
+					]
+
+					if not addresses:
+						continue
 
 					for key_type in [ "rsa", "ecdsa" ]:
 
@@ -496,37 +500,14 @@ class GenericContext (object):
 					os.fchmod (file_handle.fileno (), 0o600)
 					file_handle.write (key_data)
 
-	def map_resource (self, resource_name, resource_data, value):
-
-		return re.sub (
-
-			r"\{\{\s*(.*?)\s*\}\}",
-
-			lambda match:
-
-				self.map_resource_variable (
-					resource_name,
-					resource_data,
-					match.group (1)),
-
-			value)
-
-	def map_resource_variable (self, resource_name, resource_data, name):
-
-		current = resource_data
-
-		for part in name.split ("."):
-
-			if not part in current:
-				raise Exception (name)
-
-			current = current [part]
-
-		return current
-
 	@lazy_property
 	def classes (self):
 
 		return self.local_data ["classes"]
+
+	@lazy_property
+	def inventory (self):
+
+		return Inventory (self)
 
 # ex: noet ts=4 filetype=yaml
