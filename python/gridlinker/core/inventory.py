@@ -2,30 +2,8 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import collections
-import json
 import re
-import sys
 import wbs
-
-def main (context, args):
-
-	inventory = Inventory (context)
-
-	if args == []:
-
-		raise Exception ()
-
-	elif args [0] == "--list":
-
-		inventory.do_list ()
-
-	elif args [0] == "--host":
-
-		inventory.do_host (args [1])
-
-	else:
-
-		raise Exception ()
 
 class Inventory (object):
 
@@ -38,12 +16,45 @@ class Inventory (object):
 		self.classes = {}
 		self.groups = {}
 		self.resources = {}
+		self.namespaces = {}
 
-		self.namespaces = collections.defaultdict (list)
 		self.children = collections.defaultdict (list)
 		self.members = collections.defaultdict (list)
 
 		self.class_groups = set ()
+
+		self.load_world ()
+
+	def load_world (self):
+
+		world = {}
+
+		self.all = {
+			"HOME": self.context.home,
+			"WORK": "%s/work" % self.context.home,
+			"NAME": self.context.project_metadata ["project"] ["name"],
+			"CONNECTION": self.context.connection_name,
+			"GRIDLINKER_HOME": self.context.gridlinker_home,
+			"METADATA": self.context.project_metadata,
+		}
+
+		if "globals" in self.context.local_data:
+
+			for prefix, data in self.context.local_data ["globals"].items ():
+
+				self.all [prefix] = data
+
+				if isinstance (data, dict):
+
+					for name, value in data.items ():
+						self.all [prefix + "_" + name] = value
+
+		self.load_classes ()
+		self.load_resources_1 ()
+		self.load_resources_2 ()
+		self.load_resources_3 ()
+		self.load_resources_4 ()
+		self.load_resources_5 ()
 
 	def load_classes (self):
 
@@ -79,10 +90,14 @@ class Inventory (object):
 			class_data.setdefault ("class", {})
 			class_data ["class"].setdefault ("groups", [])
 
+			namespace = class_data ["class"] ["namespace"]
+
 			# create class
 
 			self.world [class_name] = class_data
 			self.classes [class_name] = class_data
+
+			self.namespaces.setdefault (namespace, [])
 
 	def load_resources_1 (self):
 
@@ -140,15 +155,24 @@ class Inventory (object):
 					continue
 
 				if not prefix in resource_data:
-
 					resource_data [prefix] = collections.OrderedDict ()
 
 				for name, value in data.items ():
 
-					if name in resource_data [prefix]:
-						continue
+					if name not in resource_data [prefix]:
 
-					resource_data [prefix] [name] = value
+						resource_data [prefix] [name] = value
+
+					elif value != "{{ None }}" \
+					and value != resource_data [prefix] [name]:
+
+						#raise Exception (
+						#	"Specified %s.%s twice for %s" % (
+						#	prefix,
+						#	name,
+						#	resource_name))
+
+						pass
 
 			# create resource
 
@@ -156,6 +180,7 @@ class Inventory (object):
 			self.resources [resource_name] = resource_data
 
 			self.members [class_name].append (resource_name)
+			self.namespaces [namespace].append (resource_name)
 
 	def load_resources_2 (self):
 
@@ -169,15 +194,16 @@ class Inventory (object):
 
 			if "parent" in resource_data ["identity"]:
 
-				parent_name = resource_data ["identity"] ["parent"]
+				parent_name = "%s/%s" % (
+					class_data ["class"] ["parent_namespace"],
+					resource_data ["identity"] ["parent"])
+
 				parent_data = self.resources [parent_name]
 
 				if "parent" in parent_data ["identity"]:
 
-					grandparent_name = parent_data ["identity"] ["parent"]
-
 					resource_data ["identity"] ["grandparent"] = \
-						grandparent_name
+						parent_data ["identity"] ["parent"]
 
 			# set children
 
@@ -202,10 +228,7 @@ class Inventory (object):
 
 				for name, value in data.items ():
 
-					resolved = self.resolve_value (
-						resource_name,
-						resource_data,
-						value)
+					resolved = self.resolve_value_or_same (resource_name, value)
 
 					resource_data [prefix] [name] = resolved
 					resource_data [prefix + "_" + name] = resolved
@@ -218,17 +241,28 @@ class Inventory (object):
 			class_name = resource_data ["identity"] ["class"]
 			class_data = self.classes [class_name]
 
-			# set parent and grandparent
-
 			if "parent" in resource_data ["identity"]:
 
-				resource_data ["parent"] = "{{ hostvars ['%s'] }}" % (
+				parent_name = "%s/%s" % (
+					class_data ["class"] ["parent_namespace"],
 					resource_data ["identity"] ["parent"])
 
-			if "grandparent" in resource_data ["identity"]:
+				resource_data ["parent"] = "{{ hostvars ['%s'] }}" % (
+					parent_name)
 
-				resource_data ["grandparent"] = "{{ hostvars ['%s'] }}" % (
-					resource_data ["identity"] ["grandparent"])
+				if "grandparent" in resource_data ["identity"]:
+
+					parent_data = self.resources [parent_name]
+
+					parent_class_name = parent_data ["identity"] ["class"]
+					parent_class_data = self.classes [parent_class_name]
+
+					grandparent_name = "%s/%s" % (
+						parent_class_data ["class"] ["parent_namespace"],
+						parent_data ["identity"] ["parent"])
+
+					resource_data ["grandparent"] = "{{ hostvars ['%s'] }}" % (
+						grandparent_name)
 
 	def load_resources_5 (self):
 
@@ -242,16 +276,9 @@ class Inventory (object):
 
 			for group_template in class_data ["class"] ["groups"]:
 
-				try:
+				group_name = self.resolve_value_or_none (resource_name, group_template)
 
-					group_name = self.resolve_value (
-						resource_name,
-						resource_data,
-						group_template,
-						strict = True)
-
-				except:
-
+				if not group_name:
 					continue
 
 				if not group_name in self.class_groups:
@@ -348,225 +375,171 @@ class Inventory (object):
 
 		return class_vars
 
-	def resolve_value (self,
-		resource_name,
-		combined_data,
-		value,
-		strict = False,
-	):
+	def resolve_value_or_fail (self, resource_name, value):
+
+		success, resolved = self.resolve_value_real (resource_name, value)
+
+		if not success:
+			raise Exception ()
+
+		return resolved
+
+	def resolve_value_or_same (self, resource_name, value):
+
+		success, resolved = self.resolve_value_real (resource_name, value)
+
+		if not success:
+			return value
+
+		return resolved
+
+	def resolve_value_or_none (self, resource_name, value):
+
+		success, resolved = self.resolve_value_real (resource_name, value)
+
+		if not success:
+			return None
+
+		return resolved
+
+	def resolve_value_real (self, resource_name, value):
+
+		resource_data = self.resources [resource_name]
 
 		if isinstance (value, list):
 
-			return [
+			ret = []
 
-				self.resolve_value (
+			for item in value:
+
+				success, resolved = self.resolve_value_real (
 					resource_name,
-					combined_data,
-					item,
-					strict = strict)
+					item)
 
-				for item in value
+				if not success:
+					return False, None
 
-			]
+				ret.append (resolved)
+
+			return True, ret
 
 		elif isinstance (value, dict):
 
-			return collections.OrderedDict ([
+			ret = collections.OrderedDict ()
 
-				(
-					key,
-					self.resolve_value (
+			for key, item in value.items ():
+
+				success, resolved = self.resolve_value_real (
+					resource_name,
+					item)
+
+				if not success:
+					return False, None
+
+				ret [key] = item
+
+			return True, ret
+
+		elif isinstance (value, str) \
+		or isinstance (value, unicode):
+
+			match = re.search (r"^\{\{\s*([^{}]*\S)\s*\}\}$", value)
+
+			if match:
+
+				return self.resolve_variable (
+					resource_name,
+					match.group (1))
+
+			else:
+
+				ret = ""
+				last_pos = 0
+
+				for match in re.finditer (r"\{\{\s*(.*?)\s*\}\}", value):
+
+					ret += value [last_pos : match.start ()]
+
+					success, resolved = self.resolve_variable (
 						resource_name,
-						combined_data,
-						item,
-						strict = strict)
-				)
+						match.group (1))
 
-				for key, item in value.items ()
+					if not success:
+						return False, None
 
-			])
+					ret += str (resolved)
+
+					last_pos = match.end ()
+
+				ret += value [last_pos :]
+
+				return True, ret
 
 		else:
 
-			return re.sub (
+			return False, None
 
-				r"\{\{\s*(.*?)\s*\}\}",
+	def resolve_variable (self, resource_name, name):
 
-				lambda match:
-
-					self.resolve_variable (
-						resource_name,
-						combined_data,
-						match.group (1),
-						strict,
-					) or "{{ %s }}" % match.group (1),
-
-				str (value))
-
-	def resolve_variable (self, resource_name, combined_data, name, strict):
-
-		value = self.resolve_variable_real (
-			resource_name,
-			combined_data,
-			name)
-
-		if not value and strict:
-			raise Exception ()
-
-		else:
-			return value
-
-	def resolve_variable_real (self, resource_name, combined_data, name):
+		resource_data = self.resources [resource_name]
 
 		if " " in name or "|" in name or "(" in name or "[" in name:
-			return None
+			return False, None
 
 		if name == "inventory_hostname":
 			return resource_name
 
+		if name == "None":
+			return True, None
+
 		parts = name.split (".")
 
 		if parts [0] in self.all:
-			return None
+			return False, None
 
 		if parts [0] == "parent":
 
-			parent_name = combined_data ["identity"] ["parent"]
+			class_name = resource_data ["identity"] ["class"]
+			class_data = self.classes [class_name]
+
+			parent_name = "%s/%s" % (
+				class_data ["class"] ["parent_namespace"],
+				resource_data ["identity"] ["parent"])
+
 			parent_data = self.resources [parent_name]
 
-			return self.resolve_variable_real (
+			return self.resolve_variable (
 				parent_name,
-				parent_data,
 				".".join (parts [1:]))
 
 		if parts [0] == "grandparent":
 
-			parent_name = combined_data ["identity"] ["parent"]
+			parent_name = resource_data ["identity"] ["parent"]
 			parent_data = self.resources [parent_name]
 
 			grandparent_name = parent_data ["identity"] ["parent"]
 			grandparent_data = self.resources [grandparent_name]
 
-			return self.resolve_variable_real (
+			return self.resolve_variable (
 				grandparent_name,
 				grandparent_data,
 				".".join (parts [1:]))
 
-		current = combined_data
+		current = resource_data
 
 		for part in parts:
 
 			if not part in current:
-				return None
+				return False, None
 
 			current = current [part]
 
 		if isinstance (current, str):
-			return current
+			return self.resolve_value_real (resource_name, current)
 
 		if isinstance (current, unicode):
-			return current
+			return self.resolve_value_real (resource_name, current)
 
-		return None
-
-	def load_world (self):
-
-		world = {}
-
-		self.all = {
-			"HOME": self.context.home,
-			"WORK": "%s/work" % self.context.home,
-			"NAME": self.context.project_metadata ["project"] ["name"],
-			"CONNECTION": self.context.connection_name,
-			"GRIDLINKER_HOME": self.context.gridlinker_home,
-			"METADATA": self.context.project_metadata,
-		}
-
-		if "globals" in self.context.local_data:
-
-			for prefix, data in self.context.local_data ["globals"].items ():
-			
-				self.all [prefix] = data
-
-				if isinstance (data, dict):
-
-					for name, value in data.items ():
-						self.all [prefix + "_" + name] = value
-
-		self.load_classes ()
-		self.load_resources_1 ()
-		self.load_resources_2 ()
-		self.load_resources_3 ()
-		self.load_resources_4 ()
-		self.load_resources_5 ()
-
-	def do_list (self):
-
-		output = {
-			"_meta": {
-				"hostvars": {},
-			},
-		}
-
-		self.load_world ()
-
-		output ["all"] = {
-			"vars": self.all,
-		}
-
-		for class_name, class_data in self.classes.items ():
-
-			output [class_name] = {
-				"children": self.children [class_name],
-				"hosts": self.members [class_name],
-			}
-
-		for group_name, group_data in self.groups.items ():
-
-			output [group_name] = {
-				"vars": group_data,
-				"hosts": self.members [group_name],
-			}
-
-		for resource_name, resource_data in self.resources.items ():
-
-			output ["_meta"] ["hostvars"] [resource_name] = \
-				self.resources [resource_name]
-
-		for key, value in self.context.project_metadata ["project_data"].items ():
-			output ["all"] ["vars"] [key] = self.context.local_data [value]
-
-		for key, value in self.context.project_metadata ["resource_data"].items ():
-
-			if not value in self.namespaces:
-				raise Exception ()
-
-			output ["all"] ["vars"] [key] = dict ([
-				(
-					self.resources [resource_name] ["identity"] ["name"],
-					self.resources [resource_name],
-				)
-				for resource_name in self.namespaces [value]
-			])
-
-		for group_name in self.class_groups:
-
-			output [group_name] = {
-				"hosts": self.members [group_name],
-			}
-
-		print_json (output)
-
-	def do_host (self, host_name):
-
-		print_json (self.local_data ["hosts"] [host_name])
-
-def print_json (data):
-
-	print json.dumps (
-		data,
-		sort_keys = True,
-		indent = 4,
-		separators = (", ", ": "))
+		return False, None
 
 # ex: noet ts=4 filetype=yaml

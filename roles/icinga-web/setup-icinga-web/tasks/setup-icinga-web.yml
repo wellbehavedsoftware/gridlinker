@@ -32,13 +32,13 @@
     module enable monitoring
 
 - name: "create icinga web database"
-  when: "inventory_hostname == mysql_master"
+  when: "identity.name == mysql_master"
   action:
     module: "mysql_db"
     name: "icingaweb2"
 
 - name: "create icinga web user"
-  when: "inventory_hostname == mysql_master"
+  when: "identity.name == mysql_master"
   action:
     module: "mysql_user"
     name: "icingaweb2"
@@ -47,7 +47,7 @@
     priv: "icingaido.*:ALL/icingaweb2.*:ALL"
 
 - name: "initialize web database"
-  when: "inventory_hostname == mysql_master and icinga_web_state == 'configuring'"
+  when: "identity.name == mysql_master and icinga_web_state == 'configuring'"
   args:
     executable: "/bin/bash"
   shell:

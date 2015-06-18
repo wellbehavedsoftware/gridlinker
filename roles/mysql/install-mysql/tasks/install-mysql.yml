@@ -24,7 +24,7 @@
   when: "
     (
       mysql_replication == 'no'
-      or inventory_hostname == mysql_master
+      or identity.name == mysql_master
     ) and mysql_state in [ 'installing', 'running' ]
   "
 

@@ -25,11 +25,11 @@ icinga_agent_security_files:
     mode: "0644"
 
   - source: "{{ icinga_certificate }}"
-    target: "pki/{{ inventory_hostname }}.cert"
+    target: "pki/{{ identity.name }}.cert"
     mode: "0644"
 
   - source: "{{ icinga_private_key }}"
-    target: "pki/{{ inventory_hostname }}.key"
+    target: "pki/{{ identity.name }}.key"
     mode: "0640"
 
 # ex: et ts=2 filetype=yaml

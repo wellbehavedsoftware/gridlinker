@@ -23,13 +23,13 @@
   with_items: "icinga_master_security_files"
 
 - name: "create ido database"
-  when: "inventory_hostname == mysql_master"
+  when: "identity.name == mysql_master"
   action:
     module: "mysql_db"
     name: "icingaido"
 
 - name: "create ido user"
-  when: "inventory_hostname == mysql_master"
+  when: "identity.name == mysql_master"
   action:
     module: "mysql_user"
     name: "icingaido"
@@ -38,7 +38,7 @@
     priv: "icingaido.*:ALL"
 
 - name: "initialize ido database"
-  when: "inventory_hostname == mysql_master and icinga_state == 'configuring'"
+  when: "identity.name == mysql_master and icinga_state == 'configuring'"
   args:
     executable: "/bin/bash"
   shell:
