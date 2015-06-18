@@ -3,9 +3,9 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import argparse
 import os
 import sys
-import yaml
 
 main_path = __file__
 
@@ -20,8 +20,18 @@ import gridlinker
 METADATA = gridlinker.metadata.load (HOME)
 CONNECTION = os.environ [METADATA ["environment"] ["devops_connection_name"]]
 
-context = gridlinker.GenericContext (HOME, CONNECTION, METADATA)
+def main (args):
 
-gridlinker.ansible.inventory.main (context, sys.argv [1:])
+	parser = argparse.ArgumentParser ()
+	sub_parsers = parser.add_subparsers ()
+
+	gridlinker.ansible.tools.args (sub_parsers)
+
+	args = parser.parse_args ([ "ansible", "inventory" ] + args)
+	context = gridlinker.GenericContext (HOME, CONNECTION, METADATA)
+
+	args.func (context, args)
+
+main (sys.argv [1:])
 
 # ex: noet ts=4 filetype=python

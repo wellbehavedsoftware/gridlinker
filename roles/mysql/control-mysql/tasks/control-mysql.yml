@@ -10,9 +10,13 @@
     - "reload upstart config"
     - "set mysql.needs_restart to 'yes'"
 
-- name: "control mysql"
-  set_fact: {}
-  notify: "start, restart or stop mysql"
+- meta: "flush_handlers"
+
+- name: "trigger mysql restart"
+  when: "mysql_needs_restart == 'yes'"
+  update_resource: {}
+  changed_when: "True"
+  notify: "restart mysql"
 
 - meta: "flush_handlers"
 

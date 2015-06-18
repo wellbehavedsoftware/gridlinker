@@ -1,3 +1,17 @@
-{% for ssh_key in ssh_authorized_keys %}
-{{ ssh_key }}
-{% endfor %}
+{%- for ssh_key in ssh_authorized_keys -%}
+
+	{%- if ssh_key is mapping and ssh_key.type == 'etcd' -%}
+
+		{%- for source in ssh_key.sources -%}
+
+			{%- print lookup ('etcd', source), '\n' -%}
+
+		{%- endfor -%}
+
+	{%- else -%}
+
+		{%- print ssh_key, '\n' -%}
+
+	{%- endif -%}
+
+{%- endfor -%}

@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import json
 import os
 import subprocess
 import sys
@@ -115,13 +116,115 @@ def args_inventory (sub_parsers):
 	parser.set_defaults (
 		func = do_inventory)
 
-	parser.add_argument (
-		"rest",
-		nargs = "*",
-		help = "arguments to be passed verbatim to inventory-script")
+	group = parser.add_mutually_exclusive_group (
+		required = True)
+
+	group.add_argument (
+		"--list",
+		action = "store_true",
+		help = "list all groups and hosts")
+
+	group.add_argument (
+		"--host",
+		metavar = "HOST",
+		help = "get variables for specific host")
+
+	group.add_argument (
+		"--display",
+		action = "store_true",
+		help = "display all data in friendly form")
 
 def do_inventory (context, args):
 
-	gridlinker.ansible.inventory.main (context, args.rest)
+	if args.list:
+		do_inventory_list (context)
+
+	elif args.host:
+		do_inventory_host (context, args.host)
+
+	elif args.display:
+		do_inventory_display (context)
+
+	else:
+		raise Exception ()
+
+def do_inventory_list (context):
+
+	inventory = context.inventory
+
+	output = {
+		"_meta": {
+			"hostvars": {},
+		},
+	}
+
+	output ["all"] = {
+		"vars": inventory.all,
+	}
+
+	for class_name, class_data in inventory.classes.items ():
+
+		output [class_name] = {
+			"children": inventory.children [class_name],
+			"hosts": inventory.members [class_name],
+		}
+
+	for group_name, group_data in inventory.groups.items ():
+
+		output [group_name] = {
+			"vars": group_data,
+			"hosts": inventory.members [group_name],
+		}
+
+	for resource_name, resource_data in inventory.resources.items ():
+
+		output ["_meta"] ["hostvars"] [resource_name] = \
+			inventory.resources [resource_name]
+
+	for key, value in context.project_metadata ["project_data"].items ():
+
+		output ["all"] ["vars"] [key] = \
+		context.local_data [value]
+
+	for key, value in context.project_metadata ["resource_data"].items ():
+
+		if not value in inventory.namespaces:
+
+			raise Exception ("".join ([
+				"Invalid namespace '%s' " % value,
+				"referenced in resource_data for '%s'" % key,
+			]))
+
+		output ["all"] ["vars"] [key] = dict ([
+			(
+				inventory.resources [resource_name] ["identity"] ["name"],
+				inventory.resources [resource_name],
+			)
+			for resource_name in inventory.namespaces [value]
+		])
+
+	for group_name in inventory.class_groups:
+
+		output [group_name] = {
+			"hosts": inventory.members [group_name],
+		}
+
+	print_json (output)
+
+def do_inventory_host (context, host_name):
+
+	raise Exception ("TODO")
+
+def do_inventory_display (context):
+
+	raise Exception ("TODO")
+
+def print_json (data):
+
+	print json.dumps (
+		data,
+		sort_keys = True,
+		indent = 4,
+		separators = (", ", ": "))
 
 # ex: noet ts=4 filetype=yaml
