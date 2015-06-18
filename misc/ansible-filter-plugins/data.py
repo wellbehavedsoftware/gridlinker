@@ -70,6 +70,20 @@ def dict_map (keys, mapping):
 		for key in keys
 	]
 
+def prepend_list (items, string):
+
+	return [
+		string + item
+		for item in items
+	]
+
+def append_list (items, string):
+
+	return [
+		item + string
+		for item in items
+	]
+
 class FilterModule (object):
 
     def filters (self):
@@ -79,5 +93,8 @@ class FilterModule (object):
 			"flatten_hash": flatten_hash,
 			"list_to_map": list_to_map,
 			"dict_map": dict_map,
+
+			"prepend_list": prepend_list,
+			"append_list": append_list,
 
 		}
