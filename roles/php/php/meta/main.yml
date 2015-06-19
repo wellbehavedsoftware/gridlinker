@@ -5,7 +5,6 @@ dependencies:
   - "php-common"
   - "install-php"
   - "setup-php"
-  - "enable-php"
   - "control-php"
 
 # ex: et ts=2 filetype=yaml

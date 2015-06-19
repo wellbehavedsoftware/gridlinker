@@ -4,10 +4,4 @@
   tags: "install-mysql"
   tags: [ "mysql", "install-mysql" ]
 
-- name: "set mysql.state to 'installed'"
-  update_resource:
-    mysql.state: "installed"
-  when: "mysql_state == 'no'"
-  tags: [ "mysql", "install-mysql" ]
-
 # ex: et ts=2 filetype=yaml

@@ -5,7 +5,7 @@
   sudo: "yes"
 
 - name: "set icinga.needs_restart to 'yes'"
-  when: "icinga_state == 'running'"
+  when: "icinga_state == 'enabled'"
   changed_when: "True"
   notify: "restart icinga"
   update_resource:
@@ -13,7 +13,7 @@
     icinga.needs_restart: "yes"
 
 - name: "restart icinga"
-  when: "icinga_state == 'running'"
+  when: "icinga_state == 'enabled'"
   notify: "set icinga.needs_restart to 'no'"
   sudo: "yes"
   action:

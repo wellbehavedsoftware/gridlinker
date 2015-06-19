@@ -11,7 +11,7 @@
   notify: "restart etcd"
 
 - name: "restart etcd"
-  when: "etcd_state == 'running'"
+  when: "etcd_state == 'enabled'"
   action:
     module: "service"
     name: "etcd"
@@ -24,7 +24,7 @@
 - name: "pause after etcd restart"
   action:
     module: "pause"
-    seconds: "5"
+    seconds: "3"
 
 - name: "set etcd.needs_restart to 'no'"
   update_resource:
