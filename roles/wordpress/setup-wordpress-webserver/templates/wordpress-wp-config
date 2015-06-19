@@ -1,0 +1,70 @@
+<?php
+
+{% set environment = item %}
+
+// set memory limit
+
+define ("WP_MEMORY_LIMIT", "128M");
+
+// database
+
+define ("DB_NAME", "{{ environment.database.name }}");
+define ("DB_USER", "{{ environment.database.user }}");
+define ("DB_PASSWORD", "{{ environment.database.password }}");
+define ("DB_HOST", "localhost");
+define ("DB_CHARSET", "utf8");
+define ("DB_COLLATE", "");
+
+$table_prefix = "wp_";
+
+// security
+
+{% for secure_constant in [
+	"AUTH_KEY",
+	"SECURE_AUTH_KEY",
+	"LOGGED_IN_KEY",
+	"NONCE_KEY",
+	"AUTH_SALT",
+	"SECURE_AUTH_SALT",
+	"LOGGED_IN_SALT",
+	"NONCE_SALT",
+] %}
+
+define ("{{ secure_constant }}", "{{ (secure_constant ~ environment.wordpress.secure) | md5 }}");
+
+{% endfor %}
+
+// other settings
+
+define ("WPLANG", "");
+
+{% if environment.wordpress.debug | default ('no') == 'yes' %}
+
+define ("WP_DEBUG", true);
+define ("SCRIPT_DEBUG", true);
+
+{% else %}
+
+define ("WP_DEBUG", false);
+define ("SCRIPT_DEBUG", false);
+
+{% endif %}
+
+define ("ABSPATH", "{{ environment.website.path }}/");
+
+// ssl
+
+if (
+	isset ($_SERVER ["HTTP_X_FORWARDED_PROTO"])
+	&& $_SERVER ["HTTP_X_FORWARDED_PROTO"] == "https"
+) {
+
+    $_SERVER ["HTTPS"] = "on";
+
+}
+
+// internal settings
+
+require_once (ABSPATH . "wp-settings.php");
+
+// ex: noet ts=4 filetype=php

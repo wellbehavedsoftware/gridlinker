@@ -1,0 +1,8 @@
+---
+
+dependencies:
+
+  - "wordpress-common"
+  - "setup-wordpress-webserver"
+
+# ex: et ts=2 filetype=yaml

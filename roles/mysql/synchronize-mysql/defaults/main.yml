@@ -1,5 +1,0 @@
----
-
-mysql_replication_user: "replication"
-
-# ex: et ts=2 filetype=yaml

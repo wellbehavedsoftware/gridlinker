@@ -1,0 +1,9 @@
+---
+
+dependencies:
+
+  - "install-etcd"
+  - "setup-etcd"
+  - "control-etcd"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,6 @@
+---
+
+- include: "wordpress-copy.yml"
+  tags: [ "wordpress", "wordpress-copy" ]
+
+# ex: et ts=2 filetype=yaml

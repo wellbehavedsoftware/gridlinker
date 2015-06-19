@@ -10,3 +10,11 @@ Certificate = collections.namedtuple ("Certificate", [
 	"certificate_path",
 	"private_key_path",
 ])
+
+class AlreadyExistsError (Exception):
+	pass
+
+class IllegalStateError (Exception):
+	pass
+
+# ex: noet ts=4 filetype=python

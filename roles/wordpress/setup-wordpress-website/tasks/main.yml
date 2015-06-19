@@ -1,0 +1,6 @@
+---
+
+- include: "setup-wordpress-website.yml"
+  tags: [ "wordpress", "setup-wordpress-website" ]
+
+# ex: et ts=2 filetype=yaml

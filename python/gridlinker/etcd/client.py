@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import httplib
 import ipaddress
+import itertools
 import json
 import os
 import random
@@ -166,7 +167,27 @@ class EtcdClient:
 				"value": value,
 			})
 
-	def make_request (self, method, url,
+	def make_request (self, ** kwargs):
+
+		for _ in itertools.repeat (5):
+
+			try:
+
+				return self.make_request_real (** kwargs)
+
+			except:
+
+				self.connection.close ()
+
+				random.shuffle (self.servers)
+
+				time.sleep (1)
+
+		return self.make_request_real (** kwargs)
+
+	def make_request_real (self,
+		method,
+		url,
 		query_data = {},
 		payload_data = {},
 		accept_response = [ 200, 201 ]):

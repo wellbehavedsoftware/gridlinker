@@ -1,0 +1,12 @@
+---
+
+php_needs_restart: "no"
+
+php_max_execution_time: "30"
+
+php_packages:
+
+  - "php5-cli"
+  - "php5-fpm"
+
+# ex: et ts=2 filetype=yaml

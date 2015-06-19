@@ -1,18 +1,22 @@
 ---
 
-- name: "set mysql.state to 'configuring'"
-  update_resource:
-    mysql.state: "configuring"
-  when: "mysql_state == 'unconfigured'"
-  tags: [ "mysql", "setup-mysql" ]
-
 - include: "setup-mysql.yml"
   tags: [ "mysql", "setup-mysql" ]
 
-- name: "set mysql.state to 'unsynchronized'"
-  update_resource:
-    mysql.state: "unsynchronized"
-  when: "mysql_state == 'configuring'"
+- name: "set mysql.state to 'configured'"
+  when: "mysql_state == 'installed' and mysql_replication == 'yes'"
   tags: [ "mysql", "setup-mysql" ]
+  changed_when: "True"
+  update_resource:
+
+    mysql.state: "configured"
+
+- name: "set mysql.state to 'enabled'"
+  when: "mysql_state == 'installed' and mysql_replication == 'no'"
+  tags: [ "mysql", "setup-mysql" ]
+  changed_when: "True"
+  update_resource:
+
+    mysql.state: "enabled"
 
 # ex: et ts=2 filetype=yaml

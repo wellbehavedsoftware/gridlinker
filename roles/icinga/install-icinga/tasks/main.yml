@@ -1,18 +1,6 @@
 ---
 
-- name: "set icinga.state to 'installing'"
-  when: "icinga_state is not defined"
-  update_resource:
-    icinga.state: "installing"
-  tags: [ "icinga", "install-icinga" ]
-
 - include: "install-icinga.yml"
-  tags: [ "icinga", "install-icinga" ]
-
-- name: "set icinga.state to 'unconfigured'"
-  when: "icinga_state == 'installing'"
-  update_resource:
-    icinga.state: "unconfigured"
   tags: [ "icinga", "install-icinga" ]
 
 # ex: et ts=2 filetype=yaml
