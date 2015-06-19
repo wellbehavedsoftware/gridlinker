@@ -86,6 +86,15 @@ you are working online, use the following configuration:
 # ex: et ts=2 filetype=yaml
 ```
 
-<p style="display:none">
-<!-- ex: noet ts=4 filetype=markdown -->
-</p>
+## Usage
+
+Most actions are accomplished by running the management script, or by editing
+files in this project. You can explore the command line options using the
+built-in help:
+
+```
+./{{ METADATA.project.script }} --help
+```
+
+The project configuration and static data is stored in the `data` directory.
+Ansible playbooks and custom roles, if any, are stored in `playbooks`.
