@@ -1,5 +1,7 @@
 ---
 
-mysql_needs_restart: "no"
+dependencies:
+
+  - "mysql-common"
 
 # ex: et ts=2 filetype=yaml

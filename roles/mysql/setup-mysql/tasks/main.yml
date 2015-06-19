@@ -9,7 +9,7 @@
 - include: "setup-mysql.yml"
   tags: [ "mysql", "setup-mysql" ]
 
-- name: "set mysql.state to 'unsynchronized'"
+- name: "set mysql.state to 'configured'"
   update_resource:
     mysql.state: "unsynchronized"
   when: "mysql_state == 'configuring'"

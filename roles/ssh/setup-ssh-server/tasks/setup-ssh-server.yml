@@ -47,7 +47,6 @@
     module: "file"
     path: "/home/ubuntu/.ssh/authorized_keys.d"
     state: "directory"
-  sudo: "yes"
 
 - name: "create ubuntu authorized_keys"
   action:

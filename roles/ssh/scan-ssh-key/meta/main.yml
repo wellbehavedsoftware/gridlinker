@@ -2,7 +2,6 @@
 
 dependencies:
 
-  - "mysql-common"
-  - "control-mysql"
+  - "ssh-common"
 
 # ex: et ts=2 filetype=yaml

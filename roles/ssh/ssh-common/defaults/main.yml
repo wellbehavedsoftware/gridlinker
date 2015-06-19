@@ -1,0 +1,6 @@
+---
+
+ssh_authorized_keys: []
+ssh_global_hostkeys: []
+
+# ex: et ts=2 filetype=yaml

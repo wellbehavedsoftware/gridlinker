@@ -1,5 +1,7 @@
 ---
 
-ssh_global_hostkeys: []
+dependencies:
+
+  - "mysql-common"
 
 # ex: et ts=2 filetype=yaml

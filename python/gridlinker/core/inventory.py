@@ -43,7 +43,7 @@ class Inventory (object):
 		if "globals" in self.context.local_data:
 
 			for prefix, data in self.context.local_data ["globals"].items ():
-			
+
 				self.all [prefix] = data
 
 				if isinstance (data, dict):
