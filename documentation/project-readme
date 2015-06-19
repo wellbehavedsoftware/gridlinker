@@ -92,14 +92,14 @@ Most actions are accomplished by running the management script, or by editing
 files in this project. You can explore the command line options using the
 built-in help:
 
-```
+```sh
 ./{{ METADATA.project.script }} --help
 ```
 
 Most of the runtime configuration is stored in resource objects, which are
 managed using the `resource` sub-command:
 
-```
+```sh
 ./{{ METADATA.project.script }} resource --help
 ./{{ METADATA.project.script }} resource list
 ```
@@ -109,7 +109,7 @@ management script, which performs initialisation tasks, such as creation of ssh
 key and known hosts files, and the ansible configuration, and sets up the
 environment.
 
-```
+```sh
 ./{{ METADATA.project.script }} ansible playbook -- --help
 ./{{ METADATA.project.script }} ansible playbook -- playbooks/NAME.yml [ARG...]
 ```
