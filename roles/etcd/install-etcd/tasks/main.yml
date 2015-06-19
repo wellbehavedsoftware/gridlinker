@@ -3,7 +3,7 @@
 - name: "set etcd.state to 'installing'"
   update_resource:
     etcd.state: "installing"
-  when: "etcd_state is not defined"
+  when: "etcd_version != etcd_installed_version"
   tags: [ "etcd", "install-etcd" ]
 
 - include: "install-etcd.yml"
@@ -12,6 +12,7 @@
 - name: "set etcd.state to 'unconfigured'"
   update_resource:
     etcd.state: "unconfigured"
+    etcd.installed_version: "{{ etcd_version }}"
   when: "etcd_state == 'installing'"
   tags: [ "etcd", "install-etcd" ]
 
