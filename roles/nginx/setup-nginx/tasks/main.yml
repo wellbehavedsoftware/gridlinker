@@ -1,18 +1,12 @@
 ---
 
-- name: "set nginx.state to 'configuring'"
-  update_resource:
-    nginx.state: "configuring"
-  when: "nginx_state == 'unconfigured'"
-  tags: [ "nginx", "setup-nginx" ]
-
 - include: "setup-nginx.yml"
   tags: [ "nginx", "setup-nginx" ]
 
-- name: "set nginx.state to 'stopped'"
+- name: "set nginx.state to 'enabled'"
   update_resource:
-    nginx.state: "stopped"
-  when: "nginx_state == 'configuring'"
+    nginx.state: "enabled"
+  when: "nginx_state == 'installed'"
   tags: [ "nginx", "setup-nginx" ]
 
 # ex: et ts=2 filetype=yaml

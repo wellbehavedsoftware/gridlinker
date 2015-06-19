@@ -1,19 +1,14 @@
 ---
 
-- name: "set etcd.state to 'installing'"
-  update_resource:
-    etcd.state: "installing"
-  when: "etcd_version != etcd_installed_version"
-  tags: [ "etcd", "install-etcd" ]
-
 - include: "install-etcd.yml"
   tags: [ "etcd", "install-etcd" ]
 
-- name: "set etcd.state to 'unconfigured'"
-  update_resource:
-    etcd.state: "unconfigured"
-    etcd.installed_version: "{{ etcd_version }}"
+- name: "set etcd.state to 'installed'"
   when: "etcd_state == 'installing'"
   tags: [ "etcd", "install-etcd" ]
+  update_resource:
+
+    etcd.state: "installed"
+    etcd.installed_version: "{{ etcd_version }}"
 
 # ex: et ts=2 filetype=yaml

@@ -1,28 +1,33 @@
 ---
 
 - name: "reload upstart config"
-  shell: "initctl reload-configuration"
   sudo: "yes"
+  shell:
+
+    initctl reload-configuration;
 
 - name: "set php.needs_restart to 'yes'"
-  when: "php_state == 'running'"
-  update_resource:
-    php.needs_restart: "yes"
+  when: "php_state == 'enabled'"
   changed_when: "True"
   notify: "restart php"
+  update_resource:
+
+    php.needs_restart: "yes"
 
 - name: "restart php"
-  when: "php_state == 'running'"
+  when: "php_state == 'enabled'"
+  notify: "set php.needs_restart to 'no'"
+  sudo: "yes"
   action:
+
     module: "service"
     name: "php5-fpm"
     state: "restarted"
-  sudo: "yes"
-  notify: "set php.needs_restart to 'no'"
 
 - name: "set php.needs_restart to 'no'"
-  update_resource:
-    php.needs_restart: "no"
   changed_when: "True"
+  update_resource:
+
+    php.needs_restart: "no"
 
 # ex: et ts=2 filetype=yaml
