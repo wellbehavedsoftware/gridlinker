@@ -115,8 +115,8 @@ environment.
 ```
 
 You can pass any extra arguments to be passed directly to the `ansible-playbook`
-command, such as `--limit`, `--tags` or `--extra-vars`. See the (ansible
-documentation)[http://docs.ansible.com/playbooks_intro.html] for further
+command, such as `--limit`, `--tags` or `--extra-vars`. See the [ansible
+documentation](http://docs.ansible.com/playbooks_intro.html) for further
 information.
 
 The project configuration and static data is stored in the `data` directory.
