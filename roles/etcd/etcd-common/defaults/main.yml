@@ -42,6 +42,7 @@ etcd_snapshot_count: "10000"
 etcd_heartbeat_interval: "100"
 etcd_election_timeout: "1000"
 
+etcd_installed_version: "no"
 etcd_needs_restart: "no"
 
 etcd_client_authority: "{{ SHORT_NAME }}-etcd-clients"
