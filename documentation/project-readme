@@ -96,5 +96,28 @@ built-in help:
 ./{{ METADATA.project.script }} --help
 ```
 
+Most of the runtime configuration is stored in resource objects, which are
+managed using the `resource` sub-command:
+
+```
+./{{ METADATA.project.script }} resource --help
+./{{ METADATA.project.script }} resource list
+```
+
+To perform an ansible deployment, you can invoke `ansible-playbook` via the
+management script, which performs initialisation tasks, such as creation of ssh
+key and known hosts files, and the ansible configuration, and sets up the
+environment.
+
+```
+./{{ METADATA.project.script }} ansible playbook -- --help
+./{{ METADATA.project.script }} ansible playbook -- playbooks/NAME.yml [ARG...]
+```
+
+You can pass any extra arguments to be passed directly to the `ansible-playbook`
+command, such as `--limit`, `--tags` or `--extra-vars`. See the (ansible
+documentation)[http://docs.ansible.com/playbooks_intro.html] for further
+information.
+
 The project configuration and static data is stored in the `data` directory.
 Ansible playbooks and custom roles, if any, are stored in `playbooks`.
