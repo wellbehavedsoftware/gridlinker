@@ -9,9 +9,9 @@
 - include: "setup-php.yml"
   tags: [ "php", "setup-php" ]
 
-- name: "set php.state to 'stopped'"
+- name: "set php.state to 'disabled'"
   update_resource:
-    php.state: "stopped"
+    php.state: "disabled"
   when: "php_state == 'configuring'"
   tags: [ "php", "setup-php" ]
 

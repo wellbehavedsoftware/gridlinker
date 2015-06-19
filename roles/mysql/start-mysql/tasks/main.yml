@@ -1,6 +1,0 @@
----
-
-- include: "start-mysql.yml"
-  tags: [ "mysql", "start-mysql" ]
-
-# ex: et ts=2 filetype=yaml

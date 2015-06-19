@@ -1,0 +1,11 @@
+---
+
+- name: "set php.state to 'enabled'"
+  when: "php_state in [ 'configured', 'disabled' ]"
+  changed_when: "True"
+  tags: [ "php", "start-php" ]
+  update_resource:
+
+    php.state: "enabled"
+
+# ex: et ts=2 filetype=yaml

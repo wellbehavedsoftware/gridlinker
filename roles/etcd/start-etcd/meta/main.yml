@@ -1,8 +1,0 @@
----
-
-dependencies:
-
-  - "etcd-common"
-  - "control-etcd"
-
-# ex: et ts=2 filetype=yaml

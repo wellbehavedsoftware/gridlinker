@@ -1,32 +1,40 @@
 ---
 
 - name: "write php upstart config"
-  action:
-    module: "template"
-    src: "php-upstart"
-    dest: "/etc/init/php5-fpm.conf"
   sudo: "yes"
   notify:
     - "reload upstart config"
     - "set php.needs_restart to 'yes'"
+  action:
+
+    module: "template"
+    src: "php-upstart"
+    dest: "/etc/init/php5-fpm.conf"
 
 - name: "restart php"
   when: "php_needs_restart == 'yes'"
-  update_resource: {}
   changed_when: "True"
   notify: "restart php"
+  update_resource: {}
 
 - meta: "flush_handlers"
 
-- name: "start or stop php"
+- name: "start php"
+  when: "php_state == 'enabled'"
+  sudo: "yes"
   action:
+
     module: "service"
     name: "php5-fpm"
-    state: "{{
-      'started'
-      if php_state in [ 'starting', 'running' ]
-      else 'stopped'
-    }}"
+    state: "started"
+
+- name: "stop php"
+  when: "php_state == 'disabled'"
   sudo: "yes"
+  action:
+
+    module: "service"
+    name: "php5-fpm"
+    state: "stopped"
 
 # ex: et ts=2 filetype=yaml

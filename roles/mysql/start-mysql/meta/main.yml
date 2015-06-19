@@ -1,8 +1,0 @@
----
-
-dependencies:
-
-  - "mysql-common"
-  - "control-mysql"
-
-# ex: et ts=2 filetype=yaml

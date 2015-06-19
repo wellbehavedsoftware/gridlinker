@@ -18,4 +18,22 @@
 
 - meta: "flush_handlers"
 
+- name: "start etcd"
+  when: "etcd_state == 'enabled'"
+  sudo: "yes"
+  action:
+
+    module: "service"
+    name: "etcd"
+    state: "started"
+
+- name: "stop etcd"
+  when: "etcd_state == 'disabled'"
+  sudo: "yes"
+  action:
+
+    module: "service"
+    name: "etcd"
+    state: "stopped"
+
 # ex: et ts=2 filetype=yaml
