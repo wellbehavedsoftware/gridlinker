@@ -1,0 +1,11 @@
+---
+
+dependencies:
+
+  - "system-common"
+  - "setup-apt"
+  - "setup-hosts"
+  - "setup-system-params"
+  - "install-system-packages"
+
+# ex: et ts=2 filetype=yaml

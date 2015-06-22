@@ -25,12 +25,18 @@
       or identity.name == mysql_master
     ) and mysql_state in [ 'no', 'enabled' ]
   "
+  with_items:
+
+    - "localhost"
+    - "%"
+
   action:
 
     module: "mysql_user"
     name: "root"
     password: "{{ mysql_root_password }}"
     priv: "*.*:ALL,GRANT"
+    host: "{{ item }}"
 
 - name: "install mysql user config"
   sudo: "yes"
