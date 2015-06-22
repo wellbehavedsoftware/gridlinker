@@ -1,0 +1,6 @@
+---
+
+- include: "setup-wordpress-webserver.yml"
+  tags: [ "wordpress", "setup-wordpress-webserver" ]
+
+# ex: et ts=2 filetype=yaml

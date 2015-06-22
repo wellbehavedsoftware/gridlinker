@@ -1,8 +1,0 @@
----
-
-dependencies:
-
-  - role: "control-mysql"
-    mysql_control: "start"
-
-# ex: et ts=2 filetype=yaml

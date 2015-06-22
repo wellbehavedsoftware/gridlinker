@@ -5,7 +5,11 @@
   sudo: "yes"
 
 - name: "set mysql.needs_restart to 'yes'"
+<<<<<<< HEAD
   when: "mysql_state == 'running'"
+=======
+  when: "mysql_state == 'enabled'"
+>>>>>>> fb5d233fe6ce3c9f61794f8811e6dc007e5188b3
   changed_when: "True"
   notify: "restart mysql"
   update_resource:
@@ -13,7 +17,11 @@
     mysql.needs_restart: "yes"
 
 - name: "restart mysql"
+<<<<<<< HEAD
   when: "mysql_state == 'running'"
+=======
+  when: "mysql_state == 'enabled'"
+>>>>>>> fb5d233fe6ce3c9f61794f8811e6dc007e5188b3
   notify: "set mysql.needs_restart to 'no'"
   sudo: "yes"
   action:

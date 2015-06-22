@@ -33,6 +33,8 @@ class Inventory (object):
 			"HOME": self.context.home,
 			"WORK": "%s/work" % self.context.home,
 			"NAME": self.context.project_metadata ["project"] ["name"],
+			"SHORT_NAME": self.context.project_metadata ["project"] ["short_name"],
+			"SHORT_TITLE": self.context.project_metadata ["project"] ["short_title"],
 			"CONNECTION": self.context.connection_name,
 			"GRIDLINKER_HOME": self.context.gridlinker_home,
 			"METADATA": self.context.project_metadata,
@@ -41,7 +43,7 @@ class Inventory (object):
 		if "globals" in self.context.local_data:
 
 			for prefix, data in self.context.local_data ["globals"].items ():
-			
+
 				self.all [prefix] = data
 
 				if isinstance (data, dict):
@@ -444,7 +446,7 @@ class Inventory (object):
 		or isinstance (value, unicode):
 
 			match = re.search (r"^\{\{\s*([^{}]*\S)\s*\}\}$", value)
-			
+
 			if match:
 
 				return self.resolve_variable (
@@ -487,7 +489,7 @@ class Inventory (object):
 			return False, None
 
 		if name == "inventory_hostname":
-			return resource_name
+			return True, resource_name
 
 		if name == "None":
 			return True, None
@@ -503,7 +505,7 @@ class Inventory (object):
 			class_data = self.classes [class_name]
 
 			parent_name = "%s/%s" % (
-				class_data ["class"] ["parent_namespace"],			
+				class_data ["class"] ["parent_namespace"],
 				resource_data ["identity"] ["parent"])
 
 			parent_data = self.resources [parent_name]

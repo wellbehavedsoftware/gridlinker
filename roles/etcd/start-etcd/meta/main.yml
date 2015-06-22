@@ -1,8 +1,0 @@
----
-
-dependencies:
-
-  - role: "control-etcd"
-    etcd_control: "start"
-
-# ex: et ts=2 filetype=yaml

@@ -1,18 +1,12 @@
 ---
 
-- name: "set etcd.state to 'configuring'"
-  update_resource:
-    etcd.state: "configuring"
-  when: "etcd_state == 'unconfigured'"
-  tags: [ "etcd", "setup-etcd" ]
-
 - include: "setup-etcd.yml"
   tags: [ "etcd", "setup-etcd" ]
 
-- name: "set etcd.state to 'stopped'"
+- name: "set etcd.state to 'enabled'"
   update_resource:
-    etcd.state: "stopped"
-  when: "etcd_state == 'configuring'"
+    etcd.state: "enabled"
+  when: "etcd_state == 'enabled'"
   tags: [ "etcd", "setup-etcd" ]
 
 # ex: et ts=2 filetype=yaml

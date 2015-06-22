@@ -1,7 +1,0 @@
----
-
-mysql_replication: "no"
-
-mysql_port: "3306"
-
-# ex: et ts=2 filetype=yaml

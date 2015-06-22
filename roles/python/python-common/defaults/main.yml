@@ -1,0 +1,93 @@
+---
+
+python_mirror: "https://www.python.org/ftp/python"
+python_default: "yes"
+
+python_temp: "/tmp/python-install"
+python_target: "/opt/python-{{ python_version }}"
+
+python_name: "Python-{{ python_version }}"
+python_archive: "{{ python_name }}.tar.xz"
+python_url: "{{ python_mirror }}/{{ python_version }}/{{ python_archive }}"
+
+python_pip_mirror: "https://bootstrap.pypa.io/"
+
+python_pip_archive: "get-pip.py"
+python_pip_url: "{{ python_pip_mirror }}/{{ python_pip_archive }}"
+
+python_apt_name: "python-apt-{{ python_apt_version }}"
+python_apt_archive: "{{ python_apt_name }}.tar.gz"
+python_apt_mirror: "https://dist.wellbehavedsoftware.com/python-apt"
+python_apt_url: "{{ python_apt_mirror }}/{{ python_apt_archive }}"
+
+python_alternatives:
+
+  - name: "2to3"
+    link: "/usr/bin/2to3"
+    target: "{{ python_target }}/bin/2to3"
+
+  - name: "idle"
+    link: "/usr/bin/idle"
+    target: "{{ python_target }}/bin/idle"
+
+  - name: "pydoc"
+    link: "/usr/bin/pydoc"
+    target: "{{ python_target }}/bin/pydoc"
+
+  - name: "python"
+    link: "/usr/bin/python"
+    target: "{{ python_target }}/bin/python"
+
+  - name: "python-config"
+    link: "/usr/bin/python-config"
+    target: "{{ python_target }}/bin/python-config"
+
+  - name: "python2"
+    link: "/usr/bin/python2"
+    target: "{{ python_target }}/bin/python2"
+
+  - name: "python2-config"
+    link: "/usr/bin/python2-config"
+    target: "{{ python_target }}/bin/python2-config"
+
+  - name: "python2.7"
+    link: "/usr/bin/python2.7"
+    target: "{{ python_target }}/bin/python2.7"
+
+  - name: "python2.7-config"
+    link: "/usr/bin/python2.7-config"
+    target: "{{ python_target }}/bin/python2.7-config"
+
+  - name: "smtpd.py"
+    link: "/usr/bin/smtpd.py"
+    target: "{{ python_target }}/bin/smtpd.py"
+
+python_packages: []
+
+python_pip_alternatives:
+
+  - name: "easy_install"
+    link: "/usr/bin/easy_install"
+    target: "{{ python_target }}/bin/easy_install"
+
+  - name: "easy_install-2.7"
+    link: "/usr/bin/easy_install-2.7"
+    target: "{{ python_target }}/bin/easy_install-2.7"
+
+  - name: "pip"
+    link: "/usr/bin/pip"
+    target: "{{ python_target }}/bin/pip"
+
+  - name: "pip2"
+    link: "/usr/bin/pip2"
+    target: "{{ python_target }}/bin/pip2"
+
+  - name: "pip2.7"
+    link: "/usr/bin/pip2.7"
+    target: "{{ python_target }}/bin/pip2.7"
+
+  - name: "wheel"
+    link: "/usr/bin/wheel"
+    target: "{{ python_target }}/bin/wheel"
+
+# ex: et ts=2 filetype=yaml

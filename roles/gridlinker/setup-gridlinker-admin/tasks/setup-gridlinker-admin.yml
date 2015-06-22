@@ -11,6 +11,7 @@
   action:
     module: "file"
     path: "{{ item.directory }}"
+    state: "directory"
     mode: "{{ item.mode }}"
   with_items: "{{ gridlinker_admin_directories }}"
 

@@ -4,6 +4,9 @@ from __future__ import unicode_literals
 from gridlinker import ansible
 
 from gridlinker import certificate
+from gridlinker.certificate import AlreadyExistsError
+from gridlinker.certificate import CertificateAuthority
+from gridlinker.certificate import CertificateDatabase
 
 from gridlinker import core
 from gridlinker.core import metadata
