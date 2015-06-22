@@ -39,5 +39,3 @@ object Host "{{ host_name }}" {
 }
 
 {% endfor %}
-
-

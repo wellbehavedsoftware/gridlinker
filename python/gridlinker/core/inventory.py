@@ -446,7 +446,7 @@ class Inventory (object):
 		or isinstance (value, unicode):
 
 			match = re.search (r"^\{\{\s*([^{}]*\S)\s*\}\}$", value)
-			
+
 			if match:
 
 				return self.resolve_variable (
@@ -505,7 +505,7 @@ class Inventory (object):
 			class_data = self.classes [class_name]
 
 			parent_name = "%s/%s" % (
-				class_data ["class"] ["parent_namespace"],			
+				class_data ["class"] ["parent_namespace"],
 				resource_data ["identity"] ["parent"])
 
 			parent_data = self.resources [parent_name]
