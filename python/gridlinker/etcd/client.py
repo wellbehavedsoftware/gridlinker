@@ -8,6 +8,7 @@ import json
 import os
 import random
 import ssl
+import time
 import urllib
 
 from wbs import yamlx
@@ -33,6 +34,9 @@ class EtcdClient:
 		self.client_key = client_key
 		self.prefix = prefix
 
+		self.connection = None
+		self.pid = None
+
 		random.shuffle (self.servers)
 
 		if self.secure:
@@ -52,72 +56,71 @@ class EtcdClient:
 
 			self.server_url = "http://%s:%s" % (self.servers [0], self.port)
 
-		self.pid = None
-
 	def get_connection (self):
 
-		if os.getpid () != self.pid:
+		if os.getpid () == self.pid and self.connection:
+			return self.connection
 
-			if self.secure:
+		if self.secure:
 
-				connection = httplib.HTTPSConnection (
-					host = self.servers [0],
-					port = self.port,
-					key_file = self.client_key,
-					cert_file = self.client_cert,
-					context = self.ssl_context)
+			connection = httplib.HTTPSConnection (
+				host = self.servers [0],
+				port = self.port,
+				key_file = self.client_key,
+				cert_file = self.client_cert,
+				context = self.ssl_context)
 
-				connection.connect ()
+			connection.connect ()
 
-				peer_certificate = connection.sock.getpeercert ()
-				peer_alt_names = peer_certificate ["subjectAltName"]
+			peer_certificate = connection.sock.getpeercert ()
+			peer_alt_names = peer_certificate ["subjectAltName"]
 
-				# check if the server is an ip address
+			# check if the server is an ip address
 
-				try:
+			try:
 
-					ipaddress.ip_address (
-						unicode (self.servers [0].encode ("utf-8")))
+				ipaddress.ip_address (
+					unicode (self.servers [0].encode ("utf-8")))
 
-					is_ip_address = True
+				is_ip_address = True
 
-				except ValueError:
+			except ValueError:
 
-					is_ip_address = False
+				is_ip_address = False
 
-				if is_ip_address:
+			if is_ip_address:
 
-					# match ip addresses with custom code
+				# match ip addresses with custom code
 
-					if not self.servers [0] in [
-						alt_value
-						for alt_type, alt_value in peer_alt_names
-						if alt_type == 'IP Address'
-					]:
+				if not self.servers [0] in [
+					alt_value
+					for alt_type, alt_value in peer_alt_names
+					if alt_type == 'IP Address'
+				]:
 
-						raise Exception ()
-
-				else:
-
-					# match hostnames using python implementation
-
-					ssl.match_hostname (
-						peer_certificate,
-						self.servers [0])
-
-				self.connection = connection
+					raise Exception ()
 
 			else:
 
-				connection = httplib.HTTPConnection (
-					host = self.servers [0],
-					port = self.port)
+				# match hostnames using python implementation
 
-				connection.connect ()
+				ssl.match_hostname (
+					peer_certificate,
+					self.servers [0])
 
-				self.connection = connection
+			self.connection = connection
 
-			self.pid = os.getpid ()
+		else:
+
+			connection = httplib.HTTPConnection (
+				host = self.servers [0],
+				port = self.port)
+
+			connection.connect ()
+
+			self.connection = connection
+
+		self.pid = os.getpid ()
 
 		return self.connection
 
@@ -177,7 +180,8 @@ class EtcdClient:
 
 			except:
 
-				self.connection.close ()
+				if self.connection:
+					self.connection.close ()
 
 				random.shuffle (self.servers)
 
