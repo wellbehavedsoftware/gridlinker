@@ -65,10 +65,21 @@ class GenericContext (object):
 	@lazy_property
 	def connections_config (self):
 
-		file_path = self.connections_path
+		if not os.path.isfile (self.connections_path):
+
+			raise Exception (
+				"Connections config does not exist: %s" % (
+					self.connections_path))
 
 		with open (file_path) as file_handle:
-			return yaml.load (file_handle)
+			ret = yaml.load (file_handle)
+
+		if not isinstance (ret, dict):
+
+			raise Exception (
+				"Connections config is not a dict")
+
+		return ret
 
 	@lazy_property
 	def connection_config (self):
