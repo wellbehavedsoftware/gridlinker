@@ -3,12 +3,4 @@
 - include: "install-etcd.yml"
   tags: [ "etcd", "install-etcd" ]
 
-- name: "set etcd.state to 'installed'"
-  when: "etcd_state == 'installing'"
-  tags: [ "etcd", "install-etcd" ]
-  update_resource:
-
-    etcd.state: "installed"
-    etcd.installed_version: "{{ etcd_version }}"
-
 # ex: et ts=2 filetype=yaml
