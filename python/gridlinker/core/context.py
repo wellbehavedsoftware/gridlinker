@@ -71,7 +71,7 @@ class GenericContext (object):
 				"Connections config does not exist: %s" % (
 					self.connections_path))
 
-		with open (file_path) as file_handle:
+		with open (self.connections_path) as file_handle:
 			ret = yaml.load (file_handle)
 
 		if not isinstance (ret, dict):
