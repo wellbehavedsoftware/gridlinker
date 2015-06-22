@@ -1,36 +1,6 @@
 ---
 
-- name: "set nginx.state to 'starting'"
-  update_resource:
-    nginx.state: "starting"
-  when: "
-    nginx_control == 'start'
-    and nginx_state == 'stopped'
-  "
-  tags: [ "nginx", "control-nginx" ]
-
-- name: "set nginx.state to 'stopping'"
-  update_resource:
-    nginx.state: "stopping"
-  when: "
-    nginx_control == 'stop'
-    and nginx_state == 'running'
-  "
-  tags: [ "nginx", "control-nginx" ]
-
 - include: "control-nginx.yml"
-  tags: [ "nginx", "control-nginx" ]
-
-- name: "set nginx.state to 'running'"
-  update_resource:
-    nginx.state: "running"
-  when: "nginx_state == 'starting'"
-  tags: [ "nginx", "control-nginx" ]
-
-- name: "set nginx.state to 'stopped'"
-  update_resource:
-    nginx.state: "stopped"
-  when: "nginx_state == 'stopping'"
   tags: [ "nginx", "control-nginx" ]
 
 # ex: et ts=2 filetype=yaml

@@ -1,8 +1,8 @@
 ---
 
 - name: "install etcd"
+  when: "etcd_installed_version != etcd_version"
   sudo: "yes"
-  when: "etcd_state == 'installing'"
   args:
     executable: "/bin/bash"
   shell:

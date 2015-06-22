@@ -1,0 +1,6 @@
+---
+
+- include: "setup-gridlinker-admin.yml"
+  tags: [ "gridlinker", "setup-gridlinker-admin" ]
+
+# ex: et ts=2 filetype=yaml

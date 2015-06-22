@@ -1,32 +1,53 @@
 ---
 
 - name: "create root ssh directory"
+  sudo: "yes"
   action:
+
     module: "file"
     path: "/root/.ssh"
     state: "directory"
-  sudo: "yes"
 
 - name: "create root private key"
+  when: "ssh_root_key is defined"
+  sudo: "yes"
   action:
+
     module: "copy"
     dest: "/root/.ssh/id_rsa"
     content: "{{ lookup ('etcd', ssh_root_key) }}"
     mode: "0600"
-  when: "ssh_root_key is defined"
-  sudo: "yes"
 
 - name: "create ubuntu ssh directory"
   action:
+
     module: "file"
     path: "/home/ubuntu/.ssh"
     state: "directory"
 
-- name: "create known hosts"
-  action:
-    module: "template"
-    dest: "/etc/ssh/ssh_known_hosts"
-    src: "ssh-client-known-hosts"
+- name: "create ssh known hosts directory"
   sudo: "yes"
+  action:
+
+    module: "file"
+    path: "/etc/ssh/ssh_known_hosts.d"
+    state: "directory"
+
+- name: "create ssh known hosts"
+  sudo: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/ssh/ssh_known_hosts.d/{{ NAME }}"
+    src: "ssh-client-known-hosts"
+
+- name: "assemble ssh known hosts"
+  sudo: "yes"
+  action:
+
+    module: "assemble"
+    dest: "/etc/ssh/ssh_known_hosts"
+    src: "/etc/ssh/ssh_known_hosts.d"
+    mode: "0644"
 
 # ex: et ts=2 filetype=yaml

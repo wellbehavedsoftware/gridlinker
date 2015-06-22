@@ -5,27 +5,27 @@
   sudo: "yes"
 
 - name: "set mysql.needs_restart to 'yes'"
-  update_resource:
-    mysql.needs_restart: "yes"
+  when: "mysql_state == 'enabled'"
   changed_when: "True"
-  notify: "start, restart or stop mysql"
+  notify: "restart mysql"
+  update_resource:
 
-- name: "start, restart or stop mysql"
+    mysql.needs_restart: "yes"
+
+- name: "restart mysql"
+  when: "mysql_state == 'enabled'"
+  notify: "set mysql.needs_restart to 'no'"
+  sudo: "yes"
   action:
+
     module: "service"
     name: "mysql"
-    state: "{{
-      'restarted' if mysql_needs_restart == 'yes'
-      else 'started' if mysql_state in [ 'starting', 'running' ]
-      else 'stopped'
-    }}"
-  sudo: "yes"
-  changed_when: "True"
-  notify: "set mysql.needs_restart to 'no'"
+    state: "restarted"
 
 - name: "set mysql.needs_restart to 'no'"
-  update_resource:
-    mysql.needs_restart: "no"
   changed_when: "True"
+  update_resource:
+
+    mysql.needs_restart: "no"
 
 # ex: et ts=2 filetype=yaml

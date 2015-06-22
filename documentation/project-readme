@@ -86,6 +86,38 @@ you are working online, use the following configuration:
 # ex: et ts=2 filetype=yaml
 ```
 
-<p style="display:none">
-<!-- ex: noet ts=4 filetype=markdown -->
-</p>
+## Usage
+
+Most actions are accomplished by running the management script, or by editing
+files in this project. You can explore the command line options using the
+built-in help:
+
+```sh
+./{{ METADATA.project.script }} --help
+```
+
+Most of the runtime configuration is stored in resource objects, which are
+managed using the `resource` sub-command:
+
+```sh
+./{{ METADATA.project.script }} resource --help
+./{{ METADATA.project.script }} resource list
+```
+
+To perform an ansible deployment, you can invoke `ansible-playbook` via the
+management script, which performs initialisation tasks, such as creation of ssh
+key and known hosts files, and the ansible configuration, and sets up the
+environment.
+
+```sh
+./{{ METADATA.project.script }} ansible playbook -- --help
+./{{ METADATA.project.script }} ansible playbook -- playbooks/NAME.yml [ARG...]
+```
+
+You can pass any extra arguments to be passed directly to the `ansible-playbook`
+command, such as `--limit`, `--tags` or `--extra-vars`. See the [ansible
+documentation](http://docs.ansible.com/playbooks_intro.html) for further
+information.
+
+The project configuration and static data is stored in the `data` directory.
+Ansible playbooks and custom roles, if any, are stored in `playbooks`.

@@ -1,7 +1,7 @@
 ---
 
 - name: "start master"
-  when: "inventory_hostname == mysql_master"
+  when: "identity.name == mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -16,7 +16,7 @@
   when: "mysql_replication_password is not defined"
 
 - name: "create mysql replication user"
-  when: "inventory_hostname == mysql_master"
+  when: "identity.name == mysql_master"
   action:
     module: "mysql_user"
     name: "{{ mysql_replication_user }}"
@@ -25,7 +25,7 @@
     priv: "*.*:REPLICATION SLAVE"
 
 - name: "get replication info from master"
-  when: "inventory_hostname == mysql_master"
+  when: "identity.name == mysql_master"
   args:
     executable: "/bin/bash"
   register: "mysql_master_status"
@@ -39,12 +39,12 @@
       SHOW MASTER STATUS;
     " | sudo tee /tmp/mysql-master-status &
 
-    sleep 0.1;
+    sleep 0.5;
 
     test -s /tmp/mysql-master-status;
 
 - name: "shut down master"
-  when: "inventory_hostname == mysql_master"
+  when: "identity.name == mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -56,7 +56,7 @@
     sleep 0.1;
 
 - name: "shut down slave"
-  when: "inventory_hostname != mysql_master"
+  when: "identity.name != mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -66,7 +66,7 @@
     sudo stop mysql || true;
 
 - name: "synchronize data"
-  when: "inventory_hostname != mysql_master"
+  when: "identity.name != mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -78,7 +78,7 @@
     /var/lib/mysql/;
 
 - name: "start master"
-  when: "inventory_hostname == mysql_master"
+  when: "identity.name == mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -88,7 +88,7 @@
     sudo start mysql;
 
 - name: "start slave"
-  when: "inventory_hostname != mysql_master"
+  when: "identity.name != mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -98,7 +98,7 @@
     sudo start mysql;
 
 - name: "configure replication"
-  when: "inventory_hostname != mysql_master"
+  when: "identity.name != mysql_master"
   args:
     executable: "/bin/bash"
   shell:
@@ -114,17 +114,17 @@
       MASTER_PASSWORD = '{{ mysql_replication_password }}',
 
       MASTER_LOG_FILE = '{{
-        hostvars [mysql_master].mysql_master_status.stdout.split ('\t') [0]
+        hostvars ['host/' + mysql_master].mysql_master_status.stdout.split ('\t') [0]
       }}',
 
       MASTER_LOG_POS = {{
-        hostvars [mysql_master].mysql_master_status.stdout.split ('\t') [1]
+        hostvars ['host/' + mysql_master].mysql_master_status.stdout.split ('\t') [1]
       }};
 
     "
 
 - name: "start replication"
-  when: "inventory_hostname != mysql_master"
+  when: "identity.name != mysql_master"
   args:
     executable: "/bin/bash"
   shell:

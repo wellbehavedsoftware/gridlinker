@@ -41,7 +41,7 @@ log_error = /var/log/mysql/error.log
 # replication
 
 server-id = {{ mysql_server_id }}
-{% if inventory_hostname == mysql_master %}
+{% if identity.name == mysql_master %}
 log-bin = /var/log/mysql/mysql-bin.log
 expire-logs-days = 1
 max-binlog-size = 128M

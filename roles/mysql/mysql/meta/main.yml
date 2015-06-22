@@ -1,0 +1,11 @@
+---
+
+dependencies:
+
+  - "mysql-common"
+  - "install-mysql"
+  - "setup-mysql"
+  - "synchronize-mysql"
+  - "control-mysql"
+
+# ex: et ts=2 filetype=yaml

@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from gridlinker.ansible import inventory
 from gridlinker.ansible import support
 from gridlinker.ansible import tools
 

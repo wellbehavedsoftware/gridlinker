@@ -1,6 +1,5 @@
 ---
 
-amazon_private_ip: "{{ private_address }}"
-amazon_ebs_optimized: "no"
+amazon_instance_ebs_optimized: "no"
 
 # ex: et ts=2 filetype=yaml

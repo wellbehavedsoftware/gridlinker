@@ -1,6 +1,6 @@
 description "nginx web server"
 
-{% if nginx_state in [ 'starting', 'running' ] %}
+{% if nginx_state == 'enabled' %}
 start on (
 	net-device-up
 	and local-filesystems

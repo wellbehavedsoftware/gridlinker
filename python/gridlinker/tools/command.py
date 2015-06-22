@@ -79,6 +79,7 @@ class GenericCommand:
 			record_data = {
 				"identity": {
 					"type": collection.type,
+					"name": args.name,
 				},
 			}
 
@@ -250,17 +251,15 @@ class GenericCommand:
 
 		if args.name:
 
-			unique_name = self.helper.create_unique_name (context, args)
-
-			if not collection.exists_slow (unique_name):
+			if not collection.exists_slow (args.name):
 
 				raise Exception (
 					"%s does not exist: %s" % (
 						self.helper.name.title (),
-						unique_name))
+						args.name))
 
 			all_records = [
-				(unique_name, collection.get_slow (unique_name))
+				(args.name, collection.get_slow (args.name))
 			]
 
 		else:
@@ -306,16 +305,14 @@ class GenericCommand:
 
 		collection = self.helper.get_collection (context)
 
-		unique_name = self.helper.create_unique_name (context, args)
-
-		if not collection.exists_slow (unique_name):
+		if not collection.exists_slow (args.name):
 
 			raise Exception (
 				"%s does not exist: %s" % (
 					self.helper.name.title (),
-					unique_name))
+					args.name))
 
-		record_data = collection.get_slow (unique_name)
+		record_data = collection.get_slow (args.name)
 
 		with tempfile.NamedTemporaryFile () as temp_file:
 
@@ -338,7 +335,7 @@ class GenericCommand:
 
 		record_data = yamlx.parse (record_yaml)
 
-		collection.set (unique_name, record_data)
+		collection.set (args.name, record_data)
 
 	def args_show (self, sub_parsers):
 
@@ -355,9 +352,7 @@ class GenericCommand:
 
 		collection = self.helper.get_collection (context)
 
-		unique_name = self.helper.create_unique_name (context, args)
-
-		record_data = collection.get_slow (unique_name)
+		record_data = collection.get_slow (args.name)
 
 		record_yaml = collection.to_yaml (record_data)
 

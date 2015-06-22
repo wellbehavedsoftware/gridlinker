@@ -4,15 +4,11 @@ from __future__ import unicode_literals
 import os
 import subprocess
 import sys
+import tempfile
 
 from wbs import env_resolve
 
-def args (sub_parsers):
-
-	args_etcd (sub_parsers)
-	args_etcdctl (sub_parsers)
-
-def args_etcd (prev_sub_parsers):
+def args (prev_sub_parsers):
 
 	parser = prev_sub_parsers.add_parser (
 		"etcd",
@@ -20,6 +16,8 @@ def args_etcd (prev_sub_parsers):
 
 	next_sub_parsers = parser.add_subparsers ()
 
+	args_etcd_control (next_sub_parsers)
+	args_etcd_edit (next_sub_parsers)
 	args_etcd_export (next_sub_parsers)
 	args_etcd_import (next_sub_parsers)
 
@@ -90,33 +88,74 @@ def do_etcd_import (context, args):
 
 		dir_name = dir_name [len (args.source) + 1:]
 
-		print ("/" + dir_name)
+		if len (dir_name):
+
+			dir_name = "/" + dir_name
+			print (dir_name)
+
+		else:
+
+			print ("/")
 
 		for file_name in file_list:
 
+			file_name = "/" + file_name
+
 			with open (
-				args.source + "/" + dir_name + "/" + file_name
+				args.source + dir_name + file_name
 			) as file_handle:
 				file_contents = file_handle.read ()
 
 			context.client.set_raw (
-				args.target + "/" + dir_name + "/" + file_name,
+				args.target + dir_name + file_name,
 				file_contents)
 
-def args_etcdctl (prev_sub_parsers):
+def args_etcd_edit (sub_parsers):
 
-	parser = prev_sub_parsers.add_parser (
-		"etcdctl",
+	parser = sub_parsers.add_parser (
+		"edit",
+		help = "edit a file in etcd")
+
+	parser.set_defaults (
+		func = do_etcd_edit)
+
+	parser.add_argument (
+		"name",
+		nargs = "*")
+
+def do_etcd_edit (context, args):
+
+	with tempfile.NamedTemporaryFile () as temp_file:
+
+		for name in args.name:
+
+			file_contents = context.client.get_raw (name)
+
+			temp_file.write (file_contents)
+			temp_file.flush ()
+
+			os.system ("%s %s" % (os.environ ["EDITOR"], temp_file.name))
+
+			temp_file.seek (0)
+			file_contents = temp_file.read ()
+			temp_file.truncate ()
+
+			context.client.set_raw (name, file_contents)
+
+def args_etcd_control (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"control",
 		help = "invoke etcdctl directly")
 
 	parser.set_defaults (
-		func = do_etcdctl)
+		func = do_etcd_control)
 
 	parser.add_argument (
 		"rest",
-		nargs="*")
+		nargs = "*")
 
-def do_etcdctl (context, args):
+def do_etcd_control (context, args):
 
 	result = subprocess.call (
 		[ "etcdctl" ] + args.rest,

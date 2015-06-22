@@ -13,7 +13,7 @@
 - meta: "flush_handlers"
 
 - name: "trigger icinga restart"
-  when: "icinga.needs_restart == 'yes'"
+  when: "icinga_needs_restart == 'yes'"
   update_resource: {}
   changed_when: "True"
   notify: "restart icinga"
