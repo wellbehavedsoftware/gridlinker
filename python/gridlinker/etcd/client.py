@@ -8,6 +8,7 @@ import json
 import os
 import random
 import ssl
+import time
 import urllib
 
 from wbs import yamlx
@@ -32,6 +33,8 @@ class EtcdClient:
 		self.client_cert = client_cert
 		self.client_key = client_key
 		self.prefix = prefix
+
+		self.connection = None
 
 		random.shuffle (self.servers)
 
@@ -177,7 +180,10 @@ class EtcdClient:
 
 			except:
 
-				self.connection.close ()
+				if self.connection:
+
+					self.connection.close ()
+					self.connection = None
 
 				random.shuffle (self.servers)
 
