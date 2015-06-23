@@ -1,10 +1,7 @@
 ---
 
-- name: "configure hosts"
-  action:
-    module: "template"
-    src: "setup-hosts-file"
-    dest: "/etc/hosts"
-  sudo: "yes"
+- include: "setup-hosts.yml"
+  when: "system_setup_hosts == 'yes'"
+  tags: [ "system", "setup-hosts" ]
 
 # ex: et ts=2 filetype=yaml

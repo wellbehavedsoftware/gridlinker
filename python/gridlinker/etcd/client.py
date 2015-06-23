@@ -181,7 +181,9 @@ class EtcdClient:
 			except:
 
 				if self.connection:
+
 					self.connection.close ()
+					self.connection = None
 
 				random.shuffle (self.servers)
 

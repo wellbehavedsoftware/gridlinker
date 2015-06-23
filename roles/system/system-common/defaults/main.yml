@@ -1,0 +1,37 @@
+---
+
+system_setup_hosts: "yes"
+system_setup_system_params: "yes"
+
+ubuntu_system_packages: []
+
+ubuntu_keys_extra: []
+
+ubuntu_archive: "http://archive.ubuntu.com"
+ubuntu_security: "http://security.ubuntu.com"
+
+ubuntu_release: "trusty"
+
+ubuntu_repositories:
+
+  - "main"
+  - "restricted"
+  - "universe"
+
+ubuntu_sources:
+
+  - url: "{{ ubuntu_archive }}"
+    source: "{{ ubuntu_release }}"
+    repositories: "{{ ubuntu_repositories }}"
+
+  - url: "{{ ubuntu_archive }}"
+    source: "{{ ubuntu_release }}-updates"
+    repositories: "{{ ubuntu_repositories }}"
+
+  - url: "{{ ubuntu_security }}"
+    source: "{{ ubuntu_release }}-security"
+    repositories: "{{ ubuntu_repositories }}"
+
+system_ip_forwarding: "no"
+
+# ex: et ts=2 filetype=yaml
