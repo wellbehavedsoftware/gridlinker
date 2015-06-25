@@ -114,7 +114,11 @@ class Inventory (object):
 				raise Exception ()
 
 			if resource_data ["identity"] ["type"] != "resource":
-				raise Exception ()
+
+				raise Exception (
+					"Invalid type '%s' for resource '%s'" % (
+						resource_data ["identity"] ["type"],
+						resource_name))
 
 			# work out class
 
