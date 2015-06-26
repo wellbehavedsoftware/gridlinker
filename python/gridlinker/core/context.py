@@ -181,7 +181,7 @@ class GenericContext (object):
 			"GRIDLINKER_KNOWN_HOSTS": "%s/work/known-hosts" % self.home,
 			"GRIDLINKER_CONNECTION": self.connection_name,
 
-			"ANSIBLE_CONFIG": "work/ansible.cfg",
+			"ANSIBLE_CONFIG": "%s/work/ansible.cfg" % self.home,
 			"ANSIBLE_HOME": self.ansible_home,
 
 			"PATH": [ "%s/bin" % self.ansible_home ],
