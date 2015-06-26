@@ -155,7 +155,7 @@ class CertificateDatabase:
 
 		if not self.client.exists (request_path + "/pending"):
 
-			raise Error ("No request pending")
+			raise Exception ("No request pending")
 
 		# read pending
 
