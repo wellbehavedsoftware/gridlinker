@@ -21,9 +21,10 @@ class ActionModule (object):
 		self.runner = runner
 
 		self.support = importlib.import_module (os.environ ["GRIDLINKER_SUPPORT"]).support
-		self.context = self.support.get_context ()
 
-		self.client = self.context.client
+	def context (self):
+
+		return self.support.get_context ()
 
 	def run (self,
 		conn,
@@ -44,7 +45,7 @@ class ActionModule (object):
 
 		authority_path = "/authority/%s" % authority_name
 
-		authority = self.context.authorities [authority_name]
+		authority = self.context ().authorities [authority_name]
 
 		alt_names = list (itertools.chain.from_iterable ([
 			[ str ("DNS:" + item) for item in alt_dns ],
