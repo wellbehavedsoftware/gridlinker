@@ -1,0 +1,37 @@
+---
+
+- name: "create symlinks to python bins"
+  sudo: "yes"
+  register: "python_symlinks_result"
+  changed_when: "python_symlinks_result.stdout != 'UNCHANGED'"
+  args:
+    executable: "/bin/bash"
+    chdir: "{{ python_target }}/bin"
+  shell:
+
+    set -euf -o pipefail;
+
+    changed="";
+
+    while read filename; do
+
+      if ! test -x "$filename"; then
+        continue;
+      fi;
+
+      if test -h "/usr/local/bin/$filename"; then
+        continue;
+      fi;
+
+      changed="yes";
+
+      ln -s "../../..{{ python_target }}/bin/$filename"
+        "/usr/local/bin/$filename";
+
+    done < <(ls);
+
+    if ! test "$changed"; then
+      echo "UNCHANGED";
+    fi;
+
+# ex: et ts=2 filetype=yaml

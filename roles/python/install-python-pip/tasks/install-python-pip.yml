@@ -8,6 +8,8 @@
 
     set -euf -o pipefail;
 
+    export PATH="{{ python_target }}/bin:$PATH";
+
     rm -rf "{{ python_temp }}";
     mkdir -p "{{ python_temp }}";
     cd "{{ python_temp }}";
