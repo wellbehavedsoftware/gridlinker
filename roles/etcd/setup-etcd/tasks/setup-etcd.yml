@@ -1,7 +1,10 @@
 ---
 
 - name: "issue etcd client certificate"
-  when: "etcd_client_certificate is not defined"
+  when: "
+    etcd_secured == 'yes'
+    and etcd_client_certificate is not defined
+  "
   register: "etcd_client_result"
   action:
 
@@ -20,7 +23,10 @@
     etcd.client_private_key: "{{ etcd_client_result.private_key }}"
 
 - name: "issue etcd peer certificate"
-  when: "etcd_peer_certificate is not defined"
+  when: "
+    etcd_secured == 'yes'
+    and etcd_peer_certificate is not defined
+  "
   register: "etcd_peer_result"
   action:
 
