@@ -1,6 +1,7 @@
 ---
 
 - include: "setup-system-params.yml"
-  tags: "setup-system-params"
+  when: "system_setup_system_params == 'yes'"
+  tags: [ "system", "setup-system-params" ]
 
 # ex: et ts=2 filetype=yaml

@@ -4,9 +4,8 @@ dependencies:
 
   - "python-common"
   - "build-python"
-  - "setup-python-alternatives"
   - "install-python-pip"
-  - "setup-python-pip-alternatives"
+  - "setup-python-bin-links"
   - "install-python-packages"
   - "build-python-apt"
 
