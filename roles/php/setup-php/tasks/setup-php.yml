@@ -31,4 +31,10 @@
     state: "link"
     src: "../../mods-available/{{ item.1.name }}.ini"
 
+- name: "set php.state to 'enabled'"
+  update_resource:
+    php.state: "enabled"
+  when: "php_state == 'installed'"
+  tags: [ "php", "setup-php" ]
+
 # ex: et ts=2 filetype=yaml

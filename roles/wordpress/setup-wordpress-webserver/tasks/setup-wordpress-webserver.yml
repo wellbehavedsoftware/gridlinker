@@ -129,18 +129,24 @@
 
     cd {{ item.website.path }};
 
-    find . \(
-      -path {{ item.website.ignore_paths | join (' -o -path ./') }}
-    \) -prune -o \(
+    find . \( {{ []
+      | union (item.website.private_paths)
+      | union (item.website.web_paths)
+      | prepend_list ('-name ')
+      | join (' ')
+    }} \) -prune -o \(
       -user ubuntu
       -group www-data
     \) -o -print0
     | xargs --null --no-run-if-empty
     chown ubuntu:www-data;
 
-    find . \(
-      -path {{ item.website.ignore_paths | join (' -o -path ./') }}
-    \) -prune -o \(
+    find . \( {{ []
+      | union (item.website.private_paths)
+      | union (item.website.web_paths)
+      | prepend_list ('-name ')
+      | join (' ')
+    }} \) -prune -o \(
       ! -type f
     \) -o \(
       -perm 0640
@@ -148,9 +154,12 @@
     | xargs --null --no-run-if-empty
     chmod 0640;
 
-    find . \(
-      -path {{ item.website.ignore_paths | join (' -o -path ./') }}
-    \) -prune -o \(
+    find . \( {{ []
+      | union (item.website.private_paths)
+      | union (item.website.web_paths)
+      | prepend_list ('-name ')
+      | join (' ')
+    }} \) -prune -o \(
       ! -type d
     \) -o \(
       -perm 0750
