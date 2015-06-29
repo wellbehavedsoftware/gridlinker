@@ -1,0 +1,6 @@
+---
+
+- include: "setup-python-bin-links.yml"
+  tags: [ "python", "setup-python-bin-links" ]
+
+# ex: et ts=2 filetype=yaml
