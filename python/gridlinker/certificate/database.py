@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import itertools
 import sys
 
 from OpenSSL import crypto
@@ -44,7 +45,7 @@ class CertificateDatabase:
 
 		pass
 
-	def request (self, name):
+	def request (self, name, alt_names):
 
 		# create key
 
@@ -64,6 +65,17 @@ class CertificateDatabase:
 		request_csr.get_subject ().L = self.data ["locality"]
 		request_csr.get_subject ().O = self.data ["organization"]
 		request_csr.get_subject ().CN = name
+
+		if (alt_names):
+
+			request_csr.add_extensions ([
+
+				crypto.X509Extension (
+					"subjectAltName",
+					False,
+					",".join (alt_names)),
+
+			])
 
 		request_csr.sign (request_key, "sha256")
 
@@ -574,6 +586,29 @@ def args_request (sub_parsers):
 		action = "store_true",
 		help = "print the pem encoded request to stdout")
 
+	# alt names
+
+	parser_alt_names = parser.add_argument_group (
+		"alt names")
+
+	parser_alt_names.add_argument (
+		"--alt-dns",
+		help = "alternative dns hostname",
+		default = [],
+		action = "append")
+
+	parser_alt_names.add_argument (
+		"--alt-ip",
+		help = "alternative ip address",
+		default = [],
+		action = "append")
+
+	parser_alt_names.add_argument (
+		"--alt-email",
+		help = "alternative email address",
+		default = [],
+		action = "append")
+
 def do_request (context, args):
 
 	database = CertificateDatabase (
@@ -581,8 +616,15 @@ def do_request (context, args):
 		"/certificate/" + args.database,
 		context.certificate_data)
 
+	alt_names = list (itertools.chain.from_iterable ([
+		[ "DNS:" + alt_dns for alt_dns in args.alt_dns ],
+		[ "IP:" + alt_ip for alt_ip in args.alt_ip ],
+		[ "email:" + alt_email for alt_email in args.alt_email ],
+	]))
+
 	success, csr, key = database.request (
-		args.common_name)
+		args.common_name,
+		alt_names)
 
 	if success:
 
