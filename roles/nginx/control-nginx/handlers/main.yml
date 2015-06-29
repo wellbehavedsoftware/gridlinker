@@ -5,20 +5,19 @@
   sudo: "yes"
 
 - name: "set nginx.needs_restart to 'yes'"
-  when: "nginx_state == 'running'"
+  when: "nginx_state == 'enabled'"
   update_resource:
     nginx.needs_restart: "yes"
   changed_when: "True"
   notify: "restart nginx"
 
 - name: "restart nginx"
-  when: "nginx_state == 'running'"
+  when: "nginx_state == 'enabled'"
   action:
     module: "service"
     name: "nginx"
     state: "restarted"
   sudo: "yes"
-  when: "nginx_state == 'running'"
   notify: "set nginx.needs_restart to 'no'"
 
 - name: "set nginx.needs_restart to 'no'"

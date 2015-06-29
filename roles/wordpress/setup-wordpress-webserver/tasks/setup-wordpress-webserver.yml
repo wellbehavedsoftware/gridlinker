@@ -1,0 +1,206 @@
+---
+
+- name: "create database"
+  tags: "config"
+  with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
+  action:
+
+    module: "mysql_db"
+    login_user: "root"
+    login_password: "{{ mysql_root_password }}"
+    name: "{{ item.database.name }}"
+
+- name: "create database user"
+  tags: "config"
+  with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
+  action:
+
+    module: "mysql_user"
+    name: "{{ item.database.user }}"
+    password: "{{ item.database.password }}"
+    priv: "{{ item.database.name }}.*:ALL"
+    host: "%"
+
+- name: "create nginx site"
+  tags: "config"
+  with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
+  sudo: "yes"
+  notify: "set nginx.needs_restart to 'yes'"
+  action:
+
+    module: "template"
+    src: "wordpress-nginx-site"
+    dest: "/etc/nginx/sites-available/{{ wordpress_server_prefix }}-{{ item.identity.name }}.conf"
+
+- name: "enable nginx site"
+  tags: "config"
+  with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
+  sudo: "yes"
+  notify: "set nginx.needs_restart to 'yes'"
+  action:
+
+    module: "file"
+    dest: "/etc/nginx/sites-enabled/{{ wordpress_server_prefix }}-{{ item.identity.name }}.conf"
+    state: "link"
+    src: "../sites-available/{{ wordpress_server_prefix }}-{{ item.identity.name }}.conf"
+
+- meta: "flush_handlers"
+
+- name: "create directory"
+  tags: "deploy"
+  with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.website.path }}"
+    state: "directory"
+    owner: "ubuntu"
+    group: "www-data"
+    mode: "0755"
+
+- name: "deploy code"
+  tags: "deploy"
+  with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
+  action:
+
+    module: "git"
+    dest: "{{ item.website.path }}"
+    repo: "{{ item.source.repository }}"
+    version: "{{ item.source.branch }}"
+
+- name: "create wp-config.php"
+  tags: "config"
+  with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
+  action:
+
+    module: "template"
+    src: "wordpress-wp-config"
+    dest: "{{ item.website.path }}/wp-config.php"
+
+- name: "fix database urls"
+  tags: "data"
+  with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
+  args:
+    executable: "/bin/bash"
+  shell:
+
+    set -euf -o pipefail;
+
+    mysql "{{ item.database.name }}" --execute "
+
+      UPDATE wp_options
+      SET option_value = 'https://{{ item.website.hostname }}'
+      WHERE option_name IN (
+        'home',
+        'siteurl'
+      );
+
+    " || true;
+
+- name: "fix database emails"
+  tags: "data"
+  with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
+  args:
+    executable: "/bin/bash"
+  shell:
+
+    set -euf -o pipefail;
+
+    mysql "{{ item.database.name }}" --execute "
+
+      UPDATE wp_options
+      SET option_value = '{{ item.website.email }}'
+      WHERE option_name IN (
+        'admin_email',
+        'woocommerce_stock_email_recipient',
+        'woocommerce_email_from_address'
+      );
+
+    " || true;
+
+- name: "fix main permissions"
+  tags: "perms"
+  with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
+  sudo: "yes"
+  shell:
+
+    set -e;
+
+    cd {{ item.website.path }};
+
+    find . \( {{ []
+      | union (item.website.private_paths)
+      | union (item.website.web_paths)
+      | prepend_list ('-name ')
+      | join (' ')
+    }} \) -prune -o \(
+      -user ubuntu
+      -group www-data
+    \) -o -print0
+    | xargs --null --no-run-if-empty
+    chown ubuntu:www-data;
+
+    find . \( {{ []
+      | union (item.website.private_paths)
+      | union (item.website.web_paths)
+      | prepend_list ('-name ')
+      | join (' ')
+    }} \) -prune -o \(
+      ! -type f
+    \) -o \(
+      -perm 0640
+    \) -o -print0
+    | xargs --null --no-run-if-empty
+    chmod 0640;
+
+    find . \( {{ []
+      | union (item.website.private_paths)
+      | union (item.website.web_paths)
+      | prepend_list ('-name ')
+      | join (' ')
+    }} \) -prune -o \(
+      ! -type d
+    \) -o \(
+      -perm 0750
+    \) -o -print0
+    | xargs --null --no-run-if-empty
+    chmod 0750;
+
+- name: "fix dynamic permissions"
+  tags: "perms"
+  with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
+  sudo: "yes"
+  shell:
+
+    set -e;
+
+    cd {{ item.website.path }};
+
+    find ./{{ item.website.web_paths | join (' ./') }}
+    \(
+      -user www-data
+      -group ubuntu
+    \) -o -print0
+    | xargs --null --no-run-if-empty
+    chown www-data:ubuntu;
+
+    find ./{{ item.website.web_paths | join (' ./') }}
+    \(
+      ! -type f
+    \) -o \(
+      -perm 0660
+    \) -o -print0
+    | xargs --null --no-run-if-empty
+    chmod 0660;
+
+    find ./{{ item.website.web_paths | join (' ./') }}
+    \(
+      ! -type d
+    \) -o \(
+      -perm 0770
+    \) -o -print0
+    | xargs --null --no-run-if-empty
+    chmod 0770;
+
+# ex: et ts=2 filetype=yaml

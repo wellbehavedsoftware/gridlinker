@@ -119,7 +119,7 @@ class CertificateDatabase:
 
 		# create cancelled
 
-		cancelled_path, cancelled_index = self.client.make_queue_dir (
+		cancelled_path, cancelled_index = self.client.mkdir_queue (
 			request_path + "/cancelled")
 
 		self.client.set_raw (
@@ -132,13 +132,13 @@ class CertificateDatabase:
 
 		# remove pending
 
-		self.client.rm_raw (
+		self.client.rm (
 			request_path + "/pending/request")
 
-		self.client.rm_raw (
+		self.client.rm (
 			request_path + "/pending/key")
 
-		self.client.rmdir_raw (
+		self.client.rmdir (
 			request_path + "/pending")
 
 		return True
@@ -155,7 +155,7 @@ class CertificateDatabase:
 
 		if not self.client.exists (request_path + "/pending"):
 
-			raise Error ("No request pending")
+			raise Exception ("No request pending")
 
 		# read pending
 
@@ -408,16 +408,16 @@ class CertificateDatabase:
 
 			# remove current
 
-			self.client.rm_raw (
+			self.client.rm (
 				request_path + "/current/request")
 
-			self.client.rm_raw (
+			self.client.rm (
 				request_path + "/current/certificate")
 
-			self.client.rm_raw (
+			self.client.rm (
 				request_path + "/current/key")
 
-			self.client.rmdir_raw (
+			self.client.rmdir (
 				request_path + "/current")
 
 		# store new certificate

@@ -1,48 +1,74 @@
 ---
 
 - name: "configure ssh daemon"
+  sudo: "yes"
+  notify: "restart sshd"
   action:
+
     module: "template"
     src: "ssh-server-sshd-config"
     dest: "/etc/ssh/sshd_config"
-  sudo: "yes"
-  notify: "restart sshd"
 
 - name: "create root ssh directory"
+  sudo: "yes"
   action:
+
     module: "file"
     path: "/root/.ssh"
     state: "directory"
-  sudo: "yes"
 
-- name: "create root authorized keys"
+- name: "create root authorized_keys directory"
+  sudo: "yes"
   action:
+
+    module: "file"
+    path: "/root/.ssh/authorized_keys.d"
+    state: "directory"
+
+- name: "create root authorized_keys"
+  sudo: "yes"
+  action:
+
     module: "template"
+    dest: "/root/.ssh/authorized_keys.d/{{ NAME }}"
     src: "ssh-server-authorized-keys"
-    dest: "/root/.ssh/authorized_keys"
-  when: "ssh_authorized_keys is defined"
-  sudo: "yes"
 
-- name: "create root private key"
-  action:
-    module: "copy"
-    dest: "/root/.ssh/id_rsa"
-    content: "{{ lookup ('etcd', ssh_root_key) }}"
-    mode: "0600"
-  when: "ssh_root_key is defined"
+- name: "assemble root authorized_keys"
   sudo: "yes"
+  action:
+
+    module: "assemble"
+    dest: "/root/.ssh/authorized_keys"
+    src: "/root/.ssh/authorized_keys.d"
+    mode: "0644"
 
 - name: "create ubuntu ssh directory"
   action:
+
     module: "file"
     path: "/home/ubuntu/.ssh"
     state: "directory"
 
-- name: "create ubuntu authorized keys"
+- name: "create ubuntu authorized_keys directory"
   action:
+
+    module: "file"
+    path: "/home/ubuntu/.ssh/authorized_keys.d"
+    state: "directory"
+
+- name: "create ubuntu authorized_keys"
+  action:
+
     module: "template"
+    dest: "/home/ubuntu/.ssh/authorized_keys.d/{{ NAME }}"
     src: "ssh-server-authorized-keys"
+
+- name: "assemble ubuntu authorized_keys"
+  action:
+
+    module: "assemble"
     dest: "/home/ubuntu/.ssh/authorized_keys"
-  when: "ssh_authorized_keys is defined"
+    src: "/home/ubuntu/.ssh/authorized_keys.d"
+    mode: "0644"
 
 # ex: et ts=2 filetype=yaml

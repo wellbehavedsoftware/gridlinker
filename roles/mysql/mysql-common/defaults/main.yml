@@ -1,0 +1,11 @@
+---
+
+mysql_port: "3306"
+
+mysql_state: "no"
+mysql_needs_restart: "no"
+
+mysql_replication: "no"
+mysql_replication_user: "replication"
+
+# ex: et ts=2 filetype=yaml

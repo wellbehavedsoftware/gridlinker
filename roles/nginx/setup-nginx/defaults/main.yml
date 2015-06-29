@@ -1,9 +1,0 @@
----
-
-nginx_http_port: "80"
-nginx_https_port: "443"
-
-nginx_server_names_hash_bucket_size: "128"
-nginx_server_names_hash_max_size: "1024"
-
-# ex: et ts=2 filetype=yaml

@@ -7,7 +7,24 @@ def flatten_hash (values, * inner_names):
 
 	ret = []
 
-	for outer_key, outer_value in values.items ():
+	if isinstance (values, list):
+
+		outer_list = [
+			(item, item)
+			for item in values
+		]
+
+	elif isinstance (values, dict):
+
+		outer_list = [
+			({ "key": outer_key, "value": outer_value }, outer_value)
+			for outer_key, outer_value in values.items ()
+		]
+
+	else:
+		raise Exception ()
+
+	for outer_item, outer_value in outer_list:
 
 		for inner_items in itertools.product (* [
 			outer_value [inner_name]
@@ -19,10 +36,7 @@ def flatten_hash (values, * inner_names):
 				continue
 
 			item = {
-				"outer": {
-					"key": outer_key,
-					"value": outer_value,
-				},
+				"outer": outer_item,
 			}
 
 			for index, inner_name in enumerate (inner_names):
@@ -70,6 +84,20 @@ def dict_map (keys, mapping):
 		for key in keys
 	]
 
+def prepend_list (items, string):
+
+	return [
+		string + item
+		for item in items
+	]
+
+def append_list (items, string):
+
+	return [
+		item + string
+		for item in items
+	]
+
 class FilterModule (object):
 
     def filters (self):
@@ -79,5 +107,8 @@ class FilterModule (object):
 			"flatten_hash": flatten_hash,
 			"list_to_map": list_to_map,
 			"dict_map": dict_map,
+
+			"prepend_list": prepend_list,
+			"append_list": append_list,
 
 		}

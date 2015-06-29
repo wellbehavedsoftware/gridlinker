@@ -1,25 +1,21 @@
 ---
 
-- name: "set mysql.state to 'starting'"
-  update_resource:
-    mysql.state: "starting"
-  when: "mysql_state == 'unsynchronized' and mysql_server_id is not defined"
-  tags: [ "mysql", "synchronize-mysql" ]
-
 - name: "set mysql.state to 'synchronizing'"
-  update_resource:
-    mysql.state: "synchronizing"
-  when: "mysql_state == 'unsynchronized'"
   tags: [ "mysql", "synchronize-mysql" ]
+  when: "mysql_state == 'configured' and mysql_replication == 'yes'"
+  update_resource:
+
+    mysql.state: "synchronizing"
 
 - include: "synchronize-mysql.yml"
   when: "mysql_state == 'synchronizing'"
   tags: [ "mysql", "synchronize-mysql" ]
 
-- name: "set mysql.state to 'stopped'"
-  update_resource:
-    mysql.state: "stopped"
+- name: "set mysql.state to 'disabled'"
   when: "mysql_state == 'synchronizing'"
   tags: [ "mysql", "synchronize-mysql" ]
+  update_resource:
+
+    mysql.state: "disabled"
 
 # ex: et ts=2 filetype=yaml

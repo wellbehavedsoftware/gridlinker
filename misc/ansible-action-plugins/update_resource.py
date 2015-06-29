@@ -38,6 +38,8 @@ class ActionModule (object):
 
 		resource_data = self.context.resources.get_slow (resource_name)
 
+		changed = False
+
 		for key, value in complex_args.items ():
 
 			dynamic_path = template.template (self.runner.basedir, key, inject)
@@ -49,19 +51,26 @@ class ActionModule (object):
 
 			prefix, rest = dynamic_path.split (".", 2)
 
+			options.setdefault (prefix, inject.get (prefix, {}))
+
+			if rest in options [prefix] \
+			and options [prefix] [rest] == value:
+				continue
+
+			changed = True
+
 			resource_data.setdefault (prefix, {})
 			resource_data [prefix] [rest] = value
 
-			options.setdefault (prefix, inject.get (prefix, {}))
 			options [prefix] [rest] = value
 			options [prefix + "_" + rest] = value
 
 		self.context.resources.set (resource_name, resource_data)
 
 		return ReturnData (
-
 			conn = conn,
 			result = dict (
-				ansible_facts = options))
+				ansible_facts = options,
+				changed = changed))
 
 # ex: noet ts=4 filetype=python

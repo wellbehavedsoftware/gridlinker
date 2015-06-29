@@ -8,7 +8,9 @@ import sys
 
 from OpenSSL import crypto, rand
 
+from gridlinker.certificate.certificate import AlreadyExistsError
 from gridlinker.certificate.certificate import Certificate
+from gridlinker.certificate.certificate import IllegalStateError
 
 from wbs import SchemaField, SchemaGroup
 
@@ -17,12 +19,6 @@ serial_pattern = re.compile (
 
 digest_pattern = re.compile (
 	r"^\d{2}(:\d{2})*$")
-
-class AlreadyExistsError (Exception):
-	pass
-
-class IllegalStateError (Exception):
-	pass
 
 class CertificateAuthority:
 

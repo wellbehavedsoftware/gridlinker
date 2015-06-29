@@ -1,36 +1,41 @@
 ---
 
 - name: "install mysql packages"
-  action:
-    module: "apt"
-    name: "{{ item }}"
   sudo: "yes"
   with_items:
 
     - "mysql-server-5.5"
     - "python-mysqldb"
 
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
 - name: "generate mysql root password"
+  when: "mysql_root_password is not defined"
   update_resource:
+
     mysql.root_password: "{{ 20 | generate_random }}"
-  when: "mysql.root_password is not defined"
 
 - name: "create mysql root user"
+  when: "
+    (
+      mysql_replication == 'no'
+      or identity.name == mysql_master
+    ) and mysql_state in [ 'no', 'enabled' ]
+  "
   action:
+
     module: "mysql_user"
     name: "root"
     password: "{{ mysql_root_password }}"
     priv: "*.*:ALL,GRANT"
-  when: "
-    (
-      mysql_replication == 'no'
-      or inventory_hostname == mysql_master
-    ) and mysql_state in [ 'installing', 'running' ]
-  "
+    host: "localhost"
 
 - name: "install mysql user config"
   sudo: "yes"
-  when: "mysql_state in [ 'installing', 'running' ]"
+  when: "mysql_state in [ 'no', 'enabled' ]"
   action:
 
     module: "template"
@@ -49,12 +54,20 @@
       home: "/home/ubuntu"
 
 - name: "disable mysql sysv init"
-  sudo: "yes"
-  register: "mysql_sysv_result"
   changed_when: "mysql_sysv_result.stdout != 'UNCHANGED'"
+  register: "mysql_sysv_result"
+  sudo: "yes"
   shell:
+
     test -e /etc/init.d/mysql || { echo UNCHANGED; exit 0; };
     service mysql stop;
     rm -f /etc/init.d/mysql /etc/init.d/rc?.d/[KS]??mysql;
+
+- name: "set mysql.state to 'installed'"
+  when: "mysql_state == 'no'"
+  tags: [ "mysql", "install-mysql" ]
+  update_resource:
+
+    mysql.state: "installed"
 
 # ex: et ts=2 filetype=yaml

@@ -334,9 +334,6 @@ class NameArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
-		if "name" in record_data ["identity"]:
-			return
-
 		value = arg_vars ["name"]
 
 		if not value:

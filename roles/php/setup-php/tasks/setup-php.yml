@@ -17,4 +17,24 @@
       target: "/etc/php5/cli/php.ini"
       type: "cli"
 
+- name: "enable php modules"
+  with_nested:
+    - [ "cli", "fpm" ]
+    - "php_modules"
+  when: "item.1.state == 'enabled'"
+  notify: "set php.needs_restart to 'yes'"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "/etc/php5/{{ item.0 }}/conf.d/{{ item.1.priority }}-{{ item.1.name }}.ini"
+    state: "link"
+    src: "../../mods-available/{{ item.1.name }}.ini"
+
+- name: "set php.state to 'enabled'"
+  update_resource:
+    php.state: "enabled"
+  when: "php_state == 'installed'"
+  tags: [ "php", "setup-php" ]
+
 # ex: et ts=2 filetype=yaml

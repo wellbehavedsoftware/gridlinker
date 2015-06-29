@@ -1,0 +1,48 @@
+---
+
+- name: "copy files"
+  when: "identity.name == to_webserver_name"
+  args:
+    executable: "/bin/bash"
+  shell:
+
+    set -euf -o pipefail;
+
+    mkdir --parents
+      {{ to_website.website.path }}/wp-content/uploads/;
+
+    sudo chown -R ubuntu:www-data
+      {{ to_website.website.path }}/wp-content/uploads/;
+
+    rsync --archive --delete
+      {{ from_webserver_name }}:{{ from_website.website.path }}/wp-content/uploads/
+      {{ to_website.website.path }}/wp-content/uploads/;
+
+- name: "copy database"
+  when: "identity.name == to_webserver_name"
+  args:
+    executable: "/bin/bash"
+  shell:
+
+    set -euf -o pipefail;
+
+    mysql --execute
+      "DROP DATABASE {{ to_website.database.name }}"
+    || true;
+
+    mysql --execute
+      "CREATE DATABASE {{ to_website.database.name }}";
+
+    mysqldump
+      --host={{ from_webserver_name }}
+      --user=root
+      --password={{ from_webserver.mysql_root_password }}
+      --single-transaction
+      {{ from_website.database.name }}
+    | mysql
+      --host={{ to_webserver_name }}
+      --user=root
+      --password={{ to_webserver.mysql_root_password }}
+      {{ to_website.database.name }};
+
+# ex: et ts=2 filetype=yaml

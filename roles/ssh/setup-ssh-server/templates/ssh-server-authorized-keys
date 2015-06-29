@@ -1,3 +1,42 @@
-{% for ssh_key in ssh_authorized_keys %}
-{{ ssh_key }}
-{% endfor %}
+{%- macro do_key (ssh_key) -%}
+
+	{%- if ssh_key is mapping -%}
+
+		{%- if ssh_key.type == 'etcd' -%}
+
+			{%- if 'sources' in ssh_key -%}
+				{%- for source in ssh_key.sources -%}
+					{%- print lookup ('etcd', source), '\n' -%}
+				{%- endfor -%}
+			{%- endif -%}
+
+		{%- elif ssh_key.type == 'resource' -%}
+
+			{%- for resource_name in groups [ssh_key.group] -%}
+				{%- set resource_data = hostvars [resource_name] -%}
+
+				{%- for resource_key in ssh_key ['keys'] -%}
+					{%- if resource_key in resource_data -%}
+						{%- print resource_data [resource_key], '\n' -%}
+					{%- endif -%}
+				{%- endfor -%}
+
+			{%- endfor -%}
+
+		{%- else -%}
+
+			{%- print 1/0 -%}
+
+		{%- endif -%}
+
+	{%- else -%}
+
+		{%- print ssh_key, '\n' -%}
+
+	{%- endif -%}
+
+{%- endmacro -%}
+
+{%- for ssh_key in ssh_authorized_keys -%}
+	{%- print do_key (ssh_key) -%}
+{%- endfor -%}

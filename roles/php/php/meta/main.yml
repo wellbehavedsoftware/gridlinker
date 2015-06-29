@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "php-common"
+  - "install-php"
+  - "setup-php"
+  - "control-php"
+
+# ex: et ts=2 filetype=yaml

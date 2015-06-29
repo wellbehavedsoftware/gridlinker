@@ -1,8 +1,8 @@
 ---
 
 - name: "install etcd"
+  when: "etcd_installed_version != etcd_version"
   sudo: "yes"
-  when: "etcd_state == 'installing'"
   args:
     executable: "/bin/bash"
   shell:
@@ -22,5 +22,19 @@
       "{{ etcd_target }}/";
 
     rm -rf "{{ etcd_temp }}";
+
+- name: "set etcd.state to 'installed'"
+  when: "etcd_state == 'no'"
+  tags: [ "etcd", "install-etcd" ]
+  update_resource:
+
+    etcd.state: "installed"
+
+- name: "set etcd.installed_version"
+  when: "etcd_installed_version != etcd_version"
+  tags: [ "etcd", "install-etcd" ]
+  update_resource:
+
+    etcd.installed_version: "{{ etcd_version }}"
 
 # ex: et ts=2 filetype=yaml

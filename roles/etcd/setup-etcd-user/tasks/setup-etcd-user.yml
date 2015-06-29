@@ -1,0 +1,21 @@
+---
+
+- name: "issue etcd client certificate"
+  when: "etcd_client_certificate is not defined"
+  register: "etcd_client_result"
+  action:
+
+    module: "certificate_authority_issue"
+    authority: "{{ etcd_client_authority }}"
+    common_name: "{{ etcd_user_email }}"
+    usage: "client"
+    alt_email: "{{ etcd_user_emails }}"
+
+- name: "store etcd client certificate"
+  when: "etcd_client_result | changed"
+  update_resource:
+
+    etcd.client_certificate: "{{ etcd_client_result.certificate }}"
+    etcd.client_private_key: "{{ etcd_client_result.private_key }}"
+
+# ex: et ts=2 filetype=yaml

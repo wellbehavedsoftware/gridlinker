@@ -1,5 +1,49 @@
 ---
 
+- name: "issue etcd client certificate"
+  when: "
+    etcd_secured == 'yes'
+    and etcd_client_certificate is not defined
+  "
+  register: "etcd_client_result"
+  action:
+
+    module: "certificate_authority_issue"
+    authority: "{{ etcd_client_authority }}"
+    common_name: "{{ etcd_client_hostname }}"
+    usage: "mixed"
+    alt_dns: "{{ etcd_client_hostnames }}"
+    alt_ip: "{{ etcd_client_ips }}"
+
+- name: "store etcd client certificate"
+  when: "etcd_client_result | changed"
+  update_resource:
+
+    etcd.client_certificate: "{{ etcd_client_result.certificate }}"
+    etcd.client_private_key: "{{ etcd_client_result.private_key }}"
+
+- name: "issue etcd peer certificate"
+  when: "
+    etcd_secured == 'yes'
+    and etcd_peer_certificate is not defined
+  "
+  register: "etcd_peer_result"
+  action:
+
+    module: "certificate_authority_issue"
+    authority: "{{ etcd_peer_authority }}"
+    common_name: "{{ etcd_peer_hostname }}"
+    usage: "mixed"
+    alt_dns: "{{ etcd_peer_hostnames }}"
+    alt_ip: "{{ etcd_peer_ips }}"
+
+- name: "store etcd peer certificate"
+  when: "etcd_peer_result | changed"
+  update_resource:
+
+    etcd.peer_certificate: "{{ etcd_peer_result.certificate }}"
+    etcd.peer_private_key: "{{ etcd_peer_result.private_key }}"
+
 - name: "create etcd directories"
   action:
     module: "file"

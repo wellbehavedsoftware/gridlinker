@@ -1,18 +1,6 @@
 ---
 
-- name: "set php.state to 'configuring'"
-  update_resource:
-    php.state: "configuring"
-  when: "php_state == 'unconfigured'"
-  tags: [ "php", "setup-php" ]
-
 - include: "setup-php.yml"
-  tags: [ "php", "setup-php" ]
-
-- name: "set php.state to 'stopped'"
-  update_resource:
-    php.state: "stopped"
-  when: "php_state == 'configuring'"
   tags: [ "php", "setup-php" ]
 
 # ex: et ts=2 filetype=yaml

@@ -1,18 +1,12 @@
 ---
 
-- name: "set nginx.state to 'installing'"
-  update_resource:
-    nginx.state: "installing"
-  when: "nginx_state is not defined"
-  tags: [ "nginx", "install-nginx" ]
-
 - include: "install-nginx.yml"
   tags: [ "nginx", "install-nginx" ]
 
-- name: "set nginx.state to 'unconfigured'"
+- name: "set nginx.state to 'installed'"
   update_resource:
-    nginx.state: "unconfigured"
-  when: "nginx_state == 'installing'"
+    nginx.state: "installed"
+  when: "nginx_state == 'no'"
   tags: [ "nginx", "install-nginx" ]
 
 # ex: et ts=2 filetype=yaml
