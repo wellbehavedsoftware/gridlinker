@@ -2,6 +2,7 @@
 
 mysql_port: "3306"
 
+mysql_state: "no"
 mysql_needs_restart: "no"
 
 mysql_replication: "no"

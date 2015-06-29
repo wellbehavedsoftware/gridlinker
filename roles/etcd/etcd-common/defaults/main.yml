@@ -2,11 +2,10 @@
 
 etcd_name: "{{ identity.name }}"
 etcd_hostname: "{{ etcd_name }}"
-etcd_hostnames: [ "{{ etcd_hostname }}" ]
 etcd_ips: []
 
 etcd_peer_hostname: "{{ etcd_hostname }}"
-etcd_peer_hostnames: "{{ etcd_hostnames }}"
+etcd_peer_hostnames: [ "{{ etcd_peer_hostname }}" ]
 etcd_peer_ips: "{{ etcd_ips }}"
 etcd_peer_protocol: "{{ 'https' if etcd_secured == 'yes' else 'http' }}"
 etcd_peer_port: "2380"
@@ -17,7 +16,7 @@ etcd_peer_urls: "{{ etcd_peer_hostnames
 }}"
 
 etcd_client_hostname: "{{ etcd_hostname }}"
-etcd_client_hostnames: "{{ etcd_hostnames }}"
+etcd_client_hostnames: [ "{{ etcd_client_hostname }}" ]
 etcd_client_ips: "{{ etcd_ips }}"
 etcd_client_protocol: "{{ 'https' if etcd_secured == 'yes' else 'http' }}"
 etcd_client_port: "2379"

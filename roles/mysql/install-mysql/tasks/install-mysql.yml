@@ -13,7 +13,7 @@
     name: "{{ item }}"
 
 - name: "generate mysql root password"
-  when: "mysql.root_password is not defined"
+  when: "mysql_root_password is not defined"
   update_resource:
 
     mysql.root_password: "{{ 20 | generate_random }}"
@@ -25,18 +25,13 @@
       or identity.name == mysql_master
     ) and mysql_state in [ 'no', 'enabled' ]
   "
-  with_items:
-
-    - "localhost"
-    - "%"
-
   action:
 
     module: "mysql_user"
     name: "root"
     password: "{{ mysql_root_password }}"
     priv: "*.*:ALL,GRANT"
-    host: "{{ item }}"
+    host: "localhost"
 
 - name: "install mysql user config"
   sudo: "yes"

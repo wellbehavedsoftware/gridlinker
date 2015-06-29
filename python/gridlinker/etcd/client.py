@@ -351,15 +351,17 @@ class EtcdClient:
 
 	def mkdir_queue (self, key):
 
-		result = self.etcd_client.write (
-			key = self.prefix + key,
-			value = None,
-			append = True,
-			dir = True)
+		status, data = self.make_request (
+			method = "POST",
+			url = self.key_url (key),
+			query_data = {
+				"dir": "true",
+			},
+			accept_response = [ 201 ])
 
 		return (
-			str (result.key [len (self.prefix):]),
-			str (result.createdIndex),
+			data ["node"] ["key"] [len (self.prefix) : ],
+			data ["node"] ["createdIndex"],
 		)
 
 	def get_yaml (self, key):

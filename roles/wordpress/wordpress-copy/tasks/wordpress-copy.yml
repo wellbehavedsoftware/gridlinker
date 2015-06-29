@@ -11,27 +11,38 @@
     mkdir --parents
       {{ to_website.website.path }}/wp-content/uploads/;
 
+    sudo chown -R ubuntu:www-data
+      {{ to_website.website.path }}/wp-content/uploads/;
+
     rsync --archive --delete
       {{ from_webserver_name }}:{{ from_website.website.path }}/wp-content/uploads/
       {{ to_website.website.path }}/wp-content/uploads/;
 
 - name: "copy database"
   when: "identity.name == to_webserver_name"
+  args:
+    executable: "/bin/bash"
   shell:
 
-    mysql -e "DROP DATABASE {{ to_website.database.name }}";
+    set -euf -o pipefail;
 
-    mysql -e "CREATE DATABASE {{ to_website.database.name }}";
+    mysql --execute
+      "DROP DATABASE {{ to_website.database.name }}"
+    || true;
+
+    mysql --execute
+      "CREATE DATABASE {{ to_website.database.name }}";
 
     mysqldump
       --host={{ from_webserver_name }}
-      --user={{ from_website.database.name }}
-      --password={{ from_website.database.password }}
+      --user=root
+      --password={{ from_webserver.mysql_root_password }}
+      --single-transaction
       {{ from_website.database.name }}
     | mysql
       --host={{ to_webserver_name }}
-      --user={{ to_website.database.name }}
-      --password={{ to_website.database.password }}
+      --user=root
+      --password={{ to_webserver.mysql_root_password }}
       {{ to_website.database.name }};
 
 # ex: et ts=2 filetype=yaml
