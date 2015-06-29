@@ -528,7 +528,6 @@ class Inventory (object):
 
 			return self.resolve_variable (
 				grandparent_name,
-				grandparent_data,
 				".".join (parts [1:]))
 
 		current = resource_data

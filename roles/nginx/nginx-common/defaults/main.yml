@@ -13,4 +13,6 @@ nginx_fastcgi_send_timeout: "60s"
 nginx_state: "no"
 nginx_needs_restart: "no"
 
+nginx_ssl_certificates: []
+
 # ex: et ts=2 filetype=yaml

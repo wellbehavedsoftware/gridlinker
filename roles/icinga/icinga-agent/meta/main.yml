@@ -1,0 +1,9 @@
+---
+
+dependencies:
+
+  - "install-icinga"
+  - "setup-icinga-agent"
+  - "control-icinga"
+
+# ex: et ts=2 filetype=yaml

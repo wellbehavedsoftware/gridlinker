@@ -1,0 +1,7 @@
+{%- print lookup ('etcd', [
+	'/certificate/',
+	item.outer.database,
+	'/',
+	item.domains,
+	'/current/key',
+] | join), '\n' -%}

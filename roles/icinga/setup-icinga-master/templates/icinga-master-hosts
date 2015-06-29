@@ -11,7 +11,7 @@ template Host "generic-host" {
 {% for host_name in groups [icinga_master.endpoints] %}
 {% set host = hostvars [host_name] %}
 
-object Host "{{ host_name }}" {
+object Host "{{ host.identity_name }}" {
 
 	import "generic-host"
 
@@ -26,7 +26,7 @@ object Host "{{ host_name }}" {
 {% for host_name in groups [icinga_master.hosts] %}
 {% set host = hostvars [host_name] %}
 
-object Host "{{ host_name }}" {
+object Host "{{ host.identity_name }}" {
 
 	import "generic-host"
 
