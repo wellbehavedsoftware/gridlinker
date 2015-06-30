@@ -8,81 +8,106 @@ import os
 import sys
 import yaml
 
-main_path = __file__
+def outer_main ():
 
-while os.path.islink (main_path):
+	setup_imports ()
 
-	main_path = os.path.normpath (
-		os.path.join (
-			os.path.dirname (main_path),
-			os.readlink (main_path)))
+	from wbs import error_exit
+	from wbs import ReportableError
 
-SCRIPT = os.path.basename (__file__)
+	try:
 
-HOME = os.path.abspath (os.path.dirname (main_path) + "/../../..")
+		load_config ()
+		inner_main ()
 
-sys.path.append (HOME + "/python")
-sys.path.append (HOME + "/third-party/gridlinker/python")
+	except ReportableError as error:
 
-import gridlinker
+		error_exit (error)
 
-METADATA = gridlinker.metadata.load (HOME)
+def setup_imports ():
 
-METADATA_PATHS = METADATA.setdefault ("paths", {})
-CONFIG = METADATA_PATHS.setdefault ("config", "config")
-OVERRIDES = METADATA_PATHS.setdefault ("overrides", "%s/overrides.yml" % CONFIG)
-CONNECTIONS = METADATA_PATHS.setdefault ("connections", "%s/connections.yml" % CONFIG)
-WORK = METADATA_PATHS.setdefault ("work", "work")
+	global HOME
+	global SCRIPT
 
-os.environ [METADATA ["environment"] ["devops_home_path"]] = HOME
+	main_path = __file__
 
-if not os.path.isdir ("%s/%s" % (HOME, CONFIG)):
-	os.mkdir ("%s/%s" % (HOME, CONFIG))
+	while os.path.islink (main_path):
 
-if not os.path.isfile ("%s/%s" % (HOME, OVERRIDES)):
+		main_path = os.path.normpath (
+			os.path.join (
+				os.path.dirname (main_path),
+				os.readlink (main_path)))
 
-	with open ("%s/%s" % (HOME, OVERRIDES), "w") as file_handle:
+	SCRIPT = os.path.basename (__file__)
 
-		file_handle.write ("".join ([
-			"---\n\n",
-			"{}\n\n",
-			"# ex: et ts=2 filetype=yaml\n",
-		]))
+	HOME = os.path.abspath (os.path.dirname (main_path) + "/../../..")
 
-if not os.path.isfile ("%s/%s" % (HOME, CONNECTIONS)):
+	sys.path.append (HOME + "/python")
+	sys.path.append (HOME + "/third-party/gridlinker/python")
 
-	with open ("%s/%s" % (HOME, CONNECTIONS), "w") as file_handle:
+def load_config ():
 
-		file_handle.write ("---\n\n")
+	import gridlinker
 
-		yaml.safe_dump (
-			METADATA ["etcd"] ["default_connections"],
-			file_handle)
+	global METADATA
+	global CONNECTION
 
-		file_handle.write ("\n# ex: et ts=2 filetype=yaml\n")
+	METADATA = gridlinker.metadata.load (HOME)
 
-if not os.path.isdir ("%s/%s" % (HOME, WORK)):
+	METADATA_PATHS = METADATA.setdefault ("paths", {})
+	CONFIG = METADATA_PATHS.setdefault ("config", "config")
+	OVERRIDES = METADATA_PATHS.setdefault ("overrides", "%s/overrides.yml" % CONFIG)
+	CONNECTIONS = METADATA_PATHS.setdefault ("connections", "%s/connections.yml" % CONFIG)
+	WORK = METADATA_PATHS.setdefault ("work", "work")
 
-	os.mkdir ("%s/%s" % (HOME, WORK))
+	os.environ [METADATA ["environment"] ["devops_home_path"]] = HOME
 
-if not os.path.isdir ("%s/work/control" % HOME):
+	if not os.path.isdir ("%s/%s" % (HOME, CONFIG)):
+		os.mkdir ("%s/%s" % (HOME, CONFIG))
 
-	os.mkdir ("%s/work/control" % HOME)
+	if not os.path.isfile ("%s/%s" % (HOME, OVERRIDES)):
 
-os.environ [METADATA ["environment"] ["devops_script"]] = SCRIPT
+		with open ("%s/%s" % (HOME, OVERRIDES), "w") as file_handle:
 
-if SCRIPT.startswith (METADATA ["project"] ["name"] + "-"):
-	CONNECTION = SCRIPT [len (METADATA ["project"] ["name"]) + 1 : ]
-else:
-	CONNECTION = SCRIPT
+			file_handle.write ("".join ([
+				"---\n\n",
+				"{}\n\n",
+				"# ex: et ts=2 filetype=yaml\n",
+			]))
 
-os.environ [METADATA ["environment"] ["devops_connection_name"]] = CONNECTION
+	if not os.path.isfile ("%s/%s" % (HOME, CONNECTIONS)):
 
-import gridlinker
+		with open ("%s/%s" % (HOME, CONNECTIONS), "w") as file_handle:
 
-from gridlinker import GenericContext
+			file_handle.write ("---\n\n")
 
-def main ():
+			yaml.safe_dump (
+				METADATA ["etcd"] ["default_connections"],
+				file_handle)
+
+			file_handle.write ("\n# ex: et ts=2 filetype=yaml\n")
+
+	if not os.path.isdir ("%s/%s" % (HOME, WORK)):
+
+		os.mkdir ("%s/%s" % (HOME, WORK))
+
+	if not os.path.isdir ("%s/work/control" % HOME):
+
+		os.mkdir ("%s/work/control" % HOME)
+
+	os.environ [METADATA ["environment"] ["devops_script"]] = SCRIPT
+
+	if SCRIPT.startswith (METADATA ["project"] ["name"] + "-"):
+		CONNECTION = SCRIPT [len (METADATA ["project"] ["name"]) + 1 : ]
+	else:
+		CONNECTION = SCRIPT
+
+	os.environ [METADATA ["environment"] ["devops_connection_name"]] = CONNECTION
+
+def inner_main ():
+
+	import gridlinker
+	from gridlinker import GenericContext
 
 	parser = argparse.ArgumentParser ()
 	sub_parsers = parser.add_subparsers ()
@@ -94,6 +119,6 @@ def main ():
 
 	args.func (context, args)
 
-main ()
+outer_main ()
 
 # ex: noet ts=4 filetype=python

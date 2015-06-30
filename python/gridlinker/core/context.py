@@ -14,6 +14,7 @@ from wbs import lazy_property
 from wbs import yamlx
 
 from wbs import LazyDictionary
+from wbs import ReportableError
 from wbs import SchemaDatabase
 
 from gridlinker.certificate.authority import CertificateAuthority
@@ -66,18 +67,16 @@ class GenericContext (object):
 	def connections_config (self):
 
 		if not os.path.isfile (self.connections_path):
-
-			raise Exception (
-				"Connections config does not exist: %s" % (
-					self.connections_path))
+			raise ReportableError ("connection_config_missing")
 
 		with open (self.connections_path) as file_handle:
-			ret = yaml.load (file_handle)
+			try:
+				ret = yaml.load (file_handle)
+			except:
+				raise ReportableError ("connection_config_invalid")
 
 		if not isinstance (ret, dict):
-
-			raise Exception (
-				"Connections config is not a dict")
+			raise ReportableError ("connection_config_not_dict")
 
 		return ret
 
@@ -86,9 +85,9 @@ class GenericContext (object):
 
 		if not self.connection_name in self.connections_config:
 
-			raise Exception (
-				"Connection is not configured: %s" % (
-					self.connection_name))
+			raise ReportableError (
+				"connection_is_not_configured",
+				connection_name = self.connection_name)
 
 		return self.connections_config [self.connection_name]
 
@@ -97,15 +96,44 @@ class GenericContext (object):
 
 		if self.connection_config ["etcd_secure"] == "yes":
 
+			# check errors
+
+			ca_cert_path = "%s/%s-ca.cert" % (
+				self.config,
+				self.connection_name)
+
+			if not os.path.isfile (ca_cert_path):
+
+				raise ReportableError (
+					"connection_ca_cert_missing",
+					connection_name = self.connection_name)
+
+			cert_path = "%s/%s.cert" % (
+				self.config,
+				self.connection_name)
+
+			if not os.path.isfile (cert_path):
+
+				raise ReportableError (
+					"connection_cert_missing",
+					connection_name = self.connection_name)
+
+			key_path = "%s/%s.key" % (
+				self.config,
+				self.connection_name)
+
+			if not os.path.isfile (key_path):
+
+				raise ReportableError (
+					"connection_key_missing",
+					connection_name = self.connection_name)
+
 			return EtcdClient (
 				servers = self.connection_config ["etcd_servers"],
 				secure = True,
-				client_ca_cert = "%s/%s-ca.cert" % (
-					self.config, self.connection_name),
-				client_cert = "%s/%s.cert" % (
-					self.config, self.connection_name),
-				client_key = "%s/%s.key" % (
-					self.config, self.connection_name),
+				client_ca_cert = ca_cert_path,
+				client_cert = cert_path,
+				client_key = key_path,
 				prefix = self.connection_config ["etcd_prefix"])
 
 		elif self.connection_config ["etcd_secure"] == "no":
