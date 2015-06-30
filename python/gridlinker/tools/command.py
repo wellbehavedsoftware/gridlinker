@@ -8,6 +8,8 @@ import tempfile
 from wbs import generate_password
 from wbs import yamlx
 
+from wbs import ReportableError
+
 class GenericCommand:
 
 	def __init__ (self, helper):
@@ -323,10 +325,13 @@ class GenericCommand:
 
 			if "VISUAL" in os.environ:
 				editor = os.environ ["VISUAL"]
+
 			elif "EDITOR" in os.environ:
 				editor = os.environ ["EDITOR"]
+
 			else:
-				raise Exception ()
+				raise ReportableError (
+					"editor_not_configured")
 
 			os.system ("%s %s" % (editor, temp_file.name))
 
