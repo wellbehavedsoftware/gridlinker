@@ -18,8 +18,10 @@ class Inventory (object):
 		self.resources = {}
 		self.namespaces = {}
 
-		self.children = collections.defaultdict (list)
-		self.members = collections.defaultdict (list)
+		self.group_children = collections.defaultdict (list)
+		self.group_members = collections.defaultdict (list)
+
+		self.resource_children = collections.defaultdict (list)
 
 		self.class_groups = set ()
 
@@ -185,7 +187,7 @@ class Inventory (object):
 			self.world [resource_name] = resource_data
 			self.resources [resource_name] = resource_data
 
-			self.members [class_name].append (resource_name)
+			self.group_members [class_name].append (resource_name)
 			self.namespaces [namespace].append (resource_name)
 
 	def load_resources_2 (self):
@@ -206,19 +208,20 @@ class Inventory (object):
 
 				parent_data = self.resources [parent_name]
 
+				self.resource_children [parent_name].append (resource_name)
+
 				if "parent" in parent_data ["identity"]:
 
 					resource_data ["identity"] ["grandparent"] = \
 						parent_data ["identity"] ["parent"]
 
-			# set children
+		# set children
 
-			resource_data ["identity"] ["children"] = [
-				other_name
-				for other_name, other_data in self.resources.items ()
-				if "parent" in other_data ["identity"]
-				and other_data ["identity"] ["parent"] == resource_name
-			]
+		for resource_name, resource_data \
+		in self.resources.items ():
+
+			resource_data ["identity"] ["children"] = \
+				self.resource_children [resource_name]
 
 	def load_resources_3 (self):
 
@@ -294,7 +297,7 @@ class Inventory (object):
 
 					self.class_groups.add (group_name)
 
-				self.members [group_name].append (resource_name)
+				self.group_members [group_name].append (resource_name)
 
 	def add_group_class_type (self,
 			item_friendly_name,
