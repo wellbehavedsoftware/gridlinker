@@ -54,7 +54,7 @@ using the following template:
 ```yaml
 ---
 
-{{ METADATA.project.name }}:
+{{ METADATA.project.script }}:
 
   etcd_servers: [ "{{ METADATA.etcd.default_servers | join ('", "') }}" ]
   etcd_secure: "{{ METADATA.etcd.default_secure }}"
@@ -77,7 +77,7 @@ you are working online, use the following configuration:
 ```yaml
 ---
 
-{{ METADATA.project.name }}:
+{{ METADATA.project.script }}:
 
   etcd_servers: [ "localhost" ]
   etcd_secure: "no"
