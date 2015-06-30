@@ -1,8 +1,11 @@
 from __future__ import absolute_import
 
+import itertools
 import sys
 
 from OpenSSL import crypto
+
+from gridlinker.certificate.certificate import Certificate
 
 class CertificateDatabase:
 
@@ -44,7 +47,7 @@ class CertificateDatabase:
 
 		pass
 
-	def request (self, name):
+	def request (self, name, alt_names):
 
 		# create key
 
@@ -64,6 +67,17 @@ class CertificateDatabase:
 		request_csr.get_subject ().L = self.data ["locality"]
 		request_csr.get_subject ().O = self.data ["organization"]
 		request_csr.get_subject ().CN = name
+
+		if (alt_names):
+
+			request_csr.add_extensions ([
+
+				crypto.X509Extension (
+					"subjectAltName",
+					False,
+					",".join (alt_names)),
+
+			])
 
 		request_csr.sign (request_key, "sha256")
 
@@ -456,31 +470,63 @@ class CertificateDatabase:
 			raise Exception (
 				"No current certificate for " + name)
 
-		certificate_strings = []
+		certificate_path = entry_path + "/current/certificate"
+		certificate_string = self.client.get_raw (certificate_path)
 
-		certificate_strings.append (
-			self.client.get_raw (
-				entry_path + "/current/certificate"))
+		chain_paths = []
+		chain_strings = []
 
-		for chain_index in range (0, 999):
+		for chain_index in range (0, 9):
 
-			if not self.client.exists (
-				entry_path + "/current/chain/" + str (chain_index)):
+			chain_path = entry_path + "/current/chain/" + str (chain_index)
 
+			if not self.client.exists (chain_path):
 				break
 
-			certificate_strings.append (
-				self.client.get_raw (
-					entry_path + "/current/chain/" + str (chain_index)))
+			chain_string = self.client.get_raw (chain_path)
 
-		key_string = self.client.get_raw (
-			entry_path + "/current/key")
+			chain_strings.append (chain_string)
+			chain_paths.append (chain_path)
 
-		return (
-			True,
-			certificate_strings,
-			key_string,
-		)
+		key_path = entry_path + "/current/key"
+		key_string = self.client.get_raw (key_path)
+
+		# convert to rsa private key
+		# TODO backport this to pyopenssl
+
+		private_key = crypto.load_privatekey (crypto.FILETYPE_PEM, key_string)
+
+		helper = crypto._PassphraseHelper (type, None)
+
+		bio = crypto._new_mem_buf ()
+
+		rsa_private_key = crypto._lib.EVP_PKEY_get1_RSA (private_key._pkey)
+
+		result_code = crypto._lib.PEM_write_bio_RSAPrivateKey (
+			bio,
+			rsa_private_key,
+			crypto._ffi.NULL,
+			crypto._ffi.NULL,
+			0,
+			helper.callback,
+			helper.callback_args)
+
+		helper.raise_if_problem ()
+
+		rsa_private_key_string = crypto._bio_to_string (bio)
+
+		# return
+
+		return Certificate (
+			serial = None,
+			digest = None,
+			certificate = certificate_string,
+			certificate_path = certificate_path,
+			chain = chain_strings,
+			chain_paths = chain_paths,
+			private_key = key_string,
+			private_key_path = key_path,
+			rsa_private_key = rsa_private_key_string)
 
 def args (prev_sub_parsers):
 
@@ -574,6 +620,29 @@ def args_request (sub_parsers):
 		action = "store_true",
 		help = "print the pem encoded request to stdout")
 
+	# alt names
+
+	parser_alt_names = parser.add_argument_group (
+		"alt names")
+
+	parser_alt_names.add_argument (
+		"--alt-dns",
+		help = "alternative dns hostname",
+		default = [],
+		action = "append")
+
+	parser_alt_names.add_argument (
+		"--alt-ip",
+		help = "alternative ip address",
+		default = [],
+		action = "append")
+
+	parser_alt_names.add_argument (
+		"--alt-email",
+		help = "alternative email address",
+		default = [],
+		action = "append")
+
 def do_request (context, args):
 
 	database = CertificateDatabase (
@@ -581,8 +650,15 @@ def do_request (context, args):
 		"/certificate/" + args.database,
 		context.certificate_data)
 
+	alt_names = list (itertools.chain.from_iterable ([
+		[ "DNS:" + alt_dns for alt_dns in args.alt_dns ],
+		[ "IP:" + alt_ip for alt_ip in args.alt_ip ],
+		[ "email:" + alt_email for alt_email in args.alt_email ],
+	]))
+
 	success, csr, key = database.request (
-		args.common_name)
+		args.common_name,
+		alt_names)
 
 	if success:
 
@@ -812,12 +888,28 @@ def args_export (sub_parsers):
 		help = "common name of certificate request to export")
 
 	parser.add_argument (
+		"--certificate",
+		help = "path to write certificate to")
+
+	parser.add_argument (
+		"--certificate-chain",
+		help = "path to write rest of certificate chain to")
+
+	parser.add_argument (
 		"--full-certificate-chain",
 		help = "path to write full certificate chain to")
 
 	parser.add_argument (
+		"--ca-certificate",
+		help = "path to write ca certificate to")
+
+	parser.add_argument (
 		"--private-key",
 		help = "path to write private key to")
+
+	parser.add_argument (
+		"--rsa-private-key",
+		help = "path to write rsa private key")
 
 def do_export (context, args):
 
@@ -828,30 +920,59 @@ def do_export (context, args):
 
 	database.load ()
 
-	success, certificate_strings, key_string = database.get (
+	certificate = database.get (
 		args.common_name)
 
-	if success:
+	if args.certificate:
 
-		if args.full_certificate_chain:
+		with open (args.certificate, "w") as file_handle:
+			file_handle.write (certificate.certificate)
 
-			with open (args.full_certificate_chain, "w") as file_handle:
+		print ("Wrote certificate to %s" % (
+			args.certificate))
 
-				for certificate_string in certificate_strings:
-					file_handle.write (certificate_string)
+	if args.certificate_chain:
 
-			print ("Wrote full chain to %s" % (
-				args.full_certificate_chain))
+		with open (args.certificate_chain, "w") as file_handle:
 
-		if args.private_key:
+			for chain in certificate.chain:
+				file_handle.write (chain)
 
-			with open (args.private_key, "w") as file_handle:
+		print ("Wrote certificate chain to %s" % (
+			args.certificate_chain))
 
-				file_handle.write (key_string)
+	if args.full_certificate_chain:
 
-			print ("Wrote private key to %s" % (
-				args.private_key))
+		with open (args.full_certificate_chain, "w") as file_handle:
 
-	else:
+			file_handle.write (certificate.certificate)
 
-		print ("failure")
+			for chain in certificate.chain:
+				file_handle.write (chain)
+
+		print ("Wrote full certificate chain to %s" % (
+			args.full_certificate_chain))
+
+	if args.ca_certificate:
+
+		with open (args.ca_certificate, "w") as file_handle:
+			file_handle.write (certificate.chain [-1])
+
+		print ("Wrote ca certificate to %s" % (
+			args.ca_certificate))
+
+	if args.private_key:
+
+		with open (args.private_key, "w") as file_handle:
+			file_handle.write (certificate.private_key)
+
+		print ("Wrote private key to %s" % (
+			args.private_key))
+
+	if args.rsa_private_key:
+
+		with open (args.rsa_private_key, "w") as file_handle:
+			file_handle.write (certificate.rsa_private_key)
+
+		print ("Wrote RSA private key to %s" % (
+			args.rsa_private_key))
