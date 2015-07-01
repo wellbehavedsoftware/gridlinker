@@ -1,0 +1,6 @@
+---
+
+- include: "control-varnish.yml"
+  tags: [ "varnish", "control-varnish" ]
+
+# ex: et ts=2 filetype=yaml

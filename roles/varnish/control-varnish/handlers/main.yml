@@ -1,0 +1,30 @@
+---
+
+- name: "reload varnish config"
+  shell: "initctl reload-configuration"
+  sudo: "yes"
+
+- name: "set varnish.needs_restart to 'yes'"
+  when: "varnish_state == 'enabled'"
+  notify: "restart varnish"
+  update_resource:
+
+    varnish.needs_restart: "yes"
+
+- name: "restart varnish"
+  when: "varnish_state == 'enabled'"
+  notify: "set varnish.needs_restart to 'no'"
+  sudo: "yes"
+  action:
+
+    module: "service"
+    name: "varnish"
+    state: "restarted"
+
+- name: "set varnish.needs_restart to 'no'"
+  changed_when: "True"
+  update_resource:
+
+    varnish.needs_restart: "no"
+
+# ex: et ts=2 filetype=yaml
