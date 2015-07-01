@@ -14,10 +14,22 @@ respawn limit unlimited
 
 umask 007
 
+env PATH={{ [
+	varnish_target + '/sbin',
+	varnish_target + '/bin',
+	'/usr/local/sbin',
+	'/usr/local/bin',
+	'/usr/sbin',
+	'/usr/bin',
+	'/sbin',
+	'/bin',
+] | join (':') }}
+
 exec {{ varnish_target }}/sbin/varnishd {{ [
-	"-F",
-	"-a " + varnish_listen_address + ":" + varnish_listen_port,
-	"-f " + varnish_vcl_script,
+	'-F',
+	'-a ' + varnish_listen_address + ':' + varnish_listen_port,
+	'-f ' + varnish_vcl_script,
+	'-u varnish',
 ] | join (" ") }}
 
 post-stop exec sleep 2

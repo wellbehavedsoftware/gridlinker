@@ -1,23 +1,8 @@
 ---
 
-- name: "install nginx dependencies"
+- name: "install nginx build dependencies"
   sudo: "yes"
-  with_items:
-
-    - "autotools-dev"
-    - "build-essential"
-    - "libexpat-dev"
-    - "libgd2-noxpm-dev"
-    - "libgeoip-dev"
-    - "liblua5.1-dev"
-    - "libmhash-dev"
-    - "libpam0g-dev"
-    - "libpcre3-dev"
-    - "libperl-dev"
-    - "libssl-dev"
-    - "libxslt1-dev"
-    - "zlib1g-dev"
-
+  with_items: "nginx_build_dependencies"
   action:
 
     module: "apt"
