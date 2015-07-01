@@ -1,5 +1,23 @@
 ---
 
+- name: "create varnish group"
+  sudo: "yes"
+  action:
+
+    module: "group"
+    name: "varnish"
+    system: "yes"
+
+- name: "create varnish user"
+  sudo: "yes"
+  action:
+
+    module: "user"
+    name: "varnish"
+    system: "yes"
+    shell: "/bin/false"
+    group: "varnish"
+
 - name: "create varnish directories"
   with_items: "varnish_directories"
   sudo: "yes"

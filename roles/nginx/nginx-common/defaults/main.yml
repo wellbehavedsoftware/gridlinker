@@ -55,7 +55,7 @@ nginx_build_dependencies:
   - "libexpat-dev"
   - "libgd2-noxpm-dev"
   - "libgeoip-dev"
-  - "liblua5.1-dev"
+  - "liblua5.1-0-dev"
   - "libmhash-dev"
   - "libpam0g-dev"
   - "libpcre3-dev"
