@@ -1,7 +1,0 @@
----
-
-dependencies:
-
-  - "nginx-common"
-
-# ex: et ts=2 filetype=yaml

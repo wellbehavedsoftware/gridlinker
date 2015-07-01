@@ -3,10 +3,4 @@
 - include: "setup-nginx.yml"
   tags: [ "nginx", "setup-nginx" ]
 
-- name: "set nginx.state to 'enabled'"
-  update_resource:
-    nginx.state: "enabled"
-  when: "nginx_state == 'installed'"
-  tags: [ "nginx", "setup-nginx" ]
-
 # ex: et ts=2 filetype=yaml
