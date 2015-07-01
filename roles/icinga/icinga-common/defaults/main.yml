@@ -1,5 +1,7 @@
 ---
 
+# master configuration
+
 icinga_master_config_templates:
 
   - template: "icinga-master-commands"
@@ -51,5 +53,43 @@ icinga_master_security_files:
   - source: "{{ icinga_private_key }}"
     target: "pki/{{ identity.name }}.key"
     mode: "0640"
+
+# agent configuration
+
+icinga_agent_config_templates:
+
+  - template: "icinga-agent-constants"
+    target: "constants.conf"
+    mode: "0644"
+
+  - template: "icinga-agent-icinga"
+    target: "icinga2.conf"
+    mode: "0644"
+
+  - template: "icinga-agent-secrets"
+    target: "secrets.conf"
+    mode: "0600"
+
+  - template: "icinga-agent-zones"
+    target: "zones.conf"
+    mode: "0644"
+
+icinga_agent_security_files:
+
+  - source: "{{ icinga_ca_certificate }}"
+    target: "pki/ca.cert"
+    mode: "0644"
+
+  - source: "{{ icinga_certificate }}"
+    target: "pki/{{ identity.name }}.cert"
+    mode: "0644"
+
+  - source: "{{ icinga_private_key }}"
+    target: "pki/{{ identity.name }}.key"
+    mode: "0640"
+
+# state
+
+icinga_needs_restart: "no"
 
 # ex: et ts=2 filetype=yaml
