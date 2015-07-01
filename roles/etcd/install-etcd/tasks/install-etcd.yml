@@ -23,6 +23,15 @@
 
     rm -rf "{{ etcd_temp }}";
 
+- name: "create symlink to etcdctl"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "/usr/local/bin/etcdctl"
+    state: "link"
+    src: "{{ etcd_target }}/etcdctl"
+
 - name: "set etcd.state to 'installed'"
   when: "etcd_state == 'no'"
   tags: [ "etcd", "install-etcd" ]

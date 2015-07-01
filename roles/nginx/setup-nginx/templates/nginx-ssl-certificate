@@ -1,0 +1,31 @@
+{%- print lookup ('etcd', [
+	'/certificate/',
+	item.outer.database,
+	'/',
+	item.domains,
+	'/current/certificate',
+] | join), '\n' -%}
+
+{%- for index in [ 0, 1, 2, 3, 4 ] -%}
+
+	{%- if lookup ('etcd_exists', [
+		'/certificate/',
+		item.outer.database,
+		'/',
+		item.domains,
+		'/current/chain/',
+		index,
+	] | join) == 'yes' -%}
+
+		{%- print lookup ('etcd', [
+			'/certificate/',
+			item.outer.database,
+			'/',
+			item.domains,
+			'/current/chain/',
+			index,
+		] | join), '\n' -%}
+
+	{%- endif -%}
+
+{%- endfor -%}

@@ -70,4 +70,6 @@ nginx_state: "no"
 nginx_needs_restart: "no"
 nginx_installed_version: "no"
 
+nginx_ssl_certificates: []
+
 # ex: et ts=2 filetype=yaml

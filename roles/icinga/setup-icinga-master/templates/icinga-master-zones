@@ -1,11 +1,16 @@
 object Zone "master" {
-	endpoints = [ "{{ groups [icinga_master.endpoints] | join ('", "') }}" ]
+	endpoints = [
+{% for host_name in groups [icinga_master.endpoints] %}
+{% set host = hostvars [host_name] %}
+		"{{ host.identity_name }}",
+{% endfor %}
+	]
 }
 
 {% for host_name in groups [icinga_master.endpoints] %}
 {% set host = hostvars [host_name] %}
 
-object Endpoint "{{ host_name }}" {
+object Endpoint "{{ host.identity_name }}" {
 	host = "{{ host.icinga_endpoint.internal }}"
 }
 
@@ -14,12 +19,12 @@ object Endpoint "{{ host_name }}" {
 {% for host_name in groups [icinga_master.agents] %}
 {% set host = hostvars [host_name] %}
 
-object Zone "{{ host_name }}" {
-	endpoints = [ "{{ host_name }}" ]
+object Zone "{{ host.identity_name }}" {
+	endpoints = [ "{{ host.identity_name }}" ]
 	parent = "master"
 }
 
-object Endpoint "{{ host_name }}" {
+object Endpoint "{{ host.identity_name }}" {
 	host = "{{ host.icinga_endpoint.host }}"
 }
 

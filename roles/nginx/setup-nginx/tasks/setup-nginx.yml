@@ -28,4 +28,43 @@
 
     nginx.state: "enabled"
 
+  notify: "set nginx.needs_restart to 'yes'"
+  sudo: "yes"
+  action:
+
+    module: "template"
+    src: "{{ item.template }}"
+    dest: "{{ item.target }}"
+
+- name: "create nginx ssl directory"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "/etc/nginx/ssl"
+    state: "directory"
+
+- name: "install ssl certificates"
+  with_items: "
+    nginx_ssl_certificates | flatten_hash ('domains')
+  "
+  sudo: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/nginx/ssl/{{ item.domains }}.cert"
+    src: "nginx-ssl-certificate"
+
+- name: "install ssl private keys"
+  with_items: "
+    nginx_ssl_certificates | flatten_hash ('domains')
+  "
+  sudo: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/nginx/ssl/{{ item.domains }}.key"
+    src: "nginx-ssl-private-key"
+    mode: "0600"
+
 # ex: et ts=2 filetype=yaml

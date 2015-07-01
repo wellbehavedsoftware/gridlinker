@@ -2,12 +2,14 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import itertools
+import types
 
 def flatten_hash (values, * inner_names):
 
 	ret = []
 
-	if isinstance (values, list):
+	if isinstance (values, list) \
+	or isinstance (values, types.GeneratorType):
 
 		outer_list = [
 			(item, item)
@@ -22,7 +24,10 @@ def flatten_hash (values, * inner_names):
 		]
 
 	else:
-		raise Exception ()
+
+		raise Exception (
+			"Don't know how to flatten a %s" % (
+				type (values).__name__))
 
 	for outer_item, outer_value in outer_list:
 

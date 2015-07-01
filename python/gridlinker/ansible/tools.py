@@ -165,15 +165,15 @@ def do_inventory_list (context):
 	for class_name, class_data in inventory.classes.items ():
 
 		output [class_name] = {
-			"children": inventory.children [class_name],
-			"hosts": inventory.members [class_name],
+			"children": inventory.group_children [class_name],
+			"hosts": inventory.group_members [class_name],
 		}
 
 	for group_name, group_data in inventory.groups.items ():
 
 		output [group_name] = {
 			"vars": group_data,
-			"hosts": inventory.members [group_name],
+			"hosts": inventory.group_members [group_name],
 		}
 
 	for resource_name, resource_data in inventory.resources.items ():
@@ -206,7 +206,7 @@ def do_inventory_list (context):
 	for group_name in inventory.class_groups:
 
 		output [group_name] = {
-			"hosts": inventory.members [group_name],
+			"hosts": inventory.group_members [group_name],
 		}
 
 	print_json (output)
