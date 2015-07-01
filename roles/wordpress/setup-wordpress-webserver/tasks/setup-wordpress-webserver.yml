@@ -78,7 +78,7 @@
     mysql "{{ item.database.name }}" --execute "
 
       UPDATE wp_options
-      SET option_value = 'https://{{ item.website.hostname }}'
+      SET option_value = '{{ item.website.url }}'
       WHERE option_name IN (
         'home',
         'siteurl'

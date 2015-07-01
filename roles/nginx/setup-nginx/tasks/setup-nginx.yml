@@ -22,20 +22,6 @@
     src: "{{ item.template }}"
     dest: "{{ item.target }}"
 
-- name: "set nginx.state to 'enabled'"
-  when: "nginx_state == 'installed'"
-  update_resource:
-
-    nginx.state: "enabled"
-
-  notify: "set nginx.needs_restart to 'yes'"
-  sudo: "yes"
-  action:
-
-    module: "template"
-    src: "{{ item.template }}"
-    dest: "{{ item.target }}"
-
 - name: "create nginx ssl directory"
   sudo: "yes"
   action:
@@ -66,5 +52,11 @@
     dest: "/etc/nginx/ssl/{{ item.domains }}.key"
     src: "nginx-ssl-private-key"
     mode: "0600"
+
+- name: "set nginx.state to 'enabled'"
+  when: "nginx_state == 'installed'"
+  update_resource:
+
+    nginx.state: "enabled"
 
 # ex: et ts=2 filetype=yaml
