@@ -1,0 +1,52 @@
+---
+
+- name: "create varnish group"
+  sudo: "yes"
+  action:
+
+    module: "group"
+    name: "varnish"
+    system: "yes"
+
+- name: "create varnish user"
+  sudo: "yes"
+  action:
+
+    module: "user"
+    name: "varnish"
+    system: "yes"
+    shell: "/bin/false"
+    group: "varnish"
+
+- name: "create varnish directories"
+  with_items: "varnish_directories"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "configure varnish"
+  with_items: "varnish_config_templates"
+  notify: "set varnish.needs_restart to 'yes'"
+  sudo: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ item.target }}"
+    src: "{{ item.template }}"
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "set varnish.state to 'enabled'"
+  when: "varnish_state == 'installed'"
+  update_resource:
+
+    varnish.state: "enabled"
+
+# ex: et ts=2 filetype=yaml

@@ -101,6 +101,12 @@ resource_command = GenericCommand (
 				label = "Description",
 				default = True),
 
+			SimpleColumn (
+				section = "vpn",
+				name = "address",
+				label = "VPN IP",
+				default = True),
+
 		],
 
 	)

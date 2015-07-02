@@ -18,12 +18,12 @@ umask 007
 
 pre-start script
 
-	/usr/sbin/nginx -t
+	{{ nginx_target }}/sbin/nginx -t
 
 	if test "$?" -ne "0"
 		then exit $?
 	fi
 
 end script
- 
-exec /usr/sbin/nginx
+
+exec {{ nginx_target }}/sbin/nginx

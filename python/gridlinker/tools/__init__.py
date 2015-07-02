@@ -26,7 +26,17 @@ from gridlinker.tools.columns import UniqueNameColumn
 
 from gridlinker.tools import env
 
+from wbs import register_error
+
 def args (parser):
 	env.args (parser)
+
+register_error (
+	name = "editor_not_configured",
+	short = "No text editor has been configured",
+	long = """
+		Please configure a text editor by setting either the VISUAL or EDITOR
+		environment variable.
+	""")
 
 # ex: noet ts=4 filetype=yaml

@@ -1,14 +1,19 @@
 ---
 
+- name: "create nginx directories"
+  with_items: "nginx_directories"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
 - name: "configure nginx"
-  with_items:
-
-    - template: "nginx-main-config"
-      target: "/etc/nginx/nginx.conf"
-
-    - template: "nginx-default-site"
-      target: "/etc/nginx/sites-available/default"
-
+  with_items: "nginx_config_templates"
   notify: "set nginx.needs_restart to 'yes'"
   sudo: "yes"
   action:
@@ -47,5 +52,11 @@
     dest: "/etc/nginx/ssl/{{ item.domains }}.key"
     src: "nginx-ssl-private-key"
     mode: "0600"
+
+- name: "set nginx.state to 'enabled'"
+  when: "nginx_state == 'installed'"
+  update_resource:
+
+    nginx.state: "enabled"
 
 # ex: et ts=2 filetype=yaml

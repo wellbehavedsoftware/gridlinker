@@ -1,7 +1,12 @@
 ---
 
+# runtime config
+
 nginx_http_port: "80"
 nginx_https_port: "443"
+
+nginx_worker_processes: "4"
+nginx_worker_connections: "1024"
 
 nginx_server_names_hash_bucket_size: "128"
 nginx_server_names_hash_max_size: "1024"
@@ -10,8 +15,60 @@ nginx_fastcgi_connect_timeout: "60s"
 nginx_fastcgi_read_timeout: "60s"
 nginx_fastcgi_send_timeout: "60s"
 
+# installation config
+
+nginx_target: "/opt/nginx-{{ nginx_version }}"
+
+nginx_directories:
+
+  - directory: "{{ nginx_target }}/conf"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "{{ nginx_target }}/conf/sites"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+nginx_config_templates:
+
+  - template: "nginx-main-config"
+    target: "{{ nginx_target }}/conf/nginx.conf"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+# build config
+
+nginx_build_temp: "/tmp/nginx-build"
+nginx_build_mirror: "http://nginx.org/download"
+nginx_build_name: "nginx-{{ nginx_version }}"
+nginx_build_directory: "{{ nginx_build_name }}"
+nginx_build_archive: "{{ nginx_build_name }}.tar.gz"
+nginx_build_url: "{{ nginx_build_mirror }}/{{ nginx_build_archive }}"
+
+nginx_build_dependencies:
+
+  - "autotools-dev"
+  - "build-essential"
+  - "libexpat-dev"
+  - "libgd2-noxpm-dev"
+  - "libgeoip-dev"
+  - "liblua5.1-0-dev"
+  - "libmhash-dev"
+  - "libpam0g-dev"
+  - "libpcre3-dev"
+  - "libperl-dev"
+  - "libssl-dev"
+  - "libxslt1-dev"
+  - "zlib1g-dev"
+
+# default state
+
 nginx_state: "no"
 nginx_needs_restart: "no"
+nginx_installed_version: "no"
 
 nginx_ssl_certificates: []
 

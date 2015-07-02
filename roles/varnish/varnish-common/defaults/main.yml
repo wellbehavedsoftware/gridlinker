@@ -1,0 +1,62 @@
+---
+
+# runtime config
+
+varnish_listen_address: "0.0.0.0"
+varnish_listen_port: "80"
+
+varnish_backend_address: "localhost"
+varnish_backend_port: "8080"
+
+varnish_vcl_script: "{{ varnish_target }}/conf/default.vcl"
+
+varnish_directories:
+
+  - directory: "{{ varnish_target }}/conf"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+varnish_config_templates:
+
+  - target: "{{ varnish_target }}/conf/default.vcl"
+    template: "varnish-default-vcl"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+# installation config
+
+varnish_target: "/opt/varnish-{{ varnish_version }}"
+
+# build config
+
+varnish_build_temp: "/tmp/varnish-build"
+varnish_build_mirror: "https://repo.varnish-cache.org/source"
+varnish_build_name: "varnish-{{ varnish_version }}"
+varnish_build_directory: "{{ varnish_build_name }}"
+varnish_build_archive: "{{ varnish_build_name }}.tar.gz"
+varnish_build_url: "{{ varnish_build_mirror }}/{{ varnish_build_archive }}"
+
+varnish_build_dependencies:
+
+  - "autoconf"
+  - "automake"
+  - "autotools-dev"
+  - "groff-base"
+  - "libedit-dev"
+  - "libjemalloc-dev"
+  - "libncurses5-dev"
+  - "libpcre3-dev"
+  - "libtool"
+  - "pkg-config"
+  - "python-docutils"
+  - "xsltproc"
+
+# default state
+
+varnish_state: "no"
+varnish_needs_restart: "no"
+varnish_installed_version: "no"
+
+# ex: et ts=2 filetype=yaml
