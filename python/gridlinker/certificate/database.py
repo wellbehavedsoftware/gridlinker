@@ -7,6 +7,10 @@ from OpenSSL import crypto
 
 from gridlinker.certificate.certificate import Certificate
 
+from wbs import print_table
+
+from wbs import TableColumn
+
 class CertificateDatabase:
 
 	def __init__ (self, context, path, data):
@@ -542,12 +546,13 @@ def args (prev_sub_parsers):
 
 	next_sub_parsers = parser.add_subparsers ()
 
-	args_create (next_sub_parsers)
-	args_request (next_sub_parsers)
 	args_cancel (next_sub_parsers)
-	args_signed (next_sub_parsers)
+	args_create (next_sub_parsers)
 	args_export (next_sub_parsers)
 	args_import (next_sub_parsers)
+	args_list (next_sub_parsers)
+	args_request (next_sub_parsers)
+	args_signed (next_sub_parsers)
 
 def args_create (sub_parsers):
 
@@ -585,6 +590,41 @@ def do_create (context, args):
 	database.create ()
 
 	print ("Certificate database created")
+
+def args_list (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"list",
+		help = "list all certificate databases",
+		description = """
+			This tool outputs a list of certificate databases which have been
+			created, along with their name and basic information.
+		""")
+
+	parser.set_defaults (
+		func = do_list)
+
+def do_list (context, args):
+
+	rows = []
+
+	for name in context.client.ls ("/certificate"):
+
+		authority = CertificateDatabase (
+			context,
+			"/certificate/" + name,
+			context.certificate_data)
+
+		rows.append (dict (
+			name = name))
+
+	rows.sort (key = lambda row: row ["name"])
+
+	columns = [
+		TableColumn ("name", "Name"),
+	]
+
+	print_table (columns, rows, sys.stdout)
 
 def args_request (sub_parsers):
 
