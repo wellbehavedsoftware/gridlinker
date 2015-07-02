@@ -51,8 +51,8 @@ resource_command = GenericCommand (
 				label = "resource identity",
 				arguments = [
 
-				NameArgument (),
 				ClassArgument (),
+				NameArgument (),
 				ParentArgument (),
 				IndexArgument (),
 
