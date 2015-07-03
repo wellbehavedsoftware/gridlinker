@@ -5,6 +5,7 @@ dependencies:
   - "python-common"
   - "build-python"
   - "install-python-pip"
+  - "setup-python-pip"
   - "setup-python-bin-links"
   - "install-python-packages"
   - "build-python-apt"

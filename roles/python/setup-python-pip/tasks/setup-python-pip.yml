@@ -1,0 +1,11 @@
+---
+
+- name: "create python pip config"
+  sudo: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/pip.conf"
+    src: "python-pip-config"
+
+# ex: et ts=2 filetype=yaml
