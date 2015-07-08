@@ -90,6 +90,6 @@ python_pip_alternatives:
     link: "/usr/bin/wheel"
     target: "{{ python_target }}/bin/wheel"
 
-python_pip_packages_url: "https://pypi.python.org"
+python_pip_packages_url: "https://pypi.python.org/simple"
 
 # ex: et ts=2 filetype=yaml
