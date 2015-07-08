@@ -402,30 +402,30 @@ class CertificateAuthority:
 		issue_cert.add_extensions ([
 
 			crypto.X509Extension (
-				"basicConstraints",
+				str ("basicConstraints"),
 				False,
-				"CA:FALSE"),
+				str ("CA:FALSE")),
 
 			crypto.X509Extension (
-				"keyUsage",
+				str ("keyUsage"),
 				False,
-				"digitalSignature, keyEncipherment"),
+				str ("digitalSignature, keyEncipherment")),
 
 			crypto.X509Extension (
-				"extendedKeyUsage",
+				str ("extendedKeyUsage"),
 				False,
-				use_string),
+				str (use_string)),
 
 			crypto.X509Extension (
-				"subjectKeyIdentifier",
+				str ("subjectKeyIdentifier"),
 				False,
-				"hash",
+				str ("hash"),
 				subject = issue_cert),
 
 			crypto.X509Extension (
-				"authorityKeyIdentifier",
+				str ("authorityKeyIdentifier"),
 				False,
-				"keyid,issuer:always",
+				str ("keyid,issuer:always"),
 				issuer = self.root_cert),
 
 		])
@@ -443,7 +443,7 @@ class CertificateAuthority:
 
 		# sign certificate
 
-		issue_cert.sign (self.root_key, "sha256")
+		issue_cert.sign (self.root_key, str ("sha256"))
 
 		# dump to pem
 
@@ -455,7 +455,7 @@ class CertificateAuthority:
 			crypto.FILETYPE_PEM,
 			issue_key)
 
-		issue_digest = issue_cert.digest ("sha1")
+		issue_digest = issue_cert.digest (str ("sha1"))
 
 		# write to database
 
@@ -480,12 +480,20 @@ class CertificateAuthority:
 			str (issue_serial))
 
 		return Certificate (
+
 			serial = issue_serial,
 			digest = issue_digest,
+
 			certificate = issue_cert_string,
-			private_key = issue_key_string,
 			certificate_path = issue_path + "/certificate",
-			private_key_path = issue_path + "/key")
+
+			chain = [ self.root_cert_string ],
+			chain_path = [ "%s/certificate" % self.path ],
+
+			private_key = issue_key_string,
+			private_key_path = issue_path + "/key",
+
+			rsa_private_key = "TODO")
 
 	def get (self, issue_ref):
 
@@ -518,12 +526,20 @@ class CertificateAuthority:
 			issue_path + "/key")
 
 		return Certificate (
+
 			serial = issue_serial,
 			digest = issue_digest,
+
 			certificate = certificate_string,
-			private_key = key_string,
 			certificate_path = issue_path + "/certificate",
-			private_key_path = issue_path + "/key")
+
+			chain = [ self.root_cert_string ],
+			chain_paths = [ "%s/certificate" % self.path ],
+
+			private_key = key_string,
+			private_key_path = issue_path + "/key",
+
+			rsa_private_key = "TODO")
 
 	def root_certificate (self):
 
