@@ -165,12 +165,15 @@ class GenericCommand:
 		record_names = sorted (record_names)
 
 		rows = [
-			[
-				column.get (context, self.helper, records_by_name [record_name])
-				if column.exists (context, self.helper, records_by_name [record_name])
-				else ""
+			dict ([
+				(
+					column.name,
+					column.get (context, self.helper, records_by_name [record_name])
+					if column.exists (context, self.helper, records_by_name [record_name])
+					else ""
+				)
 				for column in columns
-			]
+			])
 			for record_name in record_names
 		]
 
