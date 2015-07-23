@@ -1,0 +1,48 @@
+---
+
+- name: "install varnish build dependencies"
+  with_items: "varnish_build_dependencies"
+  sudo: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "build varnish"
+  when: "varnish_installed_version != varnish_version"
+  sudo: "yes"
+  args:
+    executable: "/bin/bash"
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ varnish_build_temp }}";
+    mkdir -p "{{ varnish_build_temp }}";
+    cd "{{ varnish_build_temp }}";
+
+    wget --timeout=10 "{{ varnish_build_url }}";
+    tar --extract --gz --file "{{ varnish_build_archive }}";
+    cd "{{ varnish_build_directory }}";
+
+    ./configure
+      --prefix="{{ varnish_target }}";
+
+    make install;
+
+    cd /;
+    rm -rf "{{ varnish_build_temp }}"
+
+- name: "set varnish.state to 'installed'"
+  when: "varnish_state == 'no'"
+  update_resource:
+
+    varnish.state: "installed"
+
+- name: "set varnish.installed_version"
+  when: "varnish_installed_version != varnish_version"
+  update_resource:
+
+    varnish.installed_version: "{{ varnish_version }}"
+
+# ex: et ts=2 filetype=yaml

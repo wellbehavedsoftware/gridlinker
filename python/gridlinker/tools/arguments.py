@@ -305,6 +305,7 @@ class NameArgument:
 		parser.add_argument (
 			"--name",
 			required = True,
+			dest = "name",
 			metavar = "NAME",
 			help = "name of %s to create" % helper.name)
 
@@ -331,15 +332,6 @@ class NameArgument:
 			required = False,
 			metavar = "NAME",
 			help = "name of %s to update" % helper.name)
-
-	def update_record (self, arg_vars, record_data, helper):
-
-		value = arg_vars ["name"]
-
-		if not value:
-			return
-
-		record_data ["identity"] ["name"] = value
 
 class MiscSetFileArgument:
 

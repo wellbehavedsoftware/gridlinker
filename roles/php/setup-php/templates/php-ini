@@ -33,7 +33,6 @@ variables_order = "GPCS"
 request_order = "GP"
 register_argc_argv = Off
 auto_globals_jit = On
-post_max_size = 8M
 auto_prepend_file =
 auto_append_file =
 default_mimetype = "text/html"
@@ -41,11 +40,13 @@ doc_root =
 user_dir =
 enable_dl = Off
 file_uploads = On
-upload_max_filesize = 2M
 max_file_uploads = 20
 allow_url_fopen = On
 allow_url_include = Off
 default_socket_timeout = 60
+
+upload_max_filesize = {{ php_upload_max_filesize }}
+post_max_size = {{ php_post_max_size }}
 
 [Pdo_mysql]
 pdo_mysql.cache_size = 2000

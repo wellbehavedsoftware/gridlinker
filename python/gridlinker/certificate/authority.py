@@ -1,4 +1,10 @@
 from __future__ import absolute_import
+from __future__ import division
+from __future__ import generators
+from __future__ import nested_scopes
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import with_statement
 
 import itertools
 import os
@@ -12,7 +18,11 @@ from gridlinker.certificate.certificate import AlreadyExistsError
 from gridlinker.certificate.certificate import Certificate
 from gridlinker.certificate.certificate import IllegalStateError
 
-from wbs import SchemaField, SchemaGroup
+from wbs import print_table
+
+from wbs import SchemaField
+from wbs import SchemaGroup
+from wbs import TableColumn
 
 serial_pattern = re.compile (
 	r"^[1-9]\d*$")
@@ -269,9 +279,10 @@ class CertificateAuthority:
 					issue_cert.get_subject ().CN),
 				str (issue_serial))
 
-			print "Imported %s %s" % (
-				issue_serial,
-				issue_cert.get_subject ().CN)
+			print (
+				"Imported %s %s" % (
+					issue_serial,
+					issue_cert.get_subject ().CN))
 
 		# set serial
 
@@ -535,12 +546,13 @@ def args (prev_sub_parsers):
 	next_sub_parsers = parser.add_subparsers ()
 
 	args_create (next_sub_parsers)
-	args_issue (next_sub_parsers)
-	args_export (next_sub_parsers)
-	args_revoke (next_sub_parsers)
 	args_crl (next_sub_parsers)
-	args_sign (next_sub_parsers)
+	args_export (next_sub_parsers)
 	args_import (next_sub_parsers)
+	args_issue (next_sub_parsers)
+	args_list (next_sub_parsers)
+	args_revoke (next_sub_parsers)
+	args_sign (next_sub_parsers)
 
 def args_create (sub_parsers):
 
@@ -576,6 +588,41 @@ def do_create (context, args):
 	authority.create (args.common_name)
 
 	print ("Created certificate authority %s" % args.authority)
+
+def args_list (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"list",
+		help = "list all certificate authorities",
+		description = """
+			This tool outputs a list of certificate authorities which have been
+			created, along with their name and basic information.
+		""")
+
+	parser.set_defaults (
+		func = do_list)
+
+def do_list (context, args):
+
+	rows = []
+
+	for name in context.client.ls ("/authority"):
+
+		authority = CertificateAuthority (
+			context,
+			"/authority/" + name,
+			context.certificate_data)
+
+		rows.append (dict (
+			name = name))
+
+	rows.sort (key = lambda row: row ["name"])
+
+	columns = [
+		TableColumn ("name", "Name"),
+	]
+
+	print_table (columns, rows, sys.stdout)
 
 def args_issue (sub_parsers):
 
@@ -968,6 +1015,9 @@ def do_import (context, args):
 		ca_private_key_string,
 		issued_certificates)
 
-	print "Certificate authority %s imported with %s certificates" % (
-		args.authority,
-		len (issued_certificates))
+	print (
+		"Certificate authority %s imported with %s certificates" % (
+			args.authority,
+			len (issued_certificates)))
+
+# ex: noet ts=4 filetype=python

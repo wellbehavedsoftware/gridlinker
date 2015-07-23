@@ -377,6 +377,23 @@ class EtcdClient:
 
 		self.set_raw (key, value_yaml)
 
+	def ls (self, key):
+
+		status, data = self.make_request (
+			method = "GET",
+			url = self.key_url (key),
+			accept_response = [ 200 ])
+
+		if not "nodes" in data ["node"]:
+			raise Exception ()
+
+		prefix_length = len (self.prefix) + len (key)
+
+		return [
+			node ["key"] [prefix_length + 1 : ]
+			for node in data ["node"] ["nodes"]
+		]
+
 def args (sub_parsers):
 
 	pass

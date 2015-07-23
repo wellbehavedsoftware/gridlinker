@@ -30,19 +30,7 @@
 
     module: "template"
     src: "wordpress-nginx-site"
-    dest: "/etc/nginx/sites-available/{{ wordpress_server_prefix }}-{{ item.identity.name }}.conf"
-
-- name: "enable nginx site"
-  tags: "config"
-  with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
-  sudo: "yes"
-  notify: "set nginx.needs_restart to 'yes'"
-  action:
-
-    module: "file"
-    dest: "/etc/nginx/sites-enabled/{{ wordpress_server_prefix }}-{{ item.identity.name }}.conf"
-    state: "link"
-    src: "../sites-available/{{ wordpress_server_prefix }}-{{ item.identity.name }}.conf"
+    dest: "{{ nginx_target }}/conf/sites/{{ wordpress_server_prefix }}-{{ item.identity.name }}.conf"
 
 - meta: "flush_handlers"
 
@@ -90,7 +78,7 @@
     mysql "{{ item.database.name }}" --execute "
 
       UPDATE wp_options
-      SET option_value = 'https://{{ item.website.hostname }}'
+      SET option_value = '{{ item.website.url }}'
       WHERE option_name IN (
         'home',
         'siteurl'

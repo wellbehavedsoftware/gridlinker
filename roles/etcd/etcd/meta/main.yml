@@ -2,6 +2,7 @@
 
 dependencies:
 
+  - "etcd-common"
   - "install-etcd"
   - "setup-etcd"
   - "control-etcd"

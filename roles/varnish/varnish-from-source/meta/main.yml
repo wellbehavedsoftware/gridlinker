@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "varnish-common"
+  - "build-varnish"
+  - "setup-varnish"
+  - "control-varnish"
+
+# ex: et ts=2 filetype=yaml
