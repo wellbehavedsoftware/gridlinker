@@ -29,10 +29,10 @@ object FileLogger "main-log" {
 }
 
 object IdoMysqlConnection "ido-mysql" {
-	host = "{{ mysql_master }}",
+	host = "{{ mysql_master }}"
 	database = "icingaido"
-	user = "icingaido",
-	password = IcingaIdoMysqlPassword,
+	user = "icingaido"
+	password = IcingaIdoMysqlPassword
 }
 
 object NotificationComponent "notification" {
@@ -43,3 +43,5 @@ include "hosts.conf"
 include "services.conf"
 include "time-periods.conf"
 include "users.conf"
+
+include_recursive "local"

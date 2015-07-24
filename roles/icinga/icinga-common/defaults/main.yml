@@ -1,6 +1,24 @@
 ---
 
+# state
+
+icinga_state: "no"
+icinga_needs_restart: "no"
+
+# runtime defaults
+
+icinga_common_name: "{{ identity_name }}"
+icinga_alt_dns: [ "{{ icinga_common_name }}" ]  
+icinga_alt_ips: []
+
 # master configuration
+
+icinga_master_directories:
+
+  - directory: "/etc/icinga2/local"
+    user: "nagios"
+    group: "nagios"
+    mode: "0750"
 
 icinga_master_config_templates:
 
@@ -87,9 +105,5 @@ icinga_agent_security_files:
   - source: "{{ icinga_private_key }}"
     target: "pki/{{ identity.name }}.key"
     mode: "0640"
-
-# state
-
-icinga_needs_restart: "no"
 
 # ex: et ts=2 filetype=yaml

@@ -1,36 +1,52 @@
 ---
 
-- name: "write icinga config"
+- name: "create icinga directories"
+  with_items: "icinga_master_directories"
+  sudo: "yes"
   action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "write icinga config"
+  with_items: "icinga_master_config_templates"
+  notify: "set icinga.needs_restart to 'yes'"
+  sudo: "yes"
+  action:
+
     module: "template"
     src: "{{ item.template }}"
     dest: "/etc/icinga2/{{ item.target }}"
     owner: "root"
     group: "nagios"
-  sudo: "yes"
-  notify: "set icinga.needs_restart to 'yes'"
-  with_items: "icinga_master_config_templates"
 
 - name: "write icinga security config"
+  with_items: "icinga_master_security_files"
+  notify: "set icinga.needs_restart to 'yes'"
+  sudo: "yes"
   action:
+
     module: "copy"
     dest: "/etc/icinga2/{{ item.target }}"
     content: "{{ lookup ('etcd', item.source) }}"
     owner: "root"
     group: "nagios"
-  sudo: "yes"
-  notify: "set icinga.needs_restart to 'yes'"
-  with_items: "icinga_master_security_files"
 
 - name: "create ido database"
   when: "identity.name == mysql_master"
   action:
+
     module: "mysql_db"
     name: "icingaido"
 
 - name: "create ido user"
   when: "identity.name == mysql_master"
   action:
+
     module: "mysql_user"
     name: "icingaido"
     host: "%"

@@ -1,26 +1,5 @@
 ---
 
-- name: "enable icinga-web nginx site"
-  when: "icinga_web_state == 'enabled'"
-  notify: "set nginx.needs_restart to 'yes'"
-  sudo: "yes"
-  action:
-
-    module: "file"
-    path: "/etc/nginx/sites-enabled/icinga-web"
-    state: "link"
-    src: "../sites-available/icinga-web"
-
-- name: "disable icinga-web nginx site"
-  when: "icinga_web_state == 'disabled'"
-  notify: "set nginx.needs_restart to 'yes'"
-  sudo: "yes"
-  action:
-
-    module: "file"
-    path: "/etc/nginx/sites-enabled/icinga-web"
-    state: "absent"
-
-- meta: "flush_handlers"
+{}
 
 # ex: et ts=2 filetype=yaml

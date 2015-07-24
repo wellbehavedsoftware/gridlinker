@@ -29,6 +29,7 @@ class GenericCommand:
 		self.args_create (next_sub_parsers)
 		self.args_edit (next_sub_parsers)
 		self.args_list (next_sub_parsers)
+		self.args_remove (next_sub_parsers)
 		self.args_show (next_sub_parsers)
 		self.args_update (next_sub_parsers)
 
@@ -156,7 +157,7 @@ class GenericCommand:
 		for record_name, record_data \
 		in collection.get_all_list_quick ():
 
-			if not self.helper.filter_record (context, args, record_data):
+			if not self.helper.filter_record (args, record_name, record_data):
 				continue
 
 			record_names.append (record_name)
@@ -178,6 +179,51 @@ class GenericCommand:
 		]
 
 		print_table (columns, rows, sys.stdout)
+
+	def args_remove (self, sub_parsers):
+
+		parser = sub_parsers.add_parser (
+			"remove",
+			help = "Remove one or more {0}".format (self.helper.name),
+			description = """
+				Remove a specific {0} or {0}s. To remove a single {0}, provide
+				its fully qualified "--name". To remove a group, provide one or
+				more other specifiers, eg "--class". This will remove all of the
+				matching resources.
+			""".format (self.helper.name))
+
+		parser.set_defaults (
+			func = self.do_remove)
+
+		self.helper.args_remove (parser)
+
+	def do_remove (self, context, args):
+
+		collection = self.helper.get_collection (context)
+
+		columns = self.helper.get_columns (context)
+
+		# find records
+
+		record_names = []
+		records_by_name = {}
+
+		for record_name, record_data \
+		in collection.get_all_list_quick ():
+
+			if not self.helper.filter_record (args, record_name, record_data):
+				continue
+
+			record_names.append (record_name)
+			records_by_name [record_name] = record_data
+
+		record_names = sorted (record_names)
+
+		for record_name in record_names:
+
+			collection.remove (record_name)
+
+			print ("Removed %s" % record_name)
 
 	def args_update (self, sub_parsers):
 
@@ -219,7 +265,7 @@ class GenericCommand:
 		filtered_records = [
 			(record_name, record_data)
 			for record_name, record_data in all_records
-			if self.helper.filter_record (context, args, record_data)
+			if self.helper.filter_record (args, record_name, record_data)
 		]
 
 		for unique_name, record_data in filtered_records:
@@ -357,6 +403,12 @@ class CommandHelper:
 			if hasattr (custom_arg, "args_list"):
 				custom_arg.args_list (parser, self)
 
+	def args_remove (self, parser):
+
+		for custom_arg in self.custom_args:
+			if hasattr (custom_arg, "args_remove"):
+				custom_arg.args_remove (parser, self)
+
 	def args_show (self, parser):
 
 		for custom_arg in self.custom_args:
@@ -393,13 +445,13 @@ class CommandHelper:
 
 		return self.custom_columns
 
-	def filter_record (self, context, args, record_data):
+	def filter_record (self, args, record_name, record_data):
 
 		arg_vars = vars (args)
 
 		for custom_arg in self.custom_args:
 			if hasattr (custom_arg, "filter_record") \
-			and not custom_arg.filter_record (arg_vars, record_data, self):
+			and not custom_arg.filter_record (arg_vars, record_name, record_data):
 				return False
 
 		return True

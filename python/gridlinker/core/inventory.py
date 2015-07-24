@@ -206,6 +206,13 @@ class Inventory (object):
 					class_data ["class"] ["parent_namespace"],
 					resource_data ["identity"] ["parent"])
 
+				if not parent_name in self.resources:
+
+					raise Exception (
+						"Can't find parent of %s: %s" % (
+							resource_name,
+							parent_name))
+
 				parent_data = self.resources [parent_name]
 
 				self.resource_children [parent_name].append (resource_name)

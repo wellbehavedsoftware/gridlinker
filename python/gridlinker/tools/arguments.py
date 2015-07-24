@@ -39,6 +39,15 @@ class ArgumentGroup:
 			if hasattr (argument, "args_list"):
 				argument.args_list (group, helper)
 
+	def args_remove (self, parser, helper):
+
+		group = parser.add_argument_group (
+			self.label)
+
+		for argument in self.arguments:
+			if hasattr (argument, "args_remove"):
+				argument.args_remove (group, helper)
+
 	def args_show (self, parser, helper):
 
 		group = parser.add_argument_group (
@@ -68,6 +77,15 @@ class ArgumentGroup:
 		for argument in self.arguments:
 			if hasattr (argument, "update_files"):
 				argument.update_files (arg_vars, unique_name, collection, helper)
+
+	def filter_record (self, arg_vars, record_name, record_data):
+
+		for argument in self.arguments:
+			if hasattr (argument, "filter_record") \
+			and not argument.filter_record (arg_vars, record_name, record_data):
+				return False
+
+		return True
 
 class SimpleArgument:
 
@@ -147,7 +165,7 @@ class ClassArgument:
 		if value:
 			record_data ["identity"] ["class"] = value
 
-	def filter_record (self, arg_vars, record_data):
+	def filter_record (self, arg_vars, record_name, record_data):
 
 		if not "class" in arg_vars:
 			return True
@@ -187,7 +205,7 @@ class ParentArgument:
 		if value:
 			record_data ["identity"] ["parent"] = value
 
-	def filter_record (self, arg_vars, record_data):
+	def filter_record (self, arg_vars, record_name, record_data):
 
 		if not "parent" in arg_vars:
 			return True
@@ -317,6 +335,14 @@ class NameArgument:
 			metavar = "NAME",
 			help = "name of %s to edit" % helper.name)
 
+	def args_remove (self, parser, helper):
+
+		parser.add_argument (
+			"--name",
+			required = False,
+			metavar = "NAME",
+			help = "name of %s to remove" % helper.name)
+
 	def args_show (self, parser, helper):
 
 		parser.add_argument (
@@ -332,6 +358,13 @@ class NameArgument:
 			required = False,
 			metavar = "NAME",
 			help = "name of %s to update" % helper.name)
+
+	def filter_record (self, arg_vars, record_name, record_data):
+
+		if not "name" in arg_vars:
+			return True
+
+		return record_name == arg_vars ["name"]
 
 class MiscSetFileArgument:
 

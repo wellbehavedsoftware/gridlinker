@@ -54,7 +54,7 @@ nginx_build_dependencies:
 
   - "autotools-dev"
   - "build-essential"
-  - "libexpat-dev"
+  - "libexpat1-dev"
   - "libgd2-noxpm-dev"
   - "libgeoip-dev"
   - "liblua5.1-0-dev"
