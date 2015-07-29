@@ -72,17 +72,17 @@ class ArgumentGroup:
 			if hasattr (argument, "update_record"):
 				argument.update_record (arg_vars, record_data, helper)
 
-	def update_files (self, arg_vars, unique_name, collection, helper):
+	def update_files (self, arg_vars, unique_name, helper):
 
 		for argument in self.arguments:
 			if hasattr (argument, "update_files"):
-				argument.update_files (arg_vars, unique_name, collection, helper)
+				argument.update_files (arg_vars, unique_name, helper)
 
-	def filter_record (self, arg_vars, record_name, record_data):
+	def filter_record (self, arg_vars, record_name, record_data, helper):
 
 		for argument in self.arguments:
 			if hasattr (argument, "filter_record") \
-			and not argument.filter_record (arg_vars, record_name, record_data):
+			and not argument.filter_record (arg_vars, record_name, record_data, helper):
 				return False
 
 		return True
@@ -165,7 +165,7 @@ class ClassArgument:
 		if value:
 			record_data ["identity"] ["class"] = value
 
-	def filter_record (self, arg_vars, record_name, record_data):
+	def filter_record (self, arg_vars, record_name, record_data, helper):
 
 		if not "class" in arg_vars:
 			return True
@@ -205,7 +205,7 @@ class ParentArgument:
 		if value:
 			record_data ["identity"] ["parent"] = value
 
-	def filter_record (self, arg_vars, record_name, record_data):
+	def filter_record (self, arg_vars, record_name, record_data, helper):
 
 		if not "parent" in arg_vars:
 			return True
@@ -359,7 +359,7 @@ class NameArgument:
 			metavar = "NAME",
 			help = "name of %s to update" % helper.name)
 
-	def filter_record (self, arg_vars, record_name, record_data):
+	def filter_record (self, arg_vars, record_name, record_data, helper):
 
 		if not "name" in arg_vars:
 			return True

@@ -280,6 +280,25 @@ class Inventory (object):
 					resource_data ["grandparent"] = "{{ hostvars ['%s'] }}" % (
 						grandparent_name)
 
+			for reference in class_data ["class"].get ("references", []):
+
+				if reference ["type"] == "resource":
+
+					target_name = self.resolve_value_or_fail (
+						resource_name,
+						reference ["target"])
+
+					if not target_name in self.resources:
+						raise Exception ()
+
+					resource_data [reference ["name"]] = \
+						"{{ hostvars ['%s'] }}" % (
+							target_name)
+
+				else:
+
+					raise Exception ()
+
 	def load_resources_5 (self):
 
 		for resource_name, resource_data \

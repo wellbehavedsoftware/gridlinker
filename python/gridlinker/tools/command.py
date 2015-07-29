@@ -157,7 +157,7 @@ class GenericCommand:
 		for record_name, record_data \
 		in collection.get_all_list_quick ():
 
-			if not self.helper.filter_record (args, record_name, record_data):
+			if not self.helper.filter_record (args, record_name, record_data, self.helper):
 				continue
 
 			record_names.append (record_name)
@@ -211,7 +211,7 @@ class GenericCommand:
 		for record_name, record_data \
 		in collection.get_all_list_quick ():
 
-			if not self.helper.filter_record (args, record_name, record_data):
+			if not self.helper.filter_record (args, record_name, record_data, self.helper):
 				continue
 
 			record_names.append (record_name)
@@ -265,7 +265,7 @@ class GenericCommand:
 		filtered_records = [
 			(record_name, record_data)
 			for record_name, record_data in all_records
-			if self.helper.filter_record (args, record_name, record_data)
+			if self.helper.filter_record (args, record_name, record_data, self.helper)
 		]
 
 		for unique_name, record_data in filtered_records:
@@ -445,13 +445,13 @@ class CommandHelper:
 
 		return self.custom_columns
 
-	def filter_record (self, args, record_name, record_data):
+	def filter_record (self, args, record_name, record_data, helper):
 
 		arg_vars = vars (args)
 
 		for custom_arg in self.custom_args:
 			if hasattr (custom_arg, "filter_record") \
-			and not custom_arg.filter_record (arg_vars, record_name, record_data):
+			and not custom_arg.filter_record (arg_vars, record_name, record_data, helper):
 				return False
 
 		return True
