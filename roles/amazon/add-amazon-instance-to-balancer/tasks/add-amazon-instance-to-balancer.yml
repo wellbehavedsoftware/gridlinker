@@ -2,11 +2,13 @@
 
 - name: "add to load balancers"
   connection: "local"
+  with_items: "amazon_instance_balancers"
   action:
+
     module: "ec2_elb"
     instance_id: "{{ amazon_instance_id }}"
-    ec2_elbs: "{{ amazon_instance_balancer_names }}"
-    state: "present"
+    ec2_elbs: [ "{{ item.name }}" ]
+    state: "{{ item.state }}"
     wait: "no"
     region: "{{ amazon_instance_region_name }}"
     aws_access_key: "{{ amazon_access_key_id }}"
