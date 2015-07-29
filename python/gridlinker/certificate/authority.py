@@ -1,4 +1,10 @@
 from __future__ import absolute_import
+from __future__ import division
+from __future__ import generators
+from __future__ import nested_scopes
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import with_statement
 
 import itertools
 import os
@@ -12,7 +18,13 @@ from gridlinker.certificate.certificate import AlreadyExistsError
 from gridlinker.certificate.certificate import Certificate
 from gridlinker.certificate.certificate import IllegalStateError
 
-from wbs import SchemaField, SchemaGroup
+from gridlinker.certificate.misc import write_rsa_private_key
+
+from wbs import print_table
+
+from wbs import SchemaField
+from wbs import SchemaGroup
+from wbs import TableColumn
 
 serial_pattern = re.compile (
 	r"^[1-9]\d*$")
@@ -269,9 +281,10 @@ class CertificateAuthority:
 					issue_cert.get_subject ().CN),
 				str (issue_serial))
 
-			print "Imported %s %s" % (
-				issue_serial,
-				issue_cert.get_subject ().CN)
+			print (
+				"Imported %s %s" % (
+					issue_serial,
+					issue_cert.get_subject ().CN))
 
 		# set serial
 
@@ -391,30 +404,30 @@ class CertificateAuthority:
 		issue_cert.add_extensions ([
 
 			crypto.X509Extension (
-				"basicConstraints",
+				str ("basicConstraints"),
 				False,
-				"CA:FALSE"),
+				str ("CA:FALSE")),
 
 			crypto.X509Extension (
-				"keyUsage",
+				str ("keyUsage"),
 				False,
-				"digitalSignature, keyEncipherment"),
+				str ("digitalSignature, keyEncipherment")),
 
 			crypto.X509Extension (
-				"extendedKeyUsage",
+				str ("extendedKeyUsage"),
 				False,
-				use_string),
+				str (use_string)),
 
 			crypto.X509Extension (
-				"subjectKeyIdentifier",
+				str ("subjectKeyIdentifier"),
 				False,
-				"hash",
+				str ("hash"),
 				subject = issue_cert),
 
 			crypto.X509Extension (
-				"authorityKeyIdentifier",
+				str ("authorityKeyIdentifier"),
 				False,
-				"keyid,issuer:always",
+				str ("keyid,issuer:always"),
 				issuer = self.root_cert),
 
 		])
@@ -424,15 +437,15 @@ class CertificateAuthority:
 			issue_cert.add_extensions ([
 
 				crypto.X509Extension (
-					"subjectAltName",
+					str ("subjectAltName"),
 					False,
-					",".join (alt_names)),
+					str (",".join (alt_names))),
 
 			])
 
 		# sign certificate
 
-		issue_cert.sign (self.root_key, "sha256")
+		issue_cert.sign (self.root_key, str ("sha256"))
 
 		# dump to pem
 
@@ -444,7 +457,7 @@ class CertificateAuthority:
 			crypto.FILETYPE_PEM,
 			issue_key)
 
-		issue_digest = issue_cert.digest ("sha1")
+		issue_digest = issue_cert.digest (str ("sha1"))
 
 		# write to database
 
@@ -468,13 +481,23 @@ class CertificateAuthority:
 			self.path + "/named/" + name,
 			str (issue_serial))
 
+		issue_key_rsa = write_rsa_private_key (issue_key)
+
 		return Certificate (
+
 			serial = issue_serial,
 			digest = issue_digest,
+
 			certificate = issue_cert_string,
-			private_key = issue_key_string,
 			certificate_path = issue_path + "/certificate",
-			private_key_path = issue_path + "/key")
+
+			chain = [ self.root_cert_string ],
+			chain_paths = [ self.path + "/certificate" ],
+
+			private_key = issue_key_string,
+			private_key_path = issue_path + "/key",
+
+			rsa_private_key = issue_key_rsa)
 
 	def get (self, issue_ref):
 
@@ -535,12 +558,13 @@ def args (prev_sub_parsers):
 	next_sub_parsers = parser.add_subparsers ()
 
 	args_create (next_sub_parsers)
-	args_issue (next_sub_parsers)
-	args_export (next_sub_parsers)
-	args_revoke (next_sub_parsers)
 	args_crl (next_sub_parsers)
-	args_sign (next_sub_parsers)
+	args_export (next_sub_parsers)
 	args_import (next_sub_parsers)
+	args_issue (next_sub_parsers)
+	args_list (next_sub_parsers)
+	args_revoke (next_sub_parsers)
+	args_sign (next_sub_parsers)
 
 def args_create (sub_parsers):
 
@@ -576,6 +600,41 @@ def do_create (context, args):
 	authority.create (args.common_name)
 
 	print ("Created certificate authority %s" % args.authority)
+
+def args_list (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"list",
+		help = "list all certificate authorities",
+		description = """
+			This tool outputs a list of certificate authorities which have been
+			created, along with their name and basic information.
+		""")
+
+	parser.set_defaults (
+		func = do_list)
+
+def do_list (context, args):
+
+	rows = []
+
+	for name in context.client.ls ("/authority"):
+
+		authority = CertificateAuthority (
+			context,
+			"/authority/" + name,
+			context.certificate_data)
+
+		rows.append (dict (
+			name = name))
+
+	rows.sort (key = lambda row: row ["name"])
+
+	columns = [
+		TableColumn ("name", "Name"),
+	]
+
+	print_table (columns, rows, sys.stdout)
 
 def args_issue (sub_parsers):
 
@@ -968,6 +1027,9 @@ def do_import (context, args):
 		ca_private_key_string,
 		issued_certificates)
 
-	print "Certificate authority %s imported with %s certificates" % (
-		args.authority,
-		len (issued_certificates))
+	print (
+		"Certificate authority %s imported with %s certificates" % (
+			args.authority,
+			len (issued_certificates)))
+
+# ex: noet ts=4 filetype=python

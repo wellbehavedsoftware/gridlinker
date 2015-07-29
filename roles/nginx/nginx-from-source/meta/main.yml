@@ -1,0 +1,9 @@
+---
+
+dependencies:
+
+  - "build-nginx"
+  - "setup-nginx"
+  - "control-nginx"
+
+# ex: et ts=2 filetype=yaml

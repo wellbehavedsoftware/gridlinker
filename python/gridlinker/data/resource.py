@@ -51,8 +51,8 @@ resource_command = GenericCommand (
 				label = "resource identity",
 				arguments = [
 
-				NameArgument (),
 				ClassArgument (),
+				NameArgument (),
 				ParentArgument (),
 				IndexArgument (),
 
@@ -99,6 +99,12 @@ resource_command = GenericCommand (
 				section = "identity",
 				name = "description",
 				label = "Description",
+				default = True),
+
+			SimpleColumn (
+				section = "vpn",
+				name = "address",
+				label = "VPN IP",
 				default = True),
 
 		],

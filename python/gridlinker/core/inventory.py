@@ -18,8 +18,10 @@ class Inventory (object):
 		self.resources = {}
 		self.namespaces = {}
 
-		self.children = collections.defaultdict (list)
-		self.members = collections.defaultdict (list)
+		self.group_children = collections.defaultdict (list)
+		self.group_members = collections.defaultdict (list)
+
+		self.resource_children = collections.defaultdict (list)
 
 		self.class_groups = set ()
 
@@ -185,7 +187,7 @@ class Inventory (object):
 			self.world [resource_name] = resource_data
 			self.resources [resource_name] = resource_data
 
-			self.members [class_name].append (resource_name)
+			self.group_members [class_name].append (resource_name)
 			self.namespaces [namespace].append (resource_name)
 
 	def load_resources_2 (self):
@@ -204,21 +206,29 @@ class Inventory (object):
 					class_data ["class"] ["parent_namespace"],
 					resource_data ["identity"] ["parent"])
 
+				if not parent_name in self.resources:
+
+					raise Exception (
+						"Can't find parent of %s: %s" % (
+							resource_name,
+							parent_name))
+
 				parent_data = self.resources [parent_name]
+
+				self.resource_children [parent_name].append (resource_name)
 
 				if "parent" in parent_data ["identity"]:
 
 					resource_data ["identity"] ["grandparent"] = \
 						parent_data ["identity"] ["parent"]
 
-			# set children
+		# set children
 
-			resource_data ["identity"] ["children"] = [
-				other_name
-				for other_name, other_data in self.resources.items ()
-				if "parent" in other_data ["identity"]
-				and other_data ["identity"] ["parent"] == resource_name
-			]
+		for resource_name, resource_data \
+		in self.resources.items ():
+
+			resource_data ["identity"] ["children"] = \
+				self.resource_children [resource_name]
 
 	def load_resources_3 (self):
 
@@ -270,6 +280,25 @@ class Inventory (object):
 					resource_data ["grandparent"] = "{{ hostvars ['%s'] }}" % (
 						grandparent_name)
 
+			for reference in class_data ["class"].get ("references", []):
+
+				if reference ["type"] == "resource":
+
+					target_name = self.resolve_value_or_fail (
+						resource_name,
+						reference ["target"])
+
+					if not target_name in self.resources:
+						raise Exception ()
+
+					resource_data [reference ["name"]] = \
+						"{{ hostvars ['%s'] }}" % (
+							target_name)
+
+				else:
+
+					raise Exception ()
+
 	def load_resources_5 (self):
 
 		for resource_name, resource_data \
@@ -294,7 +323,7 @@ class Inventory (object):
 
 					self.class_groups.add (group_name)
 
-				self.members [group_name].append (resource_name)
+				self.group_members [group_name].append (resource_name)
 
 	def add_group_class_type (self,
 			item_friendly_name,
@@ -445,7 +474,7 @@ class Inventory (object):
 				if not success:
 					return False, None
 
-				ret [key] = item
+				ret [key] = resolved
 
 			return True, ret
 
@@ -523,15 +552,26 @@ class Inventory (object):
 
 		if parts [0] == "grandparent":
 
-			parent_name = resource_data ["identity"] ["parent"]
+			class_name = resource_data ["identity"] ["class"]
+			class_data = self.classes [class_name]
+
+			parent_name = "%s/%s" % (
+				class_data ["class"] ["parent_namespace"],
+				resource_data ["identity"] ["parent"])
+
 			parent_data = self.resources [parent_name]
 
-			grandparent_name = parent_data ["identity"] ["parent"]
+			parent_class_name = parent_data ["identity"] ["class"]
+			parent_class_data = self.classes [parent_class_name]
+
+			grandparent_name = "%s/%s" % (
+				parent_class_data ["class"] ["parent_namespace"],
+				parent_data ["identity"] ["parent"])
+
 			grandparent_data = self.resources [grandparent_name]
 
 			return self.resolve_variable (
 				grandparent_name,
-				grandparent_data,
 				".".join (parts [1:]))
 
 		current = resource_data

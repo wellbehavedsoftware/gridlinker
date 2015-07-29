@@ -340,6 +340,16 @@ class EtcdClient:
 			url = self.key_url (key),
 			accept_response = [ 200 ])
 
+	def rm_recursive (self, key):
+
+		self.make_request (
+			method = "DELETE",
+			url = self.key_url (key),
+			query_data = {
+				"recursive": "true",
+			},
+			accept_response = [ 200 ])
+
 	def rmdir (self, key):
 
 		self.make_request (
@@ -377,6 +387,23 @@ class EtcdClient:
 		value_yaml = yamlx.encode (schema, value)
 
 		self.set_raw (key, value_yaml)
+
+	def ls (self, key):
+
+		status, data = self.make_request (
+			method = "GET",
+			url = self.key_url (key),
+			accept_response = [ 200 ])
+
+		if not "nodes" in data ["node"]:
+			raise Exception ()
+
+		prefix_length = len (self.prefix) + len (key)
+
+		return [
+			node ["key"] [prefix_length + 1 : ]
+			for node in data ["node"] ["nodes"]
+		]
 
 def args (sub_parsers):
 

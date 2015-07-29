@@ -54,7 +54,7 @@ using the following template:
 ```yaml
 ---
 
-{{ METADATA.project.name }}:
+{{ METADATA.project.script }}:
 
   etcd_servers: [ "{{ METADATA.etcd.default_servers | join ('", "') }}" ]
   etcd_secure: "{{ METADATA.etcd.default_secure }}"
@@ -67,9 +67,9 @@ You also need to obtain a valid certificate, along with its private key, and the
 ca certificate, from the administrator. These should be placed in the following
 places:
 
-* `config/{{ METADATA.project.name }}-ca.cert`
-* `config/{{ METADATA.project.name }}.cert`
-* `config/{{ METADATA.project.name }}.key`
+* `config/{{ METADATA.project.script }}-ca.cert`
+* `config/{{ METADATA.project.script }}.cert`
+* `config/{{ METADATA.project.script }}.key`
 
 To use a local etcd server, for example during development or testing or when
 you are working online, use the following configuration:
@@ -77,7 +77,7 @@ you are working online, use the following configuration:
 ```yaml
 ---
 
-{{ METADATA.project.name }}:
+{{ METADATA.project.script }}:
 
   etcd_servers: [ "localhost" ]
   etcd_secure: "no"

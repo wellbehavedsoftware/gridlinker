@@ -12,6 +12,9 @@ from gridlinker.certificate.certificate import IllegalStateError
 from gridlinker.certificate import database
 from gridlinker.certificate.database import CertificateDatabase
 
+from gridlinker.certificate import misc
+from gridlinker.certificate.misc import write_rsa_private_key
+
 from gridlinker.certificate import tools
 
 def args (parser):

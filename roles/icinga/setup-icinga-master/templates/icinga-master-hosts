@@ -8,16 +8,28 @@ template Host "generic-host" {
 
 }
 
+{% macro do_vars (vars) %}
+{% for var in vars %}
+{% if var.type == 'string' %}
+	vars.{{ var.name }} = "{{ var.value }}"
+{% else %}
+	vars.{{ var.name }} = {{ var.value }}
+{% endif %}
+{% endfor %}
+{% endmacro %}
+
 {% for host_name in groups [icinga_master.endpoints] %}
 {% set host = hostvars [host_name] %}
 
-object Host "{{ host_name }}" {
+object Host "{{ host.identity_name }}" {
 
 	import "generic-host"
 
 	address = "{{ host.icinga_host.address }}"
 
-	vars.http = true
+	vars.class = "{{ host.identity.class }}"
+
+{{ do_vars (host.icinga_host.vars | default ([])) }}
 
 }
 
@@ -26,15 +38,16 @@ object Host "{{ host_name }}" {
 {% for host_name in groups [icinga_master.hosts] %}
 {% set host = hostvars [host_name] %}
 
-object Host "{{ host_name }}" {
+object Host "{{ host.identity_name }}" {
 
 	import "generic-host"
 
 	address = "{{ host.icinga_host.address }}"
 
-	vars.http = true
-
+	vars.class = "{{ host.identity.class }}"
 	vars.endpoint = "{{ host.icinga_host.endpoint }}"
+
+{{ do_vars (host.icinga_host.vars | default ([])) }}
 
 }
 

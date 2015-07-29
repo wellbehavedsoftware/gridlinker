@@ -1,0 +1,6 @@
+---
+
+- include: "build-nginx.yml"
+  tags: [ "nginx", "build-nginx" ]
+
+# ex: et ts=2 filetype=yaml

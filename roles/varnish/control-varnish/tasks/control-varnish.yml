@@ -1,0 +1,40 @@
+---
+
+- name: "write varnish upstart config"
+  notify:
+    - "reload varnish config"
+    - "set varnish.needs_restart to 'yes'"
+  sudo: "yes"
+  action:
+
+    module: "template"
+    src: "varnish-upstart"
+    dest: "/etc/init/varnish.conf"
+
+- name: "restart varnish"
+  when: "varnish_needs_restart == 'yes'"
+  changed_when: "True"
+  notify: "restart varnish"
+  update_resource: {}
+
+- meta: "flush_handlers"
+
+- name: "start varnish"
+  when: "varnish_state == 'enabled'"
+  sudo: "yes"
+  action:
+
+    module: "service"
+    name: "varnish"
+    state: "started"
+
+- name: "stop varnish"
+  when: "varnish_state == 'disabled'"
+  sudo: "yes"
+  action:
+
+    module: "service"
+    name: "varnish"
+    state: "stopped"
+
+# ex: et ts=2 filetype=yaml

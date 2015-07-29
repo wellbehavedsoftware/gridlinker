@@ -220,4 +220,13 @@ class GenericCollection:
 		return self.client.exists (
 			record_key)
 
+	def remove (self, record_name):
+
+		record_key = "%s/%s" % (
+			self.path,
+			record_name)
+
+		self.client.rm_recursive (
+			record_key)
+	
 # ex: noet ts=4 filetype=yaml

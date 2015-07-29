@@ -1,5 +1,8 @@
 ---
 
+etcd_state: "no"
+etcd_installed_version: "no"
+
 etcd_name: "{{ identity.name }}"
 etcd_hostname: "{{ etcd_name }}"
 etcd_ips: []
