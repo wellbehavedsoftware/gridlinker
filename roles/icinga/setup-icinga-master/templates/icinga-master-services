@@ -4,28 +4,6 @@ template Service "generic-service" {
 	check_interval = 1m
 	retry_interval = 30s
 
-}
-
-apply Service "http" {
-
-	import "generic-service"
-
-	check_command = "http"
-
-	command_endpoint = host.vars.endpoint
-
-	assign where host.vars.http
-
-}
-
-apply Service "disk" {
-
-	import "generic-service"
-
-	check_command = "disk"
-
-	command_endpoint = host.vars.endpoint
-
-	assign where true
+	enable_notifications = true
 
 }

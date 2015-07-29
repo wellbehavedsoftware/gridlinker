@@ -65,15 +65,16 @@
     ";
 
 - name: "create icinga web site"
+  notify: "set nginx.needs_restart to 'yes'"
+  sudo: "yes"
   action:
+
     module: "template"
-    dest: "/etc/nginx/sites-available/icinga-web"
+    dest: "{{ nginx_target }}/conf/sites/icinga-web"
     src: "icinga-web-nginx-site"
     owner: "root"
     group: "root"
     mode: "0644"
-  sudo: "yes"
-  notify: "set nginx.needs_restart to 'yes'"
 
 - meta: "flush_handlers"
 

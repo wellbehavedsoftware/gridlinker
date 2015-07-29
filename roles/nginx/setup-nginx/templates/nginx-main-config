@@ -28,4 +28,6 @@ http {
 	fastcgi_send_timeout {{ nginx_fastcgi_send_timeout }};
 	fastcgi_connect_timeout {{ nginx_fastcgi_connect_timeout }};
 
+	client_max_body_size {{ nginx_client_max_body_size }};
+
 }

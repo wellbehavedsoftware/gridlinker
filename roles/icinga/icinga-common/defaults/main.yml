@@ -1,5 +1,25 @@
 ---
 
+# state
+
+icinga_state: "no"
+icinga_needs_restart: "no"
+
+# runtime defaults
+
+icinga_common_name: "{{ identity_name }}"
+icinga_alt_dns: [ "{{ icinga_common_name }}" ]  
+icinga_alt_ips: []
+
+# master configuration
+
+icinga_master_directories:
+
+  - directory: "/etc/icinga2/local"
+    user: "nagios"
+    group: "nagios"
+    mode: "0750"
+
 icinga_master_config_templates:
 
   - template: "icinga-master-commands"
@@ -39,6 +59,40 @@ icinga_master_config_templates:
     mode: "0644"
 
 icinga_master_security_files:
+
+  - source: "{{ icinga_ca_certificate }}"
+    target: "pki/ca.cert"
+    mode: "0644"
+
+  - source: "{{ icinga_certificate }}"
+    target: "pki/{{ identity.name }}.cert"
+    mode: "0644"
+
+  - source: "{{ icinga_private_key }}"
+    target: "pki/{{ identity.name }}.key"
+    mode: "0640"
+
+# agent configuration
+
+icinga_agent_config_templates:
+
+  - template: "icinga-agent-constants"
+    target: "constants.conf"
+    mode: "0644"
+
+  - template: "icinga-agent-icinga"
+    target: "icinga2.conf"
+    mode: "0644"
+
+  - template: "icinga-agent-secrets"
+    target: "secrets.conf"
+    mode: "0600"
+
+  - template: "icinga-agent-zones"
+    target: "zones.conf"
+    mode: "0644"
+
+icinga_agent_security_files:
 
   - source: "{{ icinga_ca_certificate }}"
     target: "pki/ca.cert"

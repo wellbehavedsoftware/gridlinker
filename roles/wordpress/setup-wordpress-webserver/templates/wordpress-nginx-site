@@ -9,6 +9,8 @@ server {
 	root {{ wordpress_website.website.path }};
 	index index.php;
 
+	port_in_redirect off;
+
 	location /favicon.ico {
 		log_not_found off;
 		access_log off;

@@ -18,6 +18,8 @@ from gridlinker.certificate.certificate import AlreadyExistsError
 from gridlinker.certificate.certificate import Certificate
 from gridlinker.certificate.certificate import IllegalStateError
 
+from gridlinker.certificate.misc import write_rsa_private_key
+
 from wbs import print_table
 
 from wbs import SchemaField
@@ -435,9 +437,9 @@ class CertificateAuthority:
 			issue_cert.add_extensions ([
 
 				crypto.X509Extension (
-					"subjectAltName",
+					str ("subjectAltName"),
 					False,
-					",".join (alt_names)),
+					str (",".join (alt_names))),
 
 			])
 
@@ -479,6 +481,8 @@ class CertificateAuthority:
 			self.path + "/named/" + name,
 			str (issue_serial))
 
+		issue_key_rsa = write_rsa_private_key (issue_key)
+
 		return Certificate (
 
 			serial = issue_serial,
@@ -488,12 +492,12 @@ class CertificateAuthority:
 			certificate_path = issue_path + "/certificate",
 
 			chain = [ self.root_cert_string ],
-			chain_path = [ "%s/certificate" % self.path ],
+			chain_paths = [ self.path + "/certificate" ],
 
 			private_key = issue_key_string,
 			private_key_path = issue_path + "/key",
 
-			rsa_private_key = "TODO")
+			rsa_private_key = issue_key_rsa)
 
 	def get (self, issue_ref):
 

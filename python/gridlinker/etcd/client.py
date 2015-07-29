@@ -68,7 +68,8 @@ class EtcdClient:
 				port = self.port,
 				key_file = self.client_key,
 				cert_file = self.client_cert,
-				context = self.ssl_context)
+				context = self.ssl_context,
+				timeout = 4)
 
 			connection.connect ()
 
@@ -337,6 +338,16 @@ class EtcdClient:
 		self.make_request (
 			method = "DELETE",
 			url = self.key_url (key),
+			accept_response = [ 200 ])
+
+	def rm_recursive (self, key):
+
+		self.make_request (
+			method = "DELETE",
+			url = self.key_url (key),
+			query_data = {
+				"recursive": "true",
+			},
 			accept_response = [ 200 ])
 
 	def rmdir (self, key):
