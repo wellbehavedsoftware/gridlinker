@@ -1,6 +1,6 @@
 ---
 
 - include: "install-system-packages.yml"
-  tags: "install-system-packages"
+  tags: [ "system", "install-system-packages" ]
 
 # ex: et ts=2 filetype=yaml

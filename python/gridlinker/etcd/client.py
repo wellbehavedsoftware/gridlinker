@@ -339,6 +339,16 @@ class EtcdClient:
 			url = self.key_url (key),
 			accept_response = [ 200 ])
 
+	def rm_recursive (self, key):
+
+		self.make_request (
+			method = "DELETE",
+			url = self.key_url (key),
+			query_data = {
+				"recursive": "true",
+			},
+			accept_response = [ 200 ])
+
 	def rmdir (self, key):
 
 		self.make_request (

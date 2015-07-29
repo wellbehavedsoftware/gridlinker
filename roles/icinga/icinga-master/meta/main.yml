@@ -1,3 +1,10 @@
 ---
 
+dependencies:
+
+  - "icinga-common"
+  - "install-icinga"
+  - "setup-icinga-master"
+  - "control-icinga"
+
 # ex: et ts=2 filetype=yaml
