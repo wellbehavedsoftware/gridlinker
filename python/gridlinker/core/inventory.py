@@ -452,7 +452,7 @@ class Inventory (object):
 				if not success:
 					return False, None
 
-				ret [key] = item
+				ret [key] = resolved
 
 			return True, ret
 
@@ -530,10 +530,22 @@ class Inventory (object):
 
 		if parts [0] == "grandparent":
 
-			parent_name = resource_data ["identity"] ["parent"]
+			class_name = resource_data ["identity"] ["class"]
+			class_data = self.classes [class_name]
+
+			parent_name = "%s/%s" % (
+				class_data ["class"] ["parent_namespace"],
+				resource_data ["identity"] ["parent"])
+
 			parent_data = self.resources [parent_name]
 
-			grandparent_name = parent_data ["identity"] ["parent"]
+			parent_class_name = parent_data ["identity"] ["class"]
+			parent_class_data = self.classes [parent_class_name]
+
+			grandparent_name = "%s/%s" % (
+				parent_class_data ["class"] ["parent_namespace"],
+				parent_data ["identity"] ["parent"])
+
 			grandparent_data = self.resources [grandparent_name]
 
 			return self.resolve_variable (
