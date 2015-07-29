@@ -87,15 +87,6 @@ class ArgumentGroup:
 
 		return True
 
-	def filter_record (self, arg_vars, record_name, record_data):
-
-		for argument in self.arguments:
-			if hasattr (argument, "filter_record") \
-			and not argument.filter_record (arg_vars, record_name, record_data):
-				return False
-
-		return True
-
 class SimpleArgument:
 
 	def __init__ (self, argument, required, key, value_name, help):
@@ -397,7 +388,9 @@ class MiscSetFileArgument:
 			metavar = ("NAME", "SOURCE"),
 			help = "miscellaneous file to store")
 
-	def update_files (self, arg_vars, unique_name, collection, helper):
+	def update_files (self, arg_vars, unique_name, helper):
+
+		collection = helper.get_collection ()
 
 		value = arg_vars ["set_file"]
 
@@ -435,7 +428,9 @@ class FileArgument:
 			metavar = "FILE",
 			help = self.help)
 
-	def update_files (self, arg_vars, unique_name, collection, helper):
+	def update_files (self, arg_vars, unique_name, helper):
+
+		collection = helper.get_collection ()
 
 		value = arg_vars [self.argument_name]
 
