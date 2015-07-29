@@ -68,7 +68,8 @@ class EtcdClient:
 				port = self.port,
 				key_file = self.client_key,
 				cert_file = self.client_cert,
-				context = self.ssl_context)
+				context = self.ssl_context,
+				timeout = 4)
 
 			connection.connect ()
 
