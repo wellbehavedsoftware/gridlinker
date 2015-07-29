@@ -1,2 +1,38 @@
 template User "generic-user" {
+
+	enable_notifications = true
+
 }
+
+{% for user_name in groups [icinga_master_users] %}
+{% set user = hostvars [user_name] %}
+
+object User "{{ user.identity_name }}" {
+
+	display_name = "{{ user.icinga_user.display_name }}"
+	email = "{{ user.icinga_user.email }}"
+	pager = "{{ user.icinga_user.pager }}"
+
+	groups = [
+{% for group in user.icinga_user.groups %}
+		"{{ group }}",
+{% endfor %}
+	]
+
+	period = "{{ user.icinga_user.period }}"
+
+	states = [
+{% for state in user.icinga_user.states %}
+		{{ state }},
+{% endfor %}
+	]
+
+	types = [
+{% for type in user.icinga_user.types %}
+		{{ type }},
+{% endfor %}
+	]
+
+}
+
+{% endfor %}

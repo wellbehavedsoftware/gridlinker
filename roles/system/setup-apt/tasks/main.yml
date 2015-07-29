@@ -1,21 +1,6 @@
 ---
 
-- name: "configure apt keys"
-  action:
-    module: "apt_key"
-    id: "{{ item.id }}"
-    keyserver: "keyserver.ubuntu.com"
-  sudo: "yes"
-  with_items: "ubuntu_keys_extra"
-
-- name: "configure apt sources"
-  action:
-    module: "template"
-    src: "setup-apt-sources-list"
-    dest: "/etc/apt/sources.list"
-  sudo: "yes"
-  notify: "update apt package lists"
-
-- meta: "flush_handlers"
+- include: "setup-apt.yml"
+  tags: [ "system", "setup-apt" ]
 
 # ex: et ts=2 filetype=yaml

@@ -4,4 +4,6 @@ template Service "generic-service" {
 	check_interval = 1m
 	retry_interval = 30s
 
+	enable_notifications = true
+
 }
