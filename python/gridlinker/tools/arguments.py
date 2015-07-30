@@ -72,11 +72,11 @@ class ArgumentGroup:
 			if hasattr (argument, "update_record"):
 				argument.update_record (arg_vars, record_data, helper)
 
-	def update_files (self, arg_vars, unique_name, helper):
+	def update_files (self, arg_vars, unique_name, context, helper):
 
 		for argument in self.arguments:
 			if hasattr (argument, "update_files"):
-				argument.update_files (arg_vars, unique_name, helper)
+				argument.update_files (arg_vars, unique_name, context, helper)
 
 	def filter_record (self, arg_vars, record_name, record_data, helper):
 
@@ -167,7 +167,7 @@ class ClassArgument:
 
 	def filter_record (self, arg_vars, record_name, record_data, helper):
 
-		if not "class" in arg_vars:
+		if not arg_vars ["class"]:
 			return True
 
 		class_key = "%s_class" % helper.short_name
@@ -207,7 +207,7 @@ class ParentArgument:
 
 	def filter_record (self, arg_vars, record_name, record_data, helper):
 
-		if not "parent" in arg_vars:
+		if not arg_vars ["parent"]:
 			return True
 
 		class_key = "%s_parent" % helper.short_name
@@ -361,7 +361,7 @@ class NameArgument:
 
 	def filter_record (self, arg_vars, record_name, record_data, helper):
 
-		if not "name" in arg_vars:
+		if not arg_vars ["name"]:
 			return True
 
 		return record_name == arg_vars ["name"]
@@ -388,9 +388,9 @@ class MiscSetFileArgument:
 			metavar = ("NAME", "SOURCE"),
 			help = "miscellaneous file to store")
 
-	def update_files (self, arg_vars, unique_name, helper):
+	def update_files (self, arg_vars, unique_name, context, helper):
 
-		collection = helper.get_collection ()
+		collection = helper.get_collection (context)
 
 		value = arg_vars ["set_file"]
 
@@ -428,7 +428,7 @@ class FileArgument:
 			metavar = "FILE",
 			help = self.help)
 
-	def update_files (self, arg_vars, unique_name, helper):
+	def update_files (self, arg_vars, unique_name, context, helper):
 
 		collection = helper.get_collection ()
 

@@ -435,7 +435,7 @@ class CommandHelper:
 
 		for custom_arg in self.custom_args:
 			if hasattr (custom_arg, "update_files"):
-				custom_arg.update_files (arg_vars, unique_name, self)
+				custom_arg.update_files (arg_vars, unique_name, context, self)
 
 	def get_collection (self, context):
 
