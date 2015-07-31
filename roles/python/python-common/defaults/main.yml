@@ -1,5 +1,15 @@
 ---
 
+# ---------- state
+
+python_state: "no"
+python_installed_version: "no"
+
+python_apt_state: "no"
+python_apt_installed_version: "no"
+
+# ---------- etc
+
 python_mirror: "https://www.python.org/ftp/python"
 python_default: "yes"
 
@@ -91,5 +101,7 @@ python_pip_alternatives:
     target: "{{ python_target }}/bin/wheel"
 
 python_pip_packages_url: "https://pypi.python.org/simple"
+
+python_pip_trusted_host: []
 
 # ex: et ts=2 filetype=yaml

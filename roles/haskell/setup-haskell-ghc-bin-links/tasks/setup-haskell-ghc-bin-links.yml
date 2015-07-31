@@ -1,13 +1,13 @@
 ---
 
-- name: "create symlinks to python bins"
-  register: "python_symlinks_result"
-  changed_when: "python_symlinks_result.stdout != 'UNCHANGED'"
+- name: "create symlinks to haskell ghc bins"
+  register: "haskell_ghc_symlinks_result"
+  changed_when: "haskell_ghc_symlinks_result.stdout != 'UNCHANGED'"
   sudo: "yes"
   args:
 
     executable: "/bin/bash"
-    chdir: "{{ python_target }}/bin"
+    chdir: "{{ haskell_ghc_target }}/bin"
 
   shell:
 
@@ -27,7 +27,7 @@
 
       changed="yes";
 
-      ln -s "../../..{{ python_target }}/bin/$filename"
+      ln -s "../../..{{ haskell_ghc_target }}/bin/$filename"
         "/usr/local/bin/$filename";
 
     done < <(ls);
