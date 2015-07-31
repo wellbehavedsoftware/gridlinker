@@ -116,6 +116,9 @@ class SimpleArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
+		if arg_vars.get ("self.argument_name") == None:
+			return
+
 		value = arg_vars [self.argument_name]
 
 		if value:
@@ -157,7 +160,7 @@ class ClassArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
-		if not "class" in arg_vars:
+		if arg_vars.get ("class") == None:
 			return
 
 		value = arg_vars ["class"]
@@ -167,7 +170,7 @@ class ClassArgument:
 
 	def filter_record (self, arg_vars, record_name, record_data, helper):
 
-		if not arg_vars ["class"]:
+		if arg_vars.get ("class") == None:
 			return True
 
 		class_key = "%s_class" % helper.short_name
@@ -197,7 +200,7 @@ class ParentArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
-		if not "parent" in arg_vars:
+		if arg_vars.get ("parent") == None:
 			return
 
 		value = arg_vars ["parent"]
@@ -207,7 +210,7 @@ class ParentArgument:
 
 	def filter_record (self, arg_vars, record_name, record_data, helper):
 
-		if not arg_vars ["parent"]:
+		if arg_vars.get ("parent") == None:
 			return True
 
 		class_key = "%s_parent" % helper.short_name
@@ -229,7 +232,7 @@ class IndexArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
-		if not "index" in arg_vars:
+		if arg_vars.get ("index") == None:
 			return
 
 		value = arg_vars ["index"]
@@ -361,7 +364,7 @@ class NameArgument:
 
 	def filter_record (self, arg_vars, record_name, record_data, helper):
 
-		if not arg_vars ["name"]:
+		if arg_vars.get ("name") == None:
 			return True
 
 		return record_name == arg_vars ["name"]
@@ -466,6 +469,9 @@ class MiscSetArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
+		if arg_vars.get ("set") == None:
+			return
+
 		for section_key, value in arg_vars ["set"]:
 
 			section, key = section_key.split (".")
@@ -488,7 +494,7 @@ class MiscUnsetArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
-		if not "unset" in arg_vars:
+		if arg_vars.get ("unset") == None:
 			return
 
 		for section_key in arg_vars ["unset"]:
@@ -530,7 +536,7 @@ class MiscRemoveArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
-		if not "remove" in arg_vars:
+		if arg_vars.get ("remove") == None:
 			return
 
 		for section_key, value in arg_vars ["remove"]:
@@ -571,6 +577,9 @@ class MiscAddArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
+		if arg_vars.get ("add") == None:
+			return
+
 		for section_key, value in arg_vars ["add"]:
 
 			section, key = section_key.split (".")
@@ -610,6 +619,9 @@ class MiscSetDictArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
+		if arg_vars.get ("set_dict") == None:
+			return
+
 		for section_key, dict_key, value in arg_vars ["set_dict"]:
 
 			section, key = section_key.split (".")
@@ -646,6 +658,9 @@ class MiscUnsetDictArgument:
 
 	def update_record (self, arg_vars, record_data, helper):
 
+		if arg_vars.get ("unset_dict") == None:
+			return
+
 		for section_key, dict_key in arg_vars ["unset_dict"]:
 
 			section, key = section_key.split (".")
@@ -679,6 +694,9 @@ class GeneratePasswordArgument:
 			help = "generate random password to store")
 
 	def update_record (self, arg_vars, record_data, helper):
+
+		if arg_vars.get ("generate_password") == None:
+			return
 
 		for section_key in arg_vars ["generate_password"]:
 
