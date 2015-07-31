@@ -1,0 +1,39 @@
+---
+
+- name: "build haskell cabal"
+  when: "haskell_cabal_installed_version != haskell_cabal_version"
+  sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf {{ haskell_cabal_build_temp }};
+    mkdir -p {{ haskell_cabal_build_temp }};
+    cd {{ haskell_cabal_build_temp }};
+
+    wget {{ haskell_cabal_build_url }};
+    tar --extract --gzip --file {{ haskell_cabal_build_archive }};
+    cd {{ haskell_cabal_build_directory }};
+
+    ./bootstrap.sh --global;
+
+    cd /;
+    rm -rf {{ haskell_cabal_build_temp }};
+
+- name: "set haskell_cabal.installed_version"
+  when: "haskell_cabal_installed_version != haskell_cabal_version"
+  update_resource:
+
+    haskell_cabal.installed_version: "{{ haskell_cabal_version }}"
+
+- name: "set haskell_cabal.state to 'installed'"
+  when: "haskell_cabal_state == 'no'" 
+  update_resource:
+
+    haskell_cabal.state: "installed"
+
+# ex: et ts=2 filetype=yaml
