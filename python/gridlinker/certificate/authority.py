@@ -85,19 +85,19 @@ class CertificateAuthority:
 		self.root_cert.add_extensions ([
 
 			crypto.X509Extension (
-				"basicConstraints",
+				str ("basicConstraints"),
 				True,
-				"CA:TRUE, pathlen:0"),
+				str ("CA:TRUE, pathlen:0")),
 
 			crypto.X509Extension (
-				"keyUsage",
+				str ("keyUsage"),
 				True,
-				"keyCertSign, cRLSign"),
+				str ("keyCertSign, cRLSign")),
 
 			crypto.X509Extension (
-				"subjectKeyIdentifier",
+				str ("subjectKeyIdentifier"),
 				False,
-				"hash",
+				str ("hash"),
 				subject = self.root_cert),
 
 		])
@@ -105,16 +105,18 @@ class CertificateAuthority:
 		self.root_cert.add_extensions ([
 
 			crypto.X509Extension (
-				"authorityKeyIdentifier",
+				str ("authorityKeyIdentifier"),
 				False,
-				"keyid,issuer:always",
+				str ("keyid,issuer:always"),
 				issuer = self.root_cert)
 
 		])
 
 		# sign certificate
 
-		self.root_cert.sign (self.root_key, "sha256")
+		self.root_cert.sign (
+			self.root_key,
+			str ("sha256"))
 
 		# dump to pem
 
