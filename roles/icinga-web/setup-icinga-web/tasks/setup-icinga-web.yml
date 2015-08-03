@@ -1,68 +1,40 @@
 ---
 
 - name: "create icinga web directories"
+  with_items: "icinga_web_config_directories"
+  sudo: "yes"
   action:
+
     module: "file"
     path: "{{ item.directory }}"
     state: "directory"
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
-  with_items: "icinga_web_config_directories"
-  sudo: "yes"
 
 - name: "create icinga web templates"
+  with_items: "icinga_web_config_templates"
+  sudo: "yes"
   action:
+
     module: "template"
     dest: "{{ item.target }}"
     src: "{{ item.template }}"
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
-  with_items: "icinga_web_config_templates"
-  sudo: "yes"
 
 - name: "enable monitoring"
   sudo: "yes"
   args:
+
     creates: "/etc/icingaweb2/enabledModules/monitoring"
     executable: "/bin/bash"
+
   shell:
+
     /opt/icinga-web-{{ icinga_web_version }}/bin/icingacli
     module enable monitoring
-
-- name: "create icinga web database"
-  when: "identity.name == mysql_master"
-  action:
-    module: "mysql_db"
-    name: "icingaweb2"
-
-- name: "create icinga web user"
-  when: "identity.name == mysql_master"
-  action:
-    module: "mysql_user"
-    name: "icingaweb2"
-    host: "%"
-    password: "{{ icinga_web_mysql_password }}"
-    priv: "icingaido.*:ALL/icingaweb2.*:ALL"
-
-- name: "initialize web database"
-  when: "identity.name == mysql_master and icinga_web_state == 'configuring'"
-  args:
-    executable: "/bin/bash"
-  shell:
-
-    set -euf -o pipefail;
-
-    mysql icingaweb2
-      </opt/icinga-web-{{ icinga_web_version }}/etc/schema/mysql.schema.sql;
-
-    password_hash=$(openssl passwd -1 {{ icinga_web_admin_password }});
-
-    mysql icingaweb2 --execute "
-      INSERT INTO icingaweb_user (name, active, password_hash)
-      VALUES ('admin', 1, '$password_hash');
-    ";
 
 - name: "create icinga web site"
   notify: "set nginx.needs_restart to 'yes'"
@@ -77,5 +49,11 @@
     mode: "0644"
 
 - meta: "flush_handlers"
+
+- name: "set icinga_web.state to 'enabled'"
+  when: "icinga_web.state == 'installed'"
+  update_resource:
+
+    icinga_web.state: "enabled"
 
 # ex: et ts=2 filetype=yaml
