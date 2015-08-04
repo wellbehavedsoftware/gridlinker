@@ -4,7 +4,9 @@
   connection: "local"
   register: "ssh_keyscan_result"
   args:
+
     executable: "/bin/bash"
+
   shell:
 
     set -euf -o pipefail;
@@ -15,7 +17,9 @@
 - name: "temporary store host key {{ scan_ssh_key_type }}"
   connection: "local"
   args:
+
     executable: "/bin/bash"
+
   shell:
 
     set -euf -o pipefail;
@@ -25,6 +29,7 @@
 
 - name: "store host key {{ scan_ssh_key_type }}"
   update_resource:
+
     "ssh.host_key_{{ scan_ssh_key_type }}": "{{ ssh_keyscan_result.stdout }}"
 
 # ex: et ts=2 filetype=yaml
