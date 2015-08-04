@@ -1,26 +1,30 @@
 ---
 
 - name: "create icingaweb2 group"
+  sudo: "yes"
   action:
+
     module: "group"
     name: "icingaweb2"
     system: "yes"
-  sudo: "yes"
 
 - name: "add www-data to icingaweb2 group"
+  notify: "restart php"
+  sudo: "yes"
   action:
+
     module: "user"
     name: "www-data"
     groups: "icingaweb2"
     append: "yes"
-  sudo: "yes"
-  notify: "restart php"
 
 - name: "install icinga-web"
-  args:
-    creates: "{{ icinga_web_flag }}"
-    executable: "/bin/bash"
+  when: "icinga_web_installed_version != icinga_web_version"
   sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+
   shell:
 
     set -euf -o pipefail;
@@ -40,9 +44,16 @@
 
     rm -rf {{ icinga_web_temp }};
 
-    rm -f /etc/icinga-*-flag;
-    touch {{ icinga_web_flag }};
+- name: "set icinga_web.state to 'installed'"
+  when: "icinga_web_state == 'no'"
+  update_resource:
 
-- meta: "flush_handlers"
+    icinga_web.state: "installed"
+
+- name: "set icinga_web_installed_version"
+  when: "icinga_web_installed_version != icinga_web_version"
+  update_resource:
+
+    icinga_web.installed_version: "{{ icinga_web_version }}"
 
 # ex: et ts=2 filetype=yaml

@@ -1,0 +1,10 @@
+---
+
+- include: "build-haskell-cabal.yml"
+  tags:
+
+    - "haskell"
+    - "haskell-cabal"
+    - "build-haskell-cabal"
+
+# ex: et ts=2 filetype=yaml

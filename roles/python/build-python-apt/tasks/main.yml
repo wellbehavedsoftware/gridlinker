@@ -1,24 +1,6 @@
 ---
 
-- name: "set python.apt_state to 'building'"
-  update_resource:
-    python.apt_state: "building"
-  when: "
-    python_apt_state is not defined
-    or python_apt_installed_version is not defined
-    or python_apt_installed_version != python_apt_version
-  "
-  tags: [ "python", "build-python-apt" ]
-
 - include: "build-python-apt.yml"
-  when: "python_apt_state == 'building'"
-  tags: [ "python", "build-python-apt" ]
-
-- name: "set python.apt_state to 'installed'"
-  update_resource:
-    python.apt_state: "installed"
-    python.apt_installed_version: "{{ python_apt_version }}"
-  when: "python_apt_state == 'building'"
   tags: [ "python", "build-python-apt" ]
 
 # ex: et ts=2 filetype=yaml

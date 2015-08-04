@@ -1,0 +1,6 @@
+---
+
+- include: "install-haskell-ghc.yml"
+  tags: [ "haskell", "haskell-ghc", "install-haskell-ghc" ]
+
+# ex: et ts=2 filetype=yaml

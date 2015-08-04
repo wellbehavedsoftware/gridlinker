@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "haskell-common"
+  - "install-haskell-ghc"
+  - "setup-haskell-ghc-bin-links"
+  - "build-haskell-cabal"
+
+# ex: et ts=2 filetype=yaml

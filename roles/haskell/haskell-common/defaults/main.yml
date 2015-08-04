@@ -1,0 +1,34 @@
+---
+
+# ---------- ghc
+
+haskell_ghc_state: "no"
+haskell_ghc_installed_version: "no"
+
+haskell_ghc_name: "ghc-{{ haskell_ghc_version }}"
+haskell_ghc_target: "/opt/{{ haskell_ghc_name }}"
+haskell_ghc_mirror: "http://downloads.haskell.org/~ghc"
+
+haskell_ghc_binary_temp: "/tmp/haskell-ghc-binary"
+haskell_ghc_binary_archive: "{{ haskell_ghc_name }}-x86_64-unknown-linux-deb7.tar.xz"
+haskell_ghc_binary_directory: "{{ haskell_ghc_name }}"
+haskell_ghc_binary_url: "{{ haskell_ghc_mirror }}/{{ haskell_ghc_version }}/{{ haskell_ghc_binary_archive }}"
+
+haskell_ghc_binary_dependencies:
+
+  - "zlib1g-dev"
+
+# ---------- cabal
+
+haskell_cabal_state: "no"
+haskell_cabal_installed_version: ""
+
+haskell_cabal_version: "1.22.4.0"
+haskell_cabal_mirror: "https://www.haskell.org/cabal/release"
+
+haskell_cabal_build_directory: "cabal-install-{{ haskell_cabal_version }}"
+haskell_cabal_build_archive: "{{ haskell_cabal_build_directory }}.tar.gz"
+haskell_cabal_build_url: "{{ haskell_cabal_mirror }}/cabal-install-{{ haskell_cabal_version }}/{{ haskell_cabal_build_archive }}"
+haskell_cabal_build_temp: "/tmp/haskell-cabal-build"
+
+# ex: et ts=2 filetype=yaml

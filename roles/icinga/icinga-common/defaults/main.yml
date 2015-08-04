@@ -11,6 +11,22 @@ icinga_common_name: "{{ identity_name }}"
 icinga_alt_dns: [ "{{ icinga_common_name }}" ]  
 icinga_alt_ips: []
 
+icinga_database_type: "no"
+icinga_database_name: "icinga"
+icinga_database_username: "icinga"
+icinga_database_password: "no"
+icinga_database_initialized: "no"
+
+icinga_ticket_salt: "no"
+
+icinga_ca_certificate: "no"
+icinga_certificate: "no"
+icinga_private_key: "no"
+
+# installation
+
+icinga_source: "{{ ubuntu_mirror }}/ppa.launchpad.net/formorer/icinga"
+
 # master configuration
 
 icinga_master_directories:

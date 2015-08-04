@@ -1,0 +1,47 @@
+---
+
+- name: "install haskell ghc dependencies"
+  with_items: "haskell_ghc_binary_dependencies"
+  sudo: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "install haskell ghc"
+  when: "haskell_ghc_version != haskell_ghc_installed_version"
+  sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf {{ haskell_ghc_binary_temp }};
+    mkdir -p {{ haskell_ghc_binary_temp }};
+    cd {{ haskell_ghc_binary_temp }};
+
+    wget {{ haskell_ghc_binary_url }};
+    tar --extract --xz --file {{ haskell_ghc_binary_archive }};
+    cd {{ haskell_ghc_binary_directory }};
+
+    ./configure --prefix={{ haskell_ghc_target }};
+    make install;
+
+    cd /;
+    rm -rf {{ haskell_ghc_binary_temp }};
+
+- name: "set haskell_ghc.state"
+  when: "haskell_ghc_state == 'no'"
+  update_resource:
+
+    haskell_ghc.state: "installed"
+
+- name: "set haskell_ghc.installed_version"
+  update_resource:
+
+    haskell_ghc.installed_version: "{{ haskell_ghc_version }}"
+
+# ex: et ts=2 filetype=yaml

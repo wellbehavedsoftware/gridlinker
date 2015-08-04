@@ -223,7 +223,9 @@ class GenericContext (object):
 			"ANSIBLE_CONFIG": "%s/work/ansible.cfg" % self.home,
 			"ANSIBLE_HOME": self.ansible_home,
 
-			"PATH": [ "%s/bin" % self.ansible_home ],
+			"PATH": [
+				"%s/bin" % self.ansible_home,
+			] + os.environ ["PATH"].split (":"),
 			"PYTHONPATH": [
 				"%s/python" % self.home,
 				"%s/python" % self.gridlinker_home,

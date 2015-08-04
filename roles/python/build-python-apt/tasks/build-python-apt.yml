@@ -1,9 +1,12 @@
 ---
 
 - name: "build python-apt"
-  args:
-    executable: "/bin/bash"
+  when: "python_apt_installed_version != python_apt_version"
   sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+
   shell:
 
     set -euf -o pipefail;
@@ -29,5 +32,17 @@
 
     cd /;
     rm -rf "{{ python_temp }}"
+
+- name: "set python_apt.state to 'installed'"
+  when: "python_apt_state != 'installed'"
+  update_resource:
+
+    python_apt.state: "installed"
+
+- name: "set python_apt.installed_version"
+  when: "python_apt_installed_version != python_apt_version"
+  update_resource:
+
+    python_apt.installed_version: "{{ python_apt_version }}"
 
 # ex: et ts=2 filetype=yaml

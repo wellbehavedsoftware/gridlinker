@@ -421,9 +421,6 @@ class Inventory (object):
 
 	def resolve_value_or_same (self, resource_name, value):
 
-		import yaml
-		print yaml.dump (self.resources [resource_name])
-		print value
 		success, resolved = self.resolve_value_real (resource_name, value)
 
 		if not success:

@@ -1,0 +1,5 @@
+[global]
+index-url = {{ python_pip_packages_url }}
+{% if python_pip_trusted_host != 'no' %}
+trusted-host = {{ python_pip_trusted_host }}
+{% endif %}

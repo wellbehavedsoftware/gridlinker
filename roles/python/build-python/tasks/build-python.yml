@@ -1,10 +1,6 @@
 ---
 
 - name: "install python dependencies"
-  action:
-    module: "apt"
-    name: "{{ item }}"
-  sudo: "yes"
   with_items:
 
     - "build-essential"
@@ -16,12 +12,21 @@
     - "libreadline-dev"
     - "libssl-dev"
     - "libsqlite3-dev"
-    - "libz-dev"
+    - "zlib1g-dev"
+
+  sudo: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
 
 - name: "build python"
-  args:
-    executable: "/bin/bash"
+  when: "python_installed_version != python_version"
   sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+
   shell:
 
     set -euf -o pipefail;
@@ -60,5 +65,17 @@
 
     cd /;
     rm -rf "{{ python_temp }}"
+
+- name: "set python.installed_version"
+  when: "python_version != python.installed_version"
+  update_resource:
+
+    python.installed_version: "{{ python_version }}"
+
+- name: "set python.state to 'installed'"
+  when: "python.state == 'no'"
+  update_resource:
+
+    python.state: "installed"
 
 # ex: et ts=2 filetype=yaml
