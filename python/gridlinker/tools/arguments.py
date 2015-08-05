@@ -87,15 +87,6 @@ class ArgumentGroup:
 
 		return True
 
-	def filter_record (self, arg_vars, record_name, record_data):
-
-		for argument in self.arguments:
-			if hasattr (argument, "filter_record") \
-			and not argument.filter_record (arg_vars, record_name, record_data):
-				return False
-
-		return True
-
 class SimpleArgument:
 
 	def __init__ (self, argument, required, key, value_name, help):
