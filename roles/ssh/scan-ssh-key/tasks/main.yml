@@ -3,11 +3,17 @@
 - include: "scan-ssh-key.yml"
   tags: [ "ssh", "scan-ssh-key", "scan-ssh-key-rsa" ]
   scan_ssh_key_type: "rsa"
-  when: "ssh_host_key_rsa | default ('no') == 'no'"
+  when: "
+    ssh_host_key_rsa is not defined
+    or not ssh_host_key_rsa
+  "
 
 - include: "scan-ssh-key.yml"
   tags: [ "ssh", "scan-ssh-key", scan-ssh-key-ecdsa" ]
   scan_ssh_key_type: "ecdsa"
-  when: "ssh_host_key_ecdsa | default ('no') == 'no'"
+  when: "
+    ssh_host_key_ecdsa is not defined
+    or not ssh_host_key_ecdsa
+  "
 
 # ex: et ts=2 filetype=yaml
