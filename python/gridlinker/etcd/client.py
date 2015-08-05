@@ -179,7 +179,7 @@ class EtcdClient:
 
 				return self.make_request_real (** kwargs)
 
-			except:
+			except IOError:
 
 				if self.connection:
 
@@ -268,34 +268,30 @@ class EtcdClient:
 
 	def update_raw (self, key, old_value, new_value):
 
-		payload = {
-			"prevValue": old_value,
-			"value": new_value,
-		}
-
-		response = self.http ().request_encode_body (
-			"PUT",
-			self.key_url (key),
-			payload,
-			encode_multipart = False)
-
-		if not response.status in [200, 201]:
-
-			raise Exception (
-				"Error %s: %s" % (
-					response.status,
-					response.reason))
+		self.make_request (
+			method = "PUT",
+			url = self.key_url (key),
+			payload_data = {
+				"prevValue": old_value,
+				"value": new_value,
+			},
+			accept_response = [ 200 ])
 
 	def create_raw (self, key, value):
 
-		self.make_request (
+		status, data = self.make_request (
 			method = "PUT",
 			url = self.key_url (key),
 			payload_data = {
 				"value": value,
 				"prevExist": False,
 			},
-			accept_response = [ 201 ])
+			accept_response = [ 201, 412 ])
+
+		if status == 412:
+
+			raise ValueError (
+				"Key already exists: %s" % key)
 
 	def get_tree (self, key):
 
@@ -338,6 +334,16 @@ class EtcdClient:
 		self.make_request (
 			method = "DELETE",
 			url = self.key_url (key),
+			accept_response = [ 200 ])
+
+	def rm_raw (self, key, value):
+
+		self.make_request (
+			method = "DELETE",
+			url = self.key_url (key),
+			query_data = {
+				"prevValue": value,
+			},
 			accept_response = [ 200 ])
 
 	def rm_recursive (self, key):

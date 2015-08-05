@@ -11,6 +11,7 @@ import os
 import re
 import struct
 import sys
+import time
 
 from OpenSSL import crypto, rand
 
@@ -44,6 +45,8 @@ class CertificateAuthority:
 
 		self.path = path
 		self.certificate_data = certificate_data
+
+		self.locked = False
 
 	def create (self, name):
 
@@ -303,6 +306,45 @@ class CertificateAuthority:
 			self.data,
 			self.schemas ["certificate-authority"])
 
+	def lock (self):
+
+		if self.locked:
+			raise Exception ("invalid state")
+
+		while True:
+
+			current_time = int (time.time ())
+
+			try:
+
+				self.client.create_raw (
+					self.path + "/lock",
+					str (current_time))
+
+				self.locked = True
+
+				self.data = self.client.get_yaml (
+					self.path + "/data")
+
+				self.issue_serial = int (self.client.get_raw (
+					self.path + "/serial"))
+
+				return
+
+			except ValueError:
+
+				time.sleep (1)
+
+	def unlock (self):
+
+		if not self.locked:
+			raise Exception ("invalid state")
+
+		self.client.rm (
+			self.path + "/lock")
+
+		self.locked = False
+
 	def load (self):
 
 		self.data = self.client.get_yaml (
@@ -367,139 +409,150 @@ class CertificateAuthority:
 
 			raise IllegalArgumentError ()
 
-		# increase serial
+		# lock
 
-		issue_serial = self.issue_serial
+		self.lock ()
 
-		issue_path = "%s/issue/%s" % (self.path, issue_serial)
+		try:
 
-		self.issue_serial += 1
+			# increase serial
 
-		self.client.set_raw (
-			self.path + "/serial",
-			str (self.issue_serial))
+			issue_serial = self.issue_serial
 
-		# create key
+			issue_path = "%s/issue/%s" % (self.path, issue_serial)
 
-		issue_key = crypto.PKey ()
-		issue_key.generate_key (crypto.TYPE_RSA, 2048)
+			self.issue_serial += 1
 
-		# create certificate
+			self.client.update_raw (
+				self.path + "/serial",
+				str (issue_serial),
+				str (self.issue_serial))
 
-		issue_cert = crypto.X509 ()
+			# create key
 
-		issue_cert.set_pubkey (issue_key)
+			issue_key = crypto.PKey ()
+			issue_key.generate_key (crypto.TYPE_RSA, 2048)
 
-		issue_cert.set_version (2)
-		issue_cert.set_serial_number (issue_serial)
+			# create certificate
 
-		issue_cert.get_subject ().C = self.certificate_data ["country"]
-		issue_cert.get_subject ().L = self.certificate_data ["locality"]
-		issue_cert.get_subject ().O = self.certificate_data ["organization"]
-		issue_cert.get_subject ().CN = name
+			issue_cert = crypto.X509 ()
 
-		issue_cert.gmtime_adj_notBefore (0)
-		issue_cert.gmtime_adj_notAfter (315360000)
+			issue_cert.set_pubkey (issue_key)
 
-		issue_cert.set_issuer (self.root_cert.get_subject ())
+			issue_cert.set_version (2)
+			issue_cert.set_serial_number (issue_serial)
 
-		issue_cert.add_extensions ([
+			issue_cert.get_subject ().C = self.certificate_data ["country"]
+			issue_cert.get_subject ().L = self.certificate_data ["locality"]
+			issue_cert.get_subject ().O = self.certificate_data ["organization"]
+			issue_cert.get_subject ().CN = name
 
-			crypto.X509Extension (
-				str ("basicConstraints"),
-				False,
-				str ("CA:FALSE")),
+			issue_cert.gmtime_adj_notBefore (0)
+			issue_cert.gmtime_adj_notAfter (315360000)
 
-			crypto.X509Extension (
-				str ("keyUsage"),
-				False,
-				str ("digitalSignature, keyEncipherment")),
-
-			crypto.X509Extension (
-				str ("extendedKeyUsage"),
-				False,
-				str (use_string)),
-
-			crypto.X509Extension (
-				str ("subjectKeyIdentifier"),
-				False,
-				str ("hash"),
-				subject = issue_cert),
-
-			crypto.X509Extension (
-				str ("authorityKeyIdentifier"),
-				False,
-				str ("keyid,issuer:always"),
-				issuer = self.root_cert),
-
-		])
-
-		if (alt_names):
+			issue_cert.set_issuer (self.root_cert.get_subject ())
 
 			issue_cert.add_extensions ([
 
 				crypto.X509Extension (
-					str ("subjectAltName"),
+					str ("basicConstraints"),
 					False,
-					str (",".join (alt_names))),
+					str ("CA:FALSE")),
+
+				crypto.X509Extension (
+					str ("keyUsage"),
+					False,
+					str ("digitalSignature, keyEncipherment")),
+
+				crypto.X509Extension (
+					str ("extendedKeyUsage"),
+					False,
+					str (use_string)),
+
+				crypto.X509Extension (
+					str ("subjectKeyIdentifier"),
+					False,
+					str ("hash"),
+					subject = issue_cert),
+
+				crypto.X509Extension (
+					str ("authorityKeyIdentifier"),
+					False,
+					str ("keyid,issuer:always"),
+					issuer = self.root_cert),
 
 			])
 
-		# sign certificate
+			if (alt_names):
 
-		issue_cert.sign (self.root_key, str ("sha256"))
+				issue_cert.add_extensions ([
 
-		# dump to pem
+					crypto.X509Extension (
+						str ("subjectAltName"),
+						False,
+						str (",".join (alt_names))),
 
-		issue_cert_string = crypto.dump_certificate (
-			crypto.FILETYPE_PEM,
-			issue_cert)
+				])
 
-		issue_key_string = crypto.dump_privatekey (
-			crypto.FILETYPE_PEM,
-			issue_key)
+			# sign certificate
 
-		issue_digest = issue_cert.digest (str ("sha1"))
+			issue_cert.sign (self.root_key, str ("sha256"))
 
-		# write to database
+			# dump to pem
 
-		self.client.set_raw (
-			issue_path + "/digest",
-			issue_digest)
+			issue_cert_string = crypto.dump_certificate (
+				crypto.FILETYPE_PEM,
+				issue_cert)
 
-		self.client.set_raw (
-			issue_path + "/certificate",
-			issue_cert_string)
+			issue_key_string = crypto.dump_privatekey (
+				crypto.FILETYPE_PEM,
+				issue_key)
 
-		self.client.set_raw (
-			issue_path + "/key",
-			issue_key_string)
+			issue_digest = issue_cert.digest (str ("sha1"))
 
-		self.client.set_raw (
-			self.path + "/index/" + issue_digest,
-			str (issue_serial))
+			# write to database
 
-		self.client.set_raw (
-			self.path + "/named/" + name,
-			str (issue_serial))
+			self.client.set_raw (
+				issue_path + "/digest",
+				issue_digest)
 
-		issue_key_rsa = write_rsa_private_key (issue_key)
+			self.client.set_raw (
+				issue_path + "/certificate",
+				issue_cert_string)
 
-		return Certificate (
+			self.client.set_raw (
+				issue_path + "/key",
+				issue_key_string)
 
-			serial = issue_serial,
-			digest = issue_digest,
+			self.client.set_raw (
+				self.path + "/index/" + issue_digest,
+				str (issue_serial))
 
-			certificate = issue_cert_string,
-			certificate_path = issue_path + "/certificate",
+			self.client.set_raw (
+				self.path + "/named/" + name,
+				str (issue_serial))
 
-			chain = [ self.root_cert_string ],
-			chain_paths = [ self.path + "/certificate" ],
+			issue_key_rsa = write_rsa_private_key (issue_key)
 
-			private_key = issue_key_string,
-			private_key_path = issue_path + "/key",
+			return Certificate (
 
-			rsa_private_key = issue_key_rsa)
+				serial = issue_serial,
+				digest = issue_digest,
+
+				certificate = issue_cert_string,
+				certificate_path = issue_path + "/certificate",
+
+				chain = [ self.root_cert_string ],
+				chain_paths = [ self.path + "/certificate" ],
+
+				private_key = issue_key_string,
+				private_key_path = issue_path + "/key",
+
+				rsa_private_key = issue_key_rsa)
+
+		finally:
+
+			self.unlock ()
 
 	def get (self, issue_ref):
 

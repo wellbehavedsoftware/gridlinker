@@ -44,7 +44,8 @@
   shell:
 
     test -e /etc/init.d/icinga2 || { echo UNCHANGED; exit 0; };
-    service icinga2 stop;
+    /etc/init.d/icinga2 stop;
+    sleep 2;
     rm -f /etc/init.d/icinga2 /etc/init.d/rc?.d/[KS]??icinga2;
 
 - name: "set icinga.state to 'installed'"
