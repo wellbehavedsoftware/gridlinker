@@ -2,11 +2,11 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import httplib
-import ipaddress
 import itertools
 import json
 import os
 import random
+import re
 import ssl
 import time
 import urllib
@@ -78,18 +78,9 @@ class EtcdClient:
 
 			# check if the server is an ip address
 
-			try:
-
-				ipaddress.ip_address (
-					unicode (self.servers [0].encode ("utf-8")))
-
-				is_ip_address = True
-
-			except ValueError:
-
-				is_ip_address = False
-
-			if is_ip_address:
+			if re.match (
+				r"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$",
+				self.servers [0]):
 
 				# match ip addresses with custom code
 
