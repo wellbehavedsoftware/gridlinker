@@ -1,0 +1,21 @@
+---
+
+# ---------- state
+
+heka_state: "no"
+heka_installed_version: "no"
+heka_needs_restart: "no"
+
+# ---------- installation
+
+heka_mirror: "https://github.com/coreos/etcd/releases/download"
+heka_temp: "/tmp/etcd-install"
+
+heka_version_mangled: "{{ heka_version | replace ('.', '_') }}"
+heka_name: "heka-{{ heka_version_mangled }}-linux-amd64"
+heka_archive: "{{ heka_name }}.tar.gz"
+heka_directory: "{{ heka_name }}"
+heka_url: "{{ heka_mirror }}/v{{ heka_version }}/{{ heka_archive }}"
+heka_target: "/opt/heka-{{ heka_version }}"
+
+# ex: et ts=2 filetype=yaml# ex: et ts=2 filetype=yaml
