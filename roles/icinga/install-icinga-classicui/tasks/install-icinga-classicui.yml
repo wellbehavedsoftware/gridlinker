@@ -1,0 +1,14 @@
+---
+
+- name: "install icinga classicui packages"
+  with_items:
+
+    - "icinga2-classicui"
+
+  sudo: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+# ex: et ts=2 filetype=yaml
