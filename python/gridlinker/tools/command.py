@@ -63,6 +63,8 @@ class GenericCommand:
 
 		collection = self.helper.get_collection (context)
 
+		# determine name
+
 		unique_name = self.helper.create_unique_name (context, args)
 
 		if collection.exists_slow (unique_name):
@@ -89,7 +91,9 @@ class GenericCommand:
 
 			already_exists = False
 
-		self.helper.update_record (context, args, record_data)
+		# set provided values
+
+		# edit resource
 
 		if args.edit:
 
@@ -109,9 +113,19 @@ class GenericCommand:
 
 			temp_again.close ()
 
+		self.helper.update_record (context, args, record_data)
+
+		# verify resource
+
+		self.helper.verify (context, unique_name, record_data)
+
+		# create resource
+
 		collection.set (unique_name, record_data)
 
 		self.helper.update_files (context, args, unique_name, collection)
+
+		# display a message
 
 		if already_exists:
 

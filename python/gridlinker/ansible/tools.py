@@ -134,7 +134,15 @@ def args_inventory (sub_parsers):
 		action = "store_true",
 		help = "display all data in friendly form")
 
+	parser.add_argument (
+		"--trace",
+		action = "store_true",
+		help = "enable trace mode to debug inventory")
+
 def do_inventory (context, args):
+
+	if args.trace:
+		context.trace = True
 
 	if args.list:
 		do_inventory_list (context)
