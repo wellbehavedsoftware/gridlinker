@@ -142,6 +142,14 @@ class ClassArgument:
 			metavar = "CLASS",
 			help = "class to edit {0}s belonging to".format (helper.name))
 
+	def args_list (self, parser, helper):
+
+		parser.add_argument (
+			"--class",
+			required = False,
+			metavar = "CLASS",
+			help = "Class to list {0}s belong to".format (helper.name))
+
 	def args_update (self, parser, helper):
 
 		parser.add_argument (
@@ -173,12 +181,7 @@ class ClassArgument:
 		if arg_vars.get ("class") == None:
 			return True
 
-		class_key = "%s_class" % helper.short_name
-
-		if not class_key in record_data:
-			return False
-
-		return record_data [class_key] == arg_vars ["class"]
+		return record_data ["identity"] ["class"] == arg_vars ["class"]
 
 class ParentArgument:
 
