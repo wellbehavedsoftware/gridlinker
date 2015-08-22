@@ -81,6 +81,7 @@ icinga_web_config_templates:
 icinga_web_admin_password: "no"
 
 icinga_web_database_type: "no"
+icinga_web_database_username: "icingaweb"
 icinga_web_database_password: "no"
 
 icinga_web_main_database_type: "{{ icinga_web_database_type }}"

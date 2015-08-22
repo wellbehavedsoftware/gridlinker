@@ -1,12 +1,9 @@
 ---
 
 - include: "setup-etcd.yml"
-  tags: [ "etcd", "setup-etcd" ]
+  tags:
 
-- name: "set etcd.state to 'enabled'"
-  update_resource:
-    etcd.state: "enabled"
-  when: "etcd_state == 'enabled'"
-  tags: [ "etcd", "setup-etcd" ]
+    - "etcd"
+    - "setup-etcd"
 
 # ex: et ts=2 filetype=yaml
