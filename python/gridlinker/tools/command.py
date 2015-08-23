@@ -113,7 +113,7 @@ class GenericCommand:
 
 			temp_again.close ()
 
-		self.helper.update_record (context, args, context, record_data)
+		self.helper.update_record (context, args, record_data)
 
 		# verify resource
 
