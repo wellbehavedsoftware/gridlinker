@@ -5,6 +5,8 @@ import collections
 import re
 import wbs
 
+from wbs import ReportableError
+
 class Inventory (object):
 
 	def __init__ (self, context):
@@ -303,11 +305,12 @@ class Inventory (object):
 						reference ["value"])
 
 					if not target_name in self.resources:
-						raise Exception ()
 
-					resource_data [reference ["name"]] = \
-						"{{ hostvars ['%s'] }}" % (
-							target_name)
+						raise ReportableError (
+							"inventory_referenced_resource_does_not_exist",
+							resource_name = resource_name,
+							referenced_resource_name = target_name,
+							reference_name = reference ["name"])
 
 				else:
 

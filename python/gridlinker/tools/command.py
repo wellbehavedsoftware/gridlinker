@@ -284,7 +284,7 @@ class GenericCommand:
 
 		for unique_name, record_data in filtered_records:
 
-			self.helper.update_record (context, args, context, record_data)
+			self.helper.update_record (context, args, record_data)
 
 			collection.set (record_name, record_data)
 
