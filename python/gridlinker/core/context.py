@@ -32,6 +32,8 @@ class GenericContext (object):
 		self.connection_name = connection_name
 		self.project_metadata = project_metadata
 
+		self.trace = False
+
 	@lazy_property
 	def config (self):
 
