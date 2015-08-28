@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import itertools
 import sys
+import time
 
 from OpenSSL import crypto
 
@@ -33,25 +34,136 @@ class CertificateDatabase:
 		if (self.state != "none"):
 			raise Exception ()
 
+		if self.client.exists (self.path):
+			raise Exception ()
+
 		if self.client.exists (self.path + "/data"):
 			raise Exception ()
 
 		self.root_data = dict ({})
 
 		self.root_data ["database_state"] = "active"
+		self.root_data ["database_format"] = "1"
 
 		self.client.set_yaml (
 			self.path + "/data",
 			self.root_data,
 			self.schemas ["certificate-database"])
 
+		self.state = "active"
+
 	def load (self):
 
-		# nothing much to do at the moment
+		if (self.state != "none"):
+			raise Exception ()
 
-		pass
+		if not self.client.exists (self.path):
+			raise Exception ()
+
+		if not self.client.exists (self.path + "/data"):
+			raise Exception ()
+
+		self.root_data = self.client.get_yaml (self.path + "/data")
+
+		self.root_data.setdefault ("database_format", "0")
+
+		if int (self.root_data ["database_format"]) < 1:
+
+			raise Exception (
+				"Database format '%s' is old, please upgrade" % (
+					self.root_data ["database_format"]))
+
+		if int (self.root_data ["database_format"]) > 1:
+
+			raise Exception (
+				"Database format '%s' is new, please update code" % (
+					self.root_data ["database_format"]))
+
+		self.state = self.root_data ["database_state"]
+
+	def upgrade (self):
+
+		if (self.state != "none"):
+			raise Exception ()
+
+		if not self.client.exists (self.path):
+			raise Exception ()
+
+		if not self.client.exists (self.path + "/data"):
+			raise Exception ()
+
+		self.root_data = self.client.get_yaml (self.path + "/data")
+
+		self.root_data.setdefault ("database_state", "active")
+		self.root_data.setdefault ("database_format", "0")
+
+		if int (self.root_data ["database_format"]) < 1:
+			self.upgrade_1 ()
+
+		self.state = self.root_data ["database_state"]
+
+	def upgrade_1 (self):
+
+		print "Upgrading database to version 1"
+
+		# move certificates to new location
+
+		for key in sorted (self.client.ls (self.path)):
+
+			if key in [
+				"data",
+				"subjects",
+				"indexes",
+			]:
+				continue
+
+			print "  - %s" % key
+
+			subject_path_old = self.path + "/" + key
+			subject_path_new = self.path + "/subjects/" + key
+
+			subject_data = self.client.get_tree (subject_path_old)
+
+			for subject_key, subject_value in subject_data:
+
+				self.client.set_raw (
+					subject_path_new + subject_key,
+					subject_value)
+
+			if self.client.exists (
+				subject_path_old + "/current"):
+
+				subject_certificate = crypto.load_certificate (
+					crypto.FILETYPE_PEM,
+					self.client.get_raw (
+						subject_path_old + "/current/certificate"))
+
+				subject_not_after = time.strftime (
+					"%Y-%m-%dT%H:%M:%SZ",
+					time.strptime (
+						subject_certificate.get_notAfter (),
+						"%Y%m%d%H%M%SZ"))
+
+				self.client.set_raw (
+					self.path + "/indexes/not-after/" + subject_not_after,
+					key)
+
+			self.client.rm_recursive (
+				subject_path_old + key)
+
+		# update root data
+
+		self.root_data ["database_format"] = "1"
+
+		self.client.set_yaml (
+			self.path + "/data",
+			self.root_data,
+			self.schemas ["certificate-database"])
 
 	def request (self, name, alt_names):
+
+		if (self.state != "active"):
+			raise Exception ()
 
 		# create key
 
@@ -97,18 +209,18 @@ class CertificateDatabase:
 
 		# write to database
 
-		request_path = self.path + "/" + name
+		subject_path = self.path + "/" + name
 
-		if self.client.exists (request_path + "/pending"):
+		if self.client.exists (subject_path + "/pending"):
 
 			return (False, None, None)
 
 		self.client.set_raw (
-			request_path + "/pending/request",
+			subject_path + "/pending/request",
 			request_csr_string)
 
 		self.client.set_raw (
-			request_path + "/pending/key",
+			subject_path + "/pending/key",
 			request_key_string)
 
 		return (
@@ -119,26 +231,29 @@ class CertificateDatabase:
 
 	def cancel (self, name):
 
-		request_path = self.path + "/" + name
+		if (self.state != "active"):
+			raise Exception ()
+
+		subject_path = self.path + "/" + name
 
 		# sanity check
 
-		if not self.client.exists (request_path + "/pending"):
+		if not self.client.exists (subject_path + "/pending"):
 
 			return False
 
 		# read pending
 
 		request_csr_string = self.client.get_raw (
-			request_path + "/pending/request")
+			subject_path + "/pending/request")
 
 		request_key_string = self.client.get_raw (
-			request_path + "/pending/key")
+			subject_path + "/pending/key")
 
 		# create cancelled
 
 		cancelled_path, cancelled_index = self.client.mkdir_queue (
-			request_path + "/cancelled")
+			subject_path + "/cancelled")
 
 		self.client.set_raw (
 			cancelled_path + "/request",
@@ -151,13 +266,13 @@ class CertificateDatabase:
 		# remove pending
 
 		self.client.rm (
-			request_path + "/pending/request")
+			subject_path + "/pending/request")
 
 		self.client.rm (
-			request_path + "/pending/key")
+			subject_path + "/pending/key")
 
 		self.client.rmdir (
-			request_path + "/pending")
+			subject_path + "/pending")
 
 		return True
 
@@ -167,21 +282,24 @@ class CertificateDatabase:
 			verify_subject,
 			verify_common_name):
 
-		request_path = self.path + "/" + name
+		if (self.state != "active"):
+			raise Exception ()
+
+		subject_path = self.path + "/subjects/" + name
 
 		# sanity check
 
-		if not self.client.exists (request_path + "/pending"):
+		if not self.client.exists (subject_path + "/pending"):
 
 			raise Exception ("No request pending")
 
 		# read pending
 
 		request_csr_string = self.client.get_raw (
-			request_path + "/pending/request")
+			subject_path + "/pending/request")
 
 		request_key_string = self.client.get_raw (
-			request_path + "/pending/key")
+			subject_path + "/pending/key")
 
 		request_csr = crypto.load_certificate_request (
 			crypto.FILETYPE_PEM,
@@ -243,25 +361,25 @@ class CertificateDatabase:
 
 		# archive existing certificate
 
-		if self.client.exists (request_path + "/current"):
+		if self.client.exists (subject_path + "/current"):
 
 			raise Exception ("TODO need to move chain somehow")
 
 			# read current
 
 			archive_csr_string = self.client.get_raw (
-				request_path + "/current/request")
+				subject_path + "/current/request")
 
 			archive_certificate_string = self.client.get_raw (
-				request_path + "/current/certificate")
+				subject_path + "/current/certificate")
 
 			archive_key_string = self.client.get_raw (
-				request_path + "/current/key")
+				subject_path + "/current/key")
 
 			# write to archive
 
 			archive_path, archive_index = self.client.make_queue_dir (
-				request_path + "/archive")
+				subject_path + "/archive")
 
 			self.client.set_raw (
 				archive_path + "/request",
@@ -278,48 +396,58 @@ class CertificateDatabase:
 			# remove current
 
 			self.client.rm_raw (
-				request_path + "/current/request")
+				subject_path + "/current/request")
 
 			self.client.rm_raw (
-				request_path + "/current/certificate")
+				subject_path + "/current/certificate")
 
 			self.client.rm_raw (
-				request_path + "/current/key")
+				subject_path + "/current/key")
 
 			self.client.rmdir_raw (
-				request_path + "/current")
+				subject_path + "/current")
 
 		# store new certificate
 
 		self.client.set_raw (
-			request_path + "/current/request",
+			subject_path + "/current/request",
 			request_csr_string)
 
 		self.client.set_raw (
-			request_path + "/current/key",
+			subject_path + "/current/key",
 			request_key_string)
 
 		self.client.set_raw (
-			request_path + "/current/certificate",
+			subject_path + "/current/certificate",
 			certificate_strings [0])
 
 		for chain_index, chain_string \
 			in enumerate (certificate_strings [1:]):
 
 			self.client.set_raw (
-				request_path + "/current/chain/" + str (chain_index),
+				subject_path + "/current/chain/" + str (chain_index),
 				chain_string)
+
+		subject_not_after = time.strftime (
+			"%Y-%m-%dT%H:%M:%SZ",
+			time.strptime (
+				certificates [0].get_notAfter (),
+				"%Y%m%d%H%M%SZ"))
+
+		self.client.set_raw (
+			self.path + "/indexes/not-after/" + subject_not_after,
+			name)
 
 		# remove pending
 
 		self.client.rm (
-			request_path + "/pending/request")
+			subject_path + "/pending/request")
 
 		self.client.rm (
-			request_path + "/pending/key")
+			subject_path + "/pending/key")
 
 		self.client.rmdir (
-			request_path + "/pending")
+			subject_path + "/pending")
 
 	def import_existing (self,
 			name,
@@ -328,7 +456,7 @@ class CertificateDatabase:
 			verify_subject = True,
 			verify_common_name = True):
 
-		request_path = self.path + "/" + name
+		subject_path = self.path + "/" + name
 
 		# read certificates and private key
 
@@ -392,25 +520,25 @@ class CertificateDatabase:
 
 		# archive existing certificate
 
-		if self.client.exists (request_path + "/current"):
+		if self.client.exists (subject_path + "/current"):
 
 			raise Exception ("TODO need to move chain somehow")
 
 			# read current
 
 			archive_csr_string = self.client.get_raw (
-				request_path + "/current/request")
+				subject_path + "/current/request")
 
 			archive_certificate_string = self.client.get_raw (
-				request_path + "/current/certificate")
+				subject_path + "/current/certificate")
 
 			archive_key_string = self.client.get_raw (
-				request_path + "/current/key")
+				subject_path + "/current/key")
 
 			# write to archive
 
 			archive_path, archive_index = self.client.make_queue_dir (
-				request_path + "/archive")
+				subject_path + "/archive")
 
 			self.client.set_raw (
 				archive_path + "/request",
@@ -427,40 +555,52 @@ class CertificateDatabase:
 			# remove current
 
 			self.client.rm (
-				request_path + "/current/request")
+				subject_path + "/current/request")
 
 			self.client.rm (
-				request_path + "/current/certificate")
+				subject_path + "/current/certificate")
 
 			self.client.rm (
-				request_path + "/current/key")
+				subject_path + "/current/key")
 
 			self.client.rmdir (
-				request_path + "/current")
+				subject_path + "/current")
 
 		# store new certificate
 
 		self.client.set_raw (
-			request_path + "/current/key",
+			subject_path + "/current/key",
 			private_key_string)
 
 		self.client.set_raw (
-			request_path + "/current/certificate",
+			subject_path + "/current/certificate",
 			certificate_strings [0])
 
 		for chain_index, chain_string \
 			in enumerate (certificate_strings [1:]):
 
 			self.client.set_raw (
-				request_path + "/current/chain/" + str (chain_index),
+				subject_path + "/current/chain/" + str (chain_index),
 				chain_string)
+
+		subject_not_after = time.strftime (
+			"%Y-%m-%dT%H:%M:%SZ",
+			time.strptime (
+				certificates [0].get_notAfter (),
+				"%Y%m%d%H%M%SZ"))
+
+		self.client.set_raw (
+			self.path + "/indexes/not-after/" + subject_not_after,
+			name)
+
+		# TODO data
 
 	def get (self, name):
 
-		entry_path = "%s/%s" % (
-			self.path,
-			name,
-		)
+		if (self.state != "active"):
+			raise Exception ()
+
+		entry_path = self.path + "/subjects/" + name
 
 		if not self.client.exists (
 			entry_path):
@@ -519,18 +659,56 @@ class CertificateDatabase:
 
 		rsa_private_key_string = crypto._bio_to_string (bio)
 
+		# format other information
+
+		subject_certificate = crypto.load_certificate (
+			crypto.FILETYPE_PEM,
+			certificate_string)
+
+		subject_not_before = time.strftime (
+			"%Y-%m-%dT%H:%M:%SZ",
+			time.strptime (
+				subject_certificate.get_notBefore (),
+				"%Y%m%d%H%M%SZ"))
+
+		subject_not_after = time.strftime (
+			"%Y-%m-%dT%H:%M:%SZ",
+			time.strptime (
+				subject_certificate.get_notAfter (),
+				"%Y%m%d%H%M%SZ"))
+
 		# return
 
 		return Certificate (
+
+			common_name = name,
+
 			serial = None,
 			digest = None,
+
 			certificate = certificate_string,
 			certificate_path = certificate_path,
+
+			not_before = subject_not_before,
+			not_after = subject_not_after,
+
 			chain = chain_strings,
 			chain_paths = chain_paths,
+
 			private_key = key_string,
 			private_key_path = key_path,
+
 			rsa_private_key = rsa_private_key_string)
+
+	def get_all (self):
+
+		if (self.state != "active"):
+			raise Exception ()
+
+		return [
+			self.get (subject_name)
+			for subject_name in self.client.ls (self.path + "/subjects")
+		]
 
 def args (prev_sub_parsers):
 
@@ -552,7 +730,9 @@ def args (prev_sub_parsers):
 	args_import (next_sub_parsers)
 	args_list (next_sub_parsers)
 	args_request (next_sub_parsers)
+	args_search (next_sub_parsers)
 	args_signed (next_sub_parsers)
+	args_upgrade (next_sub_parsers)
 
 def args_create (sub_parsers):
 
@@ -716,6 +896,77 @@ def do_request (context, args):
 		print ("There is already a request pending for " + args.common_name)
 
 		sys.exit (1)
+
+def args_search (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"search",
+		help = "search certificates in a database",
+		description = """
+			This tool outputs a list of certificates present in a database,
+			according to various options to filter the included certificates,
+			and the format and order to display them in.
+		""")
+
+	parser.set_defaults (
+		func = do_search)
+
+	parser.add_argument (
+		"--database",
+		required = True,
+		help = "name of certificate database to search")
+
+	parser_ordering = parser.add_argument_group (
+		"ordering")
+
+	parser_ordering_exclusive = parser_ordering.add_mutually_exclusive_group ()
+
+	parser_ordering_exclusive.add_argument (
+		"--order-by-expiry",
+		action = "store_const",
+		const = "expiry",
+		dest = "ordering",
+		help = "sort by order of expiry")
+
+def do_search (context, args):
+
+	database = CertificateDatabase (
+		context,
+		"/certificate/" + args.database,
+		context.certificate_data)
+
+	database.load ()
+
+	certificates = database.get_all ()
+
+	rows = []
+
+	for certificate in certificates:
+
+		rows.append (dict (
+			name = certificate.common_name,
+			not_before = certificate.not_before,
+			not_after = certificate.not_after))
+
+	if args.ordering == None:
+
+		rows.sort (key = lambda row: row ["name"])
+
+	elif args.ordering == "expiry":
+
+		rows.sort (key = lambda row: row ["not_after"])
+
+	else:
+
+		raise Exception ()
+
+	columns = [
+		TableColumn ("name", "Name"),
+		TableColumn ("not_before", "Not before"),
+		TableColumn ("not_after", "Not after"),
+	]
+
+	print_table (columns, rows, sys.stdout)
 
 def args_import (sub_parsers):
 
@@ -1016,3 +1267,45 @@ def do_export (context, args):
 
 		print ("Wrote RSA private key to %s" % (
 			args.rsa_private_key))
+
+def args_upgrade (sub_parsers):
+
+	parser_upgrade = sub_parsers.add_parser (
+		"upgrade",
+		help = "upgrade an existing certificate database",
+		description = """
+			Modifies the internal format of a certificate database, converting
+			it from an old version to the current one. This is a required
+			operation whenever the code is updated to use a new database format.
+		""")
+
+	parser_upgrade.set_defaults (
+		func = do_upgrade)
+
+	parser_upgrade.add_argument (
+		"--database",
+		required = True,
+		help = "name of certificate database to upgrade")
+
+
+def do_upgrade (context, args):
+
+	database = CertificateDatabase (
+		context,
+		"/certificate/" + args.database,
+		context.certificate_data)
+
+	if not database.exists ():
+
+		print (
+			"Certificate database '%s' does not exist" % (
+				args.database))
+
+		return
+
+	database.upgrade ()
+
+	print (
+		"Database format is the latest version")
+
+# ex: noet ts=4 filetype=python
