@@ -1,0 +1,11 @@
+---
+
+dependencies:
+
+  - "heka-common"
+  - "install-heka"
+  - "setup-heka-bin-links"
+  - "setup-heka"
+  - "control-heka"
+
+# ex: et ts=2 filetype=yaml

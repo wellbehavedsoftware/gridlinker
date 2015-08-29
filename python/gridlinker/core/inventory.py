@@ -352,6 +352,42 @@ class Inventory (object):
 
 					raise Exception ()
 
+			for back_reference in class_data ["class"].get ("back_references", []):
+
+				if back_reference ["type"] == "resource":
+
+					namespace = back_reference ["namespace"]
+					field = back_reference ["field"]
+
+					section = back_reference ["section"]
+					name = back_reference ["name"]
+
+					values = []
+
+					for other_resource_name in self.namespaces [namespace]:
+
+						other_resource_data = self.resources [other_resource_name]
+
+						if not field in other_resource_data:
+							continue
+
+						other_values = other_resource_data [field]
+
+						if not isinstance (other_values, list):
+							other_values = [ other_values ]
+
+						if not resource_data ["identity"] ["name"] in other_values:
+							continue
+
+						values.append (other_resource_data ["identity"] ["name"])
+
+					resource_data [section] [name] = values
+					resource_data [section + "_" + name] = values
+
+				else:
+
+					raise Exception ()
+
 	def load_resources_5 (self):
 
 		for resource_name, resource_data \

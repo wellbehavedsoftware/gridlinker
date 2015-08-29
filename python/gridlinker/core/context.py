@@ -312,6 +312,7 @@ class GenericContext (object):
 				"display_skipped_hosts": "False",
 				"force_color": "True",
 				"gathering": "explicit",
+				"ansible_python_interpreter": "/usr/bin/env python",
 
 				"retry_files_save_path": "%s/work/retry" % self.home,
 

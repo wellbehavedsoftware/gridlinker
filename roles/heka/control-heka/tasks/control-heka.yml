@@ -1,0 +1,42 @@
+---
+
+- name: "write heka upstart config"
+  sudo: "yes"
+  notify:
+
+    - "reload upstart config"
+    - "set heka.needs_restart to 'yes'"
+
+  action:
+
+    module: "template"
+    src: "heka-upstart"
+    dest: "/etc/init/heka.conf"
+
+- name: "restart heka"
+  when: "heka_needs_restart == 'yes'"
+  changed_when: "True"
+  notify: "restart heka"
+  update_resource: {}
+
+- meta: "flush_handlers"
+
+- name: "start heka"
+  when: "heka_state == 'enabled'"
+  sudo: "yes"
+  action:
+
+    module: "service"
+    name: "heka"
+    state: "started"
+
+- name: "stop heka"
+  when: "heka_state == 'disabled'"
+  sudo: "yes"
+  action:
+
+    module: "service"
+    name: "heka"
+    state: "stopped"
+
+# ex: et ts=2 filetype=yaml
