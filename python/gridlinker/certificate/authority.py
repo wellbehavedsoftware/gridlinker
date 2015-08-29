@@ -534,13 +534,30 @@ class CertificateAuthority:
 
 			issue_key_rsa = write_rsa_private_key (issue_key)
 
+			subject_not_before = time.strftime (
+				"%Y-%m-%dT%H:%M:%SZ",
+				time.strptime (
+					issue_certificate.get_notBefore (),
+					"%Y%m%d%H%M%SZ"))
+
+			subject_not_after = time.strftime (
+				"%Y-%m-%dT%H:%M:%SZ",
+				time.strptime (
+					issue_certificate.get_notAfter (),
+					"%Y%m%d%H%M%SZ"))
+
 			return Certificate (
+
+				common_name = name,
 
 				serial = issue_serial,
 				digest = issue_digest,
 
 				certificate = issue_cert_string,
 				certificate_path = issue_path + "/certificate",
+
+				not_before = x,
+				not_after = x,
 
 				chain = [ self.root_cert_string ],
 				chain_paths = [ self.path + "/certificate" ],
@@ -584,13 +601,34 @@ class CertificateAuthority:
 		key_string = self.client.get_raw (
 			issue_path + "/key")
 
+		subject_certificate = crypto.load_certificate (
+			crypto.FILETYPE_PEM,
+			self.root_cert_string)
+
+		subject_not_before = time.strftime (
+			"%Y-%m-%dT%H:%M:%SZ",
+			time.strptime (
+				subject_certificate.get_notBefore (),
+				"%Y%m%d%H%M%SZ"))
+
+		subject_not_after = time.strftime (
+			"%Y-%m-%dT%H:%M:%SZ",
+			time.strptime (
+				subject_certificate.get_notAfter (),
+				"%Y%m%d%H%M%SZ"))
+
 		return Certificate (
+
+			subject_certificate.get_subject ().CN,
 
 			serial = issue_serial,
 			digest = issue_digest,
 
 			certificate = certificate_string,
 			certificate_path = issue_path + "/certificate",
+
+			not_before = subject_not_before,
+			not_after = subject_not_after,
 
 			chain = [ self.root_cert_string ],
 			chain_paths = [ "%s/certificate" % self.path ],
