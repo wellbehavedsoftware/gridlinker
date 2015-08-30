@@ -710,22 +710,28 @@ class Inventory (object):
 			if not parts [0] == reference ["name"]:
 				continue
 
-			target_name = self.resolve_value_or_fail (
-				resource_name,
-				reference ["value"])
+			if reference ["type"] == "resource":
 
-			if not target_name in self.resources:
+				target_name = self.resolve_value_or_fail (
+					resource_name,
+					reference ["value"])
+
+				if not target_name in self.resources:
+					raise Exception ()
+
+				if self.trace:
+
+					print (
+						"  RECURSE resolved reference: %s" % (
+							parts [0]))
+
+				return self.resolve_variable (
+					target_name,
+					".".join (parts [1:]))
+
+			else:
+
 				raise Exception ()
-
-			if self.trace:
-
-				print (
-					"  RECURSE resolved reference: %s" % (
-						parts [0]))
-
-			return self.resolve_variable (
-				target_name,
-				".".join (parts [1:]))
 
 		current = resource_data
 
