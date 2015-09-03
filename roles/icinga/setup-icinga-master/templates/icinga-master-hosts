@@ -18,37 +18,44 @@ template Host "generic-host" {
 {% endfor %}
 {% endmacro %}
 
-{% for host_name in groups [icinga_master.endpoints] %}
+{% if icinga_master_endpoints and icinga_master_endpoints in groups %}
+{% for host_name in groups [icinga_master_endpoints] %}
 {% set host = hostvars [host_name] %}
 
 object Host "{{ host.identity_name }}" {
 
 	import "generic-host"
 
-	address = "{{ host.icinga_host.address }}"
+	address = "{{ host.icinga_host_address }}"
 
-	vars.class = "{{ host.identity.class }}"
+	vars.class = "{{ host.identity_class }}"
 
-{{ do_vars (host.icinga_host.vars | default ([])) }}
+{{ do_vars (host.icinga_host_vars | default ([])) }}
 
 }
 
 {% endfor %}
+{% endif %}
 
-{% for host_name in groups [icinga_master.hosts] %}
+{% if icinga_master_hosts and icinga_master_hosts in groups %}
+{% for host_name in groups [icinga_master_hosts] %}
 {% set host = hostvars [host_name] %}
 
 object Host "{{ host.identity_name }}" {
 
 	import "generic-host"
 
-	address = "{{ host.icinga_host.address }}"
+	address = "{{ host.icinga_host_address }}"
 
 	vars.class = "{{ host.identity.class }}"
-	vars.endpoint = "{{ host.icinga_host.endpoint }}"
 
-{{ do_vars (host.icinga_host.vars | default ([])) }}
+{% if 'icinga_host_endpoint' in host %}
+	vars.endpoint = "{{ host.icinga_host_endpoint }}"
+{% endif %}
+
+{{ do_vars (host.icinga_host_vars | default ([])) }}
 
 }
 
 {% endfor %}
+{% endif %}

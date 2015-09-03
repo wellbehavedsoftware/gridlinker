@@ -2,8 +2,8 @@
 
 # state
 
-icinga_state: "no"
-icinga_needs_restart: "no"
+icinga_state: ""
+icinga_needs_restart: ""
 
 # runtime defaults
 
@@ -11,23 +11,30 @@ icinga_common_name: "{{ identity_name }}"
 icinga_alt_dns: [ "{{ icinga_common_name }}" ]  
 icinga_alt_ips: []
 
-icinga_database_type: "no"
+icinga_database_type: ""
 icinga_database_name: "icinga"
 icinga_database_username: "icinga"
-icinga_database_password: "no"
-icinga_database_initialized: "no"
+icinga_database_password: ""
+icinga_database_initialized: ""
 
-icinga_ticket_salt: "no"
+icinga_ticket_salt: ""
 
-icinga_ca_certificate: "no"
-icinga_certificate: "no"
-icinga_private_key: "no"
+icinga_ca_certificate: ""
+icinga_certificate: ""
+icinga_private_key: ""
 
 # installation
 
 icinga_source: "{{ ubuntu_mirror }}/ppa.launchpad.net/formorer/icinga"
 
 # master configuration
+
+icinga_master_endpoints: "icinga-masters"
+icinga_master_agents: "icinga-agents"
+icinga_master_hosts: "icinga-hosts"
+
+icinga_master_users: "icinga-users"
+icinga_master_groups: "icinga-groups"
 
 icinga_master_directories:
 
@@ -90,6 +97,8 @@ icinga_master_security_files:
 
 # agent configuration
 
+icinga_agent_masters: "icinga-masters"
+
 icinga_agent_config_templates:
 
   - template: "icinga-agent-constants"
@@ -121,5 +130,7 @@ icinga_agent_security_files:
   - source: "{{ icinga_private_key }}"
     target: "pki/{{ identity.name }}.key"
     mode: "0640"
+
+icinga_host_vars: {}
 
 # ex: et ts=2 filetype=yaml

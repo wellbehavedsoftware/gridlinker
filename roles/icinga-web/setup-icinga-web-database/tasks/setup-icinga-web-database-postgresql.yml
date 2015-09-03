@@ -14,18 +14,16 @@
 
 - name: "create icinga web database"
   delegate_to: "{{ icinga_web_main_database_delegate }}"
-  when: "icinga_web_main_database_type == 'mysql'"
   action:
 
-    module: "mysql_db"
+    module: "postgresql_db"
     name: "{{ icinga_web_main_database_name }}"
 
 - name: "create icinga web database user"
   delegate_to: "{{ icinga_web_main_database_delegate }}"
-  when: "icinga_web_main_database_type == 'mysql'"
   action:
 
-    module: "mysql_user"
+    module: "postgresql_user"
     name: "{{ icinga_web_database_username }}"
     host: "%"
     password: "{{ icinga_web_database_password }}"
@@ -42,12 +40,12 @@
 
     set -euf -o pipefail;
 
-    mysql {{ icinga_web_main_database_name }}
-      </opt/icinga-web-{{ icinga_web_version }}/etc/schema/mysql.schema.sql;
+    psql {{ icinga_web_main_database_name }}
+      </opt/icinga-web-{{ icinga_web_version }}/etc/schema/postgresql.schema.sql;
 
     password_hash=$(openssl passwd -1 {{ icinga_web_admin_password }});
 
-    mysql {{ icinga_web_main_database_name }} --execute "
+    psql {{ icinga_web_main_database_name }} --execute "
       INSERT INTO icingaweb_user (name, active, password_hash)
       VALUES ('admin', 1, '$password_hash');
     ";

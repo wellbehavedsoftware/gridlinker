@@ -537,13 +537,13 @@ class CertificateAuthority:
 			subject_not_before = time.strftime (
 				"%Y-%m-%dT%H:%M:%SZ",
 				time.strptime (
-					issue_certificate.get_notBefore (),
+					issue_cert.get_notBefore (),
 					"%Y%m%d%H%M%SZ"))
 
 			subject_not_after = time.strftime (
 				"%Y-%m-%dT%H:%M:%SZ",
 				time.strptime (
-					issue_certificate.get_notAfter (),
+					issue_cert.get_notAfter (),
 					"%Y%m%d%H%M%SZ"))
 
 			return Certificate (
@@ -556,8 +556,8 @@ class CertificateAuthority:
 				certificate = issue_cert_string,
 				certificate_path = issue_path + "/certificate",
 
-				not_before = x,
-				not_after = x,
+				not_before = subject_not_before,
+				not_after = subject_not_after,
 
 				chain = [ self.root_cert_string ],
 				chain_paths = [ self.path + "/certificate" ],

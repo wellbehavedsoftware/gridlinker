@@ -6,7 +6,6 @@ include <itl>
 include <plugins>
 
 library "checker"
-library "db_ido_mysql"
 library "notification"
 
 object ApiListener "api" {
@@ -28,12 +27,29 @@ object FileLogger "main-log" {
 	path = LocalStateDir + "/log/icinga2/icinga2.log"
 }
 
+{% if icinga_database_type == 'mysql' %}
+
+library "db_ido_mysql"
+
 object IdoMysqlConnection "ido-mysql" {
 	host = "{{ mysql_master }}"
 	database = "icingaido"
 	user = "icingaido"
 	password = IcingaIdoMysqlPassword
 }
+
+{% elif icinga_database_type == 'postgresql' %}
+
+library "db_ido_postgresql"
+
+object IdoMysqlConnection "ido-mysql" {
+	host = "{{ postgresql_master }}"
+	database = "icingaido"
+	user = "icingaido"
+	password = IcingaIdoPostgresqlPassword
+}
+
+{% endif %}
 
 object NotificationComponent "notification" {
 }
