@@ -224,10 +224,18 @@ class ParentArgument:
 	def args_create (self, parser, helper):
 
 		parser.add_argument (
+			"--set-parent",
+			required = False,
+			metavar = "PARENT",
+			help = "set parent in newly created {0}".format (helper.name))
+
+	def args_list (self, parser, helper):
+
+		parser.add_argument (
 			"--parent",
 			required = False,
 			metavar = "PARENT",
-			help = "parent {0} of this {0}".format (helper.name))
+			help = "list {0}s with this parent".format (helper.name))
 
 	def args_update (self, parser, helper):
 
@@ -235,14 +243,20 @@ class ParentArgument:
 			"--parent",
 			required = False,
 			metavar = "PARENT",
-			help = "parent {0} of this {0}".format (helper.name))
+			help = "update {0}s with this parent".format (helper.name))
+
+		parser.add_argument (
+			"--set-parent",
+			required = False,
+			metavar = "PARENT",
+			help = "set parent in updated {0}".format (helper.name))
 
 	def update_record (self, arg_vars, record_data, context, helper):
 
-		if arg_vars.get ("parent") == None:
+		if arg_vars.get ("set_parent") == None:
 			return
 
-		value = arg_vars ["parent"]
+		value = arg_vars ["set_parent"]
 
 		if value:
 			record_data ["identity"] ["parent"] = value
@@ -252,12 +266,21 @@ class ParentArgument:
 		if arg_vars.get ("parent") == None:
 			return True
 
-		class_key = "%s_parent" % helper.short_name
-
-		if not class_key in record_data:
+		if not "parent" in record_data ["identity"]:
 			return False
 
-		return record_data [class_key] == arg_vars ["parent"]
+		class_name = record_data ["identity"] ["class"]
+		class_data = context.local_data ["classes"] [class_name]
+
+		if not "parent_namespace" in class_data ["class"]:
+			return False
+
+		parent_name = "/".join ([
+			class_data ["class"] ["parent_namespace"],
+			record_data ["identity"] ["parent"],
+		])
+
+		return parent_name == arg_vars ["parent"]
 
 class IndexArgument:
 
