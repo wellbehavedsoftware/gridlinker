@@ -170,7 +170,7 @@ class EtcdClient:
 
 				return self.make_request_real (** kwargs)
 
-			except IOError:
+			except (httplib.HTTPException, IOError):
 
 				if self.connection:
 
