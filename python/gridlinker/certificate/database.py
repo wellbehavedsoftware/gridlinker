@@ -1096,6 +1096,8 @@ def do_signed (context, args):
 		"/certificate/" + args.database,
 		context.certificate_data)
 
+	database.load ()
+
 	certificate_strings = []
 
 	for certificate_filename in args.certificate:
