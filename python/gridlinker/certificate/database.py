@@ -149,7 +149,7 @@ class CertificateDatabase:
 					key)
 
 			self.client.rm_recursive (
-				subject_path_old + key)
+				subject_path_old)
 
 		# update root data
 
@@ -869,6 +869,8 @@ def do_request (context, args):
 		context,
 		"/certificate/" + args.database,
 		context.certificate_data)
+
+	database.load ()
 
 	alt_names = list (itertools.chain.from_iterable ([
 		[ "DNS:" + alt_dns for alt_dns in args.alt_dns ],
