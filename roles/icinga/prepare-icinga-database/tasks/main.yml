@@ -1,0 +1,9 @@
+---
+
+- include: "prepare-icinga-database.yml"
+  tags:
+
+    - "icinga"
+    - "prepare-icinga-database"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,9 @@
+---
+
+postgresql_version: ""
+
+postgresql_state: ""
+postgresql_installed_version: ""
+postgresql_needs_restart: "no"
+
+# ex: et ts=2 filetype=yaml

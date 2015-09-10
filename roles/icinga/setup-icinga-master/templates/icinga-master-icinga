@@ -6,7 +6,13 @@ include <itl>
 include <plugins>
 
 library "checker"
+{% if icinga_database_type == 'mysql' %}
+library "db_ido_mysql"
+{% endif %}
 library "notification"
+{% if icinga_database_type == 'postgresql' %}
+library "db_ido_postgresql"
+{% endif %}
 
 object ApiListener "api" {
 
@@ -29,21 +35,19 @@ object FileLogger "main-log" {
 
 {% if icinga_database_type == 'mysql' %}
 
-library "db_ido_mysql"
-
 object IdoMysqlConnection "ido-mysql" {
-	host = "{{ mysql_master }}"
+	host = "{{ icinga_database_hostname }}"
 	database = "icingaido"
 	user = "icingaido"
 	password = IcingaIdoMysqlPassword
 }
 
-{% elif icinga_database_type == 'postgresql' %}
+{% endif %}
 
-library "db_ido_postgresql"
+{% if icinga_database_type == 'postgresql' %}
 
-object IdoMysqlConnection "ido-mysql" {
-	host = "{{ postgresql_master }}"
+object IdoMysqlConnection "ido-postgresql" {
+	host = "{{ icinga_database_hostname }}"
 	database = "icingaido"
 	user = "icingaido"
 	password = IcingaIdoPostgresqlPassword

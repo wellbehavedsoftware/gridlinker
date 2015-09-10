@@ -1,9 +1,9 @@
 ---
 
-icinga_web_state: "no"
-icinga_web_installed_version: "no"
+icinga_web_state: ""
+icinga_web_installed_version: ""
 
-icinga_web_version: "no"
+icinga_web_version: ""
 icinga_web_github: "https://github.com/Icinga/icingaweb2/archive"
 icinga_web_temp: "/tmp/icinga-web-install"
 
@@ -16,22 +16,22 @@ icinga_web_config_directories:
 
   - directory: "/etc/icingaweb2"
     owner: "root"
-    group: "icingaweb2"
+    group: "www-data"
     mode: "0750"
 
   - directory: "/etc/icingaweb2/modules"
     owner: "root"
-    group: "icingaweb2"
+    group: "www-data"
     mode: "0750"
 
   - directory: "/etc/icingaweb2/enabledModules"
     owner: "root"
-    group: "icingaweb2"
+    group: "www-data"
     mode: "0750"
 
   - directory: "/etc/icingaweb2/modules/monitoring"
     owner: "root"
-    group: "icingaweb2"
+    group: "www-data"
     mode: "0750"
 
 icinga_web_config_templates:
@@ -39,50 +39,51 @@ icinga_web_config_templates:
   - template: "icinga-web-authentication-ini"
     target: "/etc/icingaweb2/authentication.ini"
     owner: "root"
-    group: "icingaweb2"
+    group: "www-data"
     mode: "0640"
 
   - template: "icinga-web-config-ini"
     target: "/etc/icingaweb2/config.ini"
     owner: "root"
-    group: "icingaweb2"
+    group: "www-data"
     mode: "0640"
 
   - template: "icinga-web-resources-ini"
     target: "/etc/icingaweb2/resources.ini"
     owner: "root"
-    group: "icingaweb2"
+    group: "www-data"
     mode: "0640"
 
   - template: "icinga-web-roles-ini"
     target: "/etc/icingaweb2/roles.ini"
     owner: "root"
-    group: "icingaweb2"
+    group: "www-data"
     mode: "0640"
 
   - template: "icinga-web-monitoring-backends-ini"
     target: "/etc/icingaweb2/modules/monitoring/backends.ini"
     owner: "root"
-    group: "icingaweb2"
+    group: "www-data"
     mode: "0640"
 
   - template: "icinga-web-monitoring-config-ini"
     target: "/etc/icingaweb2/modules/monitoring/config.ini"
     owner: "root"
-    group: "icingaweb2"
+    group: "www-data"
     mode: "0640"
 
   - template: "icinga-web-monitoring-instances-ini"
     target: "/etc/icingaweb2/modules/monitoring/instances.ini"
     owner: "root"
-    group: "icingaweb2"
+    group: "www-data"
     mode: "0640"
 
-icinga_web_admin_password: "no"
+icinga_web_admin_password: ""
 
-icinga_web_database_type: "no"
+icinga_web_database_type: ""
 icinga_web_database_username: "icingaweb"
-icinga_web_database_password: "no"
+icinga_web_database_password: ""
+icinga_web_database_port: ""
 
 icinga_web_main_database_type: "{{ icinga_web_database_type }}"
 icinga_web_main_database_hostname: "{{ icinga_web_database_hostname }}"
@@ -92,7 +93,7 @@ icinga_web_main_database_username: "{{ icinga_web_database_username }}"
 icinga_web_main_database_password: "{{ icinga_web_database_password }}"
 icinga_web_main_database_prefix: "icingaweb_"
 icinga_web_main_database_delegate: "{{ icinga_web_database_delegate }}"
-icinga_web_main_database_initialized: "no"
+icinga_web_main_database_initialized: ""
 
 icinga_web_ido_database_type: "{{ icinga_web_database_type }}"
 icinga_web_ido_database_hostname: "{{ icinga_web_database_hostname }}"

@@ -1,5 +1,11 @@
 ---
 
+- name: "check required variables"
+  when: "icinga_web_version == ''"
+  fail:
+
+    msg: "please set icinga_web_version"
+
 - name: "create icingaweb2 group"
   sudo: "yes"
   action:

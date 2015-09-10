@@ -1,0 +1,12 @@
+---
+
+- debug:
+    msg: "hello world"
+
+- name: "set postgresql.state to 'enabled'"
+  when: "postgresql_state == 'installed'"
+  update_resource:
+
+    postgresql.state: "enabled"
+
+# ex: et ts=2 filetype=yaml
