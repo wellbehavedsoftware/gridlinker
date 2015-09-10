@@ -312,6 +312,10 @@ class Inventory (object):
 							referenced_resource_name = target_name,
 							reference_name = reference ["name"])
 
+					resource_data [reference ["name"]] = (
+						"{{ hostvars ['%s'] }}" % (
+							target_name))
+
 				else:
 
 					raise Exception ()
