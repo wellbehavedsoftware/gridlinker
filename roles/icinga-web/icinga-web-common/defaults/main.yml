@@ -93,7 +93,7 @@ icinga_web_main_database_username: "{{ icinga_web_database_username }}"
 icinga_web_main_database_password: "{{ icinga_web_database_password }}"
 icinga_web_main_database_prefix: "icingaweb_"
 icinga_web_main_database_delegate: "{{ icinga_web_database_delegate }}"
-icinga_web_main_database_initialized: ""
+icinga_web_main_database_initialized: "no"
 
 icinga_web_ido_database_type: "{{ icinga_web_database_type }}"
 icinga_web_ido_database_hostname: "{{ icinga_web_database_hostname }}"
@@ -103,5 +103,10 @@ icinga_web_ido_database_username: "{{ icinga_web_database_username }}"
 icinga_web_ido_database_password: "{{ icinga_web_database_password }}"
 icinga_web_ido_database_prefix: "icinga_"
 icinga_web_ido_database_delegate: "{{ icinga_web_database_delegate }}"
+
+icinga_web_database_type_map:
+
+  mysql: "mysql"
+  postgresql: "pgsql"
 
 # ex: et ts=2 filetype=yaml

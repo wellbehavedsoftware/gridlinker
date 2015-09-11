@@ -1,9 +1,25 @@
 ---
 
-postgresql_version: ""
+postgresql_version: "9.3"
 
 postgresql_state: ""
 postgresql_installed_version: ""
 postgresql_needs_restart: "no"
+
+postgresql_config: "/etc/postgresql/{{ postgresql_version }}/main"
+
+postgresql_config_templates:
+
+  - template: "postgresql-config"
+    target: "{{ postgresql_config }}/postgresql.conf"
+    user: "postgres"
+    group: "postgres"
+    mode: "0644"
+
+  - template: "postgresql-hba"
+    target: "{{ postgresql_config }}/pg_hba.conf"
+    user: "postgres"
+    group: "postgres"
+    mode: "0640"
 
 # ex: et ts=2 filetype=yaml

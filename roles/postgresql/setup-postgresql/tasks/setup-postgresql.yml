@@ -1,7 +1,18 @@
 ---
 
-- debug:
-    msg: "hello world"
+- name: "configure postgresql"
+  with_items: "postgresql_config_templates"
+  notify: "set postgresql.needs_restart to 'yes'"
+  sudo: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ item.target }}"
+    src: "{{ item.template }}"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
 
 - name: "set postgresql.state to 'enabled'"
   when: "postgresql_state == 'installed'"
