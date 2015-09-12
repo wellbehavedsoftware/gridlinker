@@ -2,6 +2,7 @@
 
 - name: "create icinga web database"
   delegate_to: "{{ icinga_web_main_database_delegate }}"
+  register: "icinga_web_database_create_result"
   action:
 
     module: "postgresql_db"
@@ -9,6 +10,12 @@
 
     login_user: "ubuntu"
     login_unix_socket: "/var/run/postgresql"
+
+- name: "set icinga_web.database_initialized to 'no'"
+  when: "icinga_web_database_create_result | changed"
+  update_resource:
+
+    icinga_web.database_initialized: "no"
 
 - name: "create icinga web ido database user"
   delegate_to: "{{ icinga_web_ido_database_delegate }}"
@@ -19,6 +26,24 @@
 
     password: "{{ icinga_web_ido_database_password }}"
     db: "{{ icinga_web_ido_database_name }}"
+
+    login_user: "ubuntu"
+    login_unix_socket: "/var/run/postgresql"
+
+- name: "grant icinga web ido database permissions"
+  delegate_to: "{{ icinga_web_ido_database_delegate }}"
+  action:
+
+    module: "postgresql_privs"
+    role: "{{ icinga_web_ido_database_username }}"
+    state: "present"
+
+    database: "{{ icinga_web_ido_database_name }}"
+    schema: "public"
+    objs: "ALL_IN_SCHEMA"
+    type: "table"
+
+    privs: "SELECT"
 
     login_user: "ubuntu"
     login_unix_socket: "/var/run/postgresql"
@@ -36,19 +61,30 @@
     login_user: "ubuntu"
     login_unix_socket: "/var/run/postgresql"
 
+- name: "grant icinga web main database permissions"
+  delegate_to: "{{ icinga_web_main_database_delegate }}"
+  action:
+
+    module: "postgresql_privs"
+    role: "{{ icinga_web_main_database_username }}"
+    state: "present"
+
+    database: "{{ icinga_web_main_database_name }}"
+    schema: "public"
+    objs: "ALL_IN_SCHEMA"
+    type: "table"
+
+    privs: "ALL"
+
+    login_user: "ubuntu"
+    login_unix_socket: "/var/run/postgresql"
+
 - name: "initialize icinga web database"
   delegate_to: "{{ icinga_web_main_database_delegate }}"
   when: "icinga_web_main_database_initialized == 'no'"
   args:
 
     executable: "/bin/bash"
-
-  environment:
-
-    PGHOST: "{{ icinga_web_main_database_hostname }}"
-    PGPORT: "{{ icinga_web_main_database_port }}"
-    PGUSER: "{{ icinga_web_main_database_username }}"
-    PGPASSWORD: "{{ icinga_web_main_database_password }}"
 
   shell:
 

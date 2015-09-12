@@ -11,7 +11,7 @@ library "db_ido_mysql"
 {% endif %}
 library "notification"
 {% if icinga_database_type == 'postgresql' %}
-library "db_ido_postgresql"
+library "db_ido_pgsql"
 {% endif %}
 
 object ApiListener "api" {
@@ -37,8 +37,8 @@ object FileLogger "main-log" {
 
 object IdoMysqlConnection "ido-mysql" {
 	host = "{{ icinga_database_hostname }}"
-	database = "icingaido"
-	user = "icingaido"
+	database = "{{ icinga_database_name }}"
+	user = "{{ icinga_database_username }}"
 	password = IcingaIdoMysqlPassword
 }
 
@@ -46,10 +46,10 @@ object IdoMysqlConnection "ido-mysql" {
 
 {% if icinga_database_type == 'postgresql' %}
 
-object IdoMysqlConnection "ido-postgresql" {
+object IdoPgsqlConnection "ido-pgsql" {
 	host = "{{ icinga_database_hostname }}"
-	database = "icingaido"
-	user = "icingaido"
+	database = "{{ icinga_database_name }}"
+	user = "{{ icinga_database_username }}"
 	password = IcingaIdoPostgresqlPassword
 }
 
