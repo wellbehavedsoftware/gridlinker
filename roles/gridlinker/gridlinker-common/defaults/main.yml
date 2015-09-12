@@ -44,4 +44,6 @@ gridlinker_admin_credentials:
     source: "{{ gridlinker_admin_private_key }}"
     mode: "0600"
 
+gridlinker_tools_target: "/usr/local/lib/gridlinker-tools"
+
 # ex: et ts=2 filetype=yaml

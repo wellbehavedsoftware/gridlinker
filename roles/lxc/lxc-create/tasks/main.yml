@@ -1,0 +1,9 @@
+---
+
+- include: "lxc-create.yml"
+  tags:
+
+    - "lxc"
+    - "lxc-create"
+
+# ex: et ts=2 filetype=yaml
