@@ -16,13 +16,9 @@
     repo: "deb {{ icinga_source }}/ubuntu trusty main"
     update_cache: "yes"
 
-- name: "install icinga packages"
+- name: "install icinga master system packages"
   sudo: "yes"
-  with_items:
-
-    - "icinga2"
-    - "icinga2-ido-mysql"
-
+  with_items: "icinga_master_system_packages"
   action:
 
     module: "apt"
@@ -50,7 +46,6 @@
 
 - name: "set icinga.state to 'installed'"
   when: "icinga_state == 'no'"
-  tags: [ "icinga", "install-icinga" ]
   update_resource:
 
     icinga.state: "installed"

@@ -1,22 +1,9 @@
 ---
 
 - include: "setup-mysql.yml"
-  tags: [ "mysql", "setup-mysql" ]
+  tags:
 
-- name: "set mysql.state to 'configured'"
-  when: "mysql_state == 'installed' and mysql_replication == 'yes'"
-  tags: [ "mysql", "setup-mysql" ]
-  changed_when: "True"
-  update_resource:
-
-    mysql.state: "configured"
-
-- name: "set mysql.state to 'enabled'"
-  when: "mysql_state == 'installed' and mysql_replication == 'no'"
-  tags: [ "mysql", "setup-mysql" ]
-  changed_when: "True"
-  update_resource:
-
-    mysql.state: "enabled"
+    - "mysql"
+    - "setup-mysql"
 
 # ex: et ts=2 filetype=yaml

@@ -1,17 +1,5 @@
 ---
 
-- name: "generate icinga_web.database_password"
-  when: "icinga_web_database_password == 'no'"
-  update_resource:
-
-    icinga_web.database_password: "{{ 20 | generate_random }}"
-
-- name: "generate icinga_web.admin_password"
-  when: "icinga_web_admin_password == 'no'"
-  update_resource:
-
-    icinga_web.admin_password: "{{ 20 | generate_random }}"
-
 - name: "create icinga web database"
   delegate_to: "{{ icinga_web_main_database_delegate }}"
   action:
@@ -19,15 +7,34 @@
     module: "postgresql_db"
     name: "{{ icinga_web_main_database_name }}"
 
-- name: "create icinga web database user"
+    login_user: "ubuntu"
+    login_unix_socket: "/var/run/postgresql"
+
+- name: "create icinga web ido database user"
+  delegate_to: "{{ icinga_web_ido_database_delegate }}"
+  action:
+
+    module: "postgresql_user"
+    name: "{{ icinga_web_ido_database_username }}"
+
+    password: "{{ icinga_web_ido_database_password }}"
+    db: "{{ icinga_web_ido_database_name }}"
+
+    login_user: "ubuntu"
+    login_unix_socket: "/var/run/postgresql"
+
+- name: "create icinga web main database user"
   delegate_to: "{{ icinga_web_main_database_delegate }}"
   action:
 
     module: "postgresql_user"
-    name: "{{ icinga_web_database_username }}"
-    host: "%"
-    password: "{{ icinga_web_database_password }}"
-    priv: "{{ icinga_web_ido_database_name }}.*:ALL/{{ icinga_web_main_database_name }}.*:ALL"
+    name: "{{ icinga_web_main_database_username }}"
+
+    password: "{{ icinga_web_main_database_password }}"
+    db: "{{ icinga_web_main_database_name }}"
+
+    login_user: "ubuntu"
+    login_unix_socket: "/var/run/postgresql"
 
 - name: "initialize icinga web database"
   delegate_to: "{{ icinga_web_main_database_delegate }}"
@@ -36,18 +43,25 @@
 
     executable: "/bin/bash"
 
+  environment:
+
+    PGHOST: "{{ icinga_web_main_database_hostname }}"
+    PGPORT: "{{ icinga_web_main_database_port }}"
+    PGUSER: "{{ icinga_web_main_database_username }}"
+    PGPASSWORD: "{{ icinga_web_main_database_password }}"
+
   shell:
 
     set -euf -o pipefail;
 
     psql {{ icinga_web_main_database_name }}
-      </opt/icinga-web-{{ icinga_web_version }}/etc/schema/postgresql.schema.sql;
+      < {{ icinga_web_target }}/etc/schema/pgsql.schema.sql;
 
     password_hash=$(openssl passwd -1 {{ icinga_web_admin_password }});
 
-    psql {{ icinga_web_main_database_name }} --execute "
-      INSERT INTO icingaweb_user (name, active, password_hash)
-      VALUES ('admin', 1, '$password_hash');
+    psql {{ icinga_web_main_database_name }} --command "
+      INSERT INTO icingaweb_user (name, active, password_hash, ctime)
+      VALUES ('admin', 1, '$password_hash', now ());
     ";
 
 - name: "set icinga_web_main_database_initialized to 'yes'"

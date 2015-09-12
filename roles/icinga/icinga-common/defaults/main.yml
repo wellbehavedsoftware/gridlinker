@@ -4,6 +4,7 @@
 
 icinga_state: ""
 icinga_needs_restart: ""
+icinga_database_delegate: "{{ icinga_master }}"
 
 # runtime defaults
 
@@ -15,7 +16,7 @@ icinga_database_type: ""
 icinga_database_name: "icinga"
 icinga_database_username: "icinga"
 icinga_database_password: ""
-icinga_database_initialized: ""
+icinga_database_initialized: "no"
 
 icinga_ticket_salt: ""
 
@@ -26,6 +27,26 @@ icinga_private_key: ""
 # installation
 
 icinga_source: "{{ ubuntu_mirror }}/ppa.launchpad.net/formorer/icinga"
+
+icinga_agent_system_packages:
+
+  - "icinga2"
+
+icinga_master_system_packages_map:
+
+  postgresql:
+
+    - "icinga2"
+    - "icinga2-ido-pgsql"
+
+  mysql:
+
+    - "icinga2"
+    - "icinga2-ido-mysql"
+
+icinga_master_system_packages: "{{
+  icinga_master_system_packages_map [icinga_database_type]
+}}"
 
 # master configuration
 
