@@ -11,6 +11,16 @@
 
     lxc_container.network_mac: "{{ 'aa' | generate_mac_address }}"
 
+- name: "create directories for lxc container bind mounts"
+  delegate_to: "{{ lxc_container_delegate }}"
+  sudo: "yes"
+  with_items: "lxc_container_bind_mounts"
+  action:
+
+    module: "file"
+    path: "{{ lxc_container_root }}/{{ item.target }}"
+    state: "directory"
+
 - name: "create lxc container"
   delegate_to: "{{ lxc_container_delegate }}"
   sudo: "yes"
@@ -25,24 +35,78 @@
 
     source "{{ gridlinker_tools_target }}/bash-locking" devops;
 
-    echo "--- preparing to create template" >&2;
+    exlock;
+
+    echo "--- preparing to create container" >&2;
 
     lxc-stop --name "{{ lxc_container_name }}" || true;
     btrfs subvolume delete "{{ lxc_container_root }}" || true;
     rm -rf "{{ lxc_container_path }}";
 
-    echo "--- creating template" >&2;
+    if test "{{ lxc_container_name }}"
+      != "{{ lxc_container_template_name }}";
+    then
 
-    exlock;
+      template_state=$(
+        lxc-info
+          --name "{{ lxc_container_template_name }}"
+          --state
+          --no-humanize
+        | head --lines 1
+      );
 
-    lxc-create
-      --template download
-      --name "{{ lxc_container_name }}"
-      --bdev btrfs
-      --
-      --dist ubuntu
-      --release trusty
-      --arch amd64;
+      if test "$template_state" = "RUNNING"; then
+
+        echo "--- stopping template" >&2;
+
+        lxc-stop
+          --name "{{ lxc_container_template_name }}";
+
+      fi;
+
+    fi;
+
+    if test "{{ lxc_container_name }}"
+      = "{{ lxc_container_template_name }}";
+    then
+
+      echo "--- creating container" >&2;
+
+      lxc-create
+        --template download
+        --name "{{ lxc_container_name }}"
+        --bdev btrfs
+        --
+        --dist ubuntu
+        --release trusty
+        --arch amd64;
+
+    else
+
+      echo "--- creating container from template" >&2;
+
+      lxc-clone
+        --backingstore btrfs
+        "{{ lxc_container_template_name }}"
+        "{{ lxc_container_name }}";
+
+    fi;
+
+    if test "{{ lxc_container_name }}"
+      != "{{ lxc_container_template_name }}";
+    then
+
+      if test "$template_state" = "RUNNING"; then
+
+        echo "--- starting template" >&2;
+
+        lxc-start
+          --name "{{ lxc_container_template_name }}"
+          --daemon;
+
+      fi;
+
+    fi;
 
     unlock;
 
@@ -89,7 +153,7 @@
 
     echo "--- configuring ssh acccess" >&2;
 
-    mkdir "{{ lxc_container_root }}/home/ubuntu/.ssh";
+    mkdir -p "{{ lxc_container_root }}/home/ubuntu/.ssh";
 
     cp $HOME/.ssh/authorized_keys
       "{{ lxc_container_root }}/home/ubuntu/.ssh";

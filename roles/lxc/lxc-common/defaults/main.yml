@@ -13,6 +13,9 @@ lxc_container_name: "{{ identity_name }}"
 lxc_container_path: "{{ lxc_data }}/{{ lxc_container_name }}"
 lxc_container_root: "{{ lxc_container_path }}/rootfs"
 lxc_container_delegate: "host/{{ identity_parent }}"
+lxc_container_template_name: "{{ identity_parent }}-template"
+
+lxc_container_bind_mounts: []
 
 lxc_container_network_link: ""
 lxc_container_network_mac: ""

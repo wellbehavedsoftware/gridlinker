@@ -11,7 +11,7 @@ lxc.mount.entry = /sys/kernel/debug sys/kernel/debug none bind,optional 0 0
 lxc.mount.entry = /sys/kernel/security sys/kernel/security none bind,optional 0 0
 lxc.mount.entry = /sys/fs/pstore sys/fs/pstore none bind,optional 0 0
 
-{% for bind_mount in lxc_container_bind_mounts | default ([]) %}
+{% for bind_mount in lxc_container_bind_mounts %}
 lxc.mount.entry = {{ bind_mount.source }} {{ bind_mount.target }} none bind 0 0
 {% endfor %}
 

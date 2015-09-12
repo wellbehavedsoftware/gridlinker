@@ -1,0 +1,13 @@
+---
+
+- name: "create system groups"
+  with_items: "groups [system_groups_group_name]"
+  sudo: "yes"
+  action:
+
+    module: "group"
+    name: "{{ hostvars [item].system_group_name }}"
+
+    gid: "{{ hostvars [item].system_group_gid }}"
+
+# ex: et ts=2 filetype=yaml
