@@ -33,7 +33,7 @@
 
     set -euf -o pipefail;
 
-    source "{{ gridlinker_tools_target }}/bash-locking" devops;
+    source "/usr/local/lib/gridlinker-tools/bash-locking" devops;
 
     exlock;
 

@@ -1,5 +1,35 @@
 ---
 
+- name: "issue gridlinker admin certificate"
+  when: "gridlinker_admin_certificate is not defined"
+  register: "gridlinker_admin_certificate_result"
+  action:
+
+    module: "certificate_authority_issue"
+    authority: "{{ gridlinker_admin_authority }}"
+    common_name: "{{ gridlinker_admin_common_name }}"
+    usage: "client"
+
+- name: "store gridlinker admin certificate"
+  when: "gridlinker_admin_certificate_result | changed"
+  update_resource:
+
+    gridlinker_admin.certificate: "{{
+      gridlinker_admin_certificate_result.certificate
+    }}"
+
+    gridlinker_admin.private_key: "{{
+      gridlinker_admin_certificate_result.private_key
+    }}"
+
+- name: "install gridlinker admin system packages"
+  with_items: "gridlinker_admin_system_packages"
+  sudo: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
 - name: "checkout gridlinker admin project"
   action:
 

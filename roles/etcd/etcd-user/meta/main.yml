@@ -2,6 +2,6 @@
 
 dependencies:
 
-  - "install-gridlinker-tools"
+  - "setup-etcd-user"
 
 # ex: et ts=2 filetype=yaml

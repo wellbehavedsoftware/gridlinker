@@ -1,12 +1,12 @@
 {%- for host_name in groups.all -%}
 {%- set host = hostvars [host_name] -%}
-{%- if 'ssh' in host and 'hostnames' in host.ssh -%}
+{%- if 'ssh_hostnames' in host -%}
 
-	{%- if host.ssh.host_key_rsa is defined -%}
+	{%- if host.ssh_host_key_rsa is defined -%}
 
 		{%- print [
-			host.ssh.hostnames | join (','),
-			host.ssh.host_key_rsa,
+			host.ssh_hostnames | join (','),
+			host.ssh_host_key_rsa,
 		] | join (' ') + '\n' -%}
 
 	{%- endif -%}
@@ -14,8 +14,8 @@
 	{%- if host.ssh_host_key_ecdsa is defined -%}
 
 		{%- print [
-			host.ssh.hostnames | join (','),
-			host.ssh.host_key_ecdsa,
+			host.ssh_hostnames | join (','),
+			host.ssh_host_key_ecdsa,
 		] | join (' ') + '\n' -%}
 
 	{%- endif -%}

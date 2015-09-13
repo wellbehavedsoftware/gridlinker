@@ -2,8 +2,6 @@
 
 dependencies:
 
-  - "gridlinker-common"
-
   - "lxc-common"
 
 # ex: et ts=2 filetype=yaml

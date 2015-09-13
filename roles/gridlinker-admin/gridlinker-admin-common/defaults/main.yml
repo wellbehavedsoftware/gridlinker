@@ -1,17 +1,21 @@
 ---
 
-gridlinker_admin_name: "{{ NAME }}"
-gridlinker_admin_repository: "{{ git_home }}/{{ gridlinker_admin_name }}.git"
-gridlinker_admin_branch: "master"
-gridlinker_admin_target: "/home/ubuntu/{{ gridlinker_admin_name }}"
-
-gridlinker_admin_ca_certificate: "{{ etcd_client_ca_certificate }}"
-gridlinker_admin_certificate: "{{ etcd_client_certificate }}"
-gridlinker_admin_private_key: "{{ etcd_client_private_key }}"
+# ---------- runtime configuration
 
 gridlinker_admin_connection: "{{ CONNECTION }}"
 gridlinker_admin_prefix: "/{{ gridlinker_admin_name }}"
 gridlinker_admin_servers: [ "{{ identity.name }}" ]
+
+gridlinker_admin_authority: "{{ SHORT_NAME }}-etcd-clients"
+gridlinker_admin_common_name: "{{ identity_name }}"
+
+gridlinker_admin_ca_certificate: "{{
+  '/authority/' + gridlinker_admin_authority + '/certificate'
+}}"
+
+gridlinker_admin_managed_projects: []
+
+# ---------- configuration files
 
 gridlinker_admin_config: "{{ gridlinker_admin_target }}/config"
 
@@ -44,6 +48,15 @@ gridlinker_admin_credentials:
     source: "{{ gridlinker_admin_private_key }}"
     mode: "0600"
 
-gridlinker_tools_target: "/usr/local/lib/gridlinker-tools"
+# ---------- installation
+
+gridlinker_admin_name: "{{ NAME }}"
+gridlinker_admin_repository: "{{ git_home }}/{{ gridlinker_admin_name }}.git"
+gridlinker_admin_branch: "master"
+gridlinker_admin_target: "/home/ubuntu/{{ gridlinker_admin_name }}"
+
+gridlinker_admin_system_packages:
+
+  - "git"
 
 # ex: et ts=2 filetype=yaml
