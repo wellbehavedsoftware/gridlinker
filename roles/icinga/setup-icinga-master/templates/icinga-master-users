@@ -4,34 +4,51 @@ template User "generic-user" {
 
 }
 
+template UserGroup "generic-group" {
+
+}
+
 {% for user_name in groups [icinga_master_users] %}
 {% set user = hostvars [user_name] %}
 
 object User "{{ user.identity_name }}" {
 
-	display_name = "{{ user.icinga_user.display_name }}"
-	email = "{{ user.icinga_user.email }}"
-	pager = "{{ user.icinga_user.pager }}"
+	import "generic-user"
+
+	display_name = "{{ user.icinga_user_display_name }}"
+	email = "{{ user.icinga_user_email }}"
+	pager = "{{ user.icinga_user_pager }}"
 
 	groups = [
-{% for group in user.icinga_user.groups %}
+{% for group in user.icinga_user_groups %}
 		"{{ group }}",
 {% endfor %}
 	]
 
-	period = "{{ user.icinga_user.period }}"
+	period = "{{ user.icinga_user_period }}"
 
 	states = [
-{% for state in user.icinga_user.states %}
+{% for state in user.icinga_user_states %}
 		{{ state }},
 {% endfor %}
 	]
 
 	types = [
-{% for type in user.icinga_user.types %}
+{% for type in user.icinga_user_types %}
 		{{ type }},
 {% endfor %}
 	]
+
+}
+
+{% endfor %}
+
+{% for group_unique_name in groups [icinga_master_groups] %}
+{% set group = hostvars [group_unique_name] %}
+
+object UserGroup "{{ group.identity_name }}" {
+
+	import "generic-group"
 
 }
 

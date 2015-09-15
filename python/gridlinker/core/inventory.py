@@ -5,11 +5,14 @@ import collections
 import re
 import wbs
 
+from wbs import ReportableError
+
 class Inventory (object):
 
 	def __init__ (self, context):
 
 		self.context = context
+		self.trace = context.trace
 
 		self.world = {}
 
@@ -182,6 +185,16 @@ class Inventory (object):
 
 						pass
 
+			# create expanded versions of keys
+
+			for prefix, data in resource_data.items ():
+
+				if not isinstance (data, dict):
+					continue
+
+				for name, value in data.items ():
+					resource_data [prefix + "_" + name] = value
+
 			# create resource
 
 			self.world [resource_name] = resource_data
@@ -242,6 +255,9 @@ class Inventory (object):
 
 			for prefix, data in resource_data.items ():
 
+				if not isinstance (data, dict):
+					continue
+
 				for name, value in data.items ():
 
 					resolved = self.resolve_value_or_same (resource_name, value)
@@ -286,14 +302,91 @@ class Inventory (object):
 
 					target_name = self.resolve_value_or_fail (
 						resource_name,
-						reference ["target"])
+						reference ["value"])
 
 					if not target_name in self.resources:
-						raise Exception ()
 
-					resource_data [reference ["name"]] = \
+						raise ReportableError (
+							"inventory_referenced_resource_does_not_exist",
+							resource_name = resource_name,
+							referenced_resource_name = target_name,
+							reference_name = reference ["name"])
+
+					resource_data [reference ["name"]] = (
 						"{{ hostvars ['%s'] }}" % (
-							target_name)
+							target_name))
+
+				else:
+
+					raise Exception ()
+
+			for back_reference in class_data ["class"].get ("back_references", []):
+
+				if back_reference ["type"] == "resource":
+
+					namespace = back_reference ["namespace"]
+					field = back_reference ["field"]
+
+					section = back_reference ["section"]
+					name = back_reference ["name"]
+
+					values = []
+
+					for other_resource_name in self.namespaces [namespace]:
+
+						other_resource_data = self.resources [other_resource_name]
+
+						if not field in other_resource_data:
+							continue
+
+						other_values = other_resource_data [field]
+
+						if not isinstance (other_values, list):
+							other_values = [ other_values ]
+
+						if not resource_data ["identity"] ["name"] in other_values:
+							continue
+
+						values.append (other_resource_data ["identity"] ["name"])
+
+					resource_data [section] [name] = values
+					resource_data [section + "_" + name] = values
+
+				else:
+
+					raise Exception ()
+
+			for back_reference in class_data ["class"].get ("back_references", []):
+
+				if back_reference ["type"] == "resource":
+
+					namespace = back_reference ["namespace"]
+					field = back_reference ["field"]
+
+					section = back_reference ["section"]
+					name = back_reference ["name"]
+
+					values = []
+
+					for other_resource_name in self.namespaces [namespace]:
+
+						other_resource_data = self.resources [other_resource_name]
+
+						if not field in other_resource_data:
+							continue
+
+						other_values = other_resource_data [field]
+
+						if not isinstance (other_values, list):
+							other_values = [ other_values ]
+
+						if not resource_data ["identity"] ["name"] in other_values:
+							continue
+
+						values.append (other_resource_data ["identity"] ["name"])
+
+					resource_data [section] [name] = values
+					resource_data [section + "_" + name] = values
 
 				else:
 
@@ -415,7 +508,11 @@ class Inventory (object):
 		success, resolved = self.resolve_value_real (resource_name, value)
 
 		if not success:
-			raise Exception ()
+
+			raise Exception (
+				"Unable to resolve '%s' for resource '%s'" % (
+					value,
+					resource_name))
 
 		return resolved
 
@@ -516,26 +613,58 @@ class Inventory (object):
 
 	def resolve_variable (self, resource_name, name):
 
+		if self.trace:
+
+			print (
+				"resolve_variable (%s, %s)" % (
+					resource_name,
+					name))
+
 		resource_data = self.resources [resource_name]
 
 		if " " in name or "|" in name or "(" in name or "[" in name:
+
+			if self.trace:
+
+				print (
+					"  FAIL unsupported syntax")
+
 			return False, None
 
 		if name == "inventory_hostname":
+
+			if self.trace:
+
+				print (
+					"  SUCCESS special variable: inventory_hostname")
+
 			return True, resource_name
 
 		if name == "None":
+
+			if self.trace:
+
+				print (
+					"  SUCCESS special variable: None")
+
 			return True, None
+
+		class_name = resource_data ["identity"] ["class"]
+		class_data = self.classes [class_name]
 
 		parts = name.split (".")
 
 		if parts [0] in self.all:
+
+			if self.trace:
+
+				print (
+					"  FAIL global variable: %s" % (
+						parts [0]))
+
 			return False, None
 
 		if parts [0] == "parent":
-
-			class_name = resource_data ["identity"] ["class"]
-			class_data = self.classes [class_name]
 
 			parent_name = "%s/%s" % (
 				class_data ["class"] ["parent_namespace"],
@@ -543,14 +672,17 @@ class Inventory (object):
 
 			parent_data = self.resources [parent_name]
 
+			if self.trace:
+
+				print (
+					"  RECURSE resolved parent: %s" % (
+						parent_name))
+
 			return self.resolve_variable (
 				parent_name,
 				".".join (parts [1:]))
 
 		if parts [0] == "grandparent":
-
-			class_name = resource_data ["identity"] ["class"]
-			class_data = self.classes [class_name]
 
 			parent_name = "%s/%s" % (
 				class_data ["class"] ["parent_namespace"],
@@ -567,24 +699,91 @@ class Inventory (object):
 
 			grandparent_data = self.resources [grandparent_name]
 
+			if self.trace:
+
+				print (
+					"  RECURSE resolved grandparent: %s" % (
+						grandparent_name))
+
 			return self.resolve_variable (
 				grandparent_name,
 				".".join (parts [1:]))
+
+		for reference in class_data ["class"].get ("references", []):
+
+			if not parts [0] == reference ["name"]:
+				continue
+
+			if reference ["type"] == "resource":
+
+				target_name = self.resolve_value_or_fail (
+					resource_name,
+					reference ["value"])
+
+				if not target_name in self.resources:
+					raise Exception ()
+
+				if self.trace:
+
+					print (
+						"  RECURSE resolved reference: %s" % (
+							parts [0]))
+
+				return self.resolve_variable (
+					target_name,
+					".".join (parts [1:]))
+
+			else:
+
+				raise Exception ()
 
 		current = resource_data
 
 		for part in parts:
 
 			if not part in current:
+
+				if self.trace:
+
+					print (
+						"  FAIL failed to resolve: %s" % (
+							part))
+
 				return False, None
+
+			if self.trace:
+
+				print (
+					"  PARTIAL resolved part: %s" % (
+						part))
 
 			current = current [part]
 
 		if isinstance (current, str):
+
+			if self.trace:
+
+				print (
+					"  SUCCESS resolved string part: %s" % (
+						part))
+
 			return self.resolve_value_real (resource_name, current)
 
 		if isinstance (current, unicode):
+
+			if self.trace:
+
+				print (
+					"  SUCCESS resolved unicode part: %s" % (
+						part))
+
 			return self.resolve_value_real (resource_name, current)
+
+		if self.trace:
+
+			print (
+				"  FAIL unsupported type: %s" % (
+					type (current)))
 
 		return False, None
 

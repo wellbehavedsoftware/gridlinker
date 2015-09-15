@@ -1,22 +1,22 @@
 object Zone "master" {
 	endpoints = [
-{% for host_name in groups [icinga_master.endpoints] %}
+{% for host_name in groups [icinga_master_endpoints] %}
 {% set host = hostvars [host_name] %}
 		"{{ host.identity_name }}",
 {% endfor %}
 	]
 }
 
-{% for host_name in groups [icinga_master.endpoints] %}
+{% for host_name in groups [icinga_master_endpoints] %}
 {% set host = hostvars [host_name] %}
 
 object Endpoint "{{ host.identity_name }}" {
-	host = "{{ host.icinga_endpoint.internal }}"
+	host = "{{ host.icinga_endpoint_internal }}"
 }
 
 {% endfor %}
 
-{% for host_name in groups [icinga_master.agents] %}
+{% for host_name in groups [icinga_master_agents] %}
 {% set host = hostvars [host_name] %}
 
 object Zone "{{ host.identity_name }}" {
@@ -25,7 +25,7 @@ object Zone "{{ host.identity_name }}" {
 }
 
 object Endpoint "{{ host.identity_name }}" {
-	host = "{{ host.icinga_endpoint.host }}"
+	host = "{{ host.icinga_endpoint_host }}"
 }
 
 {% endfor %}

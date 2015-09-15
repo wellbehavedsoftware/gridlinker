@@ -25,22 +25,30 @@ class ReportableError (BaseException):
 		self.long = errors [name] ["long"]
 		self.params = kwparams
 
-def error_exit (error):
-
-	short_text = error.short.format (** error.params)
-	long_text = error.long.format (** error.params)
+def format_text (text, params = dict ()):
 
 	wrapper = textwrap.TextWrapper (
 		replace_whitespace = True,
 		drop_whitespace = True,
 		width = 80)
 
-	long_text = long_text.strip ()
-	long_text = textwrap.dedent (long_text)
-	long_text = wrapper.fill (long_text)
+	text = text.format (** params)
+	text = textwrap.dedent (text)
+	text = text.strip ()
+	text = wrapper.fill (text)
+
+	return text
+
+def error_exit (error):
+
+	long_text = format_text (error.long, error.params)
+
+	short_text = format_text (error.short, error.params)
+	short_text = "ERROR: %s" % short_text
+	short_text = format_text (short_text)
 
 	sys.stderr.write (
-		"\nERROR: %s\n\n%s\n\n" % (
+		"\n%s\n\n%s\n\n" % (
 			short_text,
 			long_text))
 

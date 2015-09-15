@@ -90,7 +90,10 @@ class EtcdClient:
 					if alt_type == 'IP Address'
 				]:
 
-					raise Exception ()
+					raise Exception ("".join ([
+						"Etcd server certificate failed to match IP address ",
+						"'%s'" % self.servers [0],
+					]))
 
 			else:
 
@@ -170,7 +173,7 @@ class EtcdClient:
 
 				return self.make_request_real (** kwargs)
 
-			except IOError:
+			except (httplib.HTTPException, IOError):
 
 				if self.connection:
 

@@ -2,5 +2,5 @@ const PluginDir = "/usr/lib/nagios/plugins"
 const ManubulonPluginDir = "/usr/lib/nagios/plugins"
 const PluginContribDir = "/usr/lib/nagios/plugins"
 
-const NodeName = "{{ identity.name }}"
-const ZoneName = NodeName
+const NodeName = "{{ identity_name }}"
+const ZoneName = "master"
