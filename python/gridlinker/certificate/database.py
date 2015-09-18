@@ -218,7 +218,6 @@ class CertificateDatabase:
 		# write to database
 
 		if self.client.exists (subject_path + "/pending"):
-
 			return (False, None, None)
 
 		self.client.set_raw (

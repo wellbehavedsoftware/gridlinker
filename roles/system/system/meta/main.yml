@@ -3,9 +3,14 @@
 dependencies:
 
   - "system-common"
+
   - "setup-apt"
   - "setup-hosts"
   - "setup-system-params"
+
+  - "setup-system-groups"
+  - "setup-system-users"
+
   - "install-system-packages"
 
 # ex: et ts=2 filetype=yaml

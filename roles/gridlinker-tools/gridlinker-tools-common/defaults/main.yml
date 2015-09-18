@@ -1,0 +1,5 @@
+---
+
+gridlinker_tools_target: "/usr/local/lib/gridlinker-tools"
+
+# ex: et ts=2 filetype=yaml

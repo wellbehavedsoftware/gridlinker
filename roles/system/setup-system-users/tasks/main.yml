@@ -1,0 +1,9 @@
+---
+
+- include: "setup-system-users.yml"
+  tags:
+
+    - "system"
+    - "setup-system-users"
+
+# ex: et ts=2 filetype=yaml

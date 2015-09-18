@@ -1,0 +1,9 @@
+---
+
+- include: "setup-shared-volumes.yml"
+  tags:
+
+    - "volumes"
+    - "setup-shared-volumes"
+
+# ex: et ts=2 filetype=yaml

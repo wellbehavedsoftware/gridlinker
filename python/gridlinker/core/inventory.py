@@ -5,6 +5,8 @@ import collections
 import re
 import wbs
 
+from wbs import ReportableError
+
 class Inventory (object):
 
 	def __init__ (self, context):
@@ -303,11 +305,52 @@ class Inventory (object):
 						reference ["value"])
 
 					if not target_name in self.resources:
-						raise Exception ()
 
-					resource_data [reference ["name"]] = \
+						raise ReportableError (
+							"inventory_referenced_resource_does_not_exist",
+							resource_name = resource_name,
+							referenced_resource_name = target_name,
+							reference_name = reference ["name"])
+
+					resource_data [reference ["name"]] = (
 						"{{ hostvars ['%s'] }}" % (
-							target_name)
+							target_name))
+
+				else:
+
+					raise Exception ()
+
+			for back_reference in class_data ["class"].get ("back_references", []):
+
+				if back_reference ["type"] == "resource":
+
+					namespace = back_reference ["namespace"]
+					field = back_reference ["field"]
+
+					section = back_reference ["section"]
+					name = back_reference ["name"]
+
+					values = []
+
+					for other_resource_name in self.namespaces [namespace]:
+
+						other_resource_data = self.resources [other_resource_name]
+
+						if not field in other_resource_data:
+							continue
+
+						other_values = other_resource_data [field]
+
+						if not isinstance (other_values, list):
+							other_values = [ other_values ]
+
+						if not resource_data ["identity"] ["name"] in other_values:
+							continue
+
+						values.append (other_resource_data ["identity"] ["name"])
+
+					resource_data [section] [name] = values
+					resource_data [section + "_" + name] = values
 
 				else:
 
@@ -671,22 +714,28 @@ class Inventory (object):
 			if not parts [0] == reference ["name"]:
 				continue
 
-			target_name = self.resolve_value_or_fail (
-				resource_name,
-				reference ["value"])
+			if reference ["type"] == "resource":
 
-			if not target_name in self.resources:
+				target_name = self.resolve_value_or_fail (
+					resource_name,
+					reference ["value"])
+
+				if not target_name in self.resources:
+					raise Exception ()
+
+				if self.trace:
+
+					print (
+						"  RECURSE resolved reference: %s" % (
+							parts [0]))
+
+				return self.resolve_variable (
+					target_name,
+					".".join (parts [1:]))
+
+			else:
+
 				raise Exception ()
-
-			if self.trace:
-
-				print (
-					"  RECURSE resolved reference: %s" % (
-						parts [0]))
-
-			return self.resolve_variable (
-				target_name,
-				".".join (parts [1:]))
 
 		current = resource_data
 

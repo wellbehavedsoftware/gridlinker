@@ -1,6 +1,14 @@
 ---
 
-- include: "setup-icinga-web-database.yml"
+- include: "setup-icinga-web-database-mysql.yml"
+  when: "icinga_web_main_database_type == 'mysql'"
+  tags:
+
+    - "icinga-web"
+    - "setup-icinga-web-database"
+
+- include: "setup-icinga-web-database-postgresql.yml"
+  when: "icinga_web_main_database_type == 'postgresql'"
   tags:
 
     - "icinga-web"

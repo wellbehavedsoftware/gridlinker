@@ -1,7 +1,7 @@
 ---
 
 - name: "issue icinga agent certificate"
-  when: "icinga_certificate is not defined"
+  when: "not icinga_certificate"
   register: "icinga_agent_certificate_result"
   action:
 

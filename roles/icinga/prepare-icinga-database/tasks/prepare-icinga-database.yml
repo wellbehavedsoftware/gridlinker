@@ -1,0 +1,15 @@
+---
+
+- name: "generate icinga.ticket_salt"
+  when: "icinga_ticket_salt == 'no'"
+  update_resource:
+
+    icinga.ticket_salt: "{{ 20 | generate_random }}"
+
+- name: "generate icinga.database_password"
+  when: "icinga_database_password == 'no'"
+  update_resource:
+
+    icinga_database_password: "{{ 20 | generate_random }}"
+
+# ex: et ts=2 filetype=yaml
