@@ -8,9 +8,9 @@ define ("WP_MEMORY_LIMIT", "128M");
 
 // database
 
-define ("DB_NAME", "{{ environment.database.name }}");
-define ("DB_USER", "{{ environment.database.user }}");
-define ("DB_PASSWORD", "{{ environment.database.password }}");
+define ("DB_NAME", "{{ environment.database.name | php_escape }}");
+define ("DB_USER", "{{ environment.database.user | php_escape }}");
+define ("DB_PASSWORD", "{{ environment.database.password | php_escape }}");
 define ("DB_HOST", "localhost");
 define ("DB_CHARSET", "utf8");
 define ("DB_COLLATE", "");
@@ -30,7 +30,9 @@ $table_prefix = "wp_";
 	"NONCE_SALT",
 ] %}
 
-define ("{{ secure_constant }}", "{{ (secure_constant ~ environment.wordpress.secure) | md5 }}");
+define ("{{ secure_constant }}", "{{
+	(secure_constant ~ environment.wordpress.secure) | md5 | php_escape
+}}");
 
 {% endfor %}
 
@@ -50,7 +52,7 @@ define ("SCRIPT_DEBUG", false);
 
 {% endif %}
 
-define ("ABSPATH", "{{ environment.website.path }}/");
+define ("ABSPATH", "{{ environment.website.path | php_escape }}/");
 
 // ssl
 
@@ -66,5 +68,16 @@ if (
 // internal settings
 
 require_once (ABSPATH . "wp-settings.php");
+
+// misc config
+
+{% for extra_define_name, extra_define_value
+	in (environment.wordpress_extra_defines | default ({})).items () %}
+define ("{{
+	extra_define_name | php_escape
+}}", "{{
+	extra_define_value | php_escape
+}}");
+{% endfor %}
 
 // ex: noet ts=4 filetype=php
