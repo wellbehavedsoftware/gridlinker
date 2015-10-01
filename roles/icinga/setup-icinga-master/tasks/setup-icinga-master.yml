@@ -1,5 +1,24 @@
 ---
 
+- name: "issue icinga master certificate"
+  when: "not icinga_certificate"
+  register: "icinga_master_certificate_result"
+  action:
+
+    module: "certificate_authority_issue"
+    authority: "{{ icinga_authority }}"
+    common_name: "{{ icinga_common_name }}"
+    usage: "mixed"
+    alt_dns: "{{ icinga_alt_dns }}"
+    alt_ip: "{{ icinga_alt_ips }}"
+
+- name: "store icinga master certificate"
+  when: "icinga_master_certificate_result | changed"
+  update_resource:
+
+    icinga.certificate: "{{ icinga_master_certificate_result.certificate }}"
+    icinga.private_key: "{{ icinga_master_certificate_result.private_key }}"
+
 - name: "create icinga directories"
   with_items: "icinga_master_directories"
   sudo: "yes"

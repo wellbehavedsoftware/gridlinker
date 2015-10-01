@@ -14,6 +14,7 @@ from gridlinker.tools.arguments import MiscSetFileArgument
 from gridlinker.tools.arguments import MiscUnsetArgument
 from gridlinker.tools.arguments import MiscUnsetDictArgument
 from gridlinker.tools.arguments import NameArgument
+from gridlinker.tools.arguments import NamespaceArgument
 from gridlinker.tools.arguments import ParentArgument
 
 from gridlinker.tools import command

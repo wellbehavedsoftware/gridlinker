@@ -111,6 +111,7 @@ resource_command = GenericCommand (
 				arguments = [
 
 				ClassArgument (),
+				NamespaceArgument (),
 				NameArgument (),
 				ParentArgument (),
 				IndexArgument (),

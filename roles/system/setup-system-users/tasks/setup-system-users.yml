@@ -1,0 +1,23 @@
+---
+
+- name: "create system users"
+  with_items: "groups [system_users_group_name]"
+  sudo: "yes"
+  action:
+
+    module: "user"
+    name: "{{ hostvars [item].system_user_name }}"
+
+    uid: "{{ hostvars [item].system_user_uid }}"
+    password: "{{ hostvars [item].system_user_password_hash_sha512 }}"
+
+    group: "{{ hostvars [item].system_user_group }}"
+    groups: "{{ hostvars [item].system_user_groups | join (',') }}"
+
+    home: "{{ hostvars [item].system_user_home }}"
+    createhome: "false"
+
+    comment: "{{ hostvars [item].system_user_comment }}"
+    shell: "{{ hostvars [item].system_user_shell }}"
+
+# ex: et ts=2 filetype=yaml

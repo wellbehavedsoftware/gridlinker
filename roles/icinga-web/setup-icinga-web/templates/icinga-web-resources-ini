@@ -1,6 +1,6 @@
 [icingaweb_db]
 type = "db"
-db = "{{ icinga_web_main_database_type }}"
+db = "{{ icinga_web_database_type_map [icinga_web_main_database_type] }}"
 host = "{{ icinga_web_main_database_hostname }}"
 port = "{{ icinga_web_main_database_port }}"
 dbname = "{{ icinga_web_main_database_name }}"
@@ -10,7 +10,7 @@ prefix = "{{ icinga_web_main_database_prefix }}"
 
 [icinga_ido]
 type = "db"
-db = "{{ icinga_web_ido_database_type }}"
+db = "{{ icinga_web_database_type_map [icinga_web_ido_database_type] }}"
 host = "{{ icinga_web_ido_database_hostname }}"
 port = "{{ icinga_web_ido_database_port }}"
 dbname = "{{ icinga_web_ido_database_name }}"

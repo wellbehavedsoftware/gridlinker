@@ -1,0 +1,7 @@
+---
+
+dependencies:
+
+  - "setup-etcd-user"
+
+# ex: et ts=2 filetype=yaml

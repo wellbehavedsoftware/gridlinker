@@ -1,0 +1,54 @@
+---
+
+- name: "configure icinga apt key"
+  sudo: "yes"
+  action:
+
+    module: "apt_key"
+    id: "4A132479423673E80ACCA85420EEDAFD36862847"
+    keyserver: "keyserver.ubuntu.com"
+
+- name: "configure icinga apt source"
+  sudo: "yes"
+  action:
+
+    module: "apt_repository"
+    repo: "deb {{ icinga_source }}/ubuntu trusty main"
+    update_cache: "yes"
+
+- name: "install icinga agent system packages"
+  sudo: "yes"
+  with_items: "icinga_agent_system_packages"
+  action:
+
+    module: "apt"
+    package: "{{ item }}"
+
+- name: "add ubuntu to nagios group"
+  sudo: "yes"
+  action:
+
+    module: "user"
+    name: "ubuntu"
+    groups: "nagios"
+    append: "yes"
+
+- name: "disable icinga sysv init"
+  changed_when: "icinga_sysv_result.stdout != 'UNCHANGED'"
+  register: "icinga_sysv_result"
+  sudo: "yes"
+  shell:
+
+    test -e /etc/init.d/icinga2 || { echo UNCHANGED; exit 0; };
+    /etc/init.d/icinga2 stop;
+    sleep 2;
+    rm -f /etc/init.d/icinga2 /etc/init.d/rc?.d/[KS]??icinga2;
+
+- name: "set icinga.state to 'installed'"
+  when: "icinga_state == 'no'"
+  tags: [ "icinga", "install-icinga" ]
+  update_resource:
+
+    icinga.state: "installed"
+
+# ex: et ts=2 filetype=yaml

@@ -90,7 +90,10 @@ class EtcdClient:
 					if alt_type == 'IP Address'
 				]:
 
-					raise Exception ()
+					raise Exception ("".join ([
+						"Etcd server certificate failed to match IP address ",
+						"'%s'" % self.servers [0],
+					]))
 
 			else:
 
@@ -153,6 +156,19 @@ class EtcdClient:
 
 		return data ["node"] ["value"]
 
+	def get_raw_or_none (self, key):
+
+		result, data = self.make_request (
+			method = "GET",
+			url = self.key_url (key),
+			accept_response = [ 200, 404 ])
+
+		if result == 404:
+
+			return None
+
+		return data ["node"] ["value"]
+
 	def set_raw (self, key, value):
 
 		self.make_request (
@@ -170,7 +186,7 @@ class EtcdClient:
 
 				return self.make_request_real (** kwargs)
 
-			except IOError:
+			except (httplib.HTTPException, IOError):
 
 				if self.connection:
 
@@ -283,6 +299,15 @@ class EtcdClient:
 
 			raise ValueError (
 				"Key already exists: %s" % key)
+
+	def get_list (self, key):
+
+		nodes = dict (self.get_tree (key))
+
+		return [
+			nodes ["/%s" % index]
+			for index in xrange (0, len (nodes))
+		]
 
 	def get_tree (self, key):
 

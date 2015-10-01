@@ -68,4 +68,15 @@ register_error (
 		obtain this file and ensure it is placed in the correct location.
 	""")
 
+register_error (
+	name = "inventory_referenced_resource_does_not_exist",
+	short = """
+		Resource '{referenced_resource_name}', referenced by '{resource_name}'
+		as '{reference_name}', does not exist
+	""",
+	long = """
+		The referenced resource, as defined in the referencing resources class,
+		does not exist.
+	""")
+
 # ex: noet ts=4 filetype=yaml

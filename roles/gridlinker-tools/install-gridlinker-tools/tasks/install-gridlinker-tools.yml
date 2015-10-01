@@ -1,0 +1,23 @@
+---
+
+- name: "create gridlinker tools directory"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "/usr/local/lib/gridlinker-tools"
+    state: "directory"
+
+- name: "install gridlinker tools"
+  with_items:
+
+    - "bash-locking"
+
+  sudo: "yes"
+  action:
+
+    module: "copy"
+    dest: "/usr/local/lib/gridlinker-tools/{{ item }}"
+    src: "{{ GRIDLINKER_HOME }}/tools/{{ item }}"
+
+# ex: et ts=2 filetype=yaml
