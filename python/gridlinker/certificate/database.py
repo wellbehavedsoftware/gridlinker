@@ -629,7 +629,7 @@ class CertificateDatabase:
 				"No certificate for " + name)
 
 		if not self.client.exists (
-			entry_path):
+			entry_path + "/current"):
 
 			raise Exception (
 				"No current certificate for " + name)
@@ -727,7 +727,10 @@ class CertificateDatabase:
 
 		return [
 			self.get (subject_name)
-			for subject_name in self.client.ls (self.path + "/subjects")
+			for subject_name
+				in self.client.ls (self.path + "/subjects")
+			if self.client.exists (
+				self.path + "/subjects/" + subject_name + "/current")
 		]
 
 def args (prev_sub_parsers):
