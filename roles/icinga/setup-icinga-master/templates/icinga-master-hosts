@@ -1,3 +1,5 @@
+{% import 'icinga-master-macros' as macros with context %}
+
 template Host "generic-host" {
 
 	max_check_attempts = 3
@@ -7,16 +9,6 @@ template Host "generic-host" {
 	check_command = "hostalive"
 
 }
-
-{% macro do_vars (vars) %}
-{% for var in vars %}
-{% if var.type == 'string' %}
-	vars.{{ var.name }} = "{{ var.value }}"
-{% else %}
-	vars.{{ var.name }} = {{ var.value }}
-{% endif %}
-{% endfor %}
-{% endmacro %}
 
 {% if icinga_master_endpoints and icinga_master_endpoints in groups %}
 {% for host_name in groups [icinga_master_endpoints] %}
@@ -34,7 +26,7 @@ object Host "{{ host.identity_name }}" {
 	vars.endpoint = "{{ host.icinga_host_endpoint }}"
 {% endif %}
 
-{{ do_vars (host.icinga_host_vars | default ([])) }}
+{{ macros.do_vars (host.icinga_host_vars | default ([])) }}
 
 }
 
@@ -57,7 +49,7 @@ object Host "{{ host.identity_name }}" {
 	vars.endpoint = "{{ host.icinga_host_endpoint }}"
 {% endif %}
 
-{{ do_vars (host.icinga_host_vars | default ([])) }}
+{{ macros.do_vars (host.icinga_host_vars | default ([])) }}
 
 }
 
@@ -80,7 +72,7 @@ object Host "{{ host.identity_name }}" {
 	vars.endpoint = "{{ host.icinga_host_endpoint }}"
 {% endif %}
 
-{{ do_vars (host.icinga_host_vars | default ([])) }}
+{{ macros.do_vars (host.icinga_host_vars | default ([])) }}
 
 }
 

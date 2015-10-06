@@ -57,6 +57,8 @@ icinga_master_hosts: "icinga-hosts"
 icinga_master_users: "icinga-users"
 icinga_master_groups: "icinga-groups"
 
+icinga_master_services: []
+
 icinga_master_directories:
 
   - directory: "/etc/icinga2/local"
