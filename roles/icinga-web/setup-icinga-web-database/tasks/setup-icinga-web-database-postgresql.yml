@@ -62,6 +62,11 @@
     login_unix_socket: "/var/run/postgresql"
 
 - name: "grant icinga web main database permissions"
+  with_items:
+
+    - "table"
+    - "sequence"
+
   delegate_to: "{{ icinga_web_main_database_delegate }}"
   action:
 
@@ -72,7 +77,7 @@
     database: "{{ icinga_web_main_database_name }}"
     schema: "public"
     objs: "ALL_IN_SCHEMA"
-    type: "table"
+    type: "{{ item }}"
 
     privs: "ALL"
 
