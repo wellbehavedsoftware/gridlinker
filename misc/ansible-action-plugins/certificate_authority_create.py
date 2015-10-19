@@ -4,13 +4,15 @@ from __future__ import unicode_literals
 import os
 import importlib
 
-from ansible import utils
-from ansible.runner.return_data import ReturnData
-from ansible.utils import template
+#from ansible import utils
+#from ansible.runner.return_data import ReturnData
+#from ansible.utils import template
+
+from ansible.plugins.action import ActionBase
 
 from gridlinker import CertificateAuthority
 
-class ActionModule (object):
+class ActionModule (ActionBase):
 
 	TRANSFERS_FILES = False
 
@@ -18,7 +20,9 @@ class ActionModule (object):
 
 		self.runner = runner
 
-		self.support = importlib.import_module (os.environ ["GRIDLINKER_SUPPORT"]).support
+		self.support = importlib.import_module (
+			os.environ ["GRIDLINKER_SUPPORT"]).support
+
 		self.context = self.support.get_context ()
 
 		self.client = self.context.client

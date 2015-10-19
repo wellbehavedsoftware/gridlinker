@@ -14,26 +14,23 @@ class ActionModule (ActionBase):
 
 	TRANSFERS_FILES = False
 
-	def __init__ (self, runner):
+	def __init__ (self, * arguments, ** keyword_arguments):
 
-		self.runner = runner
+		self.support = importlib.import_module (
+			os.environ ["GRIDLINKER_SUPPORT"]).support
 
-		self.support = importlib.import_module (os.environ ["GRIDLINKER_SUPPORT"]).support
 		self.context = self.support.get_context ()
 
-	def run (self,
-		conn,
-		tmp,
-		module_name,
-		module_args,
-		inject,
-		complex_args = {},
-		** kwargs
-	):
+		ActionBase.__init__ (
+			self,
+			* arguments,
+			** keyword_arguments)
+
+	def run (self, tmp = None, task_vars = dict ()):
 
 		options = {}
 
-		resource_name = inject ["inventory_hostname"]
+		resource_name = task_vars.get ("inventory_hostname")
 
 		if not self.context.resources.exists_slow (resource_name):
 			raise Exception ("Not found: " + resource_name)
@@ -42,9 +39,10 @@ class ActionModule (ActionBase):
 
 		changed = False
 
-		for key, value in complex_args.items ():
+		for key, value in self._task.args.items ():
 
-			dynamic_path = template.template (self.runner.basedir, key, inject)
+			dynamic_path = self._templar.template (
+				key)
 
 			if not "." in dynamic_path:
 
@@ -53,7 +51,9 @@ class ActionModule (ActionBase):
 
 			prefix, rest = dynamic_path.split (".", 2)
 
-			options.setdefault (prefix, inject.get (prefix, {}))
+			options.setdefault (
+				prefix,
+				task_vars ["hostvars"] [resource_name].get (prefix, {}))
 
 			if rest in options [prefix] \
 			and options [prefix] [rest] == value:
@@ -69,10 +69,8 @@ class ActionModule (ActionBase):
 
 		self.context.resources.set (resource_name, resource_data)
 
-		return ReturnData (
-			conn = conn,
-			result = dict (
-				ansible_facts = options,
-				changed = changed))
+		return dict (
+			ansible_facts = options,
+			changed = changed)
 
 # ex: noet ts=4 filetype=python
