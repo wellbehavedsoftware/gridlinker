@@ -4,11 +4,13 @@ from __future__ import unicode_literals
 import importlib
 import os
 
-from ansible import utils
-from ansible.runner.return_data import ReturnData
-from ansible.utils import template
+#from ansible import utils
+#from ansible.runner.return_data import ReturnData
+#from ansible.utils import template
 
-class ActionModule (object):
+from ansible.plugins.action import ActionBase
+
+class ActionModule (ActionBase):
 
 	TRANSFERS_FILES = False
 
