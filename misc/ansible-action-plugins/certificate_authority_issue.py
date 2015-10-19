@@ -18,37 +18,32 @@ class ActionModule (ActionBase):
 
 	TRANSFERS_FILES = False
 
-	def __init__ (self, runner):
-
-		self.runner = runner
+	def __init__ (self, * arguments, ** keyword_arguments):
 
 		self.support = importlib.import_module (
 			os.environ ["GRIDLINKER_SUPPORT"]).support
 
-	def context (self):
+		self.context = self.support.get_context ()
 
-		return self.support.get_context ()
+		self.client = self.context.client
 
-	def run (self,
-		conn,
-		tmp,
-		module_name,
-		module_args,
-		inject,
-		complex_args = {},
-		** kwargs
-	):
+		ActionBase.__init__ (
+			self,
+			* arguments,
+			** keyword_arguments)
 
-		authority_name = complex_args ["authority"]
-		common_name = complex_args ["common_name"]
-		usage = complex_args ["usage"]
-		alt_dns = complex_args.get ("alt_dns", [])
-		alt_ip = complex_args.get ("alt_ip", [])
-		alt_email = complex_args.get ("alt_email", [])
+	def run (self, tmp = None, task_vars = dict ()):
+
+		authority_name = self._task.args.get ("authority")
+		common_name = self._task.args.get ("common_name")
+		usage = self._task.args.get ("usage")
+		alt_dns = self._task.args.get ("alt_dns", [])
+		alt_ip = self._task.args.get ("alt_ip", [])
+		alt_email = self._task.args.get ("alt_email", [])
 
 		authority_path = "/authority/%s" % authority_name
 
-		authority = self.context ().authorities [authority_name]
+		authority = self.context.authorities [authority_name]
 
 		alt_names = list (itertools.chain.from_iterable ([
 			[ str ("DNS:" + item) for item in alt_dns ],
@@ -65,16 +60,12 @@ class ActionModule (ActionBase):
 
 		except AlreadyExistsError:
 
-			return ReturnData (
-				conn = conn,
-				result = dict (
-					changed = False))
+			return dict (
+				changed = False)
 
-		return ReturnData (
-			conn = conn,
-			result = dict (
-				changed = True,
-				certificate = certificate.certificate_path,
-				private_key = certificate.private_key_path))
+		return dict (
+			changed = True,
+			certificate = certificate.certificate_path,
+			private_key = certificate.private_key_path)
 
 # ex: noet ts=4 filetype=python

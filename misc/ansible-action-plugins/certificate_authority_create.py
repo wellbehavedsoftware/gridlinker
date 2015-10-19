@@ -16,9 +16,7 @@ class ActionModule (ActionBase):
 
 	TRANSFERS_FILES = False
 
-	def __init__ (self, runner):
-
-		self.runner = runner
+	def __init__ (self, * arguments, ** keyword_arguments):
 
 		self.support = importlib.import_module (
 			os.environ ["GRIDLINKER_SUPPORT"]).support
@@ -27,27 +25,22 @@ class ActionModule (ActionBase):
 
 		self.client = self.context.client
 
-	def run (self,
-		conn,
-		tmp,
-		module_name,
-		module_args,
-		inject,
-		complex_args = {},
-		** kwargs
-	):
+		ActionBase.__init__ (
+			self,
+			* arguments,
+			** keyword_arguments)
 
-		authority_name = complex_args ["authority"]
-		common_name = complex_args ["common_name"]
+	def run (self, tmp = None, task_vars = dict ()):
+
+		authority_name = self._task.args.get ("authority")
+		common_name = self._task.args.get ("common_name")
 
 		authority_path = "/authority/%s" % authority_name
 
 		if self.client.exists (authority_path):
 			
-			return ReturnData (
-				conn = conn,
-				result = dict (
-					changed = False))
+			return dict (
+				changed = False)
 
 		authority = CertificateAuthority (
 			self.context,
@@ -56,9 +49,7 @@ class ActionModule (ActionBase):
 
 		authority.create (common_name)
 
-		return ReturnData (
-			conn = conn,
-			result = dict (
-				changed = True))
+		return dict (
+			changed = True)
 
 # ex: noet ts=4 filetype=python
