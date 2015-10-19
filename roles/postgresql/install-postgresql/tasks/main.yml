@@ -1,0 +1,10 @@
+---
+
+- include: "install-postgresql.yml"
+  tags: "install-postgresql"
+  tags:
+
+    - "postgresql"
+    - "install-postgresql"
+
+# ex: et ts=2 filetype=yaml

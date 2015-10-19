@@ -29,4 +29,10 @@
     priv: "*.*:ALL,GRANT"
     host: "%"
 
+- name: "set mysql.state to 'enabled'"
+  when: "mysql_state == 'installed'"
+  update_resource:
+
+    mysql.state: "enabled"
+
 # ex: et ts=2 filetype=yaml

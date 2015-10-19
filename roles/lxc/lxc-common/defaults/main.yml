@@ -1,0 +1,27 @@
+---
+
+lxc_system_packages:
+
+  - "lxc"
+  - "lxc-templates"
+
+lxc_data: "/var/lib/lxc"
+
+# ---------- lxc container defaults
+
+lxc_container_name: "{{ identity_name }}"
+lxc_container_path: "{{ lxc_data }}/{{ lxc_container_name }}"
+lxc_container_root: "{{ lxc_container_path }}/rootfs"
+lxc_container_delegate: "host/{{ identity_parent }}"
+lxc_container_template_name: "{{ identity_parent }}-template"
+
+lxc_container_bind_mounts: []
+
+lxc_container_network_link: ""
+lxc_container_network_mac: ""
+
+lxc_container_memory_limit_hard: ""
+lxc_container_memory_limit_soft: ""
+lxc_container_disk_quota: ""
+
+# ex: et ts=2 filetype=yaml

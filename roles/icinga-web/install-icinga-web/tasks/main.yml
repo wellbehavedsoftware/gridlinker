@@ -1,16 +1,9 @@
 ---
 
-- name: "set icinga_web.state to 'installing'"
-  update_resource:
-    icinga_web.state: "installing"
-  when: "icinga_web_state is not defined"
-
 - include: "install-icinga-web.yml"
-  tags: "install-icinga-web"
+  tags:
 
-- name: "set icinga_web.state to 'unconfigured'"
-  update_resource:
-    icinga_web.state: "unconfigured"
-  when: "icinga_web_state == 'installing'"
+    - "icinga-web"
+    - "install-icinga-web"
 
 # ex: et ts=2 filetype=yaml

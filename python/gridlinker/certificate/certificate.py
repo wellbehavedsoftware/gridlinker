@@ -10,11 +10,16 @@ import collections
 
 Certificate = collections.namedtuple ("Certificate", [
 
+	"common_name",
+
 	"serial",
 	"digest",
 
 	"certificate",
 	"certificate_path",
+
+	"not_before",
+	"not_after",
 
 	"chain",
 	"chain_paths",

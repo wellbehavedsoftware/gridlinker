@@ -220,6 +220,12 @@ class GenericCollection:
 		return self.client.exists (
 			record_key)
 
+	def exists_quick (self, record_name):
+
+		self.auto_update_cache ()
+
+		return record_name in self.data_cache
+
 	def remove (self, record_name):
 
 		record_key = "%s/%s" % (

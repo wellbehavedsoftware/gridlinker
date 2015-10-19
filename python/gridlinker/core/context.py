@@ -32,6 +32,8 @@ class GenericContext (object):
 		self.connection_name = connection_name
 		self.project_metadata = project_metadata
 
+		self.trace = False
+
 	@lazy_property
 	def config (self):
 
@@ -199,6 +201,11 @@ class GenericContext (object):
 		return "%s/third-party" % self.home
 
 	@lazy_property
+	def webserver_home (self):
+
+		return "%s/wbs-site-admin" % self.third_party_home
+
+	@lazy_property
 	def ansible_home (self):
 
 		return "%s/ansible" % self.third_party_home
@@ -310,6 +317,7 @@ class GenericContext (object):
 				"display_skipped_hosts": "False",
 				"force_color": "True",
 				"gathering": "explicit",
+				"ansible_python_interpreter": "/usr/bin/env python",
 
 				"retry_files_save_path": "%s/work/retry" % self.home,
 

@@ -66,11 +66,11 @@ class ArgumentGroup:
 			if hasattr (argument, "args_update"):
 				argument.args_update (group, helper)
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
 
 		for argument in self.arguments:
 			if hasattr (argument, "update_record"):
-				argument.update_record (arg_vars, record_data, helper)
+				argument.update_record (arg_vars, record_data, context, helper)
 
 	def update_files (self, arg_vars, unique_name, context, helper):
 
@@ -78,12 +78,20 @@ class ArgumentGroup:
 			if hasattr (argument, "update_files"):
 				argument.update_files (arg_vars, unique_name, context, helper)
 
-	def filter_record (self, arg_vars, record_name, record_data, helper):
+	def filter_record (self, arg_vars, record_name, record_data, context, helper):
 
 		for argument in self.arguments:
-			if hasattr (argument, "filter_record") \
-			and not argument.filter_record (arg_vars, record_name, record_data, helper):
-				return False
+
+			if hasattr (argument, "filter_record"):
+
+				if not argument.filter_record (
+						arg_vars,
+						record_name,
+						record_data,
+						context,
+						helper):
+
+					return False
 
 		return True
 
@@ -114,7 +122,10 @@ class SimpleArgument:
 			metavar = self.value_name,
 			help = self.help)
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
+
+		if arg_vars.get ("self.argument_name") == None:
+			return
 
 		if arg_vars.get ("self.argument_name") == None:
 			return
@@ -142,6 +153,14 @@ class ClassArgument:
 			metavar = "CLASS",
 			help = "class to edit {0}s belonging to".format (helper.name))
 
+	def args_list (self, parser, helper):
+
+		parser.add_argument (
+			"--class",
+			required = False,
+			metavar = "CLASS",
+			help = "Class to list {0}s belong to".format (helper.name))
+
 	def args_update (self, parser, helper):
 
 		parser.add_argument (
@@ -158,7 +177,7 @@ class ClassArgument:
 			metavar = "CLASS",
 			help = "class of {0} to show".format (helper.name))
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
 
 		if arg_vars.get ("class") == None:
 			return
@@ -168,27 +187,58 @@ class ClassArgument:
 		if value:
 			record_data ["identity"] ["class"] = value
 
-	def filter_record (self, arg_vars, record_name, record_data, helper):
+	def filter_record (self, arg_vars, record_name, record_data, context, helper):
 
 		if arg_vars.get ("class") == None:
 			return True
 
-		class_key = "%s_class" % helper.short_name
+		return record_data ["identity"] ["class"] == arg_vars ["class"]
 
-		if not class_key in record_data:
-			return False
+class NamespaceArgument:
 
-		return record_data [class_key] == arg_vars ["class"]
+	def args_list (self, parser, helper):
+
+		parser.add_argument (
+			"--namespace",
+			required = False,
+			metavar = "NAMESPACE",
+			help = "Namsepace to list {0}s belong to".format (helper.name))
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--namespace",
+			required = False,
+			metavar = "NAMESPACE",
+			help = "Namespace of {0}s to update".format (helper.name))
+
+	def filter_record (self, arg_vars, record_name, record_data, context, helper):
+
+		if arg_vars.get ("namespace") == None:
+			return True
+
+		class_name = record_data ["identity"] ["class"]
+		class_data = context.local_data ["classes"] [class_name]
+
+		return class_data ["class"] ["namespace"] == arg_vars ["namespace"]
 
 class ParentArgument:
 
 	def args_create (self, parser, helper):
 
 		parser.add_argument (
+			"--set-parent",
+			required = False,
+			metavar = "PARENT",
+			help = "set parent in newly created {0}".format (helper.name))
+
+	def args_list (self, parser, helper):
+
+		parser.add_argument (
 			"--parent",
 			required = False,
 			metavar = "PARENT",
-			help = "parent {0} of this {0}".format (helper.name))
+			help = "list {0}s with this parent".format (helper.name))
 
 	def args_update (self, parser, helper):
 
@@ -196,29 +246,44 @@ class ParentArgument:
 			"--parent",
 			required = False,
 			metavar = "PARENT",
-			help = "parent {0} of this {0}".format (helper.name))
+			help = "update {0}s with this parent".format (helper.name))
 
-	def update_record (self, arg_vars, record_data, helper):
+		parser.add_argument (
+			"--set-parent",
+			required = False,
+			metavar = "PARENT",
+			help = "set parent in updated {0}".format (helper.name))
 
-		if arg_vars.get ("parent") == None:
+	def update_record (self, arg_vars, record_data, context, helper):
+
+		if arg_vars.get ("set_parent") == None:
 			return
 
-		value = arg_vars ["parent"]
+		value = arg_vars ["set_parent"]
 
 		if value:
 			record_data ["identity"] ["parent"] = value
 
-	def filter_record (self, arg_vars, record_name, record_data, helper):
+	def filter_record (self, arg_vars, record_name, record_data, context, helper):
 
 		if arg_vars.get ("parent") == None:
 			return True
 
-		class_key = "%s_parent" % helper.short_name
-
-		if not class_key in record_data:
+		if not "parent" in record_data ["identity"]:
 			return False
 
-		return record_data [class_key] == arg_vars ["parent"]
+		class_name = record_data ["identity"] ["class"]
+		class_data = context.local_data ["classes"] [class_name]
+
+		if not "parent_namespace" in class_data ["class"]:
+			return False
+
+		parent_name = "/".join ([
+			class_data ["class"] ["parent_namespace"],
+			record_data ["identity"] ["parent"],
+		])
+
+		return parent_name == arg_vars ["parent"]
 
 class IndexArgument:
 
@@ -230,7 +295,7 @@ class IndexArgument:
 			metavar = "INDEX",
 			help = "index of this %s" % helper.name)
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
 
 		if arg_vars.get ("index") == None:
 			return
@@ -269,7 +334,7 @@ class AddListArgument:
 			help = self.help,
 			metavar = self.value_name)
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
 
 		for value in arg_vars [self.argument_name]:
 
@@ -310,7 +375,7 @@ class AddDictionaryArgument:
 			help = self.help,
 			metavar = (self.key_name, self.value_name))
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
 
 		for key, value in arg_vars [self.argument_name]:
 
@@ -362,7 +427,7 @@ class NameArgument:
 			metavar = "NAME",
 			help = "name of %s to update" % helper.name)
 
-	def filter_record (self, arg_vars, record_name, record_data, helper):
+	def filter_record (self, arg_vars, record_name, record_data, context, helper):
 
 		if arg_vars.get ("name") == None:
 			return True
@@ -467,7 +532,10 @@ class MiscSetArgument:
 			metavar = ("GROUP.KEY", "VALUE"),
 			help = "miscellaneous value to store")
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
+
+		if arg_vars.get ("set") == None:
+			return
 
 		if arg_vars.get ("set") == None:
 			return
@@ -492,7 +560,7 @@ class MiscUnsetArgument:
 			metavar = "GROUP.KEY",
 			help = "miscellaneous value to unset")
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
 
 		if arg_vars.get ("unset") == None:
 			return
@@ -534,7 +602,7 @@ class MiscRemoveArgument:
 			metavar = ("KEY", "VALUE"),
 			help = "miscellaneous value to remove from list")
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
 
 		if arg_vars.get ("remove") == None:
 			return
@@ -575,7 +643,10 @@ class MiscAddArgument:
 			default = [],
 			help = "miscellaneous value to add to list")
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
+
+		if arg_vars.get ("add") == None:
+			return
 
 		if arg_vars.get ("add") == None:
 			return
@@ -617,7 +688,10 @@ class MiscSetDictArgument:
 			metavar = ("SECTION.KEY", "KEY", "VALUE"),
 			help = "miscellaneous value to store in dictionary")
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
+
+		if arg_vars.get ("set_dict") == None:
+			return
 
 		if arg_vars.get ("set_dict") == None:
 			return
@@ -656,7 +730,10 @@ class MiscUnsetDictArgument:
 			metavar = ("SECTION.KEY", "KEY"),
 			help = "miscellaneous value to unset in dictionary")
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
+
+		if arg_vars.get ("unset_dict") == None:
+			return
 
 		if arg_vars.get ("unset_dict") == None:
 			return
@@ -693,7 +770,10 @@ class GeneratePasswordArgument:
 			metavar = "KEY",
 			help = "generate random password to store")
 
-	def update_record (self, arg_vars, record_data, helper):
+	def update_record (self, arg_vars, record_data, context, helper):
+
+		if arg_vars.get ("generate_password") == None:
+			return
 
 		if arg_vars.get ("generate_password") == None:
 			return

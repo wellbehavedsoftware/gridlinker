@@ -1,11 +1,6 @@
 ---
 
 - name: "configure php"
-  action:
-    module: "template"
-    src: "{{ item.template }}"
-    dest: "{{ item.target }}"
-  sudo: "yes"
   notify: "set php.needs_restart to 'yes'"
   with_items:
 
@@ -17,12 +12,21 @@
       target: "/etc/php5/cli/php.ini"
       type: "cli"
 
+  sudo: "yes"
+  action:
+
+    module: "template"
+    src: "{{ item.template }}"
+    dest: "{{ item.target }}"
+
 - name: "enable php modules"
-  with_nested:
-    - [ "cli", "fpm" ]
-    - "php_modules"
   when: "item.1.state == 'enabled'"
   notify: "set php.needs_restart to 'yes'"
+  with_nested:
+
+    - [ "cli", "fpm" ]
+    - "php_modules"
+
   sudo: "yes"
   action:
 
@@ -32,9 +36,9 @@
     src: "../../mods-available/{{ item.1.name }}.ini"
 
 - name: "set php.state to 'enabled'"
-  update_resource:
-    php.state: "enabled"
   when: "php_state == 'installed'"
-  tags: [ "php", "setup-php" ]
+  update_resource:
+
+    php.state: "enabled"
 
 # ex: et ts=2 filetype=yaml

@@ -1,0 +1,11 @@
+---
+
+- name: "install lxc system packages"
+  with_items: "lxc_system_packages"
+  sudo: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+# ex: et ts=2 filetype=yaml

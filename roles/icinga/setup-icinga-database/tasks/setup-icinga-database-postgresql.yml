@@ -1,0 +1,45 @@
+---
+
+- name: "create ido database"
+  delegate_to: "{{ icinga_database_delegate }}"
+  action:
+
+    module: "postgresql_db"
+    name: "{{ icinga_database_name }}"
+
+    login_user: "ubuntu"
+    login_unix_socket: "/var/run/postgresql"
+
+- name: "create ido user"
+  delegate_to: "{{ icinga_database_delegate }}"
+  action:
+
+    module: "postgresql_user"
+    name: "{{ icinga_database_username }}"
+
+    password: "{{ icinga_database_password }}"
+    db: "{{ icinga_database_name }}"
+
+    login_user: "ubuntu"
+    login_unix_socket: "/var/run/postgresql"
+
+- name: "initialize ido database"
+  when: "icinga_database_initialized == 'no'"
+  delegate_to: "{{ icinga_database_delegate }}"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    psql {{ icinga_database_name }}
+      < /usr/share/icinga2-ido-pgsql/schema/pgsql.sql;
+
+- name: "set icinga.database_initialized to 'yes'"
+  update_resource:
+
+    icinga.database_initialized: "yes"
+
+# ex: et ts=2 filetype=yaml

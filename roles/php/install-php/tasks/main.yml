@@ -1,18 +1,9 @@
 ---
 
-- name: "set php.state to 'installing'"
-  update_resource:
-    php.state: "installing"
-  when: "php_state is not defined"
-  tags: [ "php", "install-php" ]
-
 - include: "install-php.yml"
-  tags: [ "php", "install-php" ]
+  tags:
 
-- name: "set php.state to 'unconfigured'"
-  update_resource:
-    php.state: "unconfigured"
-  when: "php_state == 'installing'"
-  tags: [ "php", "install-php" ]
+    - "php"
+    - "install-php"
 
 # ex: et ts=2 filetype=yaml

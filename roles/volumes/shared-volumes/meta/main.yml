@@ -1,0 +1,9 @@
+---
+
+dependencies:
+
+  - "volumes-common"
+  - "setup-volumes"
+  - "setup-shared-volumes"
+
+# ex: et ts=2 filetype=yaml

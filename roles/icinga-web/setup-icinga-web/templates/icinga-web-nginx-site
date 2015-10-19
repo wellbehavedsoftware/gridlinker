@@ -49,6 +49,8 @@ server {
 
 }
 
+{% if icinga_web_security in [ 'optional', 'full', 'disabled' ] %}
+
 server {
 
 	listen 443 ssl;
@@ -98,5 +100,6 @@ server {
 	add_header Strict-Transport-Security "max-age=0; includeSubdomains;";
 {% endif %}
 
-
 }
+
+{% endif %}

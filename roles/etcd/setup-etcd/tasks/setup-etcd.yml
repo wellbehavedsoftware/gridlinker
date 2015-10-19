@@ -67,4 +67,10 @@
 
 - meta: "flush_handlers"
 
+- name: "set etcd.state to 'enabled'"
+  when: "etcd_state == 'installed'"
+  update_resource:
+
+    etcd.state: "enabled"
+
 # ex: et ts=2 filetype=yaml

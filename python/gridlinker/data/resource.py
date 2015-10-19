@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from wbs import ReportableError
+
 from gridlinker.tools import *
 
 class ResourceHelper (CommandHelper):
@@ -38,6 +40,63 @@ class ResourceHelper (CommandHelper):
 			class_data ["class"] ["namespace"],
 			resource_data ["identity"] ["name"])
 
+	def verify (self, context, resource_name, resource_data):
+
+		errors = []
+
+		class_name = resource_data ["identity"] ["class"]
+		class_data = context.local_data ["classes"] [class_name]
+
+		# check resource name
+
+		expected_resource_name = "%s/%s" % (
+			class_data ["class"] ["namespace"],
+			resource_data ["identity"] ["name"])
+
+		if resource_name != expected_resource_name:
+
+			errors.append (ReportableError (
+				"resource_name_mismatch",
+				resource_name = resource_name,
+				expected_resource_name = expected_resource_name))
+
+		# check parentage
+
+		if "parent_namespace" in class_data ["class"]:
+
+			if not "parent" in resource_data ["identity"]:
+
+				errors.append (ReportableError (
+					"resource_parent_not_set",
+					resource_name = resource_name,
+					class_name = class_name))
+
+			else:
+
+				parent_name = "%s/%s" % (
+					class_data ["class"] ["parent_namespace"],
+					resource_data ["identity"] ["parent"])
+
+				if not context.resources.exists_quick (parent_name):
+
+					errors.append (ReportableError (
+						"resource_parent_does_not_exist",
+						resource_name = resource_name,
+						parent_name = parent_name))
+
+		else:
+
+			if "parent" in resource_data ["identity"]:
+
+				errors.append (ReportableError (
+					"resource_parent_set",
+					resource_name = resource_name,
+					class_name = class_name))
+
+		if errors:
+
+			raise errors [0]
+
 resource_command = GenericCommand (
 
 	ResourceHelper (
@@ -52,6 +111,7 @@ resource_command = GenericCommand (
 				arguments = [
 
 				ClassArgument (),
+				NamespaceArgument (),
 				NameArgument (),
 				ParentArgument (),
 				IndexArgument (),
