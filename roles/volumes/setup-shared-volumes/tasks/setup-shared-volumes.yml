@@ -8,69 +8,7 @@
     path: "{{ shared_volumes_path }}"
     state: "directory"
 
-- name: "create shared volumes directories"
-  with_items: "groups [shared_volumes_group_name]"
-  sudo: "yes"
-  action:
-
-    module: "file"
-    path: "{{ shared_volumes_path }}/{{ hostvars [item].identity_name }}"
-    state: "directory"
-
-    owner: "root"
-    group: "share-{{ hostvars [item].identity_name }}"
-    mode: "0750"
-
-- name: "create shared volumes subvolumes"
-  with_items: "groups [shared_volumes_group_name]"
-  sudo: "yes"
-  args:
-
-    executable: "/bin/bash"
-    creates: "{{ [
-      shared_volumes_path,
-      hostvars [item].identity_name,
-      'current',
-    ] | join ('/') }}"
-
-  shell:
-
-    set -euf -p pipefail;
-
-    btrfs subvolume create
-      "{{ [
-        shared_volumes_path,
-        hostvars [item].identity_name,
-        'current',
-      ] | join ('/') }}";
-
-- name: "set shared volumes permissions"
-  with_items: "groups [shared_volumes_group_name]"
-  sudo: "yes"
-  action:
-
-    module: "file"
-    path: "{{ shared_volumes_path }}/{{ hostvars [item].identity_name }}/current"
-
-    owner: "share-{{ hostvars [item].identity_name }}"
-    group: "share-{{ hostvars [item].identity_name }}"
-    mode: "0770"
-
-- name: "create shared volumes snapshots directories"
-  with_items: "groups [shared_volumes_group_name]"
-  sudo: "yes"
-  action:
-
-    module: "file"
-    path: "{{ [
-      shared_volumes_path,
-      hostvars [item].identity_name,
-      'snapshots',
-    ] | join ('/') }}"
-    state: "directory"
-
-    owner: "root"
-    group: "share-{{ hostvars [item].identity_name }}"
-    mode: "0750"
+- include: "setup-shared-volumes-volume.yml"
+  with_items: "groups [shared_volumes_group_name] | dict_map (hostvars)"
 
 # ex: et ts=2 filetype=yaml
