@@ -1,10 +1,11 @@
 ---
 
 - name: "update system packages"
+  sudo: "yes"
   action:
+
     module: "apt"
     update_cache: "yes"
     upgrade: "dist"
-  sudo: "yes"
 
 # ex: et ts=2 filetype=yaml
