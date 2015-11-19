@@ -91,6 +91,13 @@
 
     executable: "/bin/bash"
 
+  environment:
+
+    PGHOST: "{{ icinga_web_main_database_hostname }}"
+    PGPORT: "{{ icinga_web_main_database_port }}"
+    PGUSER: "{{ icinga_web_main_database_username }}"
+    PGPASSWORD: "{{ icinga_web_main_database_password }}"
+
   shell:
 
     set -euf -o pipefail;

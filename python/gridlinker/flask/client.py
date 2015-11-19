@@ -2,18 +2,18 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import httplib
+import ipaddress
 import itertools
 import json
 import os
 import random
-import re
 import ssl
 import time
 import urllib
 
 from wbs import yamlx
 
-class EtcdClient:
+class FlaskClient:
 
 	def __init__ (
 		self,
@@ -68,8 +68,7 @@ class EtcdClient:
 				port = self.port,
 				key_file = self.client_key,
 				cert_file = self.client_cert,
-				context = self.ssl_context,
-				timeout = 4)
+				context = self.ssl_context)
 
 			connection.connect ()
 
@@ -78,9 +77,18 @@ class EtcdClient:
 
 			# check if the server is an ip address
 
-			if re.match (
-				r"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$",
-				self.servers [0]):
+			try:
+
+				ipaddress.ip_address (
+					unicode (self.servers [0].encode ("utf-8")))
+
+				is_ip_address = True
+
+			except ValueError:
+
+				is_ip_address = False
+
+			if is_ip_address:
 
 				# match ip addresses with custom code
 
@@ -90,10 +98,7 @@ class EtcdClient:
 					if alt_type == 'IP Address'
 				]:
 
-					raise Exception ("".join ([
-						"Etcd server certificate failed to match IP address ",
-						"'%s'" % self.servers [0],
-					]))
+					raise Exception ()
 
 			else:
 
@@ -156,19 +161,6 @@ class EtcdClient:
 
 		return data ["node"] ["value"]
 
-	def get_raw_or_none (self, key):
-
-		result, data = self.make_request (
-			method = "GET",
-			url = self.key_url (key),
-			accept_response = [ 200, 404 ])
-
-		if result == 404:
-
-			return None
-
-		return data ["node"] ["value"]
-
 	def set_raw (self, key, value):
 
 		self.make_request (
@@ -186,7 +178,7 @@ class EtcdClient:
 
 				return self.make_request_real (** kwargs)
 
-			except (httplib.HTTPException, IOError):
+			except:
 
 				if self.connection:
 
@@ -275,39 +267,34 @@ class EtcdClient:
 
 	def update_raw (self, key, old_value, new_value):
 
-		self.make_request (
-			method = "PUT",
-			url = self.key_url (key),
-			payload_data = {
-				"prevValue": old_value,
-				"value": new_value,
-			},
-			accept_response = [ 200 ])
+		payload = {
+			"prevValue": old_value,
+			"value": new_value,
+		}
+
+		response = self.http ().request_encode_body (
+			"PUT",
+			self.key_url (key),
+			payload,
+			encode_multipart = False)
+
+		if not response.status in [200, 201]:
+
+			raise Exception (
+				"Error %s: %s" % (
+					response.status,
+					response.reason))
 
 	def create_raw (self, key, value):
 
-		status, data = self.make_request (
+		self.make_request (
 			method = "PUT",
 			url = self.key_url (key),
 			payload_data = {
 				"value": value,
 				"prevExist": False,
 			},
-			accept_response = [ 201, 412 ])
-
-		if status == 412:
-
-			raise ValueError (
-				"Key already exists: %s" % key)
-
-	def get_list (self, key):
-
-		nodes = dict (self.get_tree (key))
-
-		return [
-			nodes ["/%s" % index]
-			for index in xrange (0, len (nodes))
-		]
+			accept_response = [ 201 ])
 
 	def get_tree (self, key):
 
@@ -352,26 +339,6 @@ class EtcdClient:
 			url = self.key_url (key),
 			accept_response = [ 200 ])
 
-	def rm_raw (self, key, value):
-
-		self.make_request (
-			method = "DELETE",
-			url = self.key_url (key),
-			query_data = {
-				"prevValue": value,
-			},
-			accept_response = [ 200 ])
-
-	def rm_recursive (self, key):
-
-		self.make_request (
-			method = "DELETE",
-			url = self.key_url (key),
-			query_data = {
-				"recursive": "true",
-			},
-			accept_response = [ 200 ])
-
 	def rmdir (self, key):
 
 		self.make_request (
@@ -384,17 +351,15 @@ class EtcdClient:
 
 	def mkdir_queue (self, key):
 
-		status, data = self.make_request (
-			method = "POST",
-			url = self.key_url (key),
-			query_data = {
-				"dir": "true",
-			},
-			accept_response = [ 201 ])
+		result = self.flask_client.write (
+			key = self.prefix + key,
+			value = None,
+			append = True,
+			dir = True)
 
 		return (
-			data ["node"] ["key"] [len (self.prefix) : ],
-			data ["node"] ["createdIndex"],
+			str (result.key [len (self.prefix):]),
+			str (result.createdIndex),
 		)
 
 	def get_yaml (self, key):
@@ -409,23 +374,6 @@ class EtcdClient:
 		value_yaml = yamlx.encode (schema, value)
 
 		self.set_raw (key, value_yaml)
-
-	def ls (self, key):
-
-		status, data = self.make_request (
-			method = "GET",
-			url = self.key_url (key),
-			accept_response = [ 200 ])
-
-		if not "nodes" in data ["node"]:
-			raise Exception ()
-
-		prefix_length = len (self.prefix) + len (key)
-
-		return [
-			node ["key"] [prefix_length + 1 : ]
-			for node in data ["node"] ["nodes"]
-		]
 
 def args (sub_parsers):
 

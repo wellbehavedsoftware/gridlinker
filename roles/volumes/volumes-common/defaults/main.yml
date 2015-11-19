@@ -1,0 +1,7 @@
+---
+
+volumes_system_packages:
+
+  - "btrfs-tools"
+
+# ex: et ts=2 filetype=yaml

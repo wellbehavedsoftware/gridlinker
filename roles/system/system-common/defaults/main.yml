@@ -34,4 +34,11 @@ ubuntu_sources:
 
 system_ip_forwarding: "no"
 
+private_hostnames:
+
+  - "{{ identity_name }}"
+
+system_groups_group_name: "system-groups"
+system_users_group_name: "system-users"
+
 # ex: et ts=2 filetype=yaml

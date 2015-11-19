@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# from https://gist.github.com/przemoc/571091
+
+# ---------- defaults
+
+LOCKFILE="/var/lock/$1"
+LOCKFD="99"
+
+# ---------- private
+
+_lock () {
+	flock -$1 $LOCKFD
+}
+
+_no_more_locking () {
+	_lock u
+	_lock xn && rm -f $LOCKFILE
+	true
+}
+
+_prepare_locking () {
+	eval "exec $LOCKFD>\"$LOCKFILE\""
+	trap _no_more_locking EXIT
+}
+
+# ---------- public
+
+# obtain an exclusive lock immediately or fail
+
+exlock_now () {
+	_lock xn
+}
+
+# obtain an exclusive lock or wait
+
+exlock () {
+	_lock x
+}
+
+# obtain a shared lock or wait
+
+shlock () {
+	_lock s
+}
+
+# release the lock
+
+unlock () {
+	_lock u
+}
+
+# ---------- init
+
+_prepare_locking
+
+# ex: noet ts=4 filetype=bash

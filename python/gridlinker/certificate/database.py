@@ -165,6 +165,14 @@ class CertificateDatabase:
 		if (self.state != "active"):
 			raise Exception ()
 
+		# check there is no existing request
+
+		subject_path = self.path + "/subjects/" + name
+
+		if self.client.exists (subject_path + "/pending"):
+
+			raise Exception ("already exists")
+
 		# create key
 
 		request_key = crypto.PKey ()
@@ -209,10 +217,7 @@ class CertificateDatabase:
 
 		# write to database
 
-		subject_path = self.path + "/" + name
-
 		if self.client.exists (subject_path + "/pending"):
-
 			return (False, None, None)
 
 		self.client.set_raw (
@@ -363,11 +368,9 @@ class CertificateDatabase:
 
 		if self.client.exists (subject_path + "/current"):
 
-			raise Exception ("TODO need to move chain somehow")
-
 			# read current
 
-			archive_csr_string = self.client.get_raw (
+			archive_csr_string = self.client.get_raw_or_none (
 				subject_path + "/current/request")
 
 			archive_certificate_string = self.client.get_raw (
@@ -376,14 +379,19 @@ class CertificateDatabase:
 			archive_key_string = self.client.get_raw (
 				subject_path + "/current/key")
 
+			archive_certificate_chain_strings = self.client.get_list (
+				subject_path + "/current/chain")
+
 			# write to archive
 
-			archive_path, archive_index = self.client.make_queue_dir (
+			archive_path, archive_index = self.client.mkdir_queue (
 				subject_path + "/archive")
 
-			self.client.set_raw (
-				archive_path + "/request",
-				archive_csr_string)
+			if archive_csr_string:
+
+				self.client.set_raw (
+					archive_path + "/request",
+					archive_csr_string)
 
 			self.client.set_raw (
 				archive_path + "/certificate",
@@ -393,18 +401,30 @@ class CertificateDatabase:
 				archive_path + "/key",
 				archive_key_string)
 
+			for chain_index, chain_string \
+				in enumerate (archive_certificate_chain_strings):
+
+				self.client.set_raw (
+					archive_path + "/chain/" + str (chain_index),
+					chain_string)
+
 			# remove current
 
-			self.client.rm_raw (
-				subject_path + "/current/request")
+			if archive_csr_string:
 
-			self.client.rm_raw (
+				self.client.rm (
+					subject_path + "/current/request")
+
+			self.client.rm (
 				subject_path + "/current/certificate")
 
-			self.client.rm_raw (
+			self.client.rm (
 				subject_path + "/current/key")
 
-			self.client.rmdir_raw (
+			self.client.rm_recursive (
+				subject_path + "/current/chain")
+
+			self.client.rm (
 				subject_path + "/current")
 
 		# store new certificate
