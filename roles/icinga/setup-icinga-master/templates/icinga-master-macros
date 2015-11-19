@@ -12,6 +12,20 @@
 
 		{%- if var.type == 'string' -%}
 			{%- print '\t', lhs, ' = "', var.value, '"\n' -%}
+		{%- elif var.type == 'array' -%}
+
+			{%- print '\t', lhs, ' = [\n' -%}
+
+			{%- for item in var.value -%}
+				{%- if item.type == 'string' -%}
+					{%- print '\t\t"', item.value, '",\n' -%}
+				{%- else -%}
+					{%- print '\t\t', item.value, ',\n' -%}
+				{%- endif -%}
+			{%- endfor -%}
+
+			{%- print '\t]\n' -%}
+
 		{%- elif var.type == 'object' -%}
 
 			{%- print '\t', lhs, ' = {\n' -%}

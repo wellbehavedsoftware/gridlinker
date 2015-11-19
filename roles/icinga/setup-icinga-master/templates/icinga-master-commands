@@ -1,4 +1,4 @@
-object NotificationCommand "mail-host-notification" {
+object NotificationCommand "email-host-notification" {
 
 	import "plugin-notification-command"
 
@@ -19,7 +19,7 @@ object NotificationCommand "mail-host-notification" {
 
 }
 
-object NotificationCommand "mail-service-notification" {
+object NotificationCommand "email-service-notification" {
 
 	import "plugin-notification-command"
 

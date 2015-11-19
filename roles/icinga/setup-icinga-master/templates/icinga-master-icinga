@@ -60,6 +60,7 @@ object NotificationComponent "notification" {
 
 include "commands.conf"
 include "hosts.conf"
+include "notifications.conf"
 include "services.conf"
 include "time-periods.conf"
 include "users.conf"

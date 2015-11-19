@@ -84,6 +84,10 @@ icinga_master_config_templates:
     target: "icinga2.conf"
     mode: "0644"
 
+  - template: "icinga-master-notifications"
+    target: "notifications.conf"
+    mode: "0644"
+
   - template: "icinga-master-secrets"
     target: "secrets.conf"
     mode: "0600"
