@@ -1,5 +1,8 @@
 ---
 
+- set_fact:
+    shared_volume: "{{ item }}"
+
 - name: "create shared volumes directories"
   sudo: "yes"
   action:
