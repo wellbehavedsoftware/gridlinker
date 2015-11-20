@@ -22,4 +22,8 @@ samba_config_templates:
 samba_state: ""
 samba_needs_restart: "no"
 
+samba_share_valid_users: ""
+samba_share_write_list: ""
+samba_share_read_list: ""
+
 # ex: et ts=2 filetype=yaml

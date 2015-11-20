@@ -4,10 +4,6 @@ from __future__ import unicode_literals
 import os
 import importlib
 
-#from ansible import utils
-#from ansible.runner.return_data import ReturnData
-#from ansible.utils import template
-
 from ansible.plugins.action import ActionBase
 
 from gridlinker import CertificateAuthority
@@ -22,8 +18,6 @@ class ActionModule (ActionBase):
 			os.environ ["GRIDLINKER_SUPPORT"]).support
 
 		self.context = self.support.get_context ()
-
-		self.client = self.context.client
 
 		ActionBase.__init__ (
 			self,

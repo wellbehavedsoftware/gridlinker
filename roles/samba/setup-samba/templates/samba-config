@@ -55,6 +55,9 @@
 	read only = {{ share.samba_share_read_only }}
 
 	valid users = {{ share.samba_share_valid_users }}
+	write list = {{ share.samba_share_write_list }}
+	read list = {{ share.samba_share_read_list }}
+
 	force user = {{ share.samba_share_force_user }}
 	force group = {{ share.samba_share_force_group }}
 
