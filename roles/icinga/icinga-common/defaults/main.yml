@@ -24,6 +24,10 @@ icinga_ca_certificate: ""
 icinga_certificate: ""
 icinga_private_key: ""
 
+icinga_graphite_enabled: ""
+icinga_graphite_host: "localhost"
+icinga_graphite_port: "2003"
+
 # installation
 
 icinga_source: "{{ ubuntu_mirror }}/ppa.launchpad.net/formorer/icinga"

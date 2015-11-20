@@ -1,0 +1,19 @@
+description "graphite carbon cache"
+
+respawn
+respawn limit unlimited
+
+setuid carbon
+setgid carbon
+
+script
+
+	cd {{ graphite_carbon_target }}
+
+	exec bin/carbon-cache.py --nodaemon start
+
+end script
+
+post-stop script
+	sleep 2
+end script

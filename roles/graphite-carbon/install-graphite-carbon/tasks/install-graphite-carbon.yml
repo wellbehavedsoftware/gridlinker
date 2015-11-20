@@ -1,0 +1,73 @@
+---
+
+- name: "check required variables"
+  when: "graphite_carbon_version == ''"
+  fail:
+
+    msg: "please set graphite_carbon_version"
+
+- name: "create carbon group"
+  sudo: "yes"
+  action:
+
+    module: "group"
+    name: "carbon"
+    system: "yes"
+
+- name: "create carbon user"
+  sudo: "yes"
+  action:
+
+    module: "user"
+    name: "carbon"
+    group: "carbon"
+    system: "yes"
+
+- name: "add ubuntu to carbon group"
+  sudo: "yes"
+  action:
+
+    module: "user"
+    name: "ubuntu"
+    groups: "carbon"
+    append: "yes"
+
+- name: "install graphite carbon"
+  when: "graphite_carbon_installed_version != graphite_carbon_version"
+  sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf {{ graphite_carbon_temp }};
+    mkdir -p {{ graphite_carbon_temp }};
+    cd {{ graphite_carbon_temp }};
+
+    wget {{ graphite_carbon_url }};
+    tar xzf {{ graphite_carbon_archive }};
+
+    mkdir -p {{ graphite_carbon_target }};
+
+    rsync --archive --delete
+      {{ graphite_carbon_directory }}/
+      {{ graphite_carbon_target }}/;
+
+    rm -rf {{ graphite_carbon_temp }};
+
+- name: "set graphite_carbon.state to 'installed'"
+  when: "graphite_carbon_state == ''"
+  update_resource:
+
+    graphite_carbon.state: "installed"
+
+- name: "set graphite_carbon_installed_version"
+  when: "graphite_carbon_installed_version != graphite_carbon_version"
+  update_resource:
+
+    graphite_carbon.installed_version: "{{ graphite_carbon_version }}"
+
+# ex: et ts=2 filetype=yaml

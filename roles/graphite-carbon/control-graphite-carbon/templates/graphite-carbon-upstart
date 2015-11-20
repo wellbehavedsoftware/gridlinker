@@ -1,0 +1,25 @@
+description "graphite carbon"
+
+{% if graphite_carbon_state == 'enabled' %}
+start on runlevel [2345]
+stop on runlevel [!2345]
+{% endif %}
+
+respawn
+respawn limit unlimited
+
+pre-start script
+
+	mkdir -p /var/run/graphite-carbon
+	chown carbon:carbon /var/run/graphite-carbon
+	chmod 0755 /var/run/graphite-carbon
+
+end script
+
+post-start script
+	start graphite-carbon-cache
+end script
+
+pre-stop script
+	stop graphite-carbon-cache
+end script

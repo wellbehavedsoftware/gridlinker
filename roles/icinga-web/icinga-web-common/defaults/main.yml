@@ -1,7 +1,14 @@
 ---
 
+# ---------- state
+
 icinga_web_state: ""
 icinga_web_installed_version: ""
+
+icinga_web_graphite_state: ""
+icinga_web_graphite_installed_version: ""
+
+# ---------- installation
 
 icinga_web_version: ""
 icinga_web_github: "https://github.com/Icinga/icingaweb2/archive"
@@ -11,6 +18,45 @@ icinga_web_url: "{{ icinga_web_github }}/v{{ icinga_web_version }}.tar.gz"
 icinga_web_archive: "v{{ icinga_web_version }}.tar.gz"
 icinga_web_directory: "icingaweb2-{{ icinga_web_version }}"
 icinga_web_target: "/opt/icinga-web-{{ icinga_web_version }}"
+
+icinga_web_graphite_version: ""
+icinga_web_graphite_github: "https://github.com/findmypast/icingaweb2-module-graphite"
+icinga_web_graphite_temp: "/tmp/icinga-web-graphite-install"
+
+icinga_web_graphite_url: "{{ icinga_web_graphite_github }}/archive/{{ icinga_web_graphite_version }}.tar.gz"
+icinga_web_graphite_archive: "{{ icinga_web_graphite_version }}.tar.gz"
+icinga_web_graphite_directory: "icingaweb2-module-graphite-{{ icinga_web_graphite_version }}"
+icinga_web_graphite_target: "/opt/icinga-web-graphite-{{ icinga_web_graphite_version }}"
+
+# ---------- configuration defaults
+
+icinga_web_admin_password: ""
+
+icinga_web_database_type: ""
+icinga_web_database_username: "icingaweb"
+icinga_web_database_password: ""
+icinga_web_database_port: ""
+
+icinga_web_main_database_type: "{{ icinga_web_database_type }}"
+icinga_web_main_database_hostname: "{{ icinga_web_database_hostname }}"
+icinga_web_main_database_port: "{{ icinga_web_database_port }}"
+icinga_web_main_database_name: "icingaweb"
+icinga_web_main_database_username: "{{ icinga_web_database_username }}"
+icinga_web_main_database_password: "{{ icinga_web_database_password }}"
+icinga_web_main_database_prefix: "icingaweb_"
+icinga_web_main_database_delegate: "{{ icinga_web_database_delegate }}"
+icinga_web_main_database_initialized: "no"
+
+icinga_web_ido_database_type: "{{ icinga_web_database_type }}"
+icinga_web_ido_database_hostname: "{{ icinga_web_database_hostname }}"
+icinga_web_ido_database_port: "{{ icinga_web_database_port }}"
+icinga_web_ido_database_name: "icinga"
+icinga_web_ido_database_username: "{{ icinga_web_database_username }}"
+icinga_web_ido_database_password: "{{ icinga_web_database_password }}"
+icinga_web_ido_database_prefix: "icinga_"
+icinga_web_ido_database_delegate: "{{ icinga_web_database_delegate }}"
+
+# ---------- configuration files
 
 icinga_web_config_directories:
 
@@ -78,31 +124,22 @@ icinga_web_config_templates:
     group: "www-data"
     mode: "0640"
 
-icinga_web_admin_password: ""
+icinga_web_graphite_config_directories:
 
-icinga_web_database_type: ""
-icinga_web_database_username: "icingaweb"
-icinga_web_database_password: ""
-icinga_web_database_port: ""
+  - directory: "/etc/icingaweb2/modules/graphite"
+    owner: "root"
+    group: "www-data"
+    mode: "0750"
 
-icinga_web_main_database_type: "{{ icinga_web_database_type }}"
-icinga_web_main_database_hostname: "{{ icinga_web_database_hostname }}"
-icinga_web_main_database_port: "{{ icinga_web_database_port }}"
-icinga_web_main_database_name: "icingaweb"
-icinga_web_main_database_username: "{{ icinga_web_database_username }}"
-icinga_web_main_database_password: "{{ icinga_web_database_password }}"
-icinga_web_main_database_prefix: "icingaweb_"
-icinga_web_main_database_delegate: "{{ icinga_web_database_delegate }}"
-icinga_web_main_database_initialized: "no"
+icinga_web_graphite_config_templates:
 
-icinga_web_ido_database_type: "{{ icinga_web_database_type }}"
-icinga_web_ido_database_hostname: "{{ icinga_web_database_hostname }}"
-icinga_web_ido_database_port: "{{ icinga_web_database_port }}"
-icinga_web_ido_database_name: "icinga"
-icinga_web_ido_database_username: "{{ icinga_web_database_username }}"
-icinga_web_ido_database_password: "{{ icinga_web_database_password }}"
-icinga_web_ido_database_prefix: "icinga_"
-icinga_web_ido_database_delegate: "{{ icinga_web_database_delegate }}"
+  - target: "/etc/icingaweb2/modules/graphite/config.ini"
+    template: "icinga-web-graphite-config-ini"
+    owner: "root"
+    group: "www-data"
+    mode: "0640"
+
+# ---------- constants
 
 icinga_web_database_type_map:
 
