@@ -72,8 +72,8 @@ icinga_web_config_templates:
     group: "www-data"
     mode: "0640"
 
-  - template: "icinga-web-monitoring-instances-ini"
-    target: "/etc/icingaweb2/modules/monitoring/instances.ini"
+  - template: "icinga-web-monitoring-commandtransports-ini"
+    target: "/etc/icingaweb2/modules/monitoring/commandtransports.ini"
     owner: "root"
     group: "www-data"
     mode: "0640"
