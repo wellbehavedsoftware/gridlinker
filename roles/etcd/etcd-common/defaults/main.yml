@@ -1,7 +1,11 @@
 ---
 
+# ---------- state
+
 etcd_state: "no"
 etcd_installed_version: "no"
+
+# ---------- configuration defaults
 
 etcd_name: "{{ identity.name }}"
 etcd_hostname: "{{ etcd_name }}"
@@ -12,7 +16,15 @@ etcd_peer_hostnames: [ "{{ etcd_peer_hostname }}" ]
 etcd_peer_ips: "{{ etcd_ips }}"
 etcd_peer_protocol: "{{ 'https' if etcd_secured == 'yes' else 'http' }}"
 etcd_peer_port: "2380"
-etcd_peer_url: "{{ etcd_peer_protocol }}://{{ etcd_peer_hostname }}:{{ etcd_peer_port }}"
+
+etcd_peer_url: "{{ [
+  etcd_peer_protocol,
+  '://',
+  etcd_peer_hostname,
+  ':',
+  etcd_peer_port,
+] | join }}"
+
 etcd_peer_urls: "{{ etcd_peer_hostnames
   | prepend_list (etcd_peer_protocol + '://')
   | append_list (':' + etcd_peer_port)
@@ -55,6 +67,20 @@ etcd_peer_authority: "{{ SHORT_NAME }}-etcd-peers"
 etcd_peer_common_name: "{{ SHORT_TITLE }} Etcd Peers CA"
 etcd_peer_ca_certificate: "/authority/{{ etcd_peer_authority }}/certificate"
 
+# --------- installation
+
+etcd_mirror: "https://github.com/coreos/etcd/releases/download"
+etcd_temp: "/tmp/etcd-install"
+etcd_data: "/var/lib/etcd"
+
+etcd_flag: "/etc/etcd-{{ etcd_version }}-flag"
+etcd_archive: "etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+etcd_directory: "etcd-v{{ etcd_version }}-linux-amd64"
+etcd_url: "{{ etcd_mirror }}/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+etcd_target: "/opt/etcd-{{ etcd_version }}"
+
+# ---------- configuration data
+
 etcd_directories:
 
   - path: "/etc/etcd"
@@ -85,5 +111,13 @@ etcd_security_config:
   - source: "{{ etcd_client_private_key }}"
     target: "client-{{ etcd_name }}.key"
     mode: "0600"
+
+etcd_config_templates:
+
+  - target: "/etc/etcd/etcd-environment"
+    template: "etcd-environment"
+    user: "root"
+    group: "root"
+    mode: "0644"
 
 # ex: et ts=2 filetype=yaml# ex: et ts=2 filetype=yaml

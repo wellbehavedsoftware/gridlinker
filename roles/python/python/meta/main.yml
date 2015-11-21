@@ -6,8 +6,8 @@ dependencies:
   - "build-python"
   - "install-python-pip"
   - "setup-python-pip"
-  - "setup-python-bin-links"
   - "install-python-packages"
   - "build-python-apt"
+  - "setup-python-bin-links"
 
 # ex: et ts=2 filetype=yaml

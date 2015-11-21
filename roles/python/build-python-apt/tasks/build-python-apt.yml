@@ -7,15 +7,21 @@
 
     executable: "/bin/bash"
 
+  environment:
+
+    PATH: "{{ python_target }}/bin:{{ lookup ('env', 'PATH') }}"
+
   shell:
 
     set -euf -o pipefail;
 
-    sudo apt-get install -y
+    echo "PATH - $PATH";
+
+    apt-get install -y
       build-essential
       libapt-pkg-dev;
 
-    sudo pip install
+    pip install
       sphinx;
 
     rm -rf "{{ python_temp }}";
@@ -34,7 +40,7 @@
     rm -rf "{{ python_temp }}"
 
 - name: "set python_apt.state to 'installed'"
-  when: "python_apt_state != 'installed'"
+  when: "python_apt_state == ''"
   update_resource:
 
     python_apt.state: "installed"
