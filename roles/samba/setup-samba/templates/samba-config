@@ -45,6 +45,7 @@
 
 {% for share_name in groups [samba_shares_group_name] %}
 {% set share = hostvars [share_name] %}
+{% if share.samba_share_enabled == 'yes' %}
 
 [{{ share.identity_name }}]
 
@@ -71,4 +72,5 @@
 	directory mask = {{ share.samba_share_directory_mask }}
 	force directory mode = {{ share.samba_share_force_directory_mode }}
 
+{% endif %}
 {% endfor %}
