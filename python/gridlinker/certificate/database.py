@@ -58,10 +58,14 @@ class CertificateDatabase:
 			raise Exception ()
 
 		if not self.client.exists (self.path):
-			raise Exception ()
+
+			raise Exception (
+				"No such certificate database")
 
 		if not self.client.exists (self.path + "/data"):
-			raise Exception ()
+
+			raise Exception (
+				"No such certificate database")
 
 		self.root_data = self.client.get_yaml (self.path + "/data")
 
@@ -424,7 +428,7 @@ class CertificateDatabase:
 			self.client.rm_recursive (
 				subject_path + "/current/chain")
 
-			self.client.rm (
+			self.client.rmdir (
 				subject_path + "/current")
 
 		# store new certificate
@@ -706,6 +710,8 @@ class CertificateDatabase:
 			serial = None,
 			digest = None,
 
+			request = None,
+
 			certificate = certificate_string,
 			certificate_path = certificate_path,
 
@@ -941,7 +947,8 @@ def args_search (sub_parsers):
 	parser_ordering = parser.add_argument_group (
 		"ordering")
 
-	parser_ordering_exclusive = parser_ordering.add_mutually_exclusive_group ()
+	parser_ordering_exclusive = (
+		parser_ordering.add_mutually_exclusive_group ())
 
 	parser_ordering_exclusive.add_argument (
 		"--order-by-expiry",
@@ -1226,6 +1233,11 @@ def args_export (sub_parsers):
 		"--rsa-private-key",
 		help = "path to write rsa private key")
 
+	parser.add_argument (
+		"--print-request",
+		action = "store_true",
+		help = "print signing request to stdout")
+
 def do_export (context, args):
 
 	database = CertificateDatabase (
@@ -1291,6 +1303,10 @@ def do_export (context, args):
 
 		print ("Wrote RSA private key to %s" % (
 			args.rsa_private_key))
+
+	if args.print_request:
+
+		print ("TODO")
 
 def args_upgrade (sub_parsers):
 

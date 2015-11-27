@@ -553,6 +553,8 @@ class CertificateAuthority:
 				serial = issue_serial,
 				digest = issue_digest,
 
+				request = None,
+
 				certificate = issue_cert_string,
 				certificate_path = issue_path + "/certificate",
 
@@ -623,6 +625,8 @@ class CertificateAuthority:
 
 			serial = issue_serial,
 			digest = issue_digest,
+
+			request = None,
 
 			certificate = certificate_string,
 			certificate_path = issue_path + "/certificate",
