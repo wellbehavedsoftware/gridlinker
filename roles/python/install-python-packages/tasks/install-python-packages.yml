@@ -3,6 +3,10 @@
 - name: "install python packages"
   with_items: "python_packages"
   sudo: "yes"
+  environment:
+
+    PATH: "{{ python_target }}/bin:{{ lookup ('env', 'PATH') }}"
+
   action:
 
     module: "pip"

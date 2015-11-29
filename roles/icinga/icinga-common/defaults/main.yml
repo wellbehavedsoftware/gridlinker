@@ -24,6 +24,10 @@ icinga_ca_certificate: ""
 icinga_certificate: ""
 icinga_private_key: ""
 
+icinga_graphite_enabled: ""
+icinga_graphite_host: "localhost"
+icinga_graphite_port: "2003"
+
 # installation
 
 icinga_source: "{{ ubuntu_mirror }}/ppa.launchpad.net/formorer/icinga"
@@ -57,6 +61,8 @@ icinga_master_hosts: "icinga-hosts"
 icinga_master_users: "icinga-users"
 icinga_master_groups: "icinga-groups"
 
+icinga_master_services: []
+
 icinga_master_directories:
 
   - directory: "/etc/icinga2/local"
@@ -80,6 +86,10 @@ icinga_master_config_templates:
 
   - template: "icinga-master-icinga"
     target: "icinga2.conf"
+    mode: "0644"
+
+  - template: "icinga-master-notifications"
+    target: "notifications.conf"
     mode: "0644"
 
   - template: "icinga-master-secrets"

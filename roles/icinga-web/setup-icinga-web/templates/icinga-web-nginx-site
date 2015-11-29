@@ -1,13 +1,7 @@
 {% set icinga_web_base = '/opt/icinga-web-' + icinga_web_version %}
 {% set icinga_web_public = icinga_web_base + '/public' %}
 
-server {
-
-	listen 80;
-
-	server_name {{ icinga_web_hostname }};
-
-{% if icinga_web_security in [ 'none', 'optional' ] %}
+{% macro gubbins () %}
 
 	location ~ ^/icingaweb2/index\.php(.*)$ {
 
@@ -31,14 +25,28 @@ server {
 
 	}
 
+{% if icinga_web_graphite_upstream != '' %}
+	location /graphite/ {
+		proxy_pass {{ icinga_web_graphite_upstream }}/;
+	}
+{% endif %}
+
+{% endmacro %}
+
+server {
+
+	listen 80;
+
+	server_name {{ icinga_web_hostname }};
+
+{% if icinga_web_security in [ 'none', 'optional' ] %}
+{{ gubbins () }}
 {% endif %}
 
 {% if icinga_web_security in [ 'full' ] %}
-
 	location / {
 		rewrite ^/(.*)$ https://{{ icinga_web_hostname }}/$1 permanent;
 	}
-
 {% endif %}
 
 {% if icinga_web_security in [ 'full' ] %}
@@ -61,37 +69,13 @@ server {
 	ssl_certificate_key /etc/nginx/ssl/{{ icinga_web_hostname }}.key;
 
 {% if icinga_web_security in [ 'optional', 'full' ] %}
-
-	location ~ ^/icingaweb2/index\.php(.*)$ {
-
-		fastcgi_pass unix:/var/run/php5-fpm.sock;
-		fastcgi_index index.php;
-
-		include fastcgi_params;
-
-		fastcgi_param SCRIPT_FILENAME {{ icinga_web_public }}/index.php;
-		fastcgi_param ICINGAWEB_CONFIGDIR /etc/icingaweb2;
-		fastcgi_param REMOTE_USER $remote_user;
-
-	}
-
-	location ~ ^/icingaweb2(.+)? {
-
-		alias {{ icinga_web_public }};
-
-		index index.php;
-		try_files $1 $uri $uri/ /icingaweb2/index.php$is_args$args;
-
-	}
-
+{{ gubbins () }}
 {% endif %}
 
 {% if icinga_web_security in [ 'none' ] %}
-
 	location / {
 		rewrite ^/(.*)$ http://{{ icinga_web_hostname }}/$1 permanent;
 	}
-
 {% endif %}
 
 {% if icinga_web_security in [ 'full' ] %}

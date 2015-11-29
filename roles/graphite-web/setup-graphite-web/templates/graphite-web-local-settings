@@ -1,0 +1,16 @@
+SECRET_KEY = '{{ graphite_web_secret_key }}'
+
+GRAPHITE_ROOT = '{{ graphite_web_target }}'
+CONTENT_DIR = '{{ graphite_web_target }}/webapp/content'
+
+STORAGE_DIR = '{{ graphite_web_storage_directory }}'
+WHISPER_DIR = '{{ graphite_web_whisper_directory }}'
+
+LOG_DIR = '{{ graphite_web_log_directory }}'
+
+URL_PREFIX = '/graphite'
+
+STATIC_ROOT = '{{ graphite_web_target }}/webapp/content'
+STATIC_URL = '/graphite/content/'
+
+FORCE_SCRIPT_NAME = '/graphite'

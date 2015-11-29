@@ -1,0 +1,71 @@
+template Notification "generic-host-email" {
+
+	command = "email-host-notification"
+
+	states = [
+		Up,
+		Down
+	]
+
+	types = [
+		Problem,
+		Acknowledgement,
+		Recovery,
+		Custom,
+		FlappingStart,
+		FlappingEnd,
+		DowntimeStart,
+		DowntimeEnd,
+		DowntimeRemoved
+	]
+
+	period = "always"
+
+}
+
+template Notification "generic-service-email" {
+
+	command = "email-service-notification"
+
+	states = [
+		OK,
+		Warning,
+		Critical,
+		Unknown
+	]
+
+	types = [
+		Problem,
+		Acknowledgement,
+		Recovery,
+		Custom,
+		FlappingStart,
+		FlappingEnd,
+		DowntimeStart,
+		DowntimeEnd,
+		DowntimeRemoved
+	]
+
+	period = "always"
+
+}
+
+apply Notification "default-host-email" to Host {
+
+	import "generic-host-email"
+
+	user_groups = host.vars.notification_groups
+
+	assign where host.vars.notification_groups
+
+}
+
+apply Notification "default-service-email" to Service {
+
+	import "generic-service-email"
+
+	user_groups = host.vars.notification_groups
+
+	assign where host.vars.notification_groups
+
+}

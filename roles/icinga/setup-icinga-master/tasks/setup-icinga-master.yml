@@ -55,4 +55,12 @@
     owner: "root"
     group: "nagios"
 
+- meta: "flush_handlers"
+
+- name: "set icinga.state to 'enabled'"
+  when: "icinga_state == 'installed'"
+  update_resource:
+
+    icinga.state: "enabled"
+
 # ex: et ts=2 filetype=yaml

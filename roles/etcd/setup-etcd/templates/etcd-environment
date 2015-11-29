@@ -1,0 +1,29 @@
+export ETCD_NAME="{{ etcd_name }}"
+export ETCD_DATA_DIR="{{ etcd_data }}"
+
+{% if etcd_clustered == 'yes' %}
+export ETCD_INITIAL_CLUSTER="{{ etcd_initial_cluster }}"
+export ETCD_INITIAL_CLUSTER_STATE="{{ etcd_initial_cluster_state }}"
+export ETCD_INITIAL_ADVERTISE_PEER_URLS="{{ etcd_initial_advertise_peer_urls | join (',') }}"
+
+export ETCD_LISTEN_PEER_URLS="{{ etcd_listen_peer_urls | join (',') }}"
+{% endif %}
+
+export ETCD_SNAPSHOT_COUNT="{{ etcd_snapshot_count }}"
+export ETCD_HEARTBEAT_INTERVAL="{{ etcd_heartbeat_interval }}"
+export ETCD_ELECTION_TIMEOUT="{{ etcd_election_timeout }}"
+
+{% if etcd_clustered == 'yes' and etcd_secured == 'yes' %}
+export ETCD_PEER_CA_FILE="/etc/etcd/peer-ca.cert"
+export ETCD_PEER_CERT_FILE="/etc/etcd/peer-{{ etcd_name }}.cert"
+export ETCD_PEER_KEY_FILE="/etc/etcd/peer-{{ etcd_name }}.key"
+{% endif %}
+
+{% if etcd_secured == 'yes' %}
+export ETCD_CA_FILE="/etc/etcd/client-ca.cert"
+export ETCD_CERT_FILE="/etc/etcd/client-{{ etcd_name }}.cert"
+export ETCD_KEY_FILE="/etc/etcd/client-{{ etcd_name }}.key"
+{% endif %}
+
+export ETCD_LISTEN_CLIENT_URLS="{{ etcd_listen_client_urls | join (',') }}"
+export ETCD_ADVERTISE_CLIENT_URLS="{{ etcd_advertise_client_urls | join (',') }}"

@@ -1,0 +1,31 @@
+---
+
+- name: "reload upstart config"
+  shell: "initctl reload-configuration"
+  sudo: "yes"
+
+- name: "set graphite_web.needs_restart to 'yes'"
+  when: "graphite_web_state == 'enabled'"
+  changed_when: "True"
+  notify: "restart graphite web"
+  update_resource:
+
+    graphite_web.needs_restart: "yes"
+
+- name: "restart graphite web"
+  when: "graphite_web_state == 'enabled'"
+  notify: "set graphite_web.needs_restart to 'no'"
+  sudo: "yes"
+  action:
+
+    module: "service"
+    name: "graphite-web"
+    state: "restarted"
+
+- name: "set graphite_web.needs_restart to 'no'"
+  changed_when: "True"
+  update_resource:
+
+    graphite_web.needs_restart: "no"
+
+# ex: et ts=2 filetype=yaml

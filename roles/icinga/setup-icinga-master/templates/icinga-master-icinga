@@ -9,9 +9,12 @@ library "checker"
 {% if icinga_database_type == 'mysql' %}
 library "db_ido_mysql"
 {% endif %}
-library "notification"
 {% if icinga_database_type == 'postgresql' %}
-library "db_ido_postgresql"
+library "db_ido_pgsql"
+{% endif %}
+library "notification"
+{% if icinga_graphite_enabled == 'yes' %}
+library "perfdata"
 {% endif %}
 
 object ApiListener "api" {
@@ -34,32 +37,54 @@ object FileLogger "main-log" {
 }
 
 {% if icinga_database_type == 'mysql' %}
-
 object IdoMysqlConnection "ido-mysql" {
 	host = "{{ icinga_database_hostname }}"
-	database = "icingaido"
-	user = "icingaido"
+	database = "{{ icinga_database_name }}"
+	user = "{{ icinga_database_username }}"
 	password = IcingaIdoMysqlPassword
 }
-
 {% endif %}
 
 {% if icinga_database_type == 'postgresql' %}
-
-object IdoMysqlConnection "ido-postgresql" {
+object IdoPgsqlConnection "ido-pgsql" {
 	host = "{{ icinga_database_hostname }}"
-	database = "icingaido"
-	user = "icingaido"
+	database = "{{ icinga_database_name }}"
+	user = "{{ icinga_database_username }}"
 	password = IcingaIdoPostgresqlPassword
 }
-
 {% endif %}
 
 object NotificationComponent "notification" {
 }
 
+{% if icinga_graphite_enabled == 'yes' %}
+object GraphiteWriter "graphite" {
+
+	host = "{{ icinga_graphite_host }}"
+	port = "{{ icinga_graphite_port }}"
+
+	host_name_template = "{{ [
+		'icinga',
+		'$host.name$',
+		'host',
+		'$host.check_command$',
+	] | join ('.') }}"
+
+	service_name_template = "{{ [
+		'icinga',
+		'$host.name$',
+		'services',
+		'$service.name$',
+		'$service.check_command$',
+		'perfdata',
+	] | join ('.') }}"
+
+}
+{% endif %}
+
 include "commands.conf"
 include "hosts.conf"
+include "notifications.conf"
 include "services.conf"
 include "time-periods.conf"
 include "users.conf"

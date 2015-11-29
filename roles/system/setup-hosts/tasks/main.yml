@@ -2,6 +2,9 @@
 
 - include: "setup-hosts.yml"
   when: "system_setup_hosts == 'yes'"
-  tags: [ "system", "setup-hosts" ]
+  tags:
+
+    - "system"
+    - "setup-hosts"
 
 # ex: et ts=2 filetype=yaml

@@ -33,19 +33,20 @@
         --param=ssp-buffer-size=4
         -Wformat
         -Werror=format-security
-      " \
+      "
       --with-ld-opt="
         -Wl,-Bsymbolic-functions
         -Wl,-z,relro
         -Wl,--rpath={{ nginx_target }}/lib
-      " \
-      --prefix="{{ nginx_target }}" \
-      --with-debug \
-      --with-pcre-jit \
-      --with-ipv6 \
-      --with-http_ssl_module \
-      --with-http_stub_status_module \
-      --with-http_realip_module;
+      "
+      --prefix="{{ nginx_target }}"
+      --with-debug
+      --with-pcre-jit
+      --with-ipv6
+      --with-http_ssl_module
+      --with-http_stub_status_module
+      --with-http_realip_module
+      --with-http_v2_module;
 
     make install;
 

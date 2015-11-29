@@ -127,6 +127,9 @@ class SimpleArgument:
 		if arg_vars.get ("self.argument_name") == None:
 			return
 
+		if arg_vars.get ("self.argument_name") == None:
+			return
+
 		value = arg_vars [self.argument_name]
 
 		if value:
@@ -534,6 +537,9 @@ class MiscSetArgument:
 		if arg_vars.get ("set") == None:
 			return
 
+		if arg_vars.get ("set") == None:
+			return
+
 		for section_key, value in arg_vars ["set"]:
 
 			section, key = section_key.split (".")
@@ -642,6 +648,9 @@ class MiscAddArgument:
 		if arg_vars.get ("add") == None:
 			return
 
+		if arg_vars.get ("add") == None:
+			return
+
 		for section_key, value in arg_vars ["add"]:
 
 			section, key = section_key.split (".")
@@ -680,6 +689,9 @@ class MiscSetDictArgument:
 			help = "miscellaneous value to store in dictionary")
 
 	def update_record (self, arg_vars, record_data, context, helper):
+
+		if arg_vars.get ("set_dict") == None:
+			return
 
 		if arg_vars.get ("set_dict") == None:
 			return
@@ -723,6 +735,9 @@ class MiscUnsetDictArgument:
 		if arg_vars.get ("unset_dict") == None:
 			return
 
+		if arg_vars.get ("unset_dict") == None:
+			return
+
 		for section_key, dict_key in arg_vars ["unset_dict"]:
 
 			section, key = section_key.split (".")
@@ -756,6 +771,9 @@ class GeneratePasswordArgument:
 			help = "generate random password to store")
 
 	def update_record (self, arg_vars, record_data, context, helper):
+
+		if arg_vars.get ("generate_password") == None:
+			return
 
 		if arg_vars.get ("generate_password") == None:
 			return

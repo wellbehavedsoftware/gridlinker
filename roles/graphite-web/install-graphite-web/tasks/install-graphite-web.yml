@@ -1,0 +1,47 @@
+---
+
+- name: "check required variables"
+  when: "graphite_web_version == ''"
+  fail:
+
+    msg: "please set graphite_web_version"
+
+- name: "install graphite-web"
+  when: "graphite_web_installed_version != graphite_web_version"
+  sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf {{ graphite_web_temp }};
+    mkdir -p {{ graphite_web_temp }};
+    cd {{ graphite_web_temp }};
+
+    wget {{ graphite_web_url }};
+    tar xzf {{ graphite_web_archive }};
+
+    mkdir -p {{ graphite_web_target }};
+
+    rsync --archive --delete
+      {{ graphite_web_directory }}/
+      {{ graphite_web_target }}/;
+
+    rm -rf {{ graphite_web_temp }};
+
+- name: "set graphite_web.state to 'installed'"
+  when: "graphite_web_state == ''"
+  update_resource:
+
+    graphite_web.state: "installed"
+
+- name: "set graphite_web_installed_version"
+  when: "graphite_web_installed_version != graphite_web_version"
+  update_resource:
+
+    graphite_web.installed_version: "{{ graphite_web_version }}"
+
+# ex: et ts=2 filetype=yaml
