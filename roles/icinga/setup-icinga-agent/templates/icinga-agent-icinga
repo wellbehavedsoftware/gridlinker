@@ -6,7 +6,6 @@ include <itl>
 include <plugins>
 
 library "checker"
-library "db_ido_mysql"
 library "notification"
 
 object ApiListener "api" {

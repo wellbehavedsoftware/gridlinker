@@ -1,0 +1,53 @@
+---
+
+# ---------- state
+
+graphite_web_state: ""
+graphite_web_installed_version: ""
+graphite_web_needs_restart: ""
+
+# ---------- installation
+
+graphite_web_version: ""
+graphite_web_github: "https://github.com/graphite-project/graphite-web"
+graphite_web_temp: "/tmp/graphite-web-install"
+
+graphite_web_url: "{{ graphite_web_github }}/archive/{{ graphite_web_version }}.tar.gz"
+graphite_web_archive: "{{ graphite_web_version }}.tar.gz"
+graphite_web_directory: "graphite-web-{{ graphite_web_version }}"
+graphite_web_target: "/opt/graphite-web-{{ graphite_web_version }}"
+
+# ---------- configuration defaults
+
+graphite_web_secret_key: ""
+
+graphite_web_storage_directory: "{{ graphite_carbon_storage_directory }}"
+graphite_web_whisper_directory: "{{ graphite_carbon_whisper_directory }}"
+graphite_web_log_directory: "/var/log/graphite-web"
+
+graphite_web_socket_path: "/var/run/graphite-web/wsgi-socket"
+graphite_web_socket_url: "unix:{{ graphite_web_socket_path }}"
+
+# ---------- configuration files
+
+graphite_web_config_directories:
+
+  - directory: "/var/local/lib/graphite-web"
+    owner: "carbon"
+    group: "carbon"
+    mode: "0750"
+
+  - directory: "/var/log/graphite-web"
+    owner: "carbon"
+    group: "carbon"
+    mode: "0750"
+
+graphite_web_config_templates:
+
+  - target: "{{ graphite_web_target }}/webapp/graphite/local_settings.py"
+    template: "graphite-web-local-settings"
+    owner: "root"
+    group: "carbon"
+    mode: "0640"
+
+# ex: et ts=2 filetype=yaml

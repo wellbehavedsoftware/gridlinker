@@ -1,0 +1,86 @@
+---
+
+# ---------- installation
+
+graphite_carbon_version: ""
+graphite_carbon_github: "https://github.com/graphite-project/carbon/archive"
+graphite_carbon_temp: "/tmp/graphite-carbon-install"
+
+graphite_carbon_url: "{{ [
+  graphite_carbon_github,
+  '/',
+  graphite_carbon_version,
+  '.tar.gz',
+] | join }}"
+
+graphite_carbon_archive: "{{ graphite_carbon_version }}.tar.gz"
+graphite_carbon_directory: "carbon-{{ graphite_carbon_version }}"
+graphite_carbon_target: "/opt/graphite-carbon-{{ graphite_carbon_version }}"
+
+# ---------- state
+
+graphite_carbon_state: ""
+graphite_carbon_installed_version: ""
+graphite_carbon_needs_restart: ""
+
+# ---------- configuration defaults
+
+graphite_carbon_relay_destinations: "127.0.0.1:2004"
+graphite_carbon_aggregator_destinations: "127.0.0.1:2004"
+
+graphite_carbon_storage_directory: "/var/local/lib/carbon"
+
+graphite_carbon_whisper_directory: "{{ [
+  graphite_carbon_storage_directory,
+  '/whisper',
+] | join }}"
+
+graphite_carbon_config_directory: "{{ graphite_carbon_target }}/conf"
+
+graphite_carbon_whitelists_directory: "{{ [
+  graphite_carbon_config_directory,
+  '/whitelists',
+] | join }}"
+
+graphite_carbon_log_directory: "/var/log/graphite-carbon"
+graphite_carbon_pid_directory: "/var/run/graphite-carbon"
+
+# ---------- configuration files
+
+graphite_carbon_config_directories:
+
+  - directory: "/var/local/lib/carbon"
+    owner: "carbon"
+    group: "carbon"
+    mode: "0755"
+
+  - directory: "/var/local/lib/carbon/whisper"
+    owner: "root"
+    group: "carbon"
+    mode: "0770"
+
+  - directory: "{{ graphite_carbon_target }}/conf/whitelists"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "/var/log/graphite-carbon"
+    owner: "carbon"
+    group: "carbon"
+    mode: "0750"
+
+graphite_carbon_config_templates:
+
+  - template: "graphite-carbon-config"
+    target: "{{ graphite_carbon_target }}/conf/carbon.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+  - template: "graphite-carbon-storage-schemas-config"
+    target: "{{ graphite_carbon_target }}/conf/storage-schemas.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+# ex: et ts=2 filetype=yaml

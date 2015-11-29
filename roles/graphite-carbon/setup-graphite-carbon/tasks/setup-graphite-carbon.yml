@@ -1,0 +1,35 @@
+---
+
+- name: "create graphite carbon directories"
+  with_items: "graphite_carbon_config_directories"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "create graphite carbon templates"
+  with_items: "graphite_carbon_config_templates"
+  sudo: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ item.target }}"
+    src: "{{ item.template }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- meta: "flush_handlers"
+
+- name: "set graphite_carbon.state to 'enabled'"
+  when: "graphite_carbon.state == 'installed'"
+  update_resource:
+
+    graphite_carbon.state: "enabled"
+
+# ex: et ts=2 filetype=yaml

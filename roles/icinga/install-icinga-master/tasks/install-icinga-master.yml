@@ -45,7 +45,7 @@
     rm -f /etc/init.d/icinga2 /etc/init.d/rc?.d/[KS]??icinga2;
 
 - name: "set icinga.state to 'installed'"
-  when: "icinga_state == 'no'"
+  when: "icinga_state == ''"
   update_resource:
 
     icinga.state: "installed"

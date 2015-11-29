@@ -1,0 +1,49 @@
+{%- macro do_vars (vars) -%}
+
+	{%- for var in vars -%}
+
+		{%- set lhs -%}
+			{%- if 'key' in var -%}
+				{%- print 'vars.', var.name, ' ["', var.key, '"]' -%}
+			{%- else -%}
+				{%- print 'vars.', var.name -%}
+			{%- endif -%}
+		{%- endset -%}
+
+		{%- if var.type == 'string' -%}
+			{%- print '\t', lhs, ' = "', var.value, '"\n' -%}
+		{%- elif var.type == 'array' -%}
+
+			{%- print '\t', lhs, ' = [\n' -%}
+
+			{%- for item in var.value -%}
+				{%- if item.type == 'string' -%}
+					{%- print '\t\t"', item.value, '",\n' -%}
+				{%- else -%}
+					{%- print '\t\t', item.value, ',\n' -%}
+				{%- endif -%}
+			{%- endfor -%}
+
+			{%- print '\t]\n' -%}
+
+		{%- elif var.type == 'object' -%}
+
+			{%- print '\t', lhs, ' = {\n' -%}
+
+			{%- for item in var.value -%}
+				{%- if item.type == 'string' -%}
+					{%- print '\t\t', item.name, ' = "', item.value, '"\n' -%}
+				{%- else -%}
+					{%- print '\t\t', item.name, ' = ', item.value, '\n' -%}
+				{%- endif -%}
+			{%- endfor -%}
+
+			{%- print '\t}\n' -%}
+
+		{%- else -%}
+			{%- print '\t', lhs, ' = ', var.value, '\n' -%}
+		{%- endif -%}
+
+	{%- endfor -%}
+
+{%- endmacro -%}
