@@ -43,6 +43,10 @@
 	printcap name = /dev/null
 	disable spoolss = yes
 
+	# name mangling
+
+	mangled names = no
+
 {% for share_name in groups [samba_shares_group_name] %}
 {% set share = hostvars [share_name] %}
 {% if share.samba_share_enabled == 'yes' %}
