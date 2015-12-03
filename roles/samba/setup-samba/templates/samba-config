@@ -47,7 +47,7 @@
 {% set share = hostvars [share_name] %}
 {% if share.samba_share_enabled == 'yes' %}
 
-[{{ share.identity_name }}]
+[{{ share.samba_share_name }}]
 
 	comment = {{ share.samba_share_comment }}
 	path = {{ share.samba_share_path }}

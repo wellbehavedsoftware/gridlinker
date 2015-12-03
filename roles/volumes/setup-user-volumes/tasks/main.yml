@@ -1,0 +1,9 @@
+---
+
+- include: "setup-user-volumes.yml"
+  tags:
+
+    - "volumes"
+    - "setup-user-volumes"
+
+# ex: et ts=2 filetype=yaml
