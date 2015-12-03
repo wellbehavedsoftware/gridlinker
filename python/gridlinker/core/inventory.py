@@ -622,14 +622,19 @@ class Inventory (object):
 
 		resource_data = self.resources [resource_name]
 
-		if " " in name or "|" in name or "(" in name or "[" in name:
+		if False:
 
-			if self.trace:
+			if " " in name \
+			or "|" in name \
+			or "(" in name \
+			or "[" in name:
 
-				print (
-					"  FAIL unsupported syntax")
+				if self.trace:
 
-			return False, None
+					print (
+						"  FAIL unsupported syntax")
+
+				return False, None
 
 		if name == "inventory_hostname":
 
@@ -709,6 +714,23 @@ class Inventory (object):
 				grandparent_name,
 				".".join (parts [1:]))
 
+		match = re.search (r"\s*hostvars\s*\[\'([^']+)\'\]\s*", parts [0])
+
+		if match:
+
+			hostvars_name = match.group (1)
+			hostvars_data = self.resources [hostvars_name]
+
+			if self.trace:
+
+				print (
+					"  RECURSE resolved hostvars: %s" % (
+						hostvars_name))
+
+			return self.resolve_variable (
+				hostvars_name,
+				".".join (parts [1:]))
+
 		for reference in class_data ["class"].get ("references", []):
 
 			if not parts [0] == reference ["name"]:
@@ -778,6 +800,15 @@ class Inventory (object):
 						part))
 
 			return self.resolve_value_real (resource_name, current)
+
+		if isinstance (current, dict) \
+		or isinstance (current, list):
+
+			#return True, "{{ hostvars ['%s'].%s }}" % (
+			#	resource_name,
+			#	".".join (parts))
+
+			return True, current
 
 		if self.trace:
 
