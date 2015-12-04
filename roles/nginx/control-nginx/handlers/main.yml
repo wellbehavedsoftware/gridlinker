@@ -1,28 +1,31 @@
 ---
 
 - name: "reload upstart config"
-  shell: "initctl reload-configuration"
   sudo: "yes"
+  shell: "initctl reload-configuration"
 
 - name: "set nginx.needs_restart to 'yes'"
   when: "nginx_state == 'enabled'"
-  update_resource:
-    nginx.needs_restart: "yes"
   changed_when: "True"
   notify: "restart nginx"
+  update_resource:
+
+    nginx.needs_restart: "yes"
 
 - name: "restart nginx"
   when: "nginx_state == 'enabled'"
+  notify: "set nginx.needs_restart to 'no'"
+  sudo: "yes"
   action:
+
     module: "service"
     name: "nginx"
     state: "restarted"
-  sudo: "yes"
-  notify: "set nginx.needs_restart to 'no'"
 
 - name: "set nginx.needs_restart to 'no'"
-  update_resource:
-    nginx.needs_restart: "no"
   changed_when: "True"
+  update_resource:
+
+    nginx.needs_restart: "no"
 
 # ex: et ts=2 filetype=yaml
