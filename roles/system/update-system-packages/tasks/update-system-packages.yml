@@ -1,11 +1,28 @@
 ---
 
-- name: "update system packages"
+- name: "update package database"
   sudo: "yes"
-  action:
+  command: "apt-get update"
 
-    module: "apt"
-    update_cache: "yes"
-    upgrade: "dist"
+- name: "update packages"
+  sudo: "yes"
+  command: "apt-get dist-upgrade"
+
+- name: "remove automatically installed packages"
+  sudo: "yes"
+  command: "apt-get clean"
+
+- name: "purge removed packages"
+  sudo: "yes"
+  shell:
+
+    dpkg --list
+    | (grep "^rc" || test $? = 1)
+    | cut --delimiter " " --fields 3
+    | xargs --no-run-if-empty dpkg --purge
+
+- name: "clean downloaded packages"
+  sudo: "yes"
+  command: "apt-get clean"
 
 # ex: et ts=2 filetype=yaml

@@ -1,0 +1,67 @@
+---
+
+- set_fact:
+    user_volume: "{{ item }}"
+
+- name: "create user volumes directories"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "{{ user_volumes_path }}/{{ user_volume.identity_name }}"
+    state: "directory"
+
+    owner: "root"
+    group: "user-{{ user_volume.identity_name }}"
+    mode: "0750"
+
+- name: "create user volumes subvolumes"
+  sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+    creates: "{{ [
+      user_volumes_path,
+      user_volume.identity_name,
+      'current',
+    ] | join ('/') }}"
+
+  shell:
+
+    set -euf -p pipefail;
+
+    btrfs subvolume create
+      "{{ [
+        user_volumes_path,
+        user_volume.identity_name,
+        'current',
+      ] | join ('/') }}";
+
+- name: "set user volumes permissions"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "{{ user_volumes_path }}/{{ user_volume.identity_name }}/current"
+
+    owner: "user-{{ user_volume.identity_name }}"
+    group: "user-{{ user_volume.identity_name }}"
+    mode: "0770"
+
+- name: "create user volumes snapshots directories"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "{{ [
+      user_volumes_path,
+      user_volume.identity_name,
+      'snapshots',
+    ] | join ('/') }}"
+    state: "directory"
+
+    owner: "root"
+    group: "user-{{ user_volume.identity_name }}"
+    mode: "0750"
+
+# ex: et ts=2 filetype=yaml

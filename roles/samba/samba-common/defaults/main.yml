@@ -1,0 +1,29 @@
+---
+
+samba_system_packages:
+
+  - "samba"
+  - "smbclient"
+
+samba_config_templates:
+
+  - template: "samba-config"
+    target: "/etc/samba/smb.conf"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - template: "samba-username-map"
+    target: "/etc/samba/username-map"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+samba_state: ""
+samba_needs_restart: "no"
+
+samba_share_valid_users: ""
+samba_share_write_list: ""
+samba_share_read_list: ""
+
+# ex: et ts=2 filetype=yaml

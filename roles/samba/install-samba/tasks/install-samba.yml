@@ -1,0 +1,17 @@
+---
+
+- name: "install samba system packages"
+  with_items: "samba_system_packages"
+  sudo: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "set samba.state to 'installed'"
+  when: "samba_state == ''"
+  update_resource:
+
+    samba.state: "installed"
+
+# ex: et ts=2 filetype=yaml

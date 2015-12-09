@@ -1,0 +1,9 @@
+---
+
+- include: "setup-samba.yml"
+  tags:
+
+    - "samba"
+    - "setup-samba"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,26 @@
+---
+
+#- name: "write samba upstart config"
+#  sudo: "yes"
+#  notify:
+#
+#    - "reload upstart config"
+#    - "set samba.needs_restart to 'yes'"
+#
+#  action:
+#
+#    module: "template"
+#    src: "samba-upstart"
+#    dest: "/etc/init/samba.conf"
+
+- meta: "flush_handlers"
+
+- name: "trigger samba restart"
+  when: "samba_needs_restart == 'yes'"
+  update_resource: {}
+  changed_when: "True"
+  notify: "restart samba"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml
