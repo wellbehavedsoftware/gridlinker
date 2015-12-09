@@ -1,14 +1,19 @@
 ---
 
 - name: "install pip"
-  args:
-    executable: "/bin/bash"
+  when: "python_pip_version != python_pip_installed_version"
   sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  environment:
+
+    PATH: "{{ python_target }}/bin:{{ lookup ('env', 'PATH') }}"
+
   shell:
 
     set -euf -o pipefail;
-
-    export PATH="{{ python_target }}/bin:$PATH";
 
     rm -rf "{{ python_temp }}";
     mkdir -p "{{ python_temp }}";
@@ -20,5 +25,17 @@
 
     cd /;
     rm -rf "{{ python_temp }}"
+
+- name: "set python_pip.state to 'installed'"
+  when: "python_pip_state == ''"
+  update_resource:
+
+    python_pip.state: "installed"
+
+- name: "set python_pip.installed_version"
+  when: "python_pip_installed_version != python_pip_version"
+  update_resource:
+
+    python_pip.installed_version: "{{ python_pip_version }}"
 
 # ex: et ts=2 filetype=yaml

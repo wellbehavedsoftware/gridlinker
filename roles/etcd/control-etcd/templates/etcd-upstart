@@ -8,37 +8,9 @@ stop on runlevel [!2345]
 respawn
 respawn limit unlimited
 
-env ETCD_NAME="{{ etcd_name }}"
-env ETCD_DATA_DIR="{{ etcd_data }}"
-
-{% if etcd_clustered == 'yes' %}
-env ETCD_INITIAL_CLUSTER="{{ etcd_initial_cluster }}"
-env ETCD_INITIAL_CLUSTER_STATE="{{ etcd_initial_cluster_state }}"
-env ETCD_INITIAL_ADVERTISE_PEER_URLS="{{ etcd_initial_advertise_peer_urls | join (',') }}"
-
-env ETCD_LISTEN_PEER_URLS="{{ etcd_listen_peer_urls | join (',') }}"
-{% endif %}
-
-env ETCD_SNAPSHOT_COUNT="{{ etcd_snapshot_count }}"
-env ETCD_HEARTBEAT_INTERVAL="{{ etcd_heartbeat_interval }}"
-env ETCD_ELECTION_TIMEOUT="{{ etcd_election_timeout }}"
-
-{% if etcd_clustered == 'yes' and etcd_secured == 'yes' %}
-env ETCD_PEER_CA_FILE="/etc/etcd/peer-ca.cert"
-env ETCD_PEER_CERT_FILE="/etc/etcd/peer-{{ etcd_name }}.cert"
-env ETCD_PEER_KEY_FILE="/etc/etcd/peer-{{ etcd_name }}.key"
-{% endif %}
-
-{% if etcd_secured == 'yes' %}
-env ETCD_CA_FILE="/etc/etcd/client-ca.cert"
-env ETCD_CERT_FILE="/etc/etcd/client-{{ etcd_name }}.cert"
-env ETCD_KEY_FILE="/etc/etcd/client-{{ etcd_name }}.key"
-{% endif %}
-
-env ETCD_LISTEN_CLIENT_URLS="{{ etcd_listen_client_urls | join (',') }}"
-env ETCD_ADVERTISE_CLIENT_URLS="{{ etcd_advertise_client_urls | join (',') }}"
-
 script
+
+	. /etc/etcd/etcd-environment
 
 	exec >>/var/log/etcd.log
 	exec 2>&1

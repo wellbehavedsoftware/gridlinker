@@ -36,7 +36,7 @@ exlock_now () {
 
 exlock () {
 	_lock x
-}   
+}
 
 # obtain a shared lock or wait
 

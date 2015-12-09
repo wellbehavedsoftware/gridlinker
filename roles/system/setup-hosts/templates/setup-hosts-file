@@ -9,7 +9,11 @@
 {% if host_name != inventory_hostname
 	and host_data.private_address is defined
 	and host_data.private_hostnames is defined %}
-{{ host_data.private_address }} {{ host_data.private_hostnames | join (' ') }}
+{{ host_data.private_address }} {{
+	host_data.private_hostnames
+	| union (host_data.private_aliases | default ([]))
+	| join (' ')
+}}
 {% endif %}
 {% endfor %}
 

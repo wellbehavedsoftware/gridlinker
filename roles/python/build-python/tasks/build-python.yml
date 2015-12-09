@@ -73,7 +73,7 @@
     python.installed_version: "{{ python_version }}"
 
 - name: "set python.state to 'installed'"
-  when: "python_state == 'no'"
+  when: "python_state == ''"
   update_resource:
 
     python.state: "installed"

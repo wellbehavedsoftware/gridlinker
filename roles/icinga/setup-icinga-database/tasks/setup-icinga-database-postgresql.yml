@@ -2,6 +2,7 @@
 
 - name: "create ido database"
   delegate_to: "{{ icinga_database_delegate }}"
+  register: "icinga_database_create_result"
   action:
 
     module: "postgresql_db"
@@ -9,6 +10,12 @@
 
     login_user: "ubuntu"
     login_unix_socket: "/var/run/postgresql"
+
+- name: "set icinga_database_initialized to 'no'"
+  when: "icinga_database_create_result | changed"
+  update_resource:
+
+    icinga.database_initialized: "no"
 
 - name: "create ido user"
   delegate_to: "{{ icinga_database_delegate }}"
@@ -19,6 +26,29 @@
 
     password: "{{ icinga_database_password }}"
     db: "{{ icinga_database_name }}"
+
+    login_user: "ubuntu"
+    login_unix_socket: "/var/run/postgresql"
+
+- name: "grant icinga database permissions"
+  with_items:
+
+    - "table"
+    - "sequence"
+
+  delegate_to: "{{ icinga_database_delegate }}"
+  action:
+
+    module: "postgresql_privs"
+    role: "{{ icinga_database_username }}"
+    state: "present"
+
+    database: "{{ icinga_database_name }}"
+    schema: "public"
+    objs: "ALL_IN_SCHEMA"
+    type: "{{ item }}"
+
+    privs: "ALL"
 
     login_user: "ubuntu"
     login_unix_socket: "/var/run/postgresql"

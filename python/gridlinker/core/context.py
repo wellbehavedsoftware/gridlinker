@@ -201,6 +201,11 @@ class GenericContext (object):
 		return "%s/third-party" % self.home
 
 	@lazy_property
+	def webserver_home (self):
+
+		return "%s/wbs-site-admin" % self.third_party_home
+
+	@lazy_property
 	def ansible_home (self):
 
 		return "%s/ansible" % self.third_party_home

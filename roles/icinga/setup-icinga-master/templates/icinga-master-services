@@ -1,3 +1,5 @@
+{% import 'icinga-master-macros' as macros with context %}
+
 template Service "generic-service" {
 
 	max_check_attempts = 5
@@ -7,3 +9,31 @@ template Service "generic-service" {
 	enable_notifications = true
 
 }
+
+{% for service in icinga_master_services %}
+{% if 'name' in service %}
+apply Service "{{ service.name }}" {
+{% else %}
+apply Service for ({{ service.for_key }} => {{ service.for_value }} in {{ service.for_var }}) {
+{% endif %}
+
+	import "generic-service"
+
+	check_command = "{{ service.check_command }}"
+
+{% if 'command_endpoint' in service %}
+	command_endpoint = {{ service.command_endpoint }}
+{% endif %}
+
+{% if 'assign_where' in service %}
+	assign where {{ service.assign_where }} 
+{% endif %}
+
+{{ macros.do_vars (service.vars | default ([])) }}
+
+{% if 'add_vars' in service %}
+	vars += {{ service.add_vars }}
+{% endif %}
+
+}
+{% endfor %}

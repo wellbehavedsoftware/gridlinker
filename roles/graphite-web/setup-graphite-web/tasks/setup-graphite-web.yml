@@ -1,0 +1,47 @@
+---
+
+- name: "create graphite web directories"
+  with_items: "graphite_web_config_directories"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "create graphite web templates"
+  with_items: "graphite_web_config_templates"
+  sudo: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ item.target }}"
+    src: "{{ item.template }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "create graphite web site"
+  notify: "set nginx.needs_restart to 'yes'"
+  sudo: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ nginx_target }}/conf/sites/graphite-web"
+    src: "graphite-web-nginx-site"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- meta: "flush_handlers"
+
+- name: "set graphite_web.state to 'enabled'"
+  when: "graphite_web_state == 'installed'"
+  update_resource:
+
+    graphite_web.state: "enabled"
+
+# ex: et ts=2 filetype=yaml

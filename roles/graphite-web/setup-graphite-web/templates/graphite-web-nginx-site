@@ -1,0 +1,64 @@
+{% macro gubbins () %}
+
+	location / {
+		include uwsgi_params;
+		uwsgi_pass {{ graphite_web_socket_url }};
+	}
+
+{% endmacro %}
+
+server {
+
+	listen 80;
+
+	server_name {{ graphite_web_hostname }};
+
+{% if graphite_web_security in [ 'none', 'optional' ] %}
+{{ gubbins () }}
+{% endif %}
+
+{% if graphite_web_security in [ 'full' ] %}
+	location / {
+		rewrite ^/(.*)$ https://{{ graphite_web_hostname }}/$1 permanent;
+	}
+{% endif %}
+
+{% if graphite_web_security in [ 'full' ] %}
+	add_header Strict-Transport-Security "max-age=315360000; includeSubdomains;";
+{% else %}
+	add_header Strict-Transport-Security "max-age=0; includeSubdomains;";
+{% endif %}
+
+}
+
+{% if graphite_web_security in [ 'optional', 'full', 'disabled' ] %}
+
+server {
+
+	listen 443 ssl;
+
+	server_name {{ graphite_web_hostname }};
+
+	ssl_certificate /etc/nginx/ssl/{{ graphite_web_hostname }}.cert;
+	ssl_certificate_key /etc/nginx/ssl/{{ graphite_web_hostname }}.key;
+
+{% if graphite_web_security in [ 'optional', 'full' ] %}
+{{ gubbins () }}
+{% endif %}
+
+{% if graphite_web_security in [ 'none' ] %}
+	location / {
+		rewrite ^/(.*)$ http://{{ graphite_web_hostname }}/$1 permanent;
+	}
+{% endif %}
+
+{% if graphite_web_security in [ 'full' ] %}
+	add_header Strict-Transport-Security "max-age=315360000; includeSubdomains;";
+{% else %}
+	add_header Strict-Transport-Security "max-age=0; includeSubdomains;";
+{% endif %}
+
+}
+
+{% endif %}
+
