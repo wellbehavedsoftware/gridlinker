@@ -489,9 +489,11 @@ class GenericContext (object):
 
 						address for address in map (
 
-							lambda value: self.inventory.resolve_value_or_none (
-								resource_name,
-								value),
+							lambda value: (
+								self.inventory.resolve_value_or_none (
+									resource_name,
+									value,
+									"")),
 
 							class_data ["ssh"] ["hostnames"])
 
