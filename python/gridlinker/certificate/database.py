@@ -480,7 +480,7 @@ class CertificateDatabase:
 			verify_subject = True,
 			verify_common_name = True):
 
-		subject_path = self.path + "/" + name
+		subject_path = self.path + "/subjects/" + name
 
 		# read certificates and private key
 
