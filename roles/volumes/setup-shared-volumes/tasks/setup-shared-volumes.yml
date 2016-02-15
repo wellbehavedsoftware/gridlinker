@@ -8,49 +8,7 @@
     path: "{{ shared_volumes_path }}"
     state: "directory"
 
-- name: "create shared volumes directories"
-  with_items: "groups [shared_volumes_group_name]"
-  sudo: "yes"
-  action:
-
-    module: "file"
-    path: "{{ shared_volumes_path }}/{{ hostvars [item].identity_name }}"
-    state: "directory"
-
-- name: "create shared volumes subvolumes"
-  with_items: "groups [shared_volumes_group_name]"
-  sudo: "yes"
-  args:
-
-    executable: "/bin/bash"
-    creates: "{{ [
-      shared_volumes_path,
-      hostvars [item].identity_name,
-      'current',
-    ] | join ('/') }}"
-
-  shell:
-
-    set -euf -p pipefail;
-
-    btrfs subvolume create
-      "{{ [
-        shared_volumes_path,
-        hostvars [item].identity_name,
-        'current',
-      ] | join ('/') }}";
-
-- name: "create shared volumes snapshots directories"
-  with_items: "groups [shared_volumes_group_name]"
-  sudo: "yes"
-  action:
-
-    module: "file"
-    path: "{{ [
-      shared_volumes_path,
-      hostvars [item].identity_name,
-      'snapshots',
-    ] | join ('/') }}"
-    state: "directory"
+- include: "setup-shared-volumes-volume.yml"
+  with_items: "groups [shared_volumes_group_name] | dict_map (hostvars)"
 
 # ex: et ts=2 filetype=yaml

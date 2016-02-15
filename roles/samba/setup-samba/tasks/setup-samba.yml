@@ -1,0 +1,23 @@
+---
+
+- name: "create samba config templates"
+  with_items: "samba_config_templates"
+  notify: "set samba.needs_restart to 'yes'"
+  sudo: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ item.target }}"
+    src: "{{ item.template }}"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "set samba.state to 'enabled'"
+  when: "samba_state == 'installed'"
+  update_resource:
+
+    samba.state: "enabled"
+
+# ex: et ts=2 filetype=yaml

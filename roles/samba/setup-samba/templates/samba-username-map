@@ -1,0 +1,5 @@
+{% for user_name in groups [samba_users_group_name] %}
+{% set user = hostvars [user_name] %}
+{{ user.samba_user_unix_name }} = {{ user.samba_user_samba_name }}
+{% endfor %}
+

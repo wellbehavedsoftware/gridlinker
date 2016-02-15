@@ -4,46 +4,37 @@ from __future__ import unicode_literals
 import os
 import importlib
 
-from ansible import utils
-from ansible.runner.return_data import ReturnData
-from ansible.utils import template
+from ansible.plugins.action import ActionBase
 
 from gridlinker import CertificateAuthority
 
-class ActionModule (object):
+class ActionModule (ActionBase):
 
 	TRANSFERS_FILES = False
 
-	def __init__ (self, runner):
+	def __init__ (self, * arguments, ** keyword_arguments):
 
-		self.runner = runner
+		self.support = importlib.import_module (
+			os.environ ["GRIDLINKER_SUPPORT"]).support
 
-		self.support = importlib.import_module (os.environ ["GRIDLINKER_SUPPORT"]).support
 		self.context = self.support.get_context ()
 
-		self.client = self.context.client
+		ActionBase.__init__ (
+			self,
+			* arguments,
+			** keyword_arguments)
 
-	def run (self,
-		conn,
-		tmp,
-		module_name,
-		module_args,
-		inject,
-		complex_args = {},
-		** kwargs
-	):
+	def run (self, tmp = None, task_vars = dict ()):
 
-		authority_name = complex_args ["authority"]
-		common_name = complex_args ["common_name"]
+		authority_name = self._task.args.get ("authority")
+		common_name = self._task.args.get ("common_name")
 
 		authority_path = "/authority/%s" % authority_name
 
 		if self.client.exists (authority_path):
 			
-			return ReturnData (
-				conn = conn,
-				result = dict (
-					changed = False))
+			return dict (
+				changed = False)
 
 		authority = CertificateAuthority (
 			self.context,
@@ -52,9 +43,7 @@ class ActionModule (object):
 
 		authority.create (common_name)
 
-		return ReturnData (
-			conn = conn,
-			result = dict (
-				changed = True))
+		return dict (
+			changed = True)
 
 # ex: noet ts=4 filetype=python

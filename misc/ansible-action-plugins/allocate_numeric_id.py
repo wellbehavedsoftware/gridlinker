@@ -5,10 +5,6 @@ import os
 import importlib
 import netaddr
 
-#from ansible import utils
-#from ansible.runner.return_data import ReturnData
-#from ansible.utils import template
-
 from ansible.plugins.action import ActionBase
 
 class ActionModule (ActionBase):
@@ -31,34 +27,33 @@ class ActionModule (ActionBase):
 
 	def run (self, tmp = None, task_vars = dict ()):
 
-		database_location = self._task.args.get ("database_location")
+		args = self._task.args
 
-		taken_addresses = set ()
+		database_location = args.get ("database_location")
 
-		for ip_path, ip_target \
+		taken_ids = set ()
+
+		for id_path, id_target \
 		in self.client.get_tree (database_location):
 
-			ip_name = ip_path [1:]
-			taken_addresses.add (ip_name)
+			taken_ids.add (int (id_path [1:]))
 
-		address_range = (
-			netaddr.iter_iprange (
-				self._task.args.get ("start_address"),
-				self._task.args.get ("end_address")))
+		id_range = range (
+			int (args ["first_id"]),
+			int (args ["last_id"]))
 
-		ip_address = next (
-			ip_address for ip_address in address_range
-			if not str (ip_address) in taken_addresses)
+		new_id = next (
+			an_id for an_id in id_range
+			if not an_id in taken_ids)
 
-		allocation_name = (
-			self._task.args.get ("name"))
+		allocation_name = args ["name"]
 
 		self.client.create_raw (
-			"%s/%s" % (database_location, str (ip_address)),
+			"%s/%s" % (database_location, str (new_id)),
 			allocation_name)
 
 		return dict (
 			changed = True,
-			address = ip_address)
+			new_id = new_id)
 
 # ex: noet ts=4 filetype=python

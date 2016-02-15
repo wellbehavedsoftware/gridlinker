@@ -1,0 +1,80 @@
+[global]
+
+	# server name
+
+	netbios name = {{ samba_netbios_name }}
+	workgroup = {{ samba_workgroup }}
+	server string = {{ samba_server_string }}
+
+	# domain master
+
+	domain master = {{ samba_domain_master }}
+	local master = {{ samba_local_master }}
+	preferred master = {{ samba_preferred_master }}
+	os level = {{ samba_os_level }}
+
+	# name resolution
+
+	wins support = {{ samba_wins_support }}
+	name resolve order = {{ samba_name_resolve_order }}
+	dns proxy = {{ samba_dns_proxy }}
+
+	# logging
+
+	log file = /var/log/samba/log.%m
+	max log size = 1024
+	syslog = 0
+	panic action = /usr/share/samba/panic-action %d
+
+	# security
+
+	server role = standalone
+	passdb backend = tdbsam
+	obey pam restrictions = yes
+	unix password sync = no
+	map to guest = bad user
+	usershare allow guests = no
+	username map = /etc/samba/username-map
+
+	# disable printing
+
+	load printers = no
+	printing = bsd
+	printcap name = /dev/null
+	disable spoolss = yes
+
+	# name mangling
+
+	mangled names = no
+
+{% for share_name in groups [samba_shares_group_name] %}
+{% set share = hostvars [share_name] %}
+{% if share.samba_share_enabled == 'yes' %}
+
+[{{ share.samba_share_name }}]
+
+	comment = {{ share.samba_share_comment }}
+	path = {{ share.samba_share_path }}
+	browseable = {{ share.samba_share_browseable }}
+	guest ok = {{ share.samba_share_guest_ok }}
+	read only = {{ share.samba_share_read_only }}
+
+	valid users = {{ share.samba_share_valid_users }}
+	write list = {{ share.samba_share_write_list }}
+	read list = {{ share.samba_share_read_list }}
+
+	force user = {{ share.samba_share_force_user }}
+	force group = {{ share.samba_share_force_group }}
+
+	map archive = {{ share.samba_share_map_archive }}
+	map hidden = {{ share.samba_share_map_hidden }}
+	map readonly = {{ share.samba_share_map_readonly }}
+
+	create mask = {{ share.samba_share_create_mask }}
+	force create mode = {{ share.samba_share_force_create_mode }}
+	
+	directory mask = {{ share.samba_share_directory_mask }}
+	force directory mode = {{ share.samba_share_force_directory_mode }}
+
+{% endif %}
+{% endfor %}

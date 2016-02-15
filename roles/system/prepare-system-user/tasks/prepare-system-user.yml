@@ -1,0 +1,24 @@
+---
+
+- name: "allocate system user id"
+  when: "
+    system_user_uid_allocate_enabled == 'yes'
+    and system_user_uid == ''
+  "
+  register: "allocate_system_user_id_result"
+  action:
+
+    module: "allocate_numeric_id"
+    database_location: "{{ system_user_uid_allocate_location }}"
+    name: "{{ system_user_uid_allocate_name }}"
+
+    first_id: "{{ system_user_uid_allocate_start }}"
+    last_id: "{{ system_user_uid_allocate_end }}"
+
+- name: "store system user id"
+  when: "allocate_system_user_id_result | changed"
+  update_resource:
+
+    system_user.uid: "{{ allocate_system_user_id_result.new_id }}"
+
+# ex: et ts=2 filetype=yaml
