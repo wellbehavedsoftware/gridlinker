@@ -21,12 +21,12 @@
 
 - name: "enable php modules"
   when: "item.1.state == 'enabled'"
-  notify: "set php.needs_restart to 'yes'"
   with_nested:
 
     - [ "cli", "fpm" ]
-    - "php_modules"
+    - "{{ php_modules }}"
 
+  notify: "set php.needs_restart to 'yes'"
   sudo: "yes"
   action:
 

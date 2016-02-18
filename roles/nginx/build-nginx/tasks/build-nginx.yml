@@ -2,7 +2,7 @@
 
 - name: "install nginx build dependencies"
   sudo: "yes"
-  with_items: "nginx_build_dependencies"
+  with_items: "{{ nginx_build_dependencies }}"
   action:
 
     module: "apt"
