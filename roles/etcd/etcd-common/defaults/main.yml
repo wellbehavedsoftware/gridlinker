@@ -4,6 +4,7 @@
 
 etcd_state: "no"
 etcd_installed_version: "no"
+etcd_needs_restart: "no"
 
 # ---------- configuration defaults
 
@@ -56,9 +57,6 @@ etcd_snapshot_count: "10000"
 etcd_heartbeat_interval: "100"
 etcd_election_timeout: "1000"
 
-etcd_installed_version: "no"
-etcd_needs_restart: "no"
-
 etcd_client_authority: "{{ SHORT_NAME }}-etcd-clients"
 etcd_client_common_name: "{{ SHORT_TITLE }} Etcd Clients CA"
 etcd_client_ca_certificate: "/authority/{{ etcd_client_authority }}/certificate"
@@ -88,27 +86,27 @@ etcd_directories:
 
 etcd_security_config:
 
-  - source: "{{ etcd_peer_ca_certificate }}"
+  - source: "{{ etcd_peer_ca_certificate | default ('ERROR') }}"
     target: "peer-ca.cert"
     mode: "0644"
 
-  - source: "{{ etcd_peer_certificate }}"
+  - source: "{{ etcd_peer_certificate | default ('ERROR') }}"
     target: "peer-{{ etcd_name }}.cert"
     mode: "0644"
 
-  - source: "{{ etcd_peer_private_key }}"
+  - source: "{{ etcd_peer_private_key | default ('ERROR') }}"
     target: "peer-{{ etcd_name }}.key"
     mode: "0600"
 
-  - source: "{{ etcd_client_ca_certificate }}"
+  - source: "{{ etcd_client_ca_certificate | default ('ERROR') }}"
     target: "client-ca.cert"
     mode: "0644"
 
-  - source: "{{ etcd_client_certificate }}"
+  - source: "{{ etcd_client_certificate | default ('ERROR') }}"
     target: "client-{{ etcd_name }}.cert"
     mode: "0644"
 
-  - source: "{{ etcd_client_private_key }}"
+  - source: "{{ etcd_client_private_key | default ('ERROR') }}"
     target: "client-{{ etcd_name }}.key"
     mode: "0600"
 
