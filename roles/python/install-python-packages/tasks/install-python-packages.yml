@@ -1,7 +1,7 @@
 ---
 
 - name: "install python packages"
-  with_items: "python_packages"
+  with_items: "{{ python_packages }}"
   sudo: "yes"
   environment:
 

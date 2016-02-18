@@ -22,7 +22,7 @@
   action:
 
     module: "apt"
-    package: "{{ item }}"
+    name: "{{ item }}"
 
 - name: "add ubuntu to nagios group"
   sudo: "yes"

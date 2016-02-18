@@ -45,7 +45,7 @@
     etcd.peer_private_key: "{{ etcd_peer_result.private_key }}"
 
 - name: "create etcd directories"
-  with_items: "etcd_directories"
+  with_items: "{{ etcd_directories }}"
   notify: "set etcd.needs_restart to 'yes'"
   sudo: "yes"
   action:
@@ -56,7 +56,7 @@
     mode: "{{ item.mode }}"
 
 - name: "write etcd config templates"
-  with_items: "etcd_config_templates"
+  with_items: "{{ etcd_config_templates }}"
   notify: "set etcd.needs_restart to 'yes'"
   sudo: "yes"
   action:
@@ -70,7 +70,7 @@
     mode: "{{ item.mode }}"
 
 - name: "write etcd security config"
-  with_items: "etcd_security_config"
+  with_items: "{{ etcd_security_config }}"
   when: "etcd_secured == 'yes'"
   notify: "set etcd.needs_restart to 'yes'"
   sudo: "yes"

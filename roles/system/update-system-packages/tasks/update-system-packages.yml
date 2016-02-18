@@ -2,15 +2,15 @@
 
 - name: "update package database"
   sudo: "yes"
-  command: "apt-get update"
+  command: "apt-get -y update"
 
 - name: "update packages"
   sudo: "yes"
-  command: "apt-get dist-upgrade"
+  command: "apt-get -y dist-upgrade"
 
 - name: "remove automatically installed packages"
   sudo: "yes"
-  command: "apt-get clean"
+  command: "apt-get -y clean"
 
 - name: "purge removed packages"
   sudo: "yes"
