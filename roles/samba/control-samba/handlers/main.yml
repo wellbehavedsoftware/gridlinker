@@ -1,0 +1,36 @@
+---
+
+- name: "reload upstart config"
+  shell: "initctl reload-configuration"
+  sudo: "yes"
+
+- name: "set samba.needs_restart to 'yes'"
+  when: "samba_state == 'enabled'"
+  changed_when: "True"
+  notify: "restart samba"
+  update_resource:
+
+    samba.needs_restart: "yes"
+
+- name: "restart samba"
+  with_items:
+
+    - "smbd"
+    - "nmbd"
+
+  when: "samba_state == 'enabled'"
+  notify: "set samba.needs_restart to 'no'"
+  sudo: "yes"
+  action:
+
+    module: "service"
+    name: "{{ item }}"
+    state: "restarted"
+
+- name: "set samba.needs_restart to 'no'"
+  changed_when: "True"
+  update_resource:
+
+    samba.needs_restart: "no"
+
+# ex: et ts=2 filetype=yaml

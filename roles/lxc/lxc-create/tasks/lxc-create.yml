@@ -1,0 +1,241 @@
+---
+
+- name: "check lxc_container.network_link"
+  when: "lxc_container_network_link == ''"
+  fail:
+    msg: "please set 'lxc_container.network_link'"
+
+- name: "generate lxc_container.network_mac"
+  when: "lxc_container_network_mac == ''"
+  update_resource:
+
+    lxc_container.network_mac: "{{ 'aa' | generate_mac_address }}"
+
+- name: "create directories for lxc container bind mounts"
+  delegate_to: "{{ lxc_container_delegate }}"
+  sudo: "yes"
+  with_items: "lxc_container_bind_mounts"
+  action:
+
+    module: "file"
+    path: "{{ lxc_container_root }}/{{ item.target }}"
+    state: "directory"
+
+- name: "create lxc container"
+  delegate_to: "{{ lxc_container_delegate }}"
+  sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+    creates: "{{ lxc_container_path }}/create-flag"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    source "/usr/local/lib/gridlinker-tools/bash-locking" devops;
+
+    exlock;
+
+    echo "--- preparing to create container" >&2;
+
+    lxc-stop --name "{{ lxc_container_name }}" || true;
+    btrfs subvolume delete "{{ lxc_container_root }}" || true;
+    rm -rf "{{ lxc_container_path }}";
+
+    if test "{{ lxc_container_name }}"
+      != "{{ lxc_container_template_name }}";
+    then
+
+      template_state=$(
+        lxc-info
+          --name "{{ lxc_container_template_name }}"
+          --state
+          --no-humanize
+        | head --lines 1
+      );
+
+      if test "$template_state" = "RUNNING"; then
+
+        echo "--- stopping template" >&2;
+
+        lxc-stop
+          --name "{{ lxc_container_template_name }}";
+
+      fi;
+
+    fi;
+
+    if test "{{ lxc_container_name }}"
+      = "{{ lxc_container_template_name }}";
+    then
+
+      echo "--- creating container" >&2;
+
+      lxc-create
+        --template download
+        --name "{{ lxc_container_name }}"
+        --bdev btrfs
+        --
+        --dist ubuntu
+        --release trusty
+        --arch amd64;
+
+    else
+
+      echo "--- creating container from template" >&2;
+
+      lxc-clone
+        --backingstore btrfs
+        "{{ lxc_container_template_name }}"
+        "{{ lxc_container_name }}";
+
+    fi;
+
+    if test "{{ lxc_container_name }}"
+      != "{{ lxc_container_template_name }}";
+    then
+
+      if test "$template_state" = "RUNNING"; then
+
+        echo "--- starting template" >&2;
+
+        lxc-start
+          --name "{{ lxc_container_template_name }}"
+          --daemon;
+
+      fi;
+
+    fi;
+
+    unlock;
+
+    echo "--- configuring networking" >&2;
+
+    chroot "{{ lxc_container_root }}"
+    apt-get purge -y resolvconf;
+
+    (
+
+      echo "auto lo";
+      echo "iface lo inet loopback";
+
+      echo "auto eth0";
+      echo "iface eth0 inet dhcp";
+
+    ) > "{{ lxc_container_root }}/etc/network/interfaces";
+
+    echo "--- configuring sudo" >&2;
+
+    (
+      echo 'Defaults env_reset';
+      echo 'Defaults mail_badpass';
+      echo 'Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"';
+      echo 'root ALL = (ALL) ALL';
+      echo '%admin ALL = (ALL) ALL';
+      echo '%sudo ALL = (ALL) NOPASSWD:'' ALL';
+    ) > "{{ lxc_container_root }}/etc/sudoers";
+
+    echo "--- updating package lists" >&2;
+
+    chroot "{{ lxc_container_root }}"
+    apt-get update -y;
+
+    echo "--- upgrading packages" >&2;
+
+    chroot "{{ lxc_container_root }}"
+    apt-get dist-upgrade -y;
+
+    echo "--- installing ssh server" >&2;
+
+    chroot "{{ lxc_container_root }}"
+    apt-get install -y openssh-server;
+
+    echo "--- configuring ssh acccess" >&2;
+
+    mkdir -p "{{ lxc_container_root }}/home/ubuntu/.ssh";
+
+    cp $HOME/.ssh/authorized_keys
+      "{{ lxc_container_root }}/home/ubuntu/.ssh";
+
+    chown -R 1000:1000
+      "{{ lxc_container_root }}/home/ubuntu/.ssh";
+
+    echo "--- done" >&2;
+
+    touch "{{ lxc_container_path }}/create-flag";
+
+- name: "create lxc container config"
+  delegate_to: "{{ lxc_container_delegate }}"
+  sudo: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ lxc_container_path }}/config"
+    src: "lxc-create-config"
+
+- name: "set lxc container disk quota"
+  when: "lxc_container_disk_quota != ''"
+  register: "lxc_create_disk_quota_result"
+  changed_when: "lxc_create_disk_quota_result.stdout != 'UNCHANGED'"
+  delegate_to: "{{ lxc_container_delegate }}"
+  sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    touch "{{ lxc_container_path }}/quota";
+
+    current_quota=$(
+      cat "{{ lxc_container_path }}/quota";
+    );
+
+    if test "{{ lxc_container_disk_quota }}" = "$current_quota"; then
+      echo 'UNCHANGED';
+      exit 0;
+    fi;
+
+    btrfs qgroup limit
+      "{{ (lxc_container_disk_quota | int) * 1024 * 1024 }}"
+      "{{ lxc_container_root }}";
+
+    echo "{{ lxc_container_disk_quota }}"
+      > "{{ lxc_container_path }}/quota";
+
+    echo 'CHANGED';
+
+- name: "start lxc container"
+  register: "lxc_create_start_result"
+  changed_when: "lxc_create_start_result.stdout != 'UNCHANGED'"
+  delegate_to: "{{ lxc_container_delegate }}"
+  sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    state=$(
+      lxc-info
+        --name "{{ lxc_container_name }}"
+        --state
+        --no-humanize
+      | head --lines 1
+    );
+
+    test "$state" = "RUNNING" && {
+      echo "UNCHANGED";
+      exit 0;
+    };
+
+    lxc-start
+      --name "{{ lxc_container_name }}"
+      --daemon;
+
+# ex: et ts=2 filetype=yaml

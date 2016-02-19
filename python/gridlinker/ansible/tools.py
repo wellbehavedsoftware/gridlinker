@@ -211,6 +211,10 @@ def do_inventory_list (context):
 			for resource_name in inventory.namespaces [value]
 		])
 
+	output ["localhost"] = {
+		"ansible_connection": "local",
+	}
+
 	for group_name in inventory.class_groups:
 
 		output [group_name] = {

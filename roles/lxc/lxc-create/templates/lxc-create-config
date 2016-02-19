@@ -1,0 +1,83 @@
+# pivot location
+
+lxc.pivotdir = lxc_putold
+
+# mount entries
+
+lxc.mount.entry = proc proc proc nodev,noexec,nosuid 0 0
+lxc.mount.entry = sysfs sys sysfs defaults 0 0
+lxc.mount.entry = /sys/fs/fuse/connections sys/fs/fuse/connections none bind,optional 0 0
+lxc.mount.entry = /sys/kernel/debug sys/kernel/debug none bind,optional 0 0
+lxc.mount.entry = /sys/kernel/security sys/kernel/security none bind,optional 0 0
+lxc.mount.entry = /sys/fs/pstore sys/fs/pstore none bind,optional 0 0
+
+{% for bind_mount in lxc_container_bind_mounts %}
+lxc.mount.entry = {{ bind_mount.source }} {{ bind_mount.target }} none bind 0 0
+{% endfor %}
+
+# console settings
+
+lxc.devttydir = lxc
+lxc.tty = 4
+lxc.pts = 1024
+
+# capabilitiess
+
+lxc.cap.drop = sys_module
+lxc.cap.drop = mac_admin
+lxc.cap.drop = mac_override
+lxc.cap.drop = sys_time
+
+# cgroup limits
+
+lxc.cgroup.devices.deny = a
+
+lxc.cgroup.devices.allow = c *:* m
+lxc.cgroup.devices.allow = b *:* m
+lxc.cgroup.devices.allow = c 1:3 rwm
+lxc.cgroup.devices.allow = c 1:5 rwm
+lxc.cgroup.devices.allow = c 5:0 rwm
+lxc.cgroup.devices.allow = c 5:1 rwm
+lxc.cgroup.devices.allow = c 1:8 rwm
+lxc.cgroup.devices.allow = c 1:9 rwm
+lxc.cgroup.devices.allow = c 5:2 rwm
+lxc.cgroup.devices.allow = c 136:* rwm
+lxc.cgroup.devices.allow = c 254:0 rm
+lxc.cgroup.devices.allow = c 10:229 rwm
+lxc.cgroup.devices.allow = c 10:200 rwm
+lxc.cgroup.devices.allow = c 1:7 rwm
+lxc.cgroup.devices.allow = c 10:228 rwm
+lxc.cgroup.devices.allow = c 10:232 rwm
+
+{% if lxc_container_memory_limit_hard != '' %}
+lxc.cgroup.memory.limit_in_bytes = {{
+	(lxc_container_memory_limit_hard | int) * 1024 * 1024
+}}
+{% endif %}
+
+{% if lxc_container_memory_limit_soft != '' %}
+lxc.cgroup.memory.soft_limit_in_bytes = {{
+	(lxc_container_memory_limit_soft | int) * 1024 * 1024
+}}
+{% endif %}
+
+# distribution
+
+lxc.arch = x86_64
+
+# container
+
+lxc.rootfs = {{ lxc_container_root }}
+lxc.utsname = {{ lxc_container_name }}
+
+# network
+
+lxc.network.type = veth
+lxc.network.flags = up
+lxc.network.link = {{ lxc_container_network_link }}
+lxc.network.hwaddr = {{ lxc_container_network_mac }}
+
+# auto start
+
+lxc.start.auto = 1
+lxc.start.delay = 0

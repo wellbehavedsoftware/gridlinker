@@ -201,6 +201,11 @@ class GenericContext (object):
 		return "%s/third-party" % self.home
 
 	@lazy_property
+	def webserver_home (self):
+
+		return "%s/wbs-site-admin" % self.third_party_home
+
+	@lazy_property
 	def ansible_home (self):
 
 		return "%s/ansible" % self.third_party_home
@@ -484,9 +489,11 @@ class GenericContext (object):
 
 						address for address in map (
 
-							lambda value: self.inventory.resolve_value_or_none (
-								resource_name,
-								value),
+							lambda value: (
+								self.inventory.resolve_value_or_none (
+									resource_name,
+									value,
+									"")),
 
 							class_data ["ssh"] ["hostnames"])
 

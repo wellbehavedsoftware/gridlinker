@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "samba-common"
+  - "install-samba"
+  - "setup-samba"
+  - "control-samba"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,189 @@
+#!/usr/bin/env python
+
+import collections
+import email.message
+import os
+import re
+import smtplib
+import string
+import sys
+
+TEMPLATES = {
+
+"host": {
+
+	"subject":
+		"%s - %s is %s" % (
+			"$NOTIFICATIONTYPE",
+			"$HOSTDISPLAYNAME",
+			"$HOSTSTATE"),
+
+	"body": """
+		************************* ROCKETWARE ICINGA **************************
+
+		Object type: HOST
+		Notification type: $NOTIFICATIONTYPE
+		Date and time: $LONGDATETIME
+
+		Host: $HOSTALIAS
+		Address: $HOSTADDRESS
+		State: $HOSTSTATE
+
+		Additional information:
+		$HOSTOUTPUT
+
+		Comment: [$NOTIFICATIONAUTHORNAME] $NOTIFICATIONCOMMENT
+
+		**********************************************************************
+	""",
+
+},
+
+"service": {
+
+	"subject":
+		"%s - %s - %s is %s" % (
+			"$NOTIFICATIONTYPE",
+			"$HOSTDISPLAYNAME",
+			"$SERVICEDISPLAYNAME",
+			"$SERVICESTATE"),
+
+	"body": """
+		************************* ROCKETWARE ICINGA **************************
+
+		Object type: SERVICE
+		Notification type: $NOTIFICATIONTYPE
+		Date and time: $LONGDATETIME
+
+		Host: $HOSTALIAS
+		Service: $SERVICEDESC
+		Address: $HOSTADDRESS
+		State: $SERVICESTATE
+
+		Additional information:
+		$SERVICEOUTPUT
+
+		Comment: [$NOTIFICATIONAUTHORNAME] $NOTIFICATIONCOMMENT
+
+		**********************************************************************
+	""",
+
+},
+
+}
+
+def main (
+		arguments):
+
+	variables = (
+		get_variables ())
+
+	template = (
+		TEMPLATES [
+			arguments [0]])
+
+	email_message = (
+		create_email (
+			template,
+			variables))
+
+	send_email (
+		variables ["USEREMAIL"],
+		email_message)
+
+def get_variables ():
+
+	variables = dict (
+		os.environ)
+
+	for variable_name in [
+		"HOSTADDRESS",
+		"HOSTALIAS",
+		"HOSTDISPLAYNAME",
+		"HOSTOUTPUT",
+		"HOSTSTATE",
+		"LONGDATETIME",
+		"NOTIFICATIONAUTHORNAME",
+		"NOTIFICATIONCOMMENT",
+		"NOTIFICATIONTYPE",
+	]:
+
+		variables.setdefault (
+			variable_name,
+			"")
+
+	return variables
+
+def create_email (
+		template,
+		variables):
+
+	email_message = (
+		email.message.Message ())
+
+	email_message.add_header (
+		"From",
+		"{{ icinga_email_from }}")
+
+	email_message.add_header (
+		"To",
+		variables ["USEREMAIL"])
+
+	subject_template = (
+		string.Template (
+			template ["subject"]))
+
+	email_message.add_header (
+		"Subject",
+		subject_template.substitute (
+			variables))
+
+	email_message.add_header (
+		"Content-Type",
+		"text/plain; charset=utf-8")
+
+	email_template = (
+		string.Template (
+			clean_heredoc (
+				2,
+				template ["body"])))
+
+	email_message.set_payload (
+		email_template.substitute (
+			variables))
+
+	return email_message
+
+def send_email (
+		to_address,
+		email_message):
+
+	smtp_server = (
+		smtplib.SMTP (
+			"localhost"))
+
+	smtp_server.sendmail (
+		"{{ icinga_email_from }}",
+		[ to_address ],
+		email_message.as_string ())
+
+	smtp_server.quit ()
+
+def clean_heredoc (indent, content):
+
+	return re.sub (
+		r"^\t{,%s}" % indent,
+		"",
+		content [1 : ],
+		flags = re.MULTILINE)
+
+def service_notification (
+		variables):
+
+
+	return None
+
+main (
+	sys.argv [1 : ])
+
+# ex: noet ts=4 filetype=yaml

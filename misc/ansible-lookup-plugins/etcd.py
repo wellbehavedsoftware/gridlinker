@@ -4,28 +4,28 @@ from __future__ import unicode_literals
 import importlib
 import os
 
-from ansible import utils
+from ansible.plugins.lookup import LookupBase
 
-class LookupModule (object):
+class LookupModule (LookupBase):
 
-	def __init__ (self, basedir = None, ** kwargs):
+	def __init__ (self, * arguments, ** keyword_arguments):
 
-		self.basedir = basedir
+		self.support = (
+			importlib.import_module (
+				os.environ ["GRIDLINKER_SUPPORT"]).support)
 
-		self.support = importlib.import_module (os.environ ["GRIDLINKER_SUPPORT"]).support
-		self.context = self.support.get_context ()
+		self.context = (
+			self.support.get_context ())
 
-		self.client = self.context.client
+		self.client = (
+			self.context.client)
 
-	def run (self, terms, inject = None, ** kwargs):
+		LookupBase.__init__ (
+			self,
+			* arguments,
+			** keyword_arguments)
 
-		terms = utils.listify_lookup_plugin_terms (
-			terms,
-			self.basedir,
-			inject)
-
-		if isinstance (terms, basestring):
-			terms = [ terms ]
+	def run (self, terms, variables, ** keyword_arguments):
 
 		ret = []
 

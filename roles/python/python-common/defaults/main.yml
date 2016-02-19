@@ -2,11 +2,14 @@
 
 # ---------- state
 
-python_state: "no"
-python_installed_version: "no"
+python_state: ""
+python_installed_version: ""
 
-python_apt_state: "no"
-python_apt_installed_version: "no"
+python_pip_state: ""
+python_pip_installed_version: ""
+
+python_apt_state: ""
+python_apt_installed_version: ""
 
 # ---------- etc
 

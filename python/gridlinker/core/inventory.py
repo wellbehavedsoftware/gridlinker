@@ -260,7 +260,11 @@ class Inventory (object):
 
 				for name, value in data.items ():
 
-					resolved = self.resolve_value_or_same (resource_name, value)
+					resolved = (
+						self.resolve_value_or_same (
+							resource_name,
+							value,
+							""))
 
 					resource_data [prefix] [name] = resolved
 					resource_data [prefix + "_" + name] = resolved
@@ -404,7 +408,11 @@ class Inventory (object):
 
 			for group_template in class_data ["class"] ["groups"]:
 
-				group_name = self.resolve_value_or_none (resource_name, group_template)
+				group_name = (
+					self.resolve_value_or_none (
+						resource_name,
+						group_template,
+						""))
 
 				if not group_name:
 					continue
@@ -505,7 +513,11 @@ class Inventory (object):
 
 	def resolve_value_or_fail (self, resource_name, value):
 
-		success, resolved = self.resolve_value_real (resource_name, value)
+		success, resolved = (
+			self.resolve_value_real (
+				resource_name,
+				value,
+				""))
 
 		if not success:
 
@@ -516,25 +528,33 @@ class Inventory (object):
 
 		return resolved
 
-	def resolve_value_or_same (self, resource_name, value):
+	def resolve_value_or_same (self, resource_name, value, indent):
 
-		success, resolved = self.resolve_value_real (resource_name, value)
+		success, resolved = (
+			self.resolve_value_real (
+				resource_name,
+				value,
+				indent))
 
 		if not success:
 			return value
 
 		return resolved
 
-	def resolve_value_or_none (self, resource_name, value):
+	def resolve_value_or_none (self, resource_name, value, indent):
 
-		success, resolved = self.resolve_value_real (resource_name, value)
+		success, resolved = (
+			self.resolve_value_real (
+				resource_name,
+				value,
+				indent))
 
 		if not success:
 			return None
 
 		return resolved
 
-	def resolve_value_real (self, resource_name, value):
+	def resolve_value_real (self, resource_name, value, indent):
 
 		resource_data = self.resources [resource_name]
 
@@ -546,7 +566,8 @@ class Inventory (object):
 
 				success, resolved = self.resolve_value_real (
 					resource_name,
-					item)
+					item,
+					indent)
 
 				if not success:
 					return False, None
@@ -563,7 +584,8 @@ class Inventory (object):
 
 				success, resolved = self.resolve_value_real (
 					resource_name,
-					item)
+					item,
+					indent)
 
 				if not success:
 					return False, None
@@ -579,9 +601,10 @@ class Inventory (object):
 
 			if match:
 
-				return self.resolve_variable (
+				return self.resolve_expression (
 					resource_name,
-					match.group (1))
+					match.group (1),
+					indent)
 
 			else:
 
@@ -592,9 +615,11 @@ class Inventory (object):
 
 					ret += value [last_pos : match.start ()]
 
-					success, resolved = self.resolve_variable (
-						resource_name,
-						match.group (1))
+					success, resolved = (
+						self.resolve_expression (
+							resource_name,
+							match.group (1),
+							indent))
 
 					if not success:
 						return False, None
@@ -611,25 +636,384 @@ class Inventory (object):
 
 			return False, None
 
-	def resolve_variable (self, resource_name, name):
+	def resolve_expression (self, resource_name, name, indent):
 
 		if self.trace:
 
 			print (
-				"resolve_variable (%s, %s)" % (
+				"%sresolve_expression (%s, %s)" % (
+					indent,
 					resource_name,
 					name))
 
 		resource_data = self.resources [resource_name]
 
-		if " " in name or "|" in name or "(" in name or "[" in name:
+		success, tokens = self.tokenize (name)
+
+		if not success:
 
 			if self.trace:
 
 				print (
-					"  FAIL unsupported syntax")
+					"%s  tokenize failed" % (
+						indent))
 
 			return False, None
+
+		if self.trace:
+
+			print (
+				"%s  %s" % (
+					indent,
+					str (tokens)))
+
+		token_index = 0
+
+		success, token_index, value = (
+			self.parse_expression (
+				tokens,
+				token_index,
+				resource_name,
+				indent + "  "))
+
+		if not success:
+
+			if self.trace:
+
+				print (
+					"%s  parse failed" % (
+						indent))
+
+			return False, None
+
+		if token_index < len (tokens):
+
+			if self.trace:
+
+				print (
+					"%s  only used %s/%s tokens" % (
+						indent,
+						token_index,
+						len (tokens)))
+
+			return False, None
+
+		if self.trace:
+
+			print (
+				"%s  success: %s" % (
+					indent,
+					value))
+
+		return True, value
+
+	def parse_expression (self, tokens, token_index, resource_name, indent):
+
+		success, token_index, value_type, value = (
+			self.parse_simple (
+				tokens,
+				token_index,
+				resource_name,
+				indent))
+
+		if not success:
+
+			return False, None, None
+
+		while token_index < len (tokens):
+
+			if tokens [token_index] == ".":
+
+				token_index += 1
+				token = tokens [token_index]
+				token_index += 1
+
+				if value_type == "resource":
+
+					success, value_type, value = (
+						self.dereference_resource (
+						value,
+						token,
+						indent))
+
+					if success:
+						continue
+
+				elif value_type == "value":
+
+					if token in value:
+
+						value = value [token]
+
+						continue
+
+					elif str (token) in value:
+
+						value = value [str (token)]
+
+						continue
+
+				else:
+
+					raise Exception ()
+
+				if self.trace:
+
+					print (
+						"%svalue not present: %s" % (
+							indent,
+							token))
+
+				return False, None, None
+
+			elif tokens [token_index] == "[":
+
+				token_index += 1
+
+				success, token_index, unresolved_value = (
+					self.parse_expression (
+						tokens,
+						token_index,
+						resource_name,
+						indent + "  "))
+
+				if not success:
+
+					return False, None, None
+
+				if tokens [token_index] != "]":
+
+					return False, None, None
+
+				token_index += 1
+
+				success, resolved_value = (
+					self.resolve_value_real (
+						resource_name,
+						unresolved_value,
+						indent))
+
+				if not success:
+
+					return False, None, None
+
+				if value_type == "resource":
+
+					success, value_type, value = (
+						self.dereference_resource (
+						value,
+						resolved_value,
+						indent))
+
+					if success:
+						continue
+
+				elif value_type == "value":
+
+					if resolved_value in value:
+
+						value = value [resolved_value]
+
+						continue
+
+					elif str (resolved_value) in value:
+
+						value = value [str (resolved_value)]
+
+						continue
+
+				elif value_type == "hostvars":
+
+					if resolved_value in self.resources:
+
+						value_type = "resource"
+						value = resolved_value
+
+						continue
+
+				if self.trace:
+
+					print (
+						"%svalue not present: %s" % (
+							indent,
+							token))
+
+				return False, None, None
+
+			else:
+
+				break
+
+		return True, token_index, value
+
+	def parse_simple (self, tokens, token_index, resource_name, indent):
+
+		token = tokens [token_index]
+
+		resource_data = self.resources [resource_name]
+
+		class_name = resource_data ["identity"] ["class"]
+		class_data = self.classes [class_name]
+
+		if token [0] == "'":
+
+			string_value = (
+				re.sub (
+					r"\\(.)",
+					lambda match: match.group (1),
+					token [1 : -1]))
+
+			return True, token_index + 1, "value", string_value
+
+		if token == "hostvars":
+
+			if self.trace:
+
+				print (
+					"%srecurse hostvars" % (
+						indent))
+
+			return True, token_index + 1, "hostvars", None
+
+		if token in self.context.project_metadata ["project_data"]:
+
+			if self.trace:
+
+				print (
+					"%sfound in project data: %s" % (
+						indent,
+						token))
+
+			unresolved_value = (
+				self.context.local_data [
+					self.context.project_metadata ["project_data"] [token]])
+
+			success, resolved_value = (
+				self.resolve_value_real (
+					resource_name,
+					unresolved_value,
+					indent + "  "))
+
+			if not success:
+
+				return False, None, None, None
+
+			else:
+
+				return True, token_index + 1, "value", resolved_value
+
+		success, value_type, value = (
+			self.dereference_resource (
+				resource_name,
+				token,
+				indent))
+
+		if success:
+
+			return True, token_index + 1, value_type, value
+
+		if self.trace:
+
+			print (
+				"%sunable to resolve: %s" % (
+					indent,
+					token))
+
+		return False, token_index, None, None
+
+	def dereference_resource (self, resource_name, token, indent):
+
+		resource_data = self.resources [resource_name]
+
+		class_name = resource_data ["identity"] ["class"]
+		class_data = self.classes [class_name]
+
+		for reference in class_data ["class"].get ("references", []):
+
+			if token != reference ["name"]:
+				continue
+
+			if reference ["type"] == "resource":
+
+				target_name = self.resolve_value_or_fail (
+					resource_name,
+					reference ["value"])
+
+				if not target_name in self.resources:
+					raise Exception ()
+
+				target_data = self.resources [target_name]
+
+				if self.trace:
+
+					print (
+						"%sfound class reference: %s" % (
+							indent,
+							token))
+
+				return True, "resource", target_name
+
+			else:
+
+				raise Exception ()
+
+		if token in resource_data:
+
+			if self.trace:
+
+				print (
+					"%sfound in resource: %s" % (
+						indent,
+						token))
+
+			return True, "value", resource_data [token]
+
+		if token == "parent":
+
+			parent_name = "%s/%s" % (
+				class_data ["class"] ["parent_namespace"],
+				resource_data ["identity"] ["parent"])
+
+			parent_data = self.resources [parent_name]
+
+			if self.trace:
+
+				print (
+					"%srecurse parent: %s" % (
+						indent,
+						parent_name))
+
+			return True, "resource", parent_name
+
+		if token in self.all:
+
+			if self.trace:
+
+				print (
+					"%sfound in globals: %s" % (
+						indent,
+						token))
+
+			unresolved_value = self.all [token]
+
+			success, resolved_value = (
+				self.resolve_value_real (
+					resource_name,
+					unresolved_value,
+					indent))
+
+			if success:
+
+				return True, "value", resolved_value
+
+			else:
+
+				return False, None, None
+
+		return False, None, None
+
+
+	"""
 
 		if name == "inventory_hostname":
 
@@ -654,33 +1038,15 @@ class Inventory (object):
 
 		parts = name.split (".")
 
-		if parts [0] in self.all:
+		#if parts [0] in self.all:
 
-			if self.trace:
+		#	if self.trace:
 
-				print (
-					"  FAIL global variable: %s" % (
-						parts [0]))
+		#		print (
+		#			"  FAIL global variable: %s" % (
+		#				parts [0]))
 
-			return False, None
-
-		if parts [0] == "parent":
-
-			parent_name = "%s/%s" % (
-				class_data ["class"] ["parent_namespace"],
-				resource_data ["identity"] ["parent"])
-
-			parent_data = self.resources [parent_name]
-
-			if self.trace:
-
-				print (
-					"  RECURSE resolved parent: %s" % (
-						parent_name))
-
-			return self.resolve_variable (
-				parent_name,
-				".".join (parts [1:]))
+		#	return False, None
 
 		if parts [0] == "grandparent":
 
@@ -707,6 +1073,23 @@ class Inventory (object):
 
 			return self.resolve_variable (
 				grandparent_name,
+				".".join (parts [1:]))
+
+		match = re.search (r"\s*hostvars\s*\[\'([^']+)\'\]\s*", parts [0])
+
+		if match:
+
+			hostvars_name = match.group (1)
+			hostvars_data = self.resources [hostvars_name]
+
+			if self.trace:
+
+				print (
+					"  RECURSE resolved hostvars: %s" % (
+						hostvars_name))
+
+			return self.resolve_variable (
+				hostvars_name,
 				".".join (parts [1:]))
 
 		for reference in class_data ["class"].get ("references", []):
@@ -739,9 +1122,31 @@ class Inventory (object):
 
 		current = resource_data
 
-		for part in parts:
+		for index, part in enumerate (parts):
 
-			if not part in current:
+			if part in current:
+
+				if self.trace:
+
+					print (
+						"  PARTIAL resolved part: %s" % (
+							part))
+
+				current = current [part]
+
+			elif index == 0 and part in self.all:
+
+				if self.trace:
+
+					print (
+						"  PARTIAL resolved global part: %s" % (
+							part))
+
+				current = self.resolve_value_real (
+					resource_name,
+					self.all [part])
+
+			else:
 
 				if self.trace:
 
@@ -750,14 +1155,6 @@ class Inventory (object):
 							part))
 
 				return False, None
-
-			if self.trace:
-
-				print (
-					"  PARTIAL resolved part: %s" % (
-						part))
-
-			current = current [part]
 
 		if isinstance (current, str):
 
@@ -779,6 +1176,15 @@ class Inventory (object):
 
 			return self.resolve_value_real (resource_name, current)
 
+		if isinstance (current, dict) \
+		or isinstance (current, list):
+
+			#return True, "{{ hostvars ['%s'].%s }}" % (
+			#	resource_name,
+			#	".".join (parts))
+
+			return True, current
+
 		if self.trace:
 
 			print (
@@ -786,5 +1192,37 @@ class Inventory (object):
 					type (current)))
 
 		return False, None
+
+	"""
+
+	tokenize_re = re.compile ("\s*((?:" + ")|(?:".join ([
+		r"$",
+		r"[][.]",
+		r"[a-zA-Z][a-zA-Z0-9_]*",
+		r"'(?:[^'\\]|\\\\|\\\')*'",
+	]) + "))")
+
+	def tokenize (self, string):
+
+		ret = []
+		position = 0
+
+		while position < len (string):
+
+			match = (
+				Inventory.tokenize_re.match (
+					string,
+					position))
+
+			if not match:
+				return False, None
+
+			ret.append (
+				match.group (1))
+
+			position = (
+				match.end ())
+
+		return True, ret
 
 # ex: noet ts=4 filetype=yaml

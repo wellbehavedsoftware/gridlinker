@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import datetime
 import itertools
 import sys
 import time
@@ -58,10 +59,14 @@ class CertificateDatabase:
 			raise Exception ()
 
 		if not self.client.exists (self.path):
-			raise Exception ()
+
+			raise Exception (
+				"No such certificate database")
 
 		if not self.client.exists (self.path + "/data"):
-			raise Exception ()
+
+			raise Exception (
+				"No such certificate database")
 
 		self.root_data = self.client.get_yaml (self.path + "/data")
 
@@ -165,6 +170,14 @@ class CertificateDatabase:
 		if (self.state != "active"):
 			raise Exception ()
 
+		# check there is no existing request
+
+		subject_path = self.path + "/subjects/" + name
+
+		if self.client.exists (subject_path + "/pending"):
+
+			raise Exception ("already exists")
+
 		# create key
 
 		request_key = crypto.PKey ()
@@ -209,10 +222,7 @@ class CertificateDatabase:
 
 		# write to database
 
-		subject_path = self.path + "/" + name
-
 		if self.client.exists (subject_path + "/pending"):
-
 			return (False, None, None)
 
 		self.client.set_raw (
@@ -363,11 +373,9 @@ class CertificateDatabase:
 
 		if self.client.exists (subject_path + "/current"):
 
-			raise Exception ("TODO need to move chain somehow")
-
 			# read current
 
-			archive_csr_string = self.client.get_raw (
+			archive_csr_string = self.client.get_raw_or_none (
 				subject_path + "/current/request")
 
 			archive_certificate_string = self.client.get_raw (
@@ -376,14 +384,19 @@ class CertificateDatabase:
 			archive_key_string = self.client.get_raw (
 				subject_path + "/current/key")
 
+			archive_certificate_chain_strings = self.client.get_list (
+				subject_path + "/current/chain")
+
 			# write to archive
 
-			archive_path, archive_index = self.client.make_queue_dir (
+			archive_path, archive_index = self.client.mkdir_queue (
 				subject_path + "/archive")
 
-			self.client.set_raw (
-				archive_path + "/request",
-				archive_csr_string)
+			if archive_csr_string:
+
+				self.client.set_raw (
+					archive_path + "/request",
+					archive_csr_string)
 
 			self.client.set_raw (
 				archive_path + "/certificate",
@@ -393,18 +406,30 @@ class CertificateDatabase:
 				archive_path + "/key",
 				archive_key_string)
 
+			for chain_index, chain_string \
+				in enumerate (archive_certificate_chain_strings):
+
+				self.client.set_raw (
+					archive_path + "/chain/" + str (chain_index),
+					chain_string)
+
 			# remove current
 
-			self.client.rm_raw (
-				subject_path + "/current/request")
+			if archive_csr_string:
 
-			self.client.rm_raw (
+				self.client.rm (
+					subject_path + "/current/request")
+
+			self.client.rm (
 				subject_path + "/current/certificate")
 
-			self.client.rm_raw (
+			self.client.rm (
 				subject_path + "/current/key")
 
-			self.client.rmdir_raw (
+			self.client.rm_recursive (
+				subject_path + "/current/chain")
+
+			self.client.rmdir (
 				subject_path + "/current")
 
 		# store new certificate
@@ -456,7 +481,7 @@ class CertificateDatabase:
 			verify_subject = True,
 			verify_common_name = True):
 
-		subject_path = self.path + "/" + name
+		subject_path = self.path + "/subjects/" + name
 
 		# read certificates and private key
 
@@ -595,6 +620,36 @@ class CertificateDatabase:
 
 		# TODO data
 
+	def get_full (self, name):
+
+		if (self.state != "active"):
+			raise Exception ()
+
+		entry_path = self.path + "/subjects/" + name
+
+		if not self.client.exists (
+			entry_path):
+
+			return None
+
+		return_dict = dict ()
+
+		if self.client.exists (
+			entry_path + "/current"):
+
+			return_dict ["current"] = (
+				self.get (
+					name))
+
+		if self.client.exists (
+			entry_path + "/pending"):
+
+			return_dict ["pending"] = (
+				self.get_pending (
+					name))
+
+		return return_dict
+
 	def get (self, name):
 
 		if (self.state != "active"):
@@ -609,7 +664,7 @@ class CertificateDatabase:
 				"No certificate for " + name)
 
 		if not self.client.exists (
-			entry_path):
+			entry_path + "/current"):
 
 			raise Exception (
 				"No current certificate for " + name)
@@ -686,6 +741,8 @@ class CertificateDatabase:
 			serial = None,
 			digest = None,
 
+			request = None,
+
 			certificate = certificate_string,
 			certificate_path = certificate_path,
 
@@ -700,6 +757,33 @@ class CertificateDatabase:
 
 			rsa_private_key = rsa_private_key_string)
 
+	def get_pending (self, name):
+
+		if (self.state != "active"):
+			raise Exception ()
+
+		entry_path = self.path + "/subjects/" + name
+
+		if not self.client.exists (
+			entry_path):
+
+			raise Exception (
+				"No entry for " + name)
+
+		pending_path = entry_path + "/pending"
+
+		if not self.client.exists (
+			pending_path):
+
+			raise Exception (
+				"No pending request for " + name)
+
+		request_path = pending_path + "/request"
+
+		request_string = self.client.get_raw (request_path)
+
+		return request_string
+
 	def get_all (self):
 
 		if (self.state != "active"):
@@ -707,7 +791,10 @@ class CertificateDatabase:
 
 		return [
 			self.get (subject_name)
-			for subject_name in self.client.ls (self.path + "/subjects")
+			for subject_name
+				in self.client.ls (self.path + "/subjects")
+			if self.client.exists (
+				self.path + "/subjects/" + subject_name + "/current")
 		]
 
 def args (prev_sub_parsers):
@@ -731,6 +818,7 @@ def args (prev_sub_parsers):
 	args_list (next_sub_parsers)
 	args_request (next_sub_parsers)
 	args_search (next_sub_parsers)
+	args_show (next_sub_parsers)
 	args_signed (next_sub_parsers)
 	args_upgrade (next_sub_parsers)
 
@@ -921,7 +1009,8 @@ def args_search (sub_parsers):
 	parser_ordering = parser.add_argument_group (
 		"ordering")
 
-	parser_ordering_exclusive = parser_ordering.add_mutually_exclusive_group ()
+	parser_ordering_exclusive = (
+		parser_ordering.add_mutually_exclusive_group ())
 
 	parser_ordering_exclusive.add_argument (
 		"--order-by-expiry",
@@ -969,6 +1058,130 @@ def do_search (context, args):
 	]
 
 	print_table (columns, rows, sys.stdout)
+
+def args_show (sub_parsers):
+
+	parser = sub_parsers.add_parser (
+		"show",
+		help = "show details information about a certificate",
+		description = """
+			Show detailed information about a certificate, including current,
+			pending and past versions.
+		""")
+
+	parser.set_defaults (
+		func = do_show)
+
+	parser.add_argument (
+		"--database",
+		required = True,
+		help = "name of certificate database to use")
+
+	parser.add_argument (
+		"--common-name",
+		required = True,
+		help = "common name of certificate to show")
+
+def do_show (context, args):
+
+	database = (
+		CertificateDatabase (
+			context,
+			"/certificate/" + args.database,
+			context.certificate_data))
+
+	database.load ()
+
+	now = datetime.datetime.now ()
+
+	print (
+		"Certificate database: %s" % (
+			args.database))
+
+	print (
+		"Common name: %s" % (
+			args.common_name))
+
+	certificate_full = (
+		database.get_full (
+			args.common_name))
+
+	if not certificate_full:
+
+		print (
+			"State: NOT FOUND")
+
+		return
+
+	if "current" in certificate_full:
+		current = certificate_full ["current"]
+	else:
+		current = None
+
+	if "pending" in certificate_full:
+		pending = certificate_full ["pending"]
+	else:
+		pending = None
+
+	if current and pending:
+
+		if now < datetime.datetime.strptime (
+				current.not_before,
+				"%Y-%m-%dT%H:%M:%SZ"):
+
+			print (
+				"State: FUTURE and PENDING")
+
+		elif now > datetime.datetime.strptime (
+				current.not_after,
+				"%Y-%m-%dT%H:%M:%SZ"):
+
+			print (
+				"State: EXPIRED and PENDING")
+
+		else:
+
+			print (
+				"State: CURRENT and PENDING")
+
+	elif current:
+
+		if now < datetime.datetime.strptime (
+				current.not_before,
+				"%Y-%m-%dT%H:%M:%SZ"):
+
+			print (
+				"State: FUTURE")
+
+		elif now > datetime.datetime.strptime (
+				current.not_after,
+				"%Y-%m-%dT%H:%M:%SZ"):
+
+			print (
+				"State: EXPIRED")
+
+		else:
+
+			print (
+				"State: CURRENT")
+
+	elif pending:
+
+		print (
+			"State: PENDING")
+
+	if "current" in certificate_full:
+
+		print (
+			"Not before: %s" % (
+				certificate_full ["current"].not_before))
+
+		print (
+			"Not after: %s" % (
+				certificate_full ["current"].not_after))
+
+	print (
+		"TODO show history")
 
 def args_import (sub_parsers):
 
@@ -1206,6 +1419,11 @@ def args_export (sub_parsers):
 		"--rsa-private-key",
 		help = "path to write rsa private key")
 
+	parser.add_argument (
+		"--print-request",
+		action = "store_true",
+		help = "print signing request to stdout")
+
 def do_export (context, args):
 
 	database = CertificateDatabase (
@@ -1215,8 +1433,21 @@ def do_export (context, args):
 
 	database.load ()
 
-	certificate = database.get (
-		args.common_name)
+	if args.certificate \
+	or args.certificate_chain \
+	or args.full_certificate_chain \
+	or args.private_key \
+	or args.rsa_private_key:
+
+		certificate = (
+			database.get (
+				args.common_name))
+
+	if args.print_request:
+
+		request = (
+			database.get_pending (
+				args.common_name))
 
 	if args.certificate:
 
@@ -1271,6 +1502,11 @@ def do_export (context, args):
 
 		print ("Wrote RSA private key to %s" % (
 			args.rsa_private_key))
+
+	if args.print_request:
+
+		print (
+			request)
 
 def args_upgrade (sub_parsers):
 

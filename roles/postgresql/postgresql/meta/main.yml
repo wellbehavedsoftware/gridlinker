@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "postgresql-common"
+  - "install-postgresql"
+  - "setup-postgresql"
+  - "control-postgresql"
+
+# ex: et ts=2 filetype=yaml

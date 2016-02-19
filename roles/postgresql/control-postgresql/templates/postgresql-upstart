@@ -1,0 +1,55 @@
+description "postgresql server"
+
+{% if postgresql_state == 'enabled' %}
+start on runlevel [2345]
+stop on runlevel [^2345]
+{% endif %}
+
+expect fork
+
+kill timeout 5
+
+env POSTGRESQL_HOME="/var/lib/postgresql/9.3/main"
+env POSTGRESQL_CONFIG="/etc/postgresql/9.3/main/postgresql/conf"
+
+pre-start script
+
+	if [ -d /var/run/postgresql ]; then
+		chmod 2775 /var/run/postgresql
+	else
+		install -d -m 2775 -o postgres -g postgres /var/run/postgresql
+	fi
+
+end script
+
+post-start script
+
+	[ -r /usr/share/postgresql-common/init.d-functions ] || exit 0
+
+	. /usr/share/postgresql-common/init.d-functions
+
+	get_versions
+
+	for v in $versions; do
+		start $v
+	done
+
+	initctl emit inn-postgresql-start
+
+end script
+
+post-stop script
+
+	initctl emit inn-postgresql-stop
+
+	[ -r /usr/share/postgresql-common/init.d-functions ] || exit 0
+
+	. /usr/share/postgresql-common/init.d-functions
+
+	get_versions
+
+	for v in $versions; do
+		stop $v
+	done
+
+end script

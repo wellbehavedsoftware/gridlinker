@@ -1,11 +1,12 @@
 ---
 
 - name: "install system packages"
+  with_items: "{{ ubuntu_system_packages }}"
+  sudo: "yes"
   action:
+
     module: "apt"
     name: "{{ item.name }}"
     state: "{{ item.state }}"
-  sudo: "yes"
-  with_items: "ubuntu_system_packages"
 
 # ex: et ts=2 filetype=yaml

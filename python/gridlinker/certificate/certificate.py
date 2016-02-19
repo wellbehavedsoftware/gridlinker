@@ -15,6 +15,8 @@ Certificate = collections.namedtuple ("Certificate", [
 	"serial",
 	"digest",
 
+	"request",
+
 	"certificate",
 	"certificate_path",
 

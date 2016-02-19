@@ -1,7 +1,7 @@
 ---
 
 - name: "install php packages"
-  with_items: "php_packages"
+  with_items: "{{ php_packages }}"
   sudo: "yes"
   action:
 

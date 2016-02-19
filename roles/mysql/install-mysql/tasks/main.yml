@@ -1,7 +1,6 @@
 ---
 
 - include: "install-mysql.yml"
-  tags: "install-mysql"
   tags:
 
     - "mysql"

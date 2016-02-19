@@ -4,7 +4,9 @@
   when: "etcd_installed_version != etcd_version"
   sudo: "yes"
   args:
+
     executable: "/bin/bash"
+
   shell:
 
     set -euf -o pipefail;

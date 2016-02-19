@@ -100,7 +100,7 @@ def encode_real (schema, data, indent, here):
 
 def encode_str (schema, data, indent, here):
 
-	return "\"%s\"" % data
+	return "\"%s\"" % data.replace ("\"", "\\\"")
 
 def encode_list (schema, data, indent, here):
 

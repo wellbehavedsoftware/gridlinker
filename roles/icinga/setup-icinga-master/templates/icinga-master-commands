@@ -1,8 +1,11 @@
-object NotificationCommand "mail-host-notification" {
+object NotificationCommand "email-host-notification" {
 
 	import "plugin-notification-command"
 
-	command = [ SysconfDir + "/icinga2/scripts/mail-host-notification.sh" ]
+	command = [
+		SysconfDir + "/icinga2/scripts/mail",
+		"host",
+	]
 
 	env = {
 		NOTIFICATIONTYPE = "$notification.type$"
@@ -19,11 +22,14 @@ object NotificationCommand "mail-host-notification" {
 
 }
 
-object NotificationCommand "mail-service-notification" {
+object NotificationCommand "email-service-notification" {
 
 	import "plugin-notification-command"
 
-	command = [ SysconfDir + "/icinga2/scripts/mail-service-notification.sh" ]
+	command = [
+		SysconfDir + "/icinga2/scripts/mail",
+		"service",
+	]
 
 	env = {
 		NOTIFICATIONTYPE = "$notification.type$"

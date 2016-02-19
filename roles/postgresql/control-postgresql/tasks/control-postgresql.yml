@@ -1,0 +1,26 @@
+---
+
+- name: "write postgresql upstart config"
+  notify:
+
+    - "reload upstart config"
+    - "set postgresql.needs_restart to 'yes'"
+
+  sudo: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/init/postgresql.conf"
+    src: "postgresql-upstart"
+
+- meta: "flush_handlers"
+
+- name: "trigger postgresql restart"
+  when: "postgresql_needs_restart == 'yes'"
+  changed_when: "True"
+  notify: "restart postgresql"
+  update_resource: {}
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

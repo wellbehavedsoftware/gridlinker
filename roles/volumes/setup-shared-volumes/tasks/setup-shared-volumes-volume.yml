@@ -1,0 +1,67 @@
+---
+
+- set_fact:
+    shared_volume: "{{ item }}"
+
+- name: "create shared volumes directories"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "{{ shared_volumes_path }}/{{ shared_volume.identity_name }}"
+    state: "directory"
+
+    owner: "root"
+    group: "share-{{ shared_volume.identity_name }}"
+    mode: "0750"
+
+- name: "create shared volumes subvolumes"
+  sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+    creates: "{{ [
+      shared_volumes_path,
+      shared_volume.identity_name,
+      'current',
+    ] | join ('/') }}"
+
+  shell:
+
+    set -euf -p pipefail;
+
+    btrfs subvolume create
+      "{{ [
+        shared_volumes_path,
+        shared_volume.identity_name,
+        'current',
+      ] | join ('/') }}";
+
+- name: "set shared volumes permissions"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "{{ shared_volumes_path }}/{{ shared_volume.identity_name }}/current"
+
+    owner: "share-{{ shared_volume.identity_name }}"
+    group: "share-{{ shared_volume.identity_name }}"
+    mode: "0770"
+
+- name: "create shared volumes snapshots directories"
+  sudo: "yes"
+  action:
+
+    module: "file"
+    path: "{{ [
+      shared_volumes_path,
+      shared_volume.identity_name,
+      'snapshots',
+    ] | join ('/') }}"
+    state: "directory"
+
+    owner: "root"
+    group: "share-{{ shared_volume.identity_name }}"
+    mode: "0750"
+
+# ex: et ts=2 filetype=yaml
