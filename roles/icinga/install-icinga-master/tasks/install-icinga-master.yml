@@ -17,8 +17,8 @@
     update_cache: "yes"
 
 - name: "install icinga master system packages"
+  with_items: "{{ icinga_master_system_packages }}"
   sudo: "yes"
-  with_items: "icinga_master_system_packages"
   action:
 
     module: "apt"

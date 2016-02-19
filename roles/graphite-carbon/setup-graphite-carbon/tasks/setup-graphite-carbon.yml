@@ -1,7 +1,7 @@
 ---
 
 - name: "create graphite carbon directories"
-  with_items: "graphite_carbon_config_directories"
+  with_items: "{{ graphite_carbon_config_directories }}"
   sudo: "yes"
   action:
 
@@ -13,7 +13,7 @@
     mode: "{{ item.mode }}"
 
 - name: "create graphite carbon templates"
-  with_items: "graphite_carbon_config_templates"
+  with_items: "{{ graphite_carbon_config_templates }}"
   sudo: "yes"
   action:
 

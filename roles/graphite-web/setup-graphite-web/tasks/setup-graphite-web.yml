@@ -1,7 +1,7 @@
 ---
 
 - name: "create graphite web directories"
-  with_items: "graphite_web_config_directories"
+  with_items: "{{ graphite_web_config_directories }}"
   sudo: "yes"
   action:
 
@@ -13,7 +13,7 @@
     mode: "{{ item.mode }}"
 
 - name: "create graphite web templates"
-  with_items: "graphite_web_config_templates"
+  with_items: "{{ graphite_web_config_templates }}"
   sudo: "yes"
   action:
 

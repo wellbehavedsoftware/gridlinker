@@ -20,7 +20,7 @@
     icinga.private_key: "{{ icinga_master_certificate_result.private_key }}"
 
 - name: "create icinga directories"
-  with_items: "icinga_master_directories"
+  with_items: "{{ icinga_master_directories }}"
   sudo: "yes"
   action:
 
@@ -32,7 +32,7 @@
     mode: "{{ item.mode }}"
 
 - name: "write icinga config"
-  with_items: "icinga_master_config_templates"
+  with_items: "{{ icinga_master_config_templates }}"
   notify: "set icinga.needs_restart to 'yes'"
   sudo: "yes"
   action:
@@ -40,11 +40,13 @@
     module: "template"
     src: "{{ item.template }}"
     dest: "/etc/icinga2/{{ item.target }}"
+
     owner: "root"
     group: "nagios"
+    mode: "{{ item.mode }}"
 
 - name: "write icinga security config"
-  with_items: "icinga_master_security_files"
+  with_items: "{{ icinga_master_security_files }}"
   notify: "set icinga.needs_restart to 'yes'"
   sudo: "yes"
   action:

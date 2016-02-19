@@ -92,9 +92,13 @@ icinga_master_config_templates:
     target: "notifications.conf"
     mode: "0644"
 
+  - template: "icinga-master-script-mail"
+    target: "scripts/mail"
+    mode: "0755"
+
   - template: "icinga-master-secrets"
     target: "secrets.conf"
-    mode: "0600"
+    mode: "0640"
 
   - template: "icinga-master-services"
     target: "services.conf"

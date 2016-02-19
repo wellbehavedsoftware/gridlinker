@@ -1,7 +1,7 @@
 ---
 
 - name: "configure postgresql"
-  with_items: "postgresql_config_templates"
+  with_items: "{{ postgresql_config_templates }}"
   notify: "set postgresql.needs_restart to 'yes'"
   sudo: "yes"
   action:
