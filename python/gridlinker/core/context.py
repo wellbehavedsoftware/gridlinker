@@ -237,6 +237,9 @@ class GenericContext (object):
 				"%s/python" % self.home,
 				"%s/python" % self.gridlinker_home,
 				"%s/lib" % self.ansible_home,
+				"%s/jinja2" % self.third_party_home,
+				"%s/netaddr" % self.third_party_home,
+				"%s/pyyaml/lib" % self.third_party_home,
 			],
 			"PYTHONUNBUFFERED": "1",
 

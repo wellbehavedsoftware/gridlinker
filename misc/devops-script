@@ -3,9 +3,24 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import argparse
 import os
 import sys
+
+project_path = (
+	os.path.abspath (
+		os.path.dirname (
+			__file__)))
+
+for third_party_path in [
+	"pyyaml/lib",
+]:
+
+	sys.path.append (
+		"%s/third-party/%s" % (
+			project_path,
+			third_party_path))
+
+import argparse
 import yaml
 
 def outer_main ():
