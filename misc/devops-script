@@ -12,6 +12,9 @@ project_path = (
 			__file__)))
 
 for third_party_path in [
+	"ipaddress",
+	"jinja2",
+	"markupsafe",
 	"pyyaml/lib",
 ]:
 
