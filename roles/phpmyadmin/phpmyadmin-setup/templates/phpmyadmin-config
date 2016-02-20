@@ -1,0 +1,20 @@
+<?php
+
+$cfg ["blowfish_secret"] =
+	"{{ phpmyadmin_blowfish_secret }}";
+
+$cfg ["servers"] = array ();
+
+$cfg ["servers"] [0] = array (
+	"auth_type" => "cookie",
+	"host" => "localhost",
+	"connect_type" => "tcp",
+	"compress" => false,
+	"AllowNoPassword" => false,
+);
+
+$cfg ["UploadDir"] =
+	"/home/ubuntu/phpmyadmin-upload";
+
+$cfg ["SaveDir"] =
+	"/home/ubuntu/phpmyadmin-save";
