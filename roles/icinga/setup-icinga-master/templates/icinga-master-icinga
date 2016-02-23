@@ -6,6 +6,7 @@ include <itl>
 include <plugins>
 
 library "checker"
+library "compat"
 {% if icinga_database_type == 'mysql' %}
 library "db_ido_mysql"
 {% endif %}
@@ -29,6 +30,9 @@ object ApiListener "api" {
 }
 
 object CheckerComponent "checker" {
+}
+
+object ExternalCommandListener "command" {
 }
 
 object FileLogger "main-log" {
@@ -88,5 +92,3 @@ include "notifications.conf"
 include "services.conf"
 include "time-periods.conf"
 include "users.conf"
-
-include_recursive "local"

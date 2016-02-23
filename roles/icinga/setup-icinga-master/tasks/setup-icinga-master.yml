@@ -19,7 +19,7 @@
     icinga.certificate: "{{ icinga_master_certificate_result.certificate }}"
     icinga.private_key: "{{ icinga_master_certificate_result.private_key }}"
 
-- name: "create icinga directories"
+- name: "create icinga master directories"
   with_items: "{{ icinga_master_directories }}"
   sudo: "yes"
   action:
@@ -42,7 +42,7 @@
     dest: "/etc/icinga2/{{ item.target }}"
 
     owner: "root"
-    group: "nagios"
+    group: "icinga"
     mode: "{{ item.mode }}"
 
 - name: "write icinga security config"
@@ -55,7 +55,18 @@
     dest: "/etc/icinga2/{{ item.target }}"
     content: "{{ lookup ('etcd', item.source) }}"
     owner: "root"
-    group: "nagios"
+    group: "icinga"
+
+- name: "create icinga master links"
+  with_items: "{{ icinga_master_links }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.link }}"
+    state: "link"
+
+    src: "{{ item.target }}"
 
 - meta: "flush_handlers"
 

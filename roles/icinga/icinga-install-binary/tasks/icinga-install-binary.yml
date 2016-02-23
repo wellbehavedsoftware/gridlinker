@@ -1,0 +1,94 @@
+---
+
+- name: "remove icinga system packages"
+  with_items:
+
+    - "icinga2"
+    - "icinga2-bin"
+    - "icinga2-common"
+    - "icinga2-doc"
+    - "icinga2-ido-mysql"
+    - "icinga2-ido-pgsql"
+    - "libicinga2"
+
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+    state: "absent"
+    purge: "yes"
+
+- name: "create icinga group"
+  become: "yes"
+  action:
+
+    module: "group"
+    name: "icinga"
+    system: "yes"
+
+- name: "create icinga user"
+  become: "yes"
+  action:
+
+    module: "user"
+    name: "icinga"
+    system: "yes"
+    group: "icinga"
+
+- name: "add ubuntu to icinga group"
+  sudo: "yes"
+  action:
+
+    module: "user"
+    name: "ubuntu"
+    groups: "icinga"
+    append: "yes"
+
+- name: "install icinga"
+  when: "icinga_installed_version != icinga_version"
+  sudo: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ icinga_temp }}";
+    mkdir -p "{{ icinga_temp }}";
+    cd "{{ icinga_temp }}";
+
+    wget "{{ icinga_url }}";
+
+    tar
+      --extract
+      --xz
+      --file "{{ icinga_archive }}";
+
+    mkdir -p "{{ icinga_target }}";
+
+    rsync
+      --archive
+      --delete
+      {{ icinga_directory }}/
+      {{ icinga_target }}/
+      --exclude /etc
+      --exclude /var;
+
+    rm -rf {{ icinga_temp }};
+
+- name: "set icinga.state to 'installed'"
+  when: "icinga_state == ''"
+  update_resource:
+
+    icinga.state: "installed"
+
+- name: "set icinga.installed_version"
+  when: "icinga_installed_version != icinga_version"
+  update_resource:
+
+    icinga.installed_version: "{{ icinga_version }}"
+
+# ex: et ts=2 filetype=yaml
