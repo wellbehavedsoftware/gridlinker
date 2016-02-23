@@ -233,15 +233,20 @@ class GenericContext (object):
 			"PATH": [
 				"%s/bin" % self.ansible_home,
 			] + os.environ ["PATH"].split (":"),
+
 			"PYTHONPATH": [
+
 				"%s/python" % self.home,
 				"%s/python" % self.gridlinker_home,
 				"%s/lib" % self.ansible_home,
+
+				"%s/ipaddress" % self.third_party_home,
 				"%s/jinja2" % self.third_party_home,
 				"%s/markupsafe" % self.third_party_home,
 				"%s/netaddr" % self.third_party_home,
 				"%s/pyyaml/lib" % self.third_party_home,
 			],
+
 			"PYTHONUNBUFFERED": "1",
 
 		}
