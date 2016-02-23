@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "phpmyadmin-common"
+  - "phpmyadmin-install"
+  - "phpmyadmin-setup"
+  - "phpmyadmin-control"
+
+# ex: et ts=2 filetype=yaml

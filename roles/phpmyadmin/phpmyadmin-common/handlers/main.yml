@@ -1,0 +1,11 @@
+---
+
+- name: "reload apache"
+  sudo: "yes"
+  action:
+
+    module: "service"
+    name: "apache2"
+    state: "reloaded"
+
+# ex: et ts=2 filetype=yaml

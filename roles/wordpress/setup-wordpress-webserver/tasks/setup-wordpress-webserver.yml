@@ -117,6 +117,11 @@
 
     cd {{ item.website.path }};
 
+    mkdir -p {{ []
+      | union (item.website.create_directories)
+      | join (' ')
+    }};
+
     find . \( {{ []
       | union (item.website.private_paths)
       | union (item.website.web_paths)

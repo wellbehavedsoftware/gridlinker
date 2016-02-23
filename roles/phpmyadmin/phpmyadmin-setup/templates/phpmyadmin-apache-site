@@ -1,0 +1,16 @@
+<VirtualHost *:80>
+
+	ServerName {{ phpmyadmin_apache_hostname }}
+
+	CustomLog /var/log/apache2/phpmyadmin-access.log common
+	ErrorLog /var/log/apache2/phpmyadmin-error.log
+
+	DocumentRoot {{ phpmyadmin_target }}
+
+	<Directory {{ phpmyadmin_target }}>
+		Require all granted
+	</Directory>
+
+</VirtualHost>
+
+# ex: noet ts=4 filetype=apache

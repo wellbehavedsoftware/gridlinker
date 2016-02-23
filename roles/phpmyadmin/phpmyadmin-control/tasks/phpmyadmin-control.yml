@@ -1,0 +1,25 @@
+---
+
+- name: "enable phpmyadmin apache site"
+  sudo: "yes"
+  when: "phpmyadmin_state == 'enabled'"
+  notify: "reload apache"
+  action:
+
+    module: "file"
+    path: "/etc/apache2/sites-enabled/phpmyadmin.conf"
+    state: "link"
+
+    src: "../sites-available/phpmyadmin.conf"
+
+- name: "disable phpmyadmin apache site"
+  sudo: "yes"
+  when: "phpmyadmin_state != 'enabled'"
+  notify: "reload apache"
+  action:
+
+    module: "file"
+    path: "/etc/apache2/sites-enabled/phpmyadmin.conf"
+    state: "absent"
+
+# ex: et ts=2 filetype=yaml

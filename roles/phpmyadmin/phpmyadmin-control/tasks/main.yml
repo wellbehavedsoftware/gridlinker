@@ -1,0 +1,9 @@
+---
+
+- include: "phpmyadmin-control.yml"
+  tags:
+
+    - "phpmyadmin"
+    - "phpmyadmin-control"
+
+# ex: et ts=2 filetype=yaml

@@ -12,7 +12,9 @@
   when: "nginx_installed_version != nginx_version"
   sudo: "yes"
   args:
+
     executable: "/bin/bash"
+
   shell:
 
     set -euf -o pipefail;

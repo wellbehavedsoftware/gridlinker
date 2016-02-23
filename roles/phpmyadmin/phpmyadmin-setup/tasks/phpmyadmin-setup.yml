@@ -1,0 +1,47 @@
+---
+
+- name: "create phpmyadmin directories"
+  with_items: "{{ phpmyadmin_config_directories }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "write phpmyadmin config templates"
+  with_items: "{{ phpmyadmin_config_templates }}"
+  notify: "reload apache"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ item.target }}"
+    src: "{{ item.template }}"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "create phpmyadmin links"
+  with_items: "{{ phpmyadmin_config_links }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    dest: "{{ item.link }}"
+    state: "link"
+
+    src: "{{ item.target }}"
+
+- name: "set phpmyadmin.state to 'enabled'"
+  when: "phpmyadmin_state == 'installed'"
+  update_resource:
+
+    phpmyadmin.state: "enabled"
+
+# ex: et ts=2 filetype=yaml
