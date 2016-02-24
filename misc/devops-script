@@ -43,7 +43,6 @@ def setup_imports ():
 	HOME = os.path.abspath (os.path.dirname (main_path) + "/../../..")
 
 	sys.path.append (HOME + "/python")
-	sys.path.append (HOME + "/third-party/gridlinker/python")
 
 	with open ("%s/third-party/third-party-index" % HOME) as file_handle:
 

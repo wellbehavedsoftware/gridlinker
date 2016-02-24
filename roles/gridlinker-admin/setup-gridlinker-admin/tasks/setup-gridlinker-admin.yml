@@ -23,7 +23,7 @@
     }}"
 
 - name: "install gridlinker admin system packages"
-  with_items: "gridlinker_admin_system_packages"
+  with_items: "{{ gridlinker_admin_system_packages }}"
   become: "yes"
   action:
 
