@@ -15,6 +15,7 @@ for third_party_path in [
 	"ipaddress",
 	"jinja2",
 	"markupsafe",
+	"pyopenssl/src",
 	"pyyaml/lib",
 ]:
 
