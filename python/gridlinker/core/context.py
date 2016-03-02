@@ -244,6 +244,7 @@ class GenericContext (object):
 				"%s/jinja2" % self.third_party_home,
 				"%s/markupsafe" % self.third_party_home,
 				"%s/netaddr" % self.third_party_home,
+				"%s/pyopenssl/src" % self.third_party_home,
 				"%s/pyyaml/lib" % self.third_party_home,
 			],
 
