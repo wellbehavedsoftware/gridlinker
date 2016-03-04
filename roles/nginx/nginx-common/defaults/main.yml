@@ -30,6 +30,11 @@ nginx_directories:
     group: "root"
     mode: "0755"
 
+  - directory: "{{ nginx_target }}/conf/local"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
   - directory: "{{ nginx_target }}/conf/sites"
     user: "root"
     group: "root"
