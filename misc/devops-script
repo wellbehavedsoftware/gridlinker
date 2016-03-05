@@ -68,10 +68,22 @@ def setup_imports ():
 		if not "python" in third_party_data:
 			continue
 
-		sys.path.append (
-			"%s/third-party/%s" % (
-				HOME,
-				third_party_data ["python"]))
+		if isinstance (third_party_data ["python"], str) \
+		or isinstance (third_party_data ["python"], unicode):
+
+			sys.path.append (
+				"%s/third-party/%s" % (
+					HOME,
+					third_party_data ["python"]))
+
+		elif isinstance (third_party_data ["python"], list):
+
+			for python_item in third_party_data ["python"]:
+
+				sys.path.append (
+					"%s/third-party/%s" % (
+						HOME,
+						python_item))
 
 def load_config ():
 
