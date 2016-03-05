@@ -3,7 +3,7 @@
 - name: "create symlinks to python bins"
   register: "python_symlinks_result"
   changed_when: "python_symlinks_result.stdout != 'UNCHANGED'"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

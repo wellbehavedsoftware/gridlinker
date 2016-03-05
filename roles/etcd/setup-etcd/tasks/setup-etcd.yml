@@ -47,7 +47,7 @@
 - name: "create etcd directories"
   with_items: "{{ etcd_directories }}"
   notify: "set etcd.needs_restart to 'yes'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"
@@ -58,7 +58,7 @@
 - name: "write etcd config templates"
   with_items: "{{ etcd_config_templates }}"
   notify: "set etcd.needs_restart to 'yes'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "template"
@@ -73,7 +73,7 @@
   with_items: "{{ etcd_security_config }}"
   when: "etcd_secured == 'yes'"
   notify: "set etcd.needs_restart to 'yes'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "copy"

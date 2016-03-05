@@ -3,6 +3,7 @@
 - name: "check lxc_container.network_link"
   when: "lxc_container_network_link == ''"
   fail:
+
     msg: "please set 'lxc_container.network_link'"
 
 - name: "generate lxc_container.network_mac"
@@ -12,9 +13,9 @@
     lxc_container.network_mac: "{{ 'aa' | generate_mac_address }}"
 
 - name: "create directories for lxc container bind mounts"
+  with_items: "{{ lxc_container_bind_mounts }}"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
-  with_items: "lxc_container_bind_mounts"
+  become: "yes"
   action:
 
     module: "file"
@@ -23,7 +24,7 @@
 
 - name: "create lxc container"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"
@@ -167,7 +168,7 @@
 
 - name: "create lxc container config"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "template"
@@ -179,7 +180,7 @@
   register: "lxc_create_disk_quota_result"
   changed_when: "lxc_create_disk_quota_result.stdout != 'UNCHANGED'"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"
@@ -212,7 +213,7 @@
   register: "lxc_create_start_result"
   changed_when: "lxc_create_start_result.stdout != 'UNCHANGED'"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

@@ -1,8 +1,8 @@
 ---
 
 - name: "reload upstart config"
+  become: "yes"
   shell: "initctl reload-configuration"
-  sudo: "yes"
 
 - name: "set graphite_carbon.needs_restart to 'yes'"
   when: "graphite_carbon_state == 'enabled'"
@@ -15,7 +15,7 @@
 - name: "restart graphite carbon"
   when: "graphite_carbon_state == 'enabled'"
   notify: "set graphite_carbon.needs_restart to 'no'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"
