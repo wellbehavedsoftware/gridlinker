@@ -85,6 +85,10 @@ def setup_imports ():
 						HOME,
 						python_item))
 
+		else:
+
+			raise Exception ()
+
 def load_config ():
 
 	import gridlinker
