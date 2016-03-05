@@ -2,6 +2,8 @@
 
 # runtime config
 
+nginx_user: "www-data"
+
 nginx_http_port: "80"
 nginx_https_port: "443"
 
@@ -24,6 +26,11 @@ nginx_target: "/opt/nginx-{{ nginx_version }}"
 nginx_directories:
 
   - directory: "{{ nginx_target }}/conf"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "{{ nginx_target }}/conf/local"
     user: "root"
     group: "root"
     mode: "0755"
