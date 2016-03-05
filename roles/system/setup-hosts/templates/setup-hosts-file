@@ -1,6 +1,6 @@
 # this host
 
-{{ private_address }} {{ private_hostnames [0] }}
+{{ private_address }} {{ private_hostnames | join (' ') }}
 
 # other hosts
 
