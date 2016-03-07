@@ -59,9 +59,15 @@
 	guest ok = {{ share.samba_share_guest_ok }}
 	read only = {{ share.samba_share_read_only }}
 
+{% if share.samba_share_valid_users is defined %}
 	valid users = {{ share.samba_share_valid_users }}
+{% endif %}
+{% if share.samba_share_write_list is defined %}
 	write list = {{ share.samba_share_write_list }}
+{% endif %}
+{% if share.samba_share_read_list is defined %}
 	read list = {{ share.samba_share_read_list }}
+{% endif %}
 
 	force user = {{ share.samba_share_force_user }}
 	force group = {{ share.samba_share_force_group }}
