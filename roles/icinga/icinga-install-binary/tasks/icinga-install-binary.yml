@@ -19,6 +19,22 @@
     state: "absent"
     purge: "yes"
 
+- name: "install icinga system package dependencies"
+  with_items:
+
+    - "libboost-program-options1.54.0"
+    - "libboost-regex1.54.0"
+    - "libyajl2"
+    - "nagios-plugins-basic"
+
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+    state: "present"
+    purge: "yes"
+
 - name: "create icinga group"
   become: "yes"
   action:
