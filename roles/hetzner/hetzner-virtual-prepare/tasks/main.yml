@@ -1,0 +1,10 @@
+---
+
+- include: "hetzner-virtual-prepare.yml"
+  tags:
+
+    - "hetzner"
+    - "hetzner-virtual"
+    - "hetzner-virtual-prepare"
+
+# ex: et ts=2 filetype=yaml

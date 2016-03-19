@@ -1,6 +1,12 @@
 # this host
 
-{{ private_address }} {{ private_hostnames [0] }}
+{% for private_hostname in private_hostnames | default ([]) %}
+{{ private_address }} {{ private_hostname }}
+{% endfor %}
+
+{% for public_hostname in public_hostnames | default ([]) %}
+{{ public_address }} {{ public_hostname }}
+{% endfor %}
 
 # other hosts
 
@@ -8,7 +14,9 @@
 {% set host_data = hostvars [host_name] %}
 {% if host_name != inventory_hostname
 	and host_data.private_address is defined
-	and host_data.private_hostnames is defined %}
+	and host_data.private_address
+	and host_data.private_hostnames is defined
+	and host_data.private_hostnames %}
 {{ host_data.private_address }} {{
 	host_data.private_hostnames
 	| union (host_data.private_aliases | default ([]))
@@ -21,7 +29,9 @@
 {% set host_data = hostvars [host_name] %}
 {% if host_name != inventory_hostname
 	and host_data.public_address is defined
-	and host_data.public_hostnames is defined %}
+	and host_data.public_address
+	and host_data.public_hostnames is defined
+	and host_data.public_hostnames %}
 {{ host_data.public_address }} {{ host_data.public_hostnames | join (' ') }}
 {% endif %}
 {% endfor %}

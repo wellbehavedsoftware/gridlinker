@@ -3,6 +3,6 @@
 dependencies:
 
   - "lxc-common"
-  - "install-lxc"
+  - "lxc-parent-install"
 
 # ex: et ts=2 filetype=yaml

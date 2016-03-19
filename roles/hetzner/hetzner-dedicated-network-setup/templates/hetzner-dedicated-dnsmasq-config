@@ -1,0 +1,11 @@
+{% set private_network = networks [private_network] %}
+
+# network
+
+interface=brprv0,lo
+bind-interfaces
+
+# upstream dns
+
+server=8.8.8.8
+server=8.8.4.4

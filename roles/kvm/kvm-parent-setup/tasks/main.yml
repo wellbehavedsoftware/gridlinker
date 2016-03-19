@@ -1,0 +1,10 @@
+---
+
+- include: "kvm-parent-setup.yml"
+  tags:
+
+    - "kvm"
+    - "kvm-parent"
+    - "kvm-parent-setup"
+
+# ex: et ts=2 filetype=yaml

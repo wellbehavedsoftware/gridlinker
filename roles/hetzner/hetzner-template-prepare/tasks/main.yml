@@ -1,0 +1,10 @@
+---
+
+- include: "hetzner-template-prepare.yml"
+  tags:
+
+    - "hetzner"
+    - "hetzner-template"
+    - "hetzner-template-prepare"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,40 @@
+---
+
+- name: "assign private network"
+  when: "not private_network"
+  update_resource:
+
+    private.network: "{{ parent.private_network }}"
+
+- name: "assign private balancer"
+  when: "not private_balancer"
+  update_resource:
+
+    private.balancer: "{{ networks [private_network].network_default_balancer }}"
+
+- name: "generate private mac"
+  when: "not private_mac"
+  update_resource:
+
+    private.mac: "{{ 'aa' | generate_mac_address }}"
+
+- name: "allocate private ip"
+  register: "allocate_ip_result"
+  when: "not private_address"
+  local_action:
+
+    module: "network_address_allocator"
+    name: "{{ identity.name }}"
+    action: "allocate"
+    database_location: "/private-ip"
+
+    start_address: "{{ networks [private_network].network_alloc_start }}"
+    end_address: "{{ networks [private_network].network_alloc_end }}"
+
+- name: "store private ip"
+  when: "not private_address"
+  update_resource:
+
+    private.address: "{{ allocate_ip_result.address }}"
+
+# ex: et ts=2 filetype=yaml
