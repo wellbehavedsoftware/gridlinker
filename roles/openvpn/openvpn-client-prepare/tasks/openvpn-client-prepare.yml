@@ -16,6 +16,23 @@
   when: "openvpn_client_address_allocate_result | changed"
   update_resource:
 
-    "vpn.address": "{{ openvpn_client_address_allocate_result.address }}"
+    "openvpn_client.address": "{{ openvpn_client_address_allocate_result.address }}"
+
+- name: "issue openvpn client certificate"
+  when: "not openvpn_client_certificate"
+  register: "openvpn_client_certificate_result"
+  action:
+
+    module: "certificate_authority_issue"
+    authority: "{{ openvpn_client_authority }}"
+    common_name: "{{ openvpn_client_common_name }}"
+    usage: "client"
+
+- name: "store openvpn client certificate"
+  when: "openvpn_client_certificate_result | changed"
+  update_resource:
+
+    openvpn_client.certificate: "{{ openvpn_client_certificate_result.certificate }}"
+    openvpn_client.private_key: "{{ openvpn_client_certificate_result.private_key }}"
 
 # ex: et ts=2 filetype=yaml

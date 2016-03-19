@@ -14,7 +14,7 @@ client-config-dir clients
 # protocol
 
 comp-lzo adaptive
-push "comp-lzo adaptive"
+tun-mtu 1500
 keepalive 5 20
 
 # network
