@@ -1,0 +1,21 @@
+---
+
+- name: "allocate vpn client address"
+  when: "not openvpn_client_address"
+  register: "openvpn_client_address_allocate_result"
+  action:
+
+    module: "network_address_allocator"
+    action: "allocate"
+    database_location: "{{ openvpn_client_alloc_path }}"
+    start_address: "{{ openvpn_client_alloc_start }}"
+    end_address: "{{ openvpn_client_alloc_end }}"
+    name: "{{ openvpn_client_alloc_name }}"
+
+- name: "store vpn address"
+  when: "openvpn_client_address_allocate_result | changed"
+  update_resource:
+
+    "vpn.address": "{{ openvpn_client_address_allocate_result.address }}"
+
+# ex: et ts=2 filetype=yaml
