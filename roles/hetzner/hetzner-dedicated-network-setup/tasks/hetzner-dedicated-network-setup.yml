@@ -46,8 +46,8 @@
     dest: "/etc/resolv.conf"
     src: "hetzner-dedicated-resolv-conf"
 
-- name: "create firewall rules"
-  notify: "activate firewall rules"
+- name: "create hetzner dedicated firewall rules"
+  result: "hetzner_dedicated_firewall_rules_result"
   become: "yes"
   action:
 
@@ -57,7 +57,10 @@
 
     mode: 0755
 
-- meta: "flush_handlers"
+- name: "reload hetzner dedicated firewall rules"
+  changed_when: "hetzner_dedicated_firewall_rules_result | changed"
+  become: "yes"
+  shell: "/etc/network/firewall-rules"
 
 - name: "create network interfaces"
   notify: "activate network interfaces"

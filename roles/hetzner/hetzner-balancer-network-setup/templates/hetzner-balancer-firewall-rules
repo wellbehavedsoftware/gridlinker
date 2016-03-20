@@ -208,17 +208,13 @@ echo 0 >/proc/sys/net/ipv4/ip_forward
 
 # nat traffic from private to public
 
-	{% if private_gateway is not defined %}
-
-		iptables \
-			--table nat \
-			--append POSTROUTING \
-			--source "$PRIVATE_NETWORK" \
-			--out-interface "$PUBLIC_INTERFACE" \
-			--jump SNAT \
-			--to "$PUBLIC_ADDRESS"
-
-	{% endif %}
+	iptables \
+		--table nat \
+		--append POSTROUTING \
+		--source "$PRIVATE_NETWORK" \
+		--out-interface "$PUBLIC_INTERFACE" \
+		--jump SNAT \
+		--to "$PUBLIC_ADDRESS"
 
 # enable packet forwarding
 
