@@ -2,7 +2,7 @@
 
 - name: "install system packages"
   with_items: "{{ ubuntu_system_packages }}"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "apt"

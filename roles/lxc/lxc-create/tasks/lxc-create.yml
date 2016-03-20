@@ -2,7 +2,7 @@
 
 - name: "create directories for lxc container bind mounts"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   with_items: "lxc_container_bind_mounts"
   action:
 
@@ -12,7 +12,7 @@
 
 - name: "create lxc container"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"
@@ -159,19 +159,30 @@
 
 - name: "create lxc container config"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "template"
     dest: "{{ lxc_container_path }}/config"
     src: "lxc-create-config"
 
+- name: "create lxc container mount hook"
+  delegate_to: "{{ lxc_container_delegate }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ lxc_container_path }}/mount-hook"
+    src: "lxc-create-mount-hook"
+
+    mode: "0755"
+
 - name: "set lxc container disk quota"
   when: "lxc_container_disk_quota != ''"
   register: "lxc_create_disk_quota_result"
   changed_when: "lxc_create_disk_quota_result.stdout != 'UNCHANGED'"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"
@@ -204,7 +215,7 @@
   register: "lxc_create_start_result"
   changed_when: "lxc_create_start_result.stdout != 'UNCHANGED'"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

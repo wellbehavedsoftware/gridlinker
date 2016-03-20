@@ -1,7 +1,7 @@
 ---
 
 - name: "create python pip config"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "template"

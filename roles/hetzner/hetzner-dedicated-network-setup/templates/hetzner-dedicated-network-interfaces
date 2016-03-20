@@ -25,6 +25,17 @@ iface brpub0 inet static
 
 	up test ! -x /etc/network/firewall-rules || /etc/network/firewall-rules
 
+{% for extra_address in public_extra_addresses | default ([]) %}
+
+auto brpub0:{{ loop.index }}
+iface brpub0:{{ loop.index }} inet static
+
+	address {{ extra_address.address }}
+	netmask {{ networks [extra_address.network].network_netmask }}
+	broadcast {{ networks [public_network].network_broadcast }}
+
+{% endfor %}
+
 auto brprv0
 iface brprv0 inet static
 

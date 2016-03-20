@@ -3,7 +3,7 @@
 dependencies:
 
   - "balancer-common"
-  - "nginx-from-source"
+  - "build-nginx"
   - "balancer-nginx-setup"
   - "control-nginx"
 

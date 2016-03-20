@@ -1,34 +1,38 @@
 ---
 
 - name: "reload upstart config"
+  become: "yes"
   shell: "initctl reload-configuration"
-  sudo: "yes"
 
 - name: "set etcd.needs_restart to 'yes'"
-  update_resource:
-    etcd.needs_restart: "yes"
-  changed_when: "True"
   notify: "restart etcd"
+  update_resource:
+
+    etcd.needs_restart: "yes"
 
 - name: "restart etcd"
   when: "etcd_state == 'enabled'"
-  action:
-    module: "service"
-    name: "etcd"
-    state: "restarted"
-  sudo: "yes"
   notify:
+
     - "pause after etcd restart"
     - "set etcd.needs_restart to 'no'"
 
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "etcd"
+    state: "restarted"
+
 - name: "pause after etcd restart"
   action:
+
     module: "pause"
     seconds: "3"
 
 - name: "set etcd.needs_restart to 'no'"
   update_resource:
+
     etcd.needs_restart: "no"
-  changed_when: "True"
 
 # ex: et ts=2 filetype=yaml

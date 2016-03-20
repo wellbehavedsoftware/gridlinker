@@ -2,9 +2,11 @@
 
 - name: "write nginx upstart config"
   notify:
+
     - "reload upstart config"
     - "set nginx.needs_restart to 'yes'"
-  sudo: "yes"
+
+  become: "yes"
   action:
 
     module: "template"
@@ -21,7 +23,7 @@
 
 - name: "start nginx"
   when: "nginx_state == 'enabled'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"
@@ -30,7 +32,7 @@
 
 - name: "stop nginx"
   when: "nginx_state == 'disabled'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"

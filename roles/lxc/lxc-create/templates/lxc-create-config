@@ -78,7 +78,10 @@ lxc.network.flags = up
 lxc.network.link = {{ lxc_container_public_link }}
 lxc.network.hwaddr = {{ lxc_container_public_mac }}
 lxc.network.ipv4 = {{ lxc_container_public_address }}
+{% if lxc_container_public_gateway | default ('')
+and not lxc_container_private_gateway | default ('') -%}
 lxc.network.ipv4.gateway = {{ lxc_container_public_gateway }}
+{% endif %}
 {% endif %}
 
 lxc.network.type = veth
@@ -86,7 +89,7 @@ lxc.network.flags = up
 lxc.network.link = {{ lxc_container_private_link }}
 lxc.network.hwaddr = {{ lxc_container_private_mac }}
 lxc.network.ipv4 = {{ lxc_container_private_address }}
-{% if not lxc_container_public_link | default ('') %}
+{% if lxc_container_private_gateway | default ('') %}
 lxc.network.ipv4.gateway = {{ lxc_container_private_gateway }}
 {% endif %}
 
@@ -94,3 +97,7 @@ lxc.network.ipv4.gateway = {{ lxc_container_private_gateway }}
 
 lxc.start.auto = 1
 lxc.start.delay = 0
+
+# hooks
+
+lxc.hook.mount = /var/lib/lxc/{{ identity.name }}/mount-hook

@@ -1,26 +1,29 @@
 ---
 
 - name: "write etcd upstart config"
-  sudo: "yes"
-  action:
-    module: "template"
-    src: "etcd-upstart"
-    dest: "/etc/init/etcd.conf"
   notify:
+
     - "reload upstart config"
     - "set etcd.needs_restart to 'yes'"
 
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/init/etcd.conf"
+    src: "etcd-upstart"
+
 - name: "trigger etcd restart"
   when: "etcd_needs_restart == 'yes'"
-  update_resource: {}
   changed_when: "True"
   notify: "restart etcd"
+  update_resource: {}
 
 - meta: "flush_handlers"
 
 - name: "start etcd"
   when: "etcd_state == 'enabled'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"
@@ -29,7 +32,7 @@
 
 - name: "stop etcd"
   when: "etcd_state == 'disabled'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"
