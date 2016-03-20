@@ -1,24 +1,24 @@
 ---
 
-- name: "assign private network"
+- name: "assign lxc container private network"
   when: "not private_network"
   update_resource:
 
     private.network: "{{ parent.private_network }}"
 
-- name: "assign private balancer"
+- name: "assign lxc container private balancer"
   when: "not private_balancer"
   update_resource:
 
     private.balancer: "{{ networks [private_network].network_default_balancer }}"
 
-- name: "generate private mac"
+- name: "generate lxc container private mac"
   when: "not private_mac"
   update_resource:
 
     private.mac: "{{ 'aa' | generate_mac_address }}"
 
-- name: "allocate private ip"
+- name: "allocate lxc container private ip"
   register: "allocate_ip_result"
   when: "not private_address"
   local_action:
@@ -31,7 +31,7 @@
     start_address: "{{ networks [private_network].network_alloc_start }}"
     end_address: "{{ networks [private_network].network_alloc_end }}"
 
-- name: "store private ip"
+- name: "store lxc container private ip"
   when: "not private_address"
   update_resource:
 

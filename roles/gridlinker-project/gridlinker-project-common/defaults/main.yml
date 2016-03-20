@@ -1,0 +1,9 @@
+---
+
+gridlinker_project_etcd_peers_authority: "{{ SHORT_NAME }}-etcd-peers"
+gridlinker_project_etcd_peers_common_name: "{{ SHORT_TITLE }} Etcd Peers CA"
+
+gridlinker_project_etcd_clients_authority: "{{ SHORT_NAME }}-etcd-clients"
+gridlinker_project_etcd_clients_common_name: "{{ SHORT_TITLE }} Etcd Clients CA"
+
+# ex: et ts=2 filetype=yaml
