@@ -1,31 +1,10 @@
 ---
 
-# ---------- postfix exchange rehash
-
-- name: "set postfix_exchange.needs_rehash to 'yes'"
-  when: "postfix_exchange_needs_rehash != 'yes'"
-  notify: "rehash postfix exchange"
-  update_resource:
-
-    postfix_exchange.needs_rehash: "yes"
-
-- name: "rehash postfix exchange"
-  with_items: "{{ postfix_exchange_config_database_templates }}"
-  notify: "set postfix_exchange.needs_rehash to 'no'"
-  become: "yes"
-  shell: "postmap {{ item.target }}"
-
-- name: "set postfix_exchange.needs_rehash to 'no'"
-  when: "postfix_exchange_needs_rehash != 'no'"
-  notify: "set postfix.needs_restart to 'yes'"
-  update_resource:
-
-    postfix.needs_rehash: "no"
-
 # ---------- postfix restart
 
 - name: "set postfix.needs_restart to 'yes'"
   when: "postfix_needs_restart != 'yes'"
+  changed_when: "True"
   notify: "restart postfix"
   update_resource:
 
@@ -42,6 +21,7 @@
 
 - name: "set postfix.needs_restart to 'no'"
   when: "postfix_needs_restart != 'no'"
+  changed_when: "True"
   update_resource:
 
     postfix.needs_restart: "no"

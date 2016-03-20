@@ -1,0 +1,9 @@
+---
+
+- include: "mail-storage-setup.yml"
+  tags:
+
+    - "mail-storage"
+    - "mail-storage-setup"
+
+# ex: et ts=2 filetype=yaml

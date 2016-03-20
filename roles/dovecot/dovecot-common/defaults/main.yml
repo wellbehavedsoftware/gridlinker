@@ -1,0 +1,10 @@
+---
+
+# ---------- dovecot install
+
+dovecot_install_system_packages:
+
+  - "dovecot-imapd"
+  - "dovecot-pop3d"
+
+# ex: et ts=2 filetype=yaml

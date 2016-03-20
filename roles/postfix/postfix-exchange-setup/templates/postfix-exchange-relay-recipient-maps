@@ -1,0 +1,28 @@
+{%- for email_account in email_accounts.values () -%}
+
+	{%- print '\n# ---------- ', email_account.identity_name, '\n\n' -%}
+
+	{%- for email_domain_name, addresses
+		in email_account.email_account_addresses.items () -%}
+
+		{%- for address
+			in addresses -%}
+
+			{%- set email_domain =
+				hostvars ['email-domain/' + email_domain_name] -%}
+
+			{%- for domain
+				in email_domain.email_domain_domains -%}
+
+				{%- set full_address =
+					address + '@' + domain -%}
+
+				{%- print full_address, ' OK\n' -%}
+
+			{%- endfor -%}
+
+		{%- endfor -%}
+
+	{%- endfor -%}
+
+{%- endfor -%}

@@ -1,6 +1,7 @@
 # ---------- hostnames and networks
 
 inet_interfaces = all
+inet_protocols = ipv4
 
 myhostname = {{ postfix_exchange_myhostname }}
 mydomain = {{ postfix_exchange_mydomain }}
@@ -28,10 +29,10 @@ readme_directory = no
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
 
-# ---------- smtp client
+# ---------- smtp protocol
 
 smtp_helo_name = {{ postfix_exchange_smtp_helo_name }}
-#smtp_generic_maps = hash:/etc/postfix/generic
+smtp_host_lookup = dns, native
 
 # ---------- smtp daemon
 
@@ -55,9 +56,9 @@ smtpd_relay_restrictions =
 	permit_sasl_authenticated,
 	reject_unauth_destination
 
-smtpd_tls_security_level = may
-smtpd_tls_cert_file = /etc/postfix/smtpd-certificate.pem
-smtpd_tls_key_file = /etc/postfix/smtpd-private-key.pem
+#smtpd_tls_security_level = may
+#smtpd_tls_cert_file = /etc/postfix/smtpd-certificate.pem
+#smtpd_tls_key_file = /etc/postfix/smtpd-private-key.pem
 
 # --------- postscreen
 

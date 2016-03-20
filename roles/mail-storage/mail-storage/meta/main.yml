@@ -1,0 +1,7 @@
+---
+
+dependencies:
+
+  - "mail-storage-setup"
+
+# ex: et ts=2 filetype=yaml

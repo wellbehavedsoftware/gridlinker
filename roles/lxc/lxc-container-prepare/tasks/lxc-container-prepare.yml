@@ -7,10 +7,13 @@
     private.network: "{{ parent.private_network }}"
 
 - name: "assign lxc container private balancer"
-  when: "not private_balancer"
+  when: "
+    not private_balancer
+    and not inventory_hostname in groups ['balancers']
+  "
   update_resource:
 
-    private.balancer: "{{ networks [private_network].network_default_balancer }}"
+    private.balancer: "{{ parent.private_balancer }}"
 
 - name: "generate lxc container private mac"
   when: "not private_mac"

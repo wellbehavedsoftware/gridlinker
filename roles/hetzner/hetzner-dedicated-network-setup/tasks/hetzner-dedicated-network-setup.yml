@@ -30,7 +30,7 @@
 
 - meta: "flush_handlers"
 
-- name: "remove resolvconf"
+- name: "remove heztner dedicated resolvconf"
   become: "yes"
   action:
 
@@ -38,7 +38,7 @@
     name: "resolvconf"
     state: "absent"
 
-- name: "create resolv config"
+- name: "create heztner dedicated resolv config"
   become: "yes"
   action:
 
@@ -46,13 +46,8 @@
     dest: "/etc/resolv.conf"
     src: "hetzner-dedicated-resolv-conf"
 
-<<<<<<< HEAD
 - name: "create hetzner dedicated firewall rules"
-  result: "hetzner_dedicated_firewall_rules_result"
-=======
-- name: "create firewall rules"
-  notify: "activate firewall rules"
->>>>>>> bfd3aab05cbead85e5f2bf5d9ec3dfb5c9924a34
+  register: "hetzner_dedicated_firewall_rules_result"
   become: "yes"
   action:
 
@@ -60,16 +55,12 @@
     dest: "/etc/network/firewall-rules"
     src: "hetzner-dedicated-firewall-rules"
 
-    mode: 0755
+    mode: "0755"
 
-<<<<<<< HEAD
 - name: "reload hetzner dedicated firewall rules"
   changed_when: "hetzner_dedicated_firewall_rules_result | changed"
   become: "yes"
   shell: "/etc/network/firewall-rules"
-=======
-- meta: "flush_handlers"
->>>>>>> bfd3aab05cbead85e5f2bf5d9ec3dfb5c9924a34
 
 - name: "create network interfaces"
   notify: "activate network interfaces"
