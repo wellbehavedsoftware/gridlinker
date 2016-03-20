@@ -1,7 +1,5 @@
 ---
 
-# ---------- postfix restart
-
 - name: "set postfix.needs_restart to 'yes'"
   when: "postfix_needs_restart != 'yes'"
   changed_when: "True"
