@@ -1,0 +1,155 @@
+---
+
+# ---------- postfix state
+
+postfix_needs_restart: ""
+
+postfix_exchange_needs_rehash: ""
+
+# ---------- postfix exchange installation
+
+postfix_exchange_system_packages:
+
+  - "postfix"
+  - "mailutils"
+
+postfix_exchange_directories:
+
+  - directory: "/etc/postfix"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+postfix_exchange_config_templates:
+
+  - target: "/etc/postfix/main.cf"
+    template: "postfix-exchange-main-config"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - target: "/etc/postfix/master.cf"
+    template: "postfix-exchange-master-config"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+postfix_exchange_config_database_templates:
+
+  - target: "/etc/postfix/transport-maps"
+    template: "postfix-exchange-transport-maps"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - target: "/etc/postfix/relay-recipient-maps"
+    template: "postfix-exchange-relay-recipient-maps"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+# ---------- postfix mailbox installation
+
+postfix_mailbox_system_packages:
+
+  - "postfix"
+  - "mailutils"
+
+postfix_mailbox_directories:
+
+  - directory: "/etc/postfix"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+postfix_mailbox_config_templates:
+
+  - target: "/etc/postfix/main.cf"
+    template: "postfix-mailbox-main-config"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - target: "/etc/postfix/master.cf"
+    template: "postfix-mailbox-master-config"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+postfix_mailbox_config_database_templates:
+
+  - target: "/etc/postfix/virtual-aliases"
+    template: "postfix-mailbox-virtual-aliases"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - target: "/etc/postfix/virtual-mailboxes"
+    template: "postfix-mailbox-virtual-mailboxes"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+# ---------- postfix exchange configuration
+
+postfix_exchange_myhostname: "{{ identity_name }}"
+postfix_exchange_mydomain: "{{ METADATA.project.domain }}"
+postfix_exchange_myorigin: "{{ identity_name }}.{{ METADATA.project.domain }}"
+
+postfix_exchange_mydestination:
+
+  - "{{ identity_name }}.{{ postfix_exchange_mydomain }}"
+  - "{{ identity_name }}"
+  - "localhost.localdomain"
+  - "localhost"
+
+postfix_exchange_mynetworks:
+
+  - "127.0.0.0/8"
+  - "[::ffff:127.0.0.0]/104"
+
+postfix_exchange_message_size_limit: "{{ 32 * 1024 * 1024 }}"
+
+postfix_exchange_smtp_helo_name: "{{ identity_name }}.{{ postfix_exchange_mydomain }}"
+postfix_exchange_smtpd_banner: "$myhostname ESMTP $mail_name (Ubuntu)"
+postfix_exchange_smtpd_sasl_server: ""
+
+postfix_exchange_postscreen_dnsbl_threshold: "3"
+postfix_exchange_postscreen_dnsbl_sites:
+
+  - "zen.spamhaus.org"
+  - "bl.spamcop.net"
+  - "dnsbl.sorbs.net"
+  - "cbl.abuseat.org"
+  - "ubl.unsubscore.com"
+  - "psbl.surriel.com"
+
+postfix_exchange_relay_domains:
+
+  - "$mydestination"
+
+postfix_exchange_sasl_server: ""
+
+# ---------- postfix mailbox configuration
+
+postfix_mailbox_myhostname: "{{ identity_name }}"
+postfix_mailbox_mydomain: "{{ METADATA.project.domain }}"
+postfix_mailbox_myorigin: "{{ identity_name }}.{{ METADATA.project.domain }}"
+
+postfix_mailbox_mydestination:
+
+  - "{{ identity_name }}.{{ postfix_mailbox_mydomain }}"
+  - "{{ identity_name }}"
+  - "localhost.localdomain"
+  - "localhost"
+
+postfix_mailbox_mynetworks:
+
+  - "127.0.0.0/8"
+  - "[::ffff:127.0.0.0]/104"
+
+postfix_mailbox_message_size_limit: "{{ 32 * 1024 * 1024 }}"
+
+postfix_mailbox_smtpd_banner: "$myhostname ESMTP $mail_name (Ubuntu)"
+
+# ex: et ts=2 filetype=yaml

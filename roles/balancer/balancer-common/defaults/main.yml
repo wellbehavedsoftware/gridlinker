@@ -1,0 +1,35 @@
+---
+
+# installation config
+
+balancer_nginx_directories:
+
+  - directory: "{{ nginx_target }}/conf"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "{{ nginx_target }}/conf/local"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "{{ nginx_target }}/conf/sites"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "/var/log/nginx"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+balancer_nginx_config_templates:
+
+  - template: "balancer-nginx-main-config"
+    target: "{{ nginx_target }}/conf/nginx.conf"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+# ex: et ts=2 filetype=yaml

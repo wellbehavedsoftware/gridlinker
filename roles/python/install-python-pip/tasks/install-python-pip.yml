@@ -2,7 +2,7 @@
 
 - name: "install pip"
   when: "python_pip_version != python_pip_installed_version"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

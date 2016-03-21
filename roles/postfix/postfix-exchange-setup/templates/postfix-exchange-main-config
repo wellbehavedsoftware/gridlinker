@@ -1,0 +1,90 @@
+# ---------- hostnames and networks
+
+inet_interfaces = all
+inet_protocols = ipv4
+
+myhostname = {{ postfix_exchange_myhostname }}
+mydomain = {{ postfix_exchange_mydomain }}
+myorigin = {{ postfix_exchange_myorigin }}
+
+mydestination =
+	{{ postfix_exchange_mydestination | join (',\n\t') }}
+
+mynetworks =
+	{{ postfix_exchange_mynetworks | join (',\n\t') }}
+
+append_dot_mydomain = yes
+recipient_delimiter = +
+
+# ---------- miscellaneous
+
+message_size_limit = {{ postfix_exchange_message_size_limit }}
+mailbox_size_limit = 0
+
+biff = no
+readme_directory = no
+
+# ---------- aliases
+
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+
+# ---------- smtp protocol
+
+smtp_helo_name = {{ postfix_exchange_smtp_helo_name }}
+smtp_host_lookup = dns, native
+
+# ---------- smtp daemon
+
+smtpd_banner = {{ postfix_exchange_smtpd_banner }}
+smtpd_helo_required = yes
+
+{% if postfix_exchange_sasl_server %}
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = inet:{{ postfix_exchange_sasl_server }}:12345
+{% endif %}
+
+smtpd_sender_login_maps =
+	hash:/etc/postfix/sender-login-maps
+
+smtpd_sender_restrictions =
+	reject_authenticated_sender_login_mismatch
+
+smtpd_relay_restrictions =
+	permit_mynetworks,
+	permit_sasl_authenticated,
+	reject_unauth_destination
+
+#smtpd_tls_security_level = may
+#smtpd_tls_cert_file = /etc/postfix/smtpd-certificate.pem
+#smtpd_tls_key_file = /etc/postfix/smtpd-private-key.pem
+
+# --------- postscreen
+
+postscreen_dnsbl_action = enforce
+postscreen_greet_action = enforce
+
+postscreen_dnsbl_threshold =
+	{{ postfix_exchange_postscreen_dnsbl_threshold }}
+
+postscreen_dnsbl_sites =
+	{{ postfix_exchange_postscreen_dnsbl_sites | join (',\n\t') }}
+
+# ---------- smtp relay
+
+transport_maps =
+	hash:/etc/postfix/transport-maps
+
+relay_domains =
+	{{ postfix_exchange_relay_domains | join (',\n\t') }}
+
+relay_recipient_maps =
+	hash:/etc/postfix/relay-recipient-maps
+
+# ---------- dkim
+
+#milter_default_action = accept
+#milter_protocol = 2
+#smtpd_milters = unix:/opendkim/opendkim.sock
+#non_smtpd_milters = unix:/opendkim/opendkim.sock

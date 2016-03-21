@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<domain type="kvm">
+
+	<name>{{ identity.name }}</name>
+
+	<memory unit="GiB">{{ virtual_memory }}</memory>
+	<vcpu placement="static">{{ virtual_cores }}</vcpu>
+
+	<os>
+		<type arch="x86_64" machine="pc-i440fx-trusty">hvm</type>
+		<boot dev="hd"/>
+	</os>
+
+	<features>
+		<acpi/>
+		<apic/>
+		<pae/>
+	</features>
+
+	<clock offset="utc">
+		<timer name="pit" tickpolicy="delay"/>
+		<timer name="rtc" tickpolicy="catchup"/>
+	</clock>
+
+	<on_poweroff>destroy</on_poweroff>
+	<on_reboot>restart</on_reboot>
+	<on_crash>restart</on_crash>
+
+	<devices>
+
+		<emulator>/usr/bin/kvm-spice</emulator>
+
+		<disk type="block" device="disk">
+
+			<driver
+				name="qemu"
+				type="raw"
+				cache="none"
+				io="native"/>
+
+			<source dev="{{ [
+				'/dev',
+				'/' + virtual_storage_volume_group,
+				'/' + identity.name,
+			] | join }}"/>
+
+			<target dev="sda" bus="scsi"/>
+
+		</disk>
+
+		<controller type="scsi" index="0" model="virtio-scsi"/>
+
+		<controller type="usb" index="0"/>
+
+		<interface type="network">
+			<source network="private"/>
+			<model type="virtio"/>
+		</interface>
+
+		<interface type="network">
+			<source network="public"/>
+			<model type="virtio"/>
+		</interface>
+
+		<serial type="pty">
+			<target port="0"/>
+		</serial>
+
+		<console type="pty">
+			<target type="serial" port="0"/>
+		</console>
+
+		<memballoon model="virtio"/>
+
+	</devices>
+
+</domain>
+
+<!-- ex: noet ts=4 filetype=xml -->

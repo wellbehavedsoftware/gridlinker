@@ -1,0 +1,8 @@
+---
+
+dependencies:
+
+  - "lxc-common"
+  - "lxc-parent-install"
+
+# ex: et ts=2 filetype=yaml

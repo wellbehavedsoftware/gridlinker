@@ -1,7 +1,7 @@
 ---
 
 - name: "create root ssh directory"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"
@@ -10,7 +10,7 @@
 
 - name: "create root private key"
   when: "ssh_root_key is defined"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "copy"
@@ -26,7 +26,7 @@
     state: "directory"
 
 - name: "create ssh known hosts directory"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"
@@ -34,7 +34,7 @@
     state: "directory"
 
 - name: "create ssh known hosts"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "template"
@@ -42,7 +42,7 @@
     src: "ssh-client-known-hosts"
 
 - name: "assemble ssh known hosts"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "assemble"

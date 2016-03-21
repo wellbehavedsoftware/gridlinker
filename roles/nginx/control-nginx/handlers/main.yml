@@ -1,7 +1,7 @@
 ---
 
 - name: "reload upstart config"
-  sudo: "yes"
+  become: "yes"
   shell: "initctl reload-configuration"
 
 - name: "set nginx.needs_restart to 'yes'"
@@ -15,7 +15,7 @@
 - name: "restart nginx"
   when: "nginx_state == 'enabled'"
   notify: "set nginx.needs_restart to 'no'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"

@@ -1,0 +1,67 @@
+# ---------- hostnames and networks
+
+inet_interfaces = all
+
+myhostname = {{ postfix_mailbox_myhostname }}
+mydomain = {{ postfix_mailbox_mydomain }}
+myorigin = {{ postfix_mailbox_myorigin }}
+
+mydestination =
+	{{ postfix_mailbox_mydestination | join (',\n\t') }}
+
+mynetworks =
+	{{ postfix_mailbox_mynetworks | join (',\n\t') }}
+
+append_dot_mydomain = yes
+recipient_delimiter = +
+
+# ---------- miscellaneous
+
+message_size_limit = {{ postfix_mailbox_message_size_limit }}
+mailbox_size_limit = 0
+
+biff = no
+readme_directory = no
+
+# ---------- aliases
+
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+
+# ---------- smtp daemon
+
+smtpd_banner =
+	{{ postfix_mailbox_smtpd_banner }}
+
+smtpd_relay_restrictions =
+	permit_mynetworks,
+	reject_unauth_destination
+
+# ---------- virtual mailboxes
+
+virtual_mailbox_domains =
+	{{ postfix_mailbox_virtual_mailbox_domains | join (',\n\t') }}
+
+virtual_mailbox_base =
+	{{ postfix_mailbox_virtual_mailbox_base }}
+
+virtual_mailbox_maps =
+	hash:/etc/postfix/virtual-mailboxes
+
+virtual_alias_maps =
+	hash:/etc/postfix/virtual-aliases
+
+virtual_uid_maps = static:{{ postfix_mailbox_virtual_uid }}
+virtual_gid_maps = static:{{ postfix_mailbox_virtual_gid }}
+
+virtual_transport = virtual
+virtual_destination_recipient_limit = 1
+
+# ---------- spam
+
+#spamassassin_destination_recipient_limit = 1
+
+# ---------- relay
+
+relayhost =
+	{{ postfix_mailbox_relayhost }}

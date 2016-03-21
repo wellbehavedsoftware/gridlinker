@@ -2,7 +2,7 @@
 
 - name: "build python-apt"
   when: "python_apt_installed_version != python_apt_version"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

@@ -1,0 +1,10 @@
+---
+
+- include: "lxc-container-prepare.yml"
+  tags:
+
+    - "lxc"
+    - "lxc-container"
+    - "lxc-container-prepare"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,100 @@
+user www-data;
+worker_processes 4;
+
+events {
+	worker_connections 1024;
+}
+
+http {
+
+	# logging
+
+	log_format times '{{ [
+		'$time_iso8601',
+		'$status',
+		'$body_bytes_sent',
+		'$request_time',
+		'$request_method',
+		'$scheme://$host$request_uri',
+		'$server_protocol',
+		'$http_x_wistla_client_request_id',
+	] | join (' ') }}';
+
+	access_log /var/log/nginx/access.log;
+	access_log /var/log/nginx/times.log times;
+	error_log /var/log/nginx/error.log;
+
+	# protocol
+
+	sendfile on;
+	tcp_nopush on;
+	tcp_nodelay on;
+	keepalive_timeout 65;
+
+	# mime types
+
+	types_hash_max_size 2048;
+	include mime.types;
+	default_type application/octet-stream;
+
+	# compression
+
+	gzip on;
+	gzip_disable "msie6";
+
+	# virtual hosts
+
+	server_names_hash_bucket_size 128;
+	server_names_hash_max_size 1024;
+
+	# request limits
+
+	client_max_body_size 512m;
+
+	# virtual host
+
+{% for virtual_host_name in groups ['virtual-host'] %}
+{% set virtual_host = hostvars [virtual_host_name] %}
+
+	upstream {{ virtual_host.identity_name }} {
+{% for target in virtual_host.virtual_host_targets %}
+		server {{ target.name }}.vpn:{{ target.port }};
+{% endfor %}
+		keepalive 4;
+	}
+
+	server {
+
+		listen 80;
+
+		server_name {{ identity_name }};
+
+		root {{ nginx_target }}/html;
+
+	}
+
+	server {
+
+		listen 80;
+
+{% for hostname in virtual_host.virtual_host_hostnames %}
+		server_name {{ hostname }};
+{% endfor %}
+
+		location / {
+
+		    proxy_pass http://{{ virtual_host.identity_name }};
+
+		    proxy_http_version 1.1;
+
+		    proxy_set_header Connection "";		
+			proxy_set_header Host $host;
+
+		}
+
+	}
+
+{% endfor %}
+
+}
+

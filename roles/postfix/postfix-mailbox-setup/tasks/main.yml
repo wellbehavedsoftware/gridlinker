@@ -1,0 +1,10 @@
+---
+
+- include: "postfix-mailbox-setup.yml"
+  tags:
+
+    - "postfix"
+    - "postfix-mailbox"
+    - "postfix-mailbox-setup"
+
+# ex: et ts=2 filetype=yaml

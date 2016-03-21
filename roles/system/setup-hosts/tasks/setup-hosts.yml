@@ -1,10 +1,11 @@
 ---
 
 - name: "configure hosts"
+  become: "yes"
   action:
+
     module: "template"
-    src: "setup-hosts-file"
     dest: "/etc/hosts"
-  sudo: "yes"
+    src: "setup-hosts-file"
 
 # ex: et ts=2 filetype=yaml

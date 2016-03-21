@@ -1,8 +1,0 @@
----
-
-dependencies:
-
-  - "lxc-common"
-  - "install-lxc"
-
-# ex: et ts=2 filetype=yaml

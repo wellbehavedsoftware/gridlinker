@@ -1,0 +1,12 @@
+{%- for email_domain in email_domains.values () -%}
+
+	{%- for domain in email_domain.email_domain_domains -%}
+
+		{%- print [
+			domain,
+			'smtp:[' + email_domain.email_domain_destination + ']',
+		] | join (' '), '\n' -%}
+
+	{%- endfor -%}
+
+{%- endfor -%}

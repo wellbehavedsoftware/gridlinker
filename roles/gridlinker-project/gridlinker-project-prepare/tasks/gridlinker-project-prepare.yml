@@ -1,0 +1,17 @@
+---
+
+- name: "create gridlinker project etcd peers authority"
+  action:
+
+    module: "certificate_authority_create"
+    authority: "{{ gridlinker_project_etcd_peers_authority }}"
+    common_name: "{{ gridlinker_project_etcd_peers_common_name }}"
+
+- name: "create gridlinker project etcd clients authority"
+  action:
+
+    module: "certificate_authority_create"
+    authority: "{{ gridlinker_project_etcd_clients_authority }}"
+    common_name: "{{ gridlinker_project_etcd_clients_common_name }}"
+
+# ex: et ts=2 filetype=yaml

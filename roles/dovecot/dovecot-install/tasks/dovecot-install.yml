@@ -1,0 +1,11 @@
+---
+
+- name: "install dovecot system packages"
+  with_items: "{{ dovecot_install_system_packages }}"
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+# ex: et ts=2 filetype=yaml

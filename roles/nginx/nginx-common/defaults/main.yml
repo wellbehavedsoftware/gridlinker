@@ -40,6 +40,11 @@ nginx_directories:
     group: "root"
     mode: "0755"
 
+  - directory: "/var/log/nginx"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
 nginx_config_templates:
 
   - template: "nginx-main-config"

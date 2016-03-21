@@ -1,0 +1,27 @@
+auto lo
+iface lo inet loopback
+
+auto brprv0
+iface brprv0 inet static
+
+	address {{ private_address }}
+	netmask {{ networks [private_network].network_netmask }}
+	broadcast {{ networks [private_network].network_broadcast }}
+	gateway {{ networks [private_network].network_gateway }}
+
+	dns-nameservers {{ networks [private_network].network_gateway }}
+
+	bridge_ports eth0
+	bridge_stp off
+	bridge_maxwait 0
+	bridge_fd 0
+
+auto brpub0
+iface brpub0 inet manual
+
+	bridge_ports eth1
+	bridge_stp off
+	bridge_maxwait 0
+	bridge_fd 0
+
+# ex: noet ts=4 filetype=text

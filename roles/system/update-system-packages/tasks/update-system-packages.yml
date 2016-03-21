@@ -1,19 +1,19 @@
 ---
 
 - name: "update package database"
-  sudo: "yes"
+  become: "yes"
   command: "apt-get -y update"
 
 - name: "update packages"
-  sudo: "yes"
+  become: "yes"
   command: "apt-get -y dist-upgrade"
 
 - name: "remove automatically installed packages"
-  sudo: "yes"
+  become: "yes"
   command: "apt-get -y clean"
 
 - name: "purge removed packages"
-  sudo: "yes"
+  become: "yes"
   shell:
 
     dpkg --list
@@ -22,7 +22,7 @@
     | xargs --no-run-if-empty dpkg --purge
 
 - name: "clean downloaded packages"
-  sudo: "yes"
+  become: "yes"
   command: "apt-get clean"
 
 # ex: et ts=2 filetype=yaml

@@ -1,0 +1,204 @@
+#!/bin/bash
+
+{% set private_network = networks [private_network] %}
+{% set public_network = networks [public_network] %}
+
+set -euf -o pipefail
+
+PRIVATE_INTERFACE="brprv0"
+PRIVATE_NETWORK="{{ private_network.network_short }}"
+PRIVATE_ADDRESS="{{ private_address }}"
+
+PUBLIC_INTERFACE="brpub0"
+PUBLIC_NETWORK="{{ public_network.network_short }}"
+PUBLIC_ADDRESS="{{ public_address }}"
+PUBLIC_MAC="{{ public_mac }}"
+
+VPN_INTERFACE="tun0"
+
+GRE_INTERFACES=(
+{% for other_name in groups ['hetzner-dedicated'] %}
+{% set other = hostvars [other_name] %}
+{% if other.identity_name != identity_name %}
+	"tun{{ other.identity_name | replace ('-host', '') }}"
+{% endif %}
+{% endfor %}
+)
+
+FAILOVER_ADDRESSES=(
+{% if 'hetzner-balancer' in groups %}
+{% for other_name in groups ['hetzner-balancer'] %}
+{% set other = hostvars [other_name] %}
+{% if other.public_failover is defined %}
+	"{{ other.public_failover }}"
+{% endif %}
+{% endfor %}
+{% endif %}
+)
+
+{% if 'hetzner-balancer' in groups %}
+{% for other_name in groups ['hetzner-balancer'] %}
+{% set other = hostvars [other_name] %}
+{% if other.identity_parent is defined %}
+{% set parent = hostvars ['host/' + other.identity_parent] %}
+{% if parent.identity_parent is defined and parent.identity_parent == identity_name %}
+BALANCER_MAC="{{ other.public_mac }}"
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+# disable packet forwarding
+
+	echo 1 >/proc/sys/net/ipv4/ip_forward
+
+# initialise regular tables
+
+	iptables --flush
+	iptables --delete-chain
+
+	iptables --policy INPUT ACCEPT
+	iptables --policy FORWARD ACCEPT
+	iptables --policy OUTPUT ACCEPT
+
+# forwarding rules
+
+	# public bridge
+
+	iptables \
+		--append FORWARD \
+		--in-interface "$PUBLIC_INTERFACE" \
+		--out-interface "$PUBLIC_INTERFACE" \
+		--jump ACCEPT
+
+	# private bridge
+
+	iptables \
+		--append FORWARD \
+		--in-interface "$PRIVATE_INTERFACE" \
+		--out-interface "$PRIVATE_INTERFACE" \
+		--jump ACCEPT
+
+	# between private and public
+
+	iptables \
+		--append FORWARD \
+		--in-interface "$PRIVATE_INTERFACE" \
+		--out-interface "$PUBLIC_INTERFACE" \
+		--jump ACCEPT
+
+	iptables \
+		--append FORWARD \
+		--in-interface "$PUBLIC_INTERFACE" \
+		--out-interface "$PRIVATE_INTERFACE" \
+		--jump ACCEPT
+
+	# between openvpn and private
+
+	iptables \
+		--append FORWARD \
+		--in-interface "$PRIVATE_INTERFACE" \
+		--out-interface "$VPN_INTERFACE" \
+		--jump ACCEPT
+
+	iptables \
+		--append FORWARD \
+		--in-interface "$VPN_INTERFACE" \
+		--out-interface "$PRIVATE_INTERFACE" \
+		--jump ACCEPT
+
+	# between gre and private
+
+	if test -v "GRE_INTERFACES"; then
+	for gre_interface in "${GRE_INTERFACES[@]}"; do
+
+		iptables \
+			--append FORWARD \
+			--in-interface "$PRIVATE_INTERFACE" \
+			--out-interface "$gre_interface" \
+			--jump ACCEPT
+
+		iptables \
+			--append FORWARD \
+			--in-interface "$gre_interface" \
+			--out-interface "$PRIVATE_INTERFACE" \
+			--jump ACCEPT
+
+	done
+	fi
+
+	# log and drop
+
+	iptables \
+		--append FORWARD \
+		--jump LOG \
+		--log-prefix "iptables dropped " \
+		--log-level 4
+
+	iptables \
+	  --append FORWARD \
+	  --jump REJECT \
+	  --reject-with icmp-net-prohibited
+
+# initialise nat tables
+
+	iptables --table nat --flush
+	iptables --table nat --delete-chain
+
+	iptables --table nat --policy INPUT ACCEPT
+	iptables --table nat --policy PREROUTING ACCEPT
+	iptables --table nat --policy POSTROUTING ACCEPT
+	iptables --table nat --policy OUTPUT ACCEPT
+
+# nat traffic from private bridge to public
+
+	iptables \
+		--table nat \
+		--append POSTROUTING \
+		--source "$PRIVATE_NETWORK" \
+		--out-interface "$PUBLIC_INTERFACE" \
+		--jump SNAT \
+		--to "$PUBLIC_ADDRESS"
+
+# initialise bridge tables
+
+	ebtables --table "nat" --flush
+	ebtables --table "nat" --delete-chain
+
+	ebtables --table "nat" --policy "PREROUTING" "ACCEPT"
+	ebtables --table "nat" --policy "POSTROUTING" "ACCEPT"
+	ebtables --table "nat" --policy "OUTPUT" "ACCEPT"
+
+# masquerade mac address for failover addresses
+
+	if test -v "BALANCER_MAC" -a -v "FAILOVER_ADDRESSES"; then
+
+		for failover_address in "${FAILOVER_ADDRESSES[@]}"; do
+
+			ebtables \
+				--table "nat" \
+				--append "PREROUTING" \
+				--in-interface "eth0" \
+				--protocol "ipv4" \
+				--ip-destination "$failover_address" \
+				--jump dnat \
+				--to-destination "$BALANCER_MAC"
+
+			ebtables \
+				--table "nat" \
+				--append "POSTROUTING" \
+				--out-interface "eth0" \
+				--protocol "ipv4" \
+				--ip-source "$failover_address" \
+				--jump snat \
+				--to-source "$PUBLIC_MAC"
+
+		done
+
+	fi
+
+# enable packet forwarding
+
+echo 1 >/proc/sys/net/ipv4/ip_forward
+
+# ex: noet ts=4 filetype=bash

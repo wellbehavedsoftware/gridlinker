@@ -1,0 +1,16 @@
+---
+
+- name: "create mail storage domains"
+  with_items: "{{ groups [mail_storage_domains_group] }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "/var/mail/{{ hostvars [item] [mail_storage_domains_domain] }}"
+    state: "directory"
+
+    owner: "{{ mail_storage_domains_directory_user }}"
+    group: "{{ mail_storage_domains_directory_group }}"
+    mode: "{{ mail_storage_domains_directory_mode }}"
+
+# ex: et ts=2 filetype=yaml

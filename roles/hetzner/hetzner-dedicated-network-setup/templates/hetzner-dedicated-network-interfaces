@@ -1,0 +1,56 @@
+auto lo
+iface lo inet loopback
+
+	up test ! -x /etc/network/firewall-rules || /etc/network/firewall-rules
+
+auto brpub0
+iface brpub0 inet static
+
+	address {{ public_address }}
+	netmask {{ networks [public_network].network_netmask }}
+	broadcast {{ networks [public_network].network_broadcast }}
+	gateway {{ networks [public_network].network_gateway }}
+
+	dns-nameservers 127.0.0.1
+
+	bridge_ports eth0
+	bridge_stp off
+	bridge_maxwait 0
+	bridge_fd 0
+
+	up ip route add {{ [
+		networks [public_network].network_short,
+		'via', networks[public_network].network_gateway,
+	] | join (' ') }}
+
+	up test ! -x /etc/network/firewall-rules || /etc/network/firewall-rules
+
+<<<<<<< HEAD
+{% for extra_address in public_extra_addresses | default ([]) %}
+
+auto brpub0:{{ loop.index }}
+iface brpub0:{{ loop.index }} inet static
+
+	address {{ extra_address.address }}
+	netmask {{ networks [extra_address.network].network_netmask }}
+	broadcast {{ networks [public_network].network_broadcast }}
+
+{% endfor %}
+
+=======
+>>>>>>> bfd3aab05cbead85e5f2bf5d9ec3dfb5c9924a34
+auto brprv0
+iface brprv0 inet static
+
+	address {{ private_address }}
+	broadcast {{ networks [private_network].network_broadcast }}
+	netmask {{ networks [private_network].network_netmask }}
+
+	bridge_ports none
+	bridge_stp off
+	bridge_maxwait 0
+	bridge_fd 0
+
+	up test ! -x /etc/network/firewall-rules || /etc/network/firewall-rules
+
+# ex: noet ts=4 filetype=text

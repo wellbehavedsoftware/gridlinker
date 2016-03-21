@@ -1,7 +1,7 @@
 ---
 
 - name: "install nginx build dependencies"
-  sudo: "yes"
+  become: "yes"
   with_items: "{{ nginx_build_dependencies }}"
   action:
 
@@ -10,7 +10,7 @@
 
 - name: "build nginx"
   when: "nginx_installed_version != nginx_version"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

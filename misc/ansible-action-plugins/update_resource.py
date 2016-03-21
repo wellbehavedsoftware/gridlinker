@@ -31,25 +31,31 @@ class ActionModule (ActionBase):
 		if not self.context.resources.exists_slow (resource_name):
 			raise Exception ("Not found: " + resource_name)
 
-		resource_data = self.context.resources.get_slow (resource_name)
+		resource_data = (
+			self.context.resources.get_slow (resource_name))
 
 		changed = False
 
 		for key, value in self._task.args.items ():
 
-			dynamic_path = self._templar.template (
-				key)
+			dynamic_path = (
+				self._templar.template (
+					key))
 
 			if not "." in dynamic_path:
 
 				raise Exception (
 					"Invalid path for update_resource: %s" % dynamic_path)
 
-			prefix, rest = dynamic_path.split (".", 2)
+			prefix, rest = (
+				dynamic_path.split (".", 2))
+
+			resource_vars = (
+				task_vars ["hostvars"] [resource_name])
 
 			options.setdefault (
 				prefix,
-				task_vars ["hostvars"] [resource_name].get (prefix, {}))
+				resource_vars.get (prefix, {}))
 
 			if rest in options [prefix] \
 			and options [prefix] [rest] == value:
