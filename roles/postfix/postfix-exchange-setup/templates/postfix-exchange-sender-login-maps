@@ -1,0 +1,27 @@
+{%- for email_domain in email_domains.values () -%}
+
+	{%- set rest -%}
+
+		{%- for email_account in email_accounts.values () -%}
+
+			{%- if email_domain.identity_name in email_account.email_account_addresses -%}
+
+				{%- print ' ', email_account.identity_name -%}
+
+			{%- endif -%}
+
+		{%- endfor -%}
+
+	{%- endset -%}
+
+	{%- if rest -%}
+
+		{%- for domain in email_domain.email_domain_domains -%}
+
+			{%- print '@', domain, rest, '\n' -%}
+
+		{%- endfor -%}
+
+	{%- endif -%}
+
+{%- endfor -%}

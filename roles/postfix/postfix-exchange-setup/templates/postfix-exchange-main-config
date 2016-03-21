@@ -43,6 +43,7 @@ smtpd_helo_required = yes
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = inet:{{ postfix_exchange_sasl_server }}:12345
+smtpd_sasl_security_options = noanonymous
 {% endif %}
 
 smtpd_sender_login_maps =
@@ -50,7 +51,7 @@ smtpd_sender_login_maps =
 
 smtpd_sender_restrictions =
 	reject_authenticated_sender_login_mismatch
-
+ 
 smtpd_relay_restrictions =
 	permit_mynetworks,
 	permit_sasl_authenticated,
