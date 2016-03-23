@@ -6,22 +6,24 @@
 # ---------- regular smtp (port 25)
 
 smtp      inet  n       -       -       -       1       postscreen
-smtpd     pass  -       -       -       -       -       smtpd
 dnsblog   unix  -       -       -       -       0       dnsblog
 tlsproxy  unix  -       -       -       -       0       tlsproxy
 
-# ----------- smtp submission (port 587)
-
-submission inet n       -       -       -       -       smtpd
-  -o syslog_name=postfix/submission
-#  -o smtpd_tls_security_level=encrypt
-  -o milter_macro_daemon_name=ORIGINATING
+smtpd     pass  -       -       -       -       -       smtpd
+  -o smtpd_sasl_auth_enable=no
 
 # ---------- smtp secure (port 465)
 
 smtps     inet  n       -       -       -       -       smtpd
   -o syslog_name=postfix/smtps
   -o smtpd_tls_wrappermode=yes
+  -o milter_macro_daemon_name=ORIGINATING
+
+# ----------- smtp submission (port 587)
+
+submission inet n       -       -       -       -       smtpd
+  -o syslog_name=postfix/submission
+  -o smtpd_tls_security_level=encrypt
   -o milter_macro_daemon_name=ORIGINATING
 
 # ---------- other postgresql services

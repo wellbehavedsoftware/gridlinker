@@ -57,9 +57,9 @@ smtpd_relay_restrictions =
 	permit_sasl_authenticated,
 	reject_unauth_destination
 
-#smtpd_tls_security_level = may
-#smtpd_tls_cert_file = /etc/postfix/smtpd-certificate.pem
-#smtpd_tls_key_file = /etc/postfix/smtpd-private-key.pem
+smtpd_tls_security_level = may
+smtpd_tls_cert_file = /etc/postfix/{{ postfix_exchange_certificate_name }}.cert
+smtpd_tls_key_file = /etc/postfix/{{ postfix_exchange_certificate_name }}.key
 
 # --------- postscreen
 

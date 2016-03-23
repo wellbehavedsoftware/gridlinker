@@ -56,10 +56,10 @@ namespace inbox {
 
 # ---------- ssl
 
-ssl = no
+ssl = yes
 
-# ssl_cert = </etc/dovecot/imaps.cert
-# ssl_key = </etc/dovecot/imaps.key
+ssl_cert = </etc/dovecot/{{ dovecot_certificate_name }}.cert
+ssl_key = </etc/dovecot/{{ dovecot_certificate_name }}.key
 
 # ---------- sasl authentication service
 

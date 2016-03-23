@@ -1,0 +1,3 @@
+{%- print [
+	lookup ('etcd', dovecot_private_key),
+] | join, '\n' -%}

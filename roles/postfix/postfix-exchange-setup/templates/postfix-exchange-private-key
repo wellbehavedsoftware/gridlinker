@@ -1,0 +1,3 @@
+{%- print [
+	lookup ('etcd', postfix_exchange_private_key),
+] | join, '\n' -%}

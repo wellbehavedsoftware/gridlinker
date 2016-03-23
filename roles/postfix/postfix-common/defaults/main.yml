@@ -34,6 +34,18 @@ postfix_exchange_config_templates:
     group: "root"
     mode: "0644"
 
+  - target: "/etc/postfix/{{ postfix_exchange_certificate_name }}.cert"
+    template: "postfix-exchange-certificate-chain"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - target: "/etc/postfix/{{ postfix_exchange_certificate_name }}.key"
+    template: "postfix-exchange-private-key"
+    user: "root"
+    group: "root"
+    mode: "0600"
+
 postfix_exchange_config_database_templates:
 
   - target: "/etc/postfix/transport-maps"
@@ -53,6 +65,8 @@ postfix_exchange_config_database_templates:
     user: "root"
     group: "root"
     mode: "0644"
+
+postfix_exchange_certificate_name: "postfix"
 
 # ---------- postfix mailbox installation
 
