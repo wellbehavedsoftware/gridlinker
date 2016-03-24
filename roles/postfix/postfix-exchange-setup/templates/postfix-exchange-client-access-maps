@@ -1,0 +1,8 @@
+{%- for host_name in groups ['mail-trusted-hosts'] -%}
+{%- set host = hostvars [host_name] -%}
+{%- if 'private_address' in host -%}
+
+	{%- print host.private_address, ' OK\n' -%}
+
+{%- endif -%}
+{%- endfor -%}

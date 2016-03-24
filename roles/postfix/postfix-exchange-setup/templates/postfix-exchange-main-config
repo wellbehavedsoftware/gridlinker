@@ -55,6 +55,7 @@ smtpd_sender_restrictions =
 smtpd_relay_restrictions =
 	permit_mynetworks,
 	permit_sasl_authenticated,
+	check_client_access hash:/etc/postfix/client-access-maps,
 	reject_unauth_destination
 
 smtpd_tls_security_level = may

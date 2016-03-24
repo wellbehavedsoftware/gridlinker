@@ -1,5 +1,14 @@
 ---
 
+# default state
+
+nginx_state: "no"
+nginx_needs_reload: "no"
+nginx_needs_restart: "no"
+nginx_installed_version: "no"
+
+nginx_ssl_certificates: []
+
 # runtime config
 
 nginx_user: "www-data"
@@ -77,13 +86,5 @@ nginx_build_dependencies:
   - "libssl-dev"
   - "libxslt1-dev"
   - "zlib1g-dev"
-
-# default state
-
-nginx_state: "no"
-nginx_needs_restart: "no"
-nginx_installed_version: "no"
-
-nginx_ssl_certificates: []
 
 # ex: et ts=2 filetype=yaml

@@ -51,13 +51,26 @@ http {
 
 	client_max_body_size 512m;
 
+	# default site
+	
+	server {
+		listen 80 default_server;
+		server_name {{ identity_name }};
+		root {{ nginx_target }}/html;
+	}
+
+
+	# sites
+
+	include sites/*.conf;
+
 	# virtual host
 
-{% for virtual_host_name in groups ['virtual-host'] %}
-{% set virtual_host = hostvars [virtual_host_name] %}
+{% for virtual_host in virtual_hosts.values ()
+	| map (attribute = 'virtual_host') %}
 
-	upstream {{ virtual_host.identity_name }} {
-{% for target in virtual_host.virtual_host_targets %}
+	upstream {{ virtual_host.name }} {
+{% for target in virtual_host.targets %}
 		server {{ target.name }}.vpn:{{ target.port }};
 {% endfor %}
 		keepalive 4;
@@ -67,23 +80,31 @@ http {
 
 		listen 80;
 
-		server_name {{ identity_name }};
+{% if 'ssl_certificate' in virtual_host %}
+		listen 443 ssl http2;
 
-		root {{ nginx_target }}/html;
+		ssl_certificate {{ [
+			nginx_target,
+			'/conf/ssl/',
+			virtual_host.ssl_certificate,
+			'.cert',
+		] | join }};
 
-	}
+		ssl_certificate_key {{ [
+			nginx_target,
+			'/conf/ssl/',
+			virtual_host.ssl_certificate,
+			'.key',
+		] | join }};
+{% endif %}
 
-	server {
-
-		listen 80;
-
-{% for hostname in virtual_host.virtual_host_hostnames %}
+{% for hostname in virtual_host.hostnames %}
 		server_name {{ hostname }};
 {% endfor %}
 
 		location / {
 
-		    proxy_pass http://{{ virtual_host.identity_name }};
+		    proxy_pass http://{{ virtual_host.name }};
 
 		    proxy_http_version 1.1;
 

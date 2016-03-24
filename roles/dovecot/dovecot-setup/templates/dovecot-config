@@ -23,7 +23,7 @@ passdb {
 
 # ---------- mailboxes
 
-mail_location = maildir:{{ dovecot_mail_location }}:LAYOUT=fs
+mail_location = maildir:{{ dovecot_mail_location }}
 
 namespace inbox {
 

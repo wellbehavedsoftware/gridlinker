@@ -1,6 +1,6 @@
 ---
 
-# installation config
+# ---------- nginx setup
 
 balancer_nginx_directories:
 
@@ -19,7 +19,7 @@ balancer_nginx_directories:
     group: "root"
     mode: "0755"
 
-  - directory: "/var/log/nginx"
+  - directory: "{{ nginx_target }}/conf/ssl"
     user: "root"
     group: "root"
     mode: "0755"
@@ -28,6 +28,23 @@ balancer_nginx_config_templates:
 
   - template: "balancer-nginx-main-config"
     target: "{{ nginx_target }}/conf/nginx.conf"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+# ---------- autoconfig setup
+
+balancer_autoconfig_directories:
+
+  - directory: "/var/www"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+balancer_autoconfig_config_templates:
+
+  - template: "balancer-autoconfig-nginx-site"
+    target: "{{ nginx_target }}/conf/sites/autoconfig.conf"
     user: "root"
     group: "root"
     mode: "0644"

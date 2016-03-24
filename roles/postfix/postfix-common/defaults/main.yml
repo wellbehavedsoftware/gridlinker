@@ -48,8 +48,8 @@ postfix_exchange_config_templates:
 
 postfix_exchange_config_database_templates:
 
-  - target: "/etc/postfix/transport-maps"
-    template: "postfix-exchange-transport-maps"
+  - target: "/etc/postfix/client-access-maps"
+    template: "postfix-exchange-client-access-maps"
     user: "root"
     group: "root"
     mode: "0644"
@@ -62,6 +62,12 @@ postfix_exchange_config_database_templates:
 
   - target: "/etc/postfix/sender-login-maps"
     template: "postfix-exchange-sender-login-maps"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - target: "/etc/postfix/transport-maps"
+    template: "postfix-exchange-transport-maps"
     user: "root"
     group: "root"
     mode: "0644"

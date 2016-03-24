@@ -22,13 +22,40 @@
     src: "{{ item.template }}"
     dest: "{{ item.target }}"
 
-- name: "create nginx ssl directory"
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "install ssl certificates"
+  with_items: "{{
+    virtual_hosts.values ()
+    | selectattr ('virtual_host_ssl_certificate', 'defined')
+    | map (attribute = 'virtual_host_ssl_certificate')
+    | unique
+    | list
+  }}"
   become: "yes"
   action:
 
-    module: "file"
-    path: "/etc/nginx/ssl"
-    state: "directory"
+    module: "template"
+    dest: "{{ nginx_target }}/conf/ssl/{{ item }}.cert"
+    src: "balancer-nginx-ssl-certificate"
+
+- name: "install ssl private keys"
+  with_items: "{{
+    virtual_hosts.values ()
+    | selectattr ('virtual_host_ssl_certificate', 'defined')
+    | map (attribute = 'virtual_host_ssl_certificate')
+    | unique
+    | list
+  }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ nginx_target }}/conf/ssl/{{ item }}.key"
+    src: "balancer-nginx-ssl-private-key"
+    mode: "0600"
 
 - name: "set nginx.state to 'enabled'"
   when: "nginx_state == 'installed'"

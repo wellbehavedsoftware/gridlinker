@@ -123,6 +123,7 @@ resource_command = GenericCommand (
 				arguments = [
 
 				MiscSetArgument (),
+				MiscSetJsonArgument (),
 				MiscUnsetArgument (),
 
 				MiscAddArgument (),

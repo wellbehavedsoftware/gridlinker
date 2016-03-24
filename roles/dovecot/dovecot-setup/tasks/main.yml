@@ -1,35 +1,9 @@
 ---
 
-- name: "create dovecot directories"
-  with_items: "{{ dovecot_setup_directories }}"
-  notify: "set dovecot.needs_restart to 'yes'"
-  become: "yes"
-  action:
+- include: "dovecot-setup.yml"
+  tags:
 
-    module: "file"
-    path: "{{ item.directory }}"
-    state: "directory"
-
-    owner: "{{ item.user }}"
-    group: "{{ item.group }}"
-    mode: "{{ item.mode }}"
-
-- meta: "flush_handlers"
-
-- name: "create dovecot config templates"
-  with_items: "{{ dovecot_setup_config_templates }}"
-  notify: "set dovecot.needs_restart to 'yes'"
-  become: "yes"
-  action:
-
-    module: "template"
-    dest: "{{ item.target }}"
-    src: "{{ item.template }}"
-
-    owner: "{{ item.user }}"
-    group: "{{ item.group }}"
-    mode: "{{ item.mode }}"
-
-- meta: "flush_handlers"
+    - "dovecot"
+    - "dovecot-setup"
 
 # ex: et ts=2 filetype=yaml

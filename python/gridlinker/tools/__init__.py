@@ -11,6 +11,7 @@ from gridlinker.tools.arguments import MiscRemoveArgument
 from gridlinker.tools.arguments import MiscSetArgument
 from gridlinker.tools.arguments import MiscSetDictArgument
 from gridlinker.tools.arguments import MiscSetFileArgument
+from gridlinker.tools.arguments import MiscSetJsonArgument
 from gridlinker.tools.arguments import MiscUnsetArgument
 from gridlinker.tools.arguments import MiscUnsetDictArgument
 from gridlinker.tools.arguments import NameArgument
