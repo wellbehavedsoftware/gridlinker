@@ -1,0 +1,39 @@
+---
+
+- name: "install hetzner guest network system packages"
+  with_items:
+
+    - "bridge-utils"
+
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "create hetzner guest network interfaces"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/network/interfaces"
+    src: "hetzner-guest-network-interfaces"
+
+- name: "create hetzner guest private interface"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/network/interfaces.d/brprv0"
+    src: "hetzner-guest-network-private-interface"
+
+- name: "create hetzner guest public interface"
+  when: "public_address | default ('')"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/network/interfaces.d/brpub0"
+    src: "hetzner-guest-network-public-interface"
+
+# ex: et ts=2 filetype=yaml

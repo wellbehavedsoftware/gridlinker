@@ -4,6 +4,9 @@ dependencies:
 
   - "system-common"
 
+  - "system-grub-setup"
+  - "system-getty-setup"
+
   - "setup-apt"
   - "setup-hosts"
   - "setup-system-params"

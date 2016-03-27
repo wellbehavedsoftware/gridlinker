@@ -1,0 +1,10 @@
+---
+
+- include: "system-getty-setup.yml"
+  tags:
+
+    - "system"
+    - "system-getty"
+    - "system-getty-setup"
+
+# ex: et ts=2 filetype=yaml

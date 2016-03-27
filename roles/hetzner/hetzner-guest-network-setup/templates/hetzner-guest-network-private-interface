@@ -1,0 +1,31 @@
+{% set private_network = networks [private_network].network %}
+
+auto brprv0
+iface brprv0 inet static
+
+	address {{ private_address }}
+	netmask {{ private_network.netmask }}
+	broadcast {{ private_network.broadcast }}
+{% if not public_address | default ('') %}
+	gateway {{ private_network.gateway }}
+{% endif %}
+	dns-nameservers {{ private_network.gateway }}
+
+{% for other_network in networks.values () | map (attribute = 'network') %}
+{% if other_network.route == 'yes' %}
+{% if other_network.short != private_network.short %}
+	post-up ip route add {{ other_network.short }} via {{ private_network.gateway }}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% for other_network in networks.values () | map (attribute = 'network') %}
+{% if other_network.route == 'yes' %}
+	pre-down ip route del {{ other_network.short }} via {{ private_network.gateway }}
+{% endif %}
+{% endfor %}
+
+	bridge_ports eth0
+	bridge_stp off
+	bridge_maxwait 0
+	bridge_fd 0
