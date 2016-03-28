@@ -1,0 +1,69 @@
+---
+
+- name: "create openvpn server directories"
+  with_items: "{{ openvpn_config_directories }}"
+  notify: "restart openvpn"
+  become: "yes"
+  action:
+
+    module: "file"
+    dest: "{{ item.directory }}"
+    state: "directory"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "issue openvpn server certificate"
+  when: "not openvpn_server_certificate"
+  register: "openvpn_server_certificate_result"
+  action:
+
+    module: "certificate_authority_issue"
+    authority: "{{ openvpn_authority }}"
+    common_name: "{{ openvpn_server_common_name }}"
+    usage: "mixed"
+    alt_dns: "{{ openvpn_server_alt_dns }}"
+    alt_ip: "{{ openvpn_server_alt_ips }}"
+
+- name: "store openvpn server certificate"
+  when: "openvpn_server_certificate_result | changed"
+  update_resource:
+
+    openvpn_server.certificate: "{{ openvpn_server_certificate_result.certificate }}"
+    openvpn_server.private_key: "{{ openvpn_server_certificate_result.private_key }}"
+
+- name: "write openvpn server config"
+  with_items: "{{ openvpn_config_templates }}"
+  notify: "restart openvpn"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ item.target }}"
+    src: "{{ item.template }}"
+    mode: "{{ item.mode }}"
+
+- name: "write openvpn server security"
+  with_items: "{{ openvpn_security_files }}"
+  notify: "restart openvpn"
+  become: "yes"
+  action:
+
+    module: "copy"
+    dest: "{{ item.target }}"
+    content: "{{ lookup ('etcd', item.source) }}"
+    mode: "{{ item.mode }}"
+
+- name: "create dh params"
+  notify: "restart openvpn"
+  args:
+
+    creates: "/etc/openvpn/{{ openvpn_server_name }}-dh.pem"
+    executable: "/bin/bash"
+
+  become: "yes"
+  shell: "openssl dhparam -out /etc/openvpn/{{ openvpn_server_name }}-dh.pem 1024"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

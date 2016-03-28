@@ -1,0 +1,16 @@
+---
+
+- name: "configure system getty serial console"
+  when: "system_serial_console_unit != ''"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/init/ttyS{{ system_serial_console_unit }}.conf"
+    src: "system-getty-serial"
+    
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+# ex: et ts=2 filetype=yaml

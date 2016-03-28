@@ -1,0 +1,7 @@
+---
+
+dependencies:
+
+  - "hetzner-virtual-network-setup"
+
+# ex: et ts=2 filetype=yaml

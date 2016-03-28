@@ -1,0 +1,13 @@
+---
+
+- include: "balancer-nginx-setup.yml"
+  tags:
+
+    - "balancer"
+    - "balancer-nginx"
+    - "balancer-nginx-setup"
+
+    - "nginx"
+    - "nginx-setup"
+
+# ex: et ts=2 filetype=yaml

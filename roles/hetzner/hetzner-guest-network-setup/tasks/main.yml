@@ -1,0 +1,11 @@
+---
+
+- include: "hetzner-guest-network-setup.yml"
+  tags:
+
+    - "hetzner"
+    - "hetzner-guest"
+    - "hetzner-guest-network"
+    - "hetzner-guest-network-setup"
+
+# ex: et ts=2 filetype=yaml

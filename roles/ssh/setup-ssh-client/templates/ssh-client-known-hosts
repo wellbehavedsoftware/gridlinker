@@ -1,33 +1,101 @@
-{%- for host_name in groups.all -%}
-{%- set host = hostvars [host_name] -%}
-{%- if 'ssh_hostnames' in host -%}
+{%- macro do_known_host (known_host) -%}
 
-	{%- if host.ssh_host_key_rsa is defined -%}
+	{%- if known_host is string -%}
 
-		{%- print [
-			host.ssh_hostnames | join (','),
-			host.ssh_host_key_rsa,
-		] | join (' ') + '\n' -%}
+		{%- print known_host, '\n' -%}
+
+	{%- elif known_host is mapping -%}
+
+		{%- if known_host.type == 'resource' -%}
+
+			{%- for resource_name in groups [known_host.group] -%}
+
+				{%- set resource = hostvars [resource_name] -%}
+				{%- set hostnames = resource [known_host.hostnames_key] -%}
+
+				{%- print '# ', resource_name, '\n' -%}
+
+				{%- for ssh_key_key in known_host.ssh_key_keys -%}
+				{%- if ssh_key_key in resource -%}
+
+					{%- set ssh_key = resource [ssh_key_key] -%}
+
+					{%- if ssh_key is string -%}
+
+						{%- print [
+							hostnames | join (','),
+							ssh_key,
+						] | join (' '), '\n' -%}
+
+					{%- elif ssh_key is mapping -%}
+
+						{%- print [
+							hostnames | join (','),
+							ssh_key.type,
+							ssh_key.data | join,
+						] | join (' '), '\n' -%}
+
+					{%- elif ssh_key is sequence -%}
+
+						{%- for ssh_key_child in ssh_key -%}
+							{%- print [
+								hostnames | join (','),
+								ssh_key_child.type,
+								ssh_key_child.data | join,
+							] | join (' '), '\n' -%}
+						{%- endfor -%}
+
+					{%- else -%}
+
+						{%- print '# ERROR\n' -%}
+
+					{%- endif -%}
+
+				{%- endif -%}
+				{%- endfor -%}
+
+				{%- print '\n' -%}
+
+			{%- endfor -%}
+
+		{%- else -%}
+
+			{%- print [
+				known_host.hostnames | join (','),
+				known_host.type,
+				known_host.data | join,
+			] | join (' '), '\n' -%}
+
+		{%- endif -%}
+
+	{%- elif known_host is sequence -%}
+
+		{%- if not known_host -%}
+
+			{# do nothing #}
+
+		{%- elif known_host [0] is string -%}
+
+			{%- print known_host | join, '\n' -%}
+
+		{%- elif known_host [0] is mapping -%}
+
+			{%- for known_host_child in known_host -%}
+				{%- print do_known_host (known_host_child) -%}
+			{%- endfor -%}
+
+		{%- else -%}
+
+			{%- print '# ERROR\n' -%}
+
+		{%- endif -%}
+
+	{%- else -%}
+
+		{%- print '# ERROR\n' -%}
 
 	{%- endif -%}
 
-	{%- if host.ssh_host_key_ecdsa is defined -%}
+{%- endmacro -%}
 
-		{%- print [
-			host.ssh_hostnames | join (','),
-			host.ssh_host_key_ecdsa,
-		] | join (' ') + '\n' -%}
-
-	{%- endif -%}
-
-{%- endif -%}
-{%- endfor -%}
-{%- for ssh_hostkey in ssh_global_hostkeys -%}
-
-	{%- print [
-		ssh_hostkey.name,
-		ssh_hostkey.type,
-		ssh_hostkey.data | join (''),
-	] | join (' ') + '\n' -%}
-
-{%- endfor -%}
+{%- print do_known_host (ssh_client_known_hosts) -%}

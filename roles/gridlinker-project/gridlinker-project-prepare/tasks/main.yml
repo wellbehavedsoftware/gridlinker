@@ -1,0 +1,10 @@
+---
+
+- include: "gridlinker-project-prepare.yml"
+  tags:
+
+    - "gridlinker"
+    - "gridlinker-project"
+    - "gridlinker-project-prepare"
+
+# ex: et ts=2 filetype=yaml

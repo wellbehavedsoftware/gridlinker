@@ -1,0 +1,9 @@
+---
+
+- include: "openvpn-client-prepare.yml"
+  tags:
+
+    - "openvpn"
+    - "openvpn-client-prepare"
+
+# ex: et ts=2 filetype=yaml

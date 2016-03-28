@@ -105,6 +105,14 @@ def append_list (items, string):
 		for item in items
 	]
 
+def flatten_list (lists):
+
+	return [
+		item
+		for list in lists
+		for item in list
+	]
+ 
 class FilterModule (object):
 
     def filters (self):
@@ -112,6 +120,7 @@ class FilterModule (object):
         return {
 
 			"flatten_hash": flatten_hash,
+			"flatten_list": flatten_list,
 			"list_to_map": list_to_map,
 			"dict_map": dict_map,
 

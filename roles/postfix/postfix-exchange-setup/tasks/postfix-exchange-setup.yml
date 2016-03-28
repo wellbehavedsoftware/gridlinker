@@ -1,0 +1,57 @@
+---
+
+- name: "create postfix exchange directories"
+  with_items: "{{ postfix_exchange_directories }}"
+  notify: "set postfix.needs_restart to 'yes'"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- meta: "flush_handlers"
+
+- name: "create postfix exchange config templates"
+  with_items: "{{ postfix_exchange_config_templates }}"
+  notify: "set postfix.needs_restart to 'yes'"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ item.target }}"
+    src: "{{ item.template }}"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- meta: "flush_handlers"
+
+- name: "create postfix exchange config database templates"
+  with_items: "{{ postfix_exchange_config_database_templates }}"
+  notify: "set postfix.needs_restart to 'yes'"
+  register: "postfix_exchange_config_database_templates_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ item.target }}"
+    src: "{{ item.template }}"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "rehash postfix exchange"
+  with_items: "{{ postfix_exchange_config_database_templates }}"
+  when: "postfix_exchange_config_database_templates_result | changed "
+  become: "yes"
+  shell: "postmap {{ item.target }}"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

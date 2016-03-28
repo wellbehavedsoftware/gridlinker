@@ -1,0 +1,9 @@
+---
+
+dependencies:
+
+  - "openvpn-common"
+  - "openvpn-install"
+  - "openvpn-server-setup"
+
+# ex: et ts=2 filetype=yaml

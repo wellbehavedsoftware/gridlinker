@@ -1,0 +1,11 @@
+---
+
+- name: "install postfix mailbox system packages"
+  with_items: "{{ postfix_mailbox_system_packages }}"
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,221 @@
+#!/bin/bash
+
+#set -e
+
+PRIVATE_INTERFACE="eth0"
+PRIVATE_ADDRESS="{{ private_address }}"
+PRIVATE_NETWORK="{{ networks [private_network].network_short }}"
+
+PUBLIC_INTERFACE="eth1"
+
+{% if public_failover is defined %}
+
+PUBLIC_ADDRESS="{{ public_address }}"
+PUBLIC_FAILOVER="{{ public_failover }}"
+PUBLIC_ADDRESSES=(
+	"{{ public_address }}"
+{% for other_name in groups ['hetzner-balancer'] %}
+{% set other = hostvars [other_name] %}
+{% if other.public_failover is defined %}
+	"{{ other.public_failover }}" # {{ other_name }} failover
+{% endif %}
+{% endfor %}
+)
+
+{% else %}
+
+PUBLIC_ADDRESS="{{ public_address }}"
+PUBLIC_ADDRESSES=(
+	"{{ public_address }}"
+)
+
+{% endif %}
+
+# disable packet forwarding
+
+echo 0 >/proc/sys/net/ipv4/ip_forward
+
+# initialise regular tables
+
+	iptables --flush
+	iptables --delete-chain
+
+	iptables --policy INPUT ACCEPT
+	iptables --policy FORWARD ACCEPT
+	iptables --policy OUTPUT ACCEPT
+
+# forwarding rules
+
+	# private to private
+
+		iptables \
+			--append FORWARD \
+			--in-interface "$PRIVATE_INTERFACE" \
+			--out-interface "$PRIVATE_INTERFACE" \
+			--jump ACCEPT
+
+	# public to private
+
+		iptables \
+			--append FORWARD \
+			--in-interface "$PUBLIC_INTERFACE" \
+			--out-interface "$PRIVATE_INTERFACE" \
+			--destination "$PRIVATE_NETWORK" \
+			--jump ACCEPT
+
+	# private to public
+
+		# smtp from mail container only
+
+		{% for mail_host_name in groups ["container-mail"] %}
+		{% set mail_host = hostvars [mail_host_name] %}
+
+			iptables \
+				--append FORWARD \
+				--in-interface "$PRIVATE_INTERFACE" \
+				--out-interface "$PUBLIC_INTERFACE" \
+				--protocol "tcp" \
+				--source "{{ mail_host.private_address }}" \
+				--destination-port "25" \
+				--jump ACCEPT
+
+		{% endfor %}
+
+		iptables \
+			--append FORWARD \
+			--in-interface "$PRIVATE_INTERFACE" \
+			--out-interface "$PUBLIC_INTERFACE" \
+			--protocol "tcp" \
+			--destination-port "25" \
+			--jump REJECT
+
+		# accept by default
+
+		iptables \
+			--append FORWARD \
+			--in-interface "$PRIVATE_INTERFACE" \
+			--source "$PRIVATE_NETWORK" \
+			--out-interface "$PUBLIC_INTERFACE" \
+			--jump ACCEPT
+
+	# log and drop (doesn't work? lxc?)
+
+	iptables \
+		--append FORWARD \
+		--jump LOG \
+		--log-prefix "iptables dropped " \
+		--log-level 4
+
+	iptables \
+	  --append FORWARD \
+	  --jump REJECT \
+	  --reject-with icmp-net-prohibited
+
+# initialise nat tables
+
+	iptables --table nat --flush
+	iptables --table nat --delete-chain
+
+	iptables --table nat --policy INPUT ACCEPT
+	iptables --table nat --policy PREROUTING ACCEPT
+	iptables --table nat --policy POSTROUTING ACCEPT
+	iptables --table nat --policy OUTPUT ACCEPT
+
+# nat traffic for public ips
+
+	{% for other_host_name in groups ['hosts'] %}
+	{% set other_host = hostvars [other_host_name] %}
+	{% if other_host.private_address != '' %}
+
+		{%
+			for port
+			in (other_host.balancer | default ({})).tcp_ports | default ([])
+			if (
+				port.type == 'global'
+			) or (
+				port.type == 'local'
+				and other_host.private_balancer is defined
+				and other_host.private_balancer == identity.name
+			)
+		%}
+
+			for public_address in "${PUBLIC_ADDRESSES[@]}"; do
+
+				iptables \
+					--table nat \
+					--append PREROUTING \
+					--protocol tcp \
+					--destination "$public_address" \
+					--destination-port "{{ port.public }}" \
+					--jump DNAT \
+					--to-destination "{{ other_host.private_address }}:{{ port.private }}"
+
+			done
+
+			iptables \
+				--table nat \
+				--append POSTROUTING \
+				--protocol tcp \
+				--source "$PRIVATE_NETWORK" \
+				--out-interface "$PRIVATE_INTERFACE" \
+				--destination "{{ other_host.private_address }}" \
+				--destination-port "{{ port.private }}" \
+				--jump SNAT \
+				--to "$PRIVATE_ADDRESS"
+
+		{% endfor %}
+
+		{%
+			for port
+			in (other_host.balancer | default ({})).udp_ports | default ([])
+			if (
+				port.type == 'global'
+			) or (
+				port.type == 'local'
+				and other_host.private_balancer is defined
+				and other_host.private_balancer == identity.name
+			)
+		%}
+
+			for public_address in "${PUBLIC_ADDRESSES[@]}"; do
+
+				iptables \
+					--table nat \
+					--append PREROUTING \
+					--protocol udp \
+					--destination "$public_address" \
+					--destination-port "{{ port.public }}" \
+					--jump DNAT \
+					--to-destination "{{ other_host.private_address }}:{{ port.private }}"
+
+			done
+
+			iptables \
+				--table nat \
+				--append POSTROUTING \
+				--protocol udp \
+				--source "$PRIVATE_NETWORK" \
+				--out-interface "$PRIVATE_INTERFACE" \
+				--destination "{{ other_host.private_address }}" \
+				--destination-port "{{ port.private }}" \
+				--jump SNAT \
+				--to "$PRIVATE_ADDRESS"
+
+		{% endfor %}
+
+	{% endif %}
+	{% endfor %}
+
+# nat traffic from private to public
+
+	iptables \
+		--table nat \
+		--append POSTROUTING \
+		--source "$PRIVATE_NETWORK" \
+		--out-interface "$PUBLIC_INTERFACE" \
+		--jump SNAT \
+		--to "$PUBLIC_ADDRESS"
+
+# enable packet forwarding
+
+echo 1 >/proc/sys/net/ipv4/ip_forward

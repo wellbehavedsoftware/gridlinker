@@ -1,0 +1,14 @@
+{% set public_network = networks [public_network].network %}
+
+auto brpub0
+iface brpub0 inet static
+
+	address {{ public_address }}
+	netmask {{ public_network.netmask }}
+	broadcast {{ public_network.broadcast }}
+	gateway {{ public_network.gateway }}
+
+	bridge_ports eth1
+	bridge_stp off
+	bridge_maxwait 0
+	bridge_fd 0

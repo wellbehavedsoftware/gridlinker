@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -euf -o pipefail
+
+{% for extra_address in lxc_container_private_extra_addresses | default ([]) %}
+
+	{%- print [
+		'ip address add',
+		extra_address,
+		'dev eth0',
+	] | join (' ') + '\n' -%}
+
+{%- endfor -%}
+
+{%- if lxc_container_public_extra_addresses | default ([]) %}
+
+	{%- for extra_address in lxc_container_public_extra_addresses | default ([]) %}
+
+		{%- print [
+			'ip address add',
+			extra_address,
+			'dev eth1',
+		] | join (' ') + '\n' -%}
+
+		{%- print [
+			'ip rule add',
+			'from', extra_address,
+			'lookup 100',
+		] | join (' '), '\n' -%}
+
+	{%- endfor -%}
+
+	{%- print [
+		'ip route add',
+		'default',
+		'via', lxc_container_public_gateway,
+		'dev eth1',
+		'table 100',
+	] | join (' '), '\n' -%}
+
+{%- endif -%}

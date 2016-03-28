@@ -1,0 +1,11 @@
+{%- print [
+	lookup ('etcd', postfix_exchange_certificate),
+] | join, '\n' -%}
+
+{%- for certificate_path in postfix_exchange_certificate_chain -%}
+
+	{%- print [
+		lookup ('etcd', certificate_path),
+	] | join, '\n' -%}
+
+{%- endfor -%}

@@ -1,0 +1,66 @@
+---
+
+- name: "create nginx directories"
+  with_items: "{{ balancer_nginx_directories }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "configure nginx"
+  with_items: "{{ balancer_nginx_config_templates }}"
+  notify: "set nginx.needs_restart to 'yes'"
+  become: "yes"
+  action:
+
+    module: "template"
+    src: "{{ item.template }}"
+    dest: "{{ item.target }}"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "install ssl certificates"
+  with_items: "{{
+    virtual_hosts.values ()
+    | selectattr ('virtual_host_ssl_certificate', 'defined')
+    | map (attribute = 'virtual_host_ssl_certificate')
+    | unique
+    | list
+  }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ nginx_target }}/conf/ssl/{{ item }}.cert"
+    src: "balancer-nginx-ssl-certificate"
+
+- name: "install ssl private keys"
+  with_items: "{{
+    virtual_hosts.values ()
+    | selectattr ('virtual_host_ssl_certificate', 'defined')
+    | map (attribute = 'virtual_host_ssl_certificate')
+    | unique
+    | list
+  }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ nginx_target }}/conf/ssl/{{ item }}.key"
+    src: "balancer-nginx-ssl-private-key"
+    mode: "0600"
+
+- name: "set nginx.state to 'enabled'"
+  when: "nginx_state == 'installed'"
+  update_resource:
+
+    nginx.state: "enabled"
+
+# ex: et ts=2 filetype=yaml

@@ -1,19 +1,8 @@
 ---
 
-- name: "check lxc_container.network_link"
-  when: "lxc_container_network_link == ''"
-  fail:
-    msg: "please set 'lxc_container.network_link'"
-
-- name: "generate lxc_container.network_mac"
-  when: "lxc_container_network_mac == ''"
-  update_resource:
-
-    lxc_container.network_mac: "{{ 'aa' | generate_mac_address }}"
-
 - name: "create directories for lxc container bind mounts"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   with_items: "lxc_container_bind_mounts"
   action:
 
@@ -23,7 +12,7 @@
 
 - name: "create lxc container"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"
@@ -120,10 +109,13 @@
       echo "auto lo";
       echo "iface lo inet loopback";
 
-      echo "auto eth0";
-      echo "iface eth0 inet dhcp";
-
     ) > "{{ lxc_container_root }}/etc/network/interfaces";
+
+    (
+
+      echo "nameserver {{ lxc_container_nameserver }}";
+
+    ) > "{{ lxc_container_root }}/etc/resolv.conf";
 
     echo "--- configuring sudo" >&2;
 
@@ -167,19 +159,30 @@
 
 - name: "create lxc container config"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "template"
     dest: "{{ lxc_container_path }}/config"
     src: "lxc-create-config"
 
+- name: "create lxc container mount hook"
+  delegate_to: "{{ lxc_container_delegate }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ lxc_container_path }}/mount-hook"
+    src: "lxc-create-mount-hook"
+
+    mode: "0755"
+
 - name: "set lxc container disk quota"
   when: "lxc_container_disk_quota != ''"
   register: "lxc_create_disk_quota_result"
   changed_when: "lxc_create_disk_quota_result.stdout != 'UNCHANGED'"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"
@@ -212,7 +215,7 @@
   register: "lxc_create_start_result"
   changed_when: "lxc_create_start_result.stdout != 'UNCHANGED'"
   delegate_to: "{{ lxc_container_delegate }}"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

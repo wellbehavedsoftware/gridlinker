@@ -19,10 +19,22 @@
     icinga.certificate: "{{ icinga_agent_certificate_result.certificate }}"
     icinga.private_key: "{{ icinga_agent_certificate_result.private_key }}"
 
-- name: "write icinga config"
-  with_items: "icinga_agent_config_templates"
+- name: "create icinga master directories"
+  with_items: "{{ icinga_master_directories }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "write icinga agent config"
+  with_items: "{{ icinga_agent_config_templates }}"
   notify: "set icinga.needs_restart to 'yes'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "template"
@@ -32,9 +44,9 @@
     group: "nagios"
 
 - name: "write icinga security config"
-  with_items: "icinga_agent_security_files"
+  with_items: "{{ icinga_agent_security_files }}"
   notify: "set icinga.needs_restart to 'yes'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "copy"
@@ -42,5 +54,22 @@
     content: "{{ lookup ('etcd', item.source) }}"
     owner: "root"
     group: "nagios"
+
+- name: "create icinga agent links"
+  with_items: "{{ icinga_agent_links }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.link }}"
+    state: "link"
+
+    src: "{{ item.target }}"
+
+- name: "set icinga.state to 'enabled'"
+  when: "icinga_state == 'installed'"
+  update_resource:
+
+    icinga.state: "enabled"
 
 # ex: et ts=2 filetype=yaml

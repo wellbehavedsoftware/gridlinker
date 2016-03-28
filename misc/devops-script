@@ -62,7 +62,23 @@ def setup_imports ():
 	HOME = os.path.abspath (os.path.dirname (main_path) + "/../../..")
 
 	sys.path.append (HOME + "/python")
-	sys.path.append (HOME + "/third-party/gridlinker/python")
+
+	with open ("%s/third-party/third-party-index" % HOME) as file_handle:
+
+		third_party_index = (
+			yaml.load (
+				file_handle))
+
+	for third_party_name, third_party_data \
+	in third_party_index.items ():
+
+		if not "python" in third_party_data:
+			continue
+
+		sys.path.append (
+			"%s/third-party/%s" % (
+				HOME,
+				third_party_data ["python"]))
 
 def load_config ():
 

@@ -1,0 +1,11 @@
+---
+
+- include: "hetzner-dedicated-network-setup.yml"
+  tags:
+
+    - "hetzner"
+    - "hetzner-dedicated"
+    - "hetzner-dedicated-network"
+    - "hetzner-dedicated-network-setup"
+
+# ex: et ts=2 filetype=yaml

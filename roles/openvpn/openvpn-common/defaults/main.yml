@@ -1,0 +1,67 @@
+---
+
+# ---------- installation state
+
+openvpn_state: ""
+openvpn_installed_version: ""
+openvpn_needs_restart: ""
+
+# ---------- server state
+
+openvpn_server_certificate: ""
+openvpn_server_private_key: ""
+
+# ---------- client state
+
+openvpn_client_address: ""
+openvpn_client_certificate: ""
+openvpn_client_private_key: ""
+
+# ---------- server runtime
+
+openvpn_server_netmask: "{{ networks [openvpn_server_network].network_netmask }}"
+openvpn_server_pool_start: "{{ networks [openvpn_server_network].network_dhcp_start }}"
+openvpn_server_pool_end: "{{ networks [openvpn_server_network].network_dhcp_end }}"
+openvpn_server_gateway: "{{ networks [openvpn_server_network].network_gateway }}"
+openvpn_server_routes: []
+
+# ---------- client runtime
+
+openvpn_client_alloc_start: "{{ networks [openvpn_client_network].network_alloc_start }}"
+openvpn_client_alloc_end: "{{ networks [openvpn_client_network].network_alloc_end }}"
+
+# ---------- configuration files
+
+openvpn_config_directories:
+
+  - directory: "/etc/openvpn"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "/etc/openvpn/clients"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+openvpn_config_templates:
+
+  - template: "openvpn-server-config"
+    target: "/etc/openvpn/{{ openvpn_server_name }}.conf"
+    mode: "0644"
+
+openvpn_security_files:
+
+  - source: "{{ openvpn_ca_certificate }}"
+    target: "/etc/openvpn/{{ openvpn_server_name }}-ca.cert"
+    mode: "0644"
+
+  - source: "{{ openvpn_server_certificate }}"
+    target: "/etc/openvpn/{{ openvpn_server_name }}.cert"
+    mode: "0644"
+
+  - source: "{{ openvpn_server_private_key }}"
+    target: "/etc/openvpn/{{ openvpn_server_name }}.key"
+    mode: "0600"
+
+# ex: et ts=2 filetype=yaml

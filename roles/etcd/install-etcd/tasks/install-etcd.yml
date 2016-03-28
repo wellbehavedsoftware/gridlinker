@@ -2,7 +2,7 @@
 
 - name: "install etcd"
   when: "etcd_installed_version != etcd_version"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"
@@ -26,7 +26,7 @@
     rm -rf "{{ etcd_temp }}";
 
 - name: "create symlink to etcdctl"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"
@@ -36,14 +36,12 @@
 
 - name: "set etcd.state to 'installed'"
   when: "etcd_state == 'no'"
-  tags: [ "etcd", "install-etcd" ]
   update_resource:
 
     etcd.state: "installed"
 
 - name: "set etcd.installed_version"
   when: "etcd_installed_version != etcd_version"
-  tags: [ "etcd", "install-etcd" ]
   update_resource:
 
     etcd.installed_version: "{{ etcd_version }}"

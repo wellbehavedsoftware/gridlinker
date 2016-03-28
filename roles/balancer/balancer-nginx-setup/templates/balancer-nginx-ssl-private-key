@@ -1,0 +1,5 @@
+{%- print lookup ('etcd', [
+	'/certificate/ssl/subjects/',
+	item,
+	'/current/key',
+] | join), '\n' -%}

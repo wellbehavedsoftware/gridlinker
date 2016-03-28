@@ -1,0 +1,27 @@
+---
+
+- name: "set dovecot.needs_restart to 'yes'"
+  when: "dovecot_needs_restart != 'yes'"
+  changed_when: "True"
+  notify: "restart dovecot"
+  update_resource:
+
+    dovecot.needs_restart: "yes"
+
+- name: "restart dovecot"
+  become: "yes"
+  notify: "set dovecot.needs_restart to 'no'"
+  action:
+
+    module: "service"
+    name: "dovecot"
+    state: "restarted"
+
+- name: "set dovecot.needs_restart to 'no'"
+  when: "dovecot_needs_restart != 'no'"
+  changed_when: "True"
+  update_resource:
+
+    dovecot.needs_restart: "no"
+
+# ex: et ts=2 filetype=yaml

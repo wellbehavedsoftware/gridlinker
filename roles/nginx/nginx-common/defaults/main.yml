@@ -1,6 +1,17 @@
 ---
 
+# default state
+
+nginx_state: "no"
+nginx_needs_reload: "no"
+nginx_needs_restart: "no"
+nginx_installed_version: "no"
+
+nginx_ssl_certificates: []
+
 # runtime config
+
+nginx_user: "www-data"
 
 nginx_http_port: "80"
 nginx_https_port: "443"
@@ -28,7 +39,17 @@ nginx_directories:
     group: "root"
     mode: "0755"
 
+  - directory: "{{ nginx_target }}/conf/local"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
   - directory: "{{ nginx_target }}/conf/sites"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "/var/log/nginx"
     user: "root"
     group: "root"
     mode: "0755"
@@ -65,13 +86,5 @@ nginx_build_dependencies:
   - "libssl-dev"
   - "libxslt1-dev"
   - "zlib1g-dev"
-
-# default state
-
-nginx_state: "no"
-nginx_needs_restart: "no"
-nginx_installed_version: "no"
-
-nginx_ssl_certificates: []
 
 # ex: et ts=2 filetype=yaml

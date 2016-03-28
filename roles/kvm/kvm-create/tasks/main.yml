@@ -1,0 +1,9 @@
+---
+
+- include: "kvm-create.yml"
+  tags:
+
+    - "kvm"
+    - "kvm-create"
+
+# ex: et ts=2 filetype=yaml

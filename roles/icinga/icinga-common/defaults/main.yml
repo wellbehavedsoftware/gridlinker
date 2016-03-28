@@ -1,12 +1,13 @@
 ---
 
-# state
+# ---------- state
 
 icinga_state: ""
+icinga_installed_version: ""
 icinga_needs_restart: ""
 icinga_database_delegate: "{{ icinga_master }}"
 
-# runtime defaults
+# ---------- runtime defaults
 
 icinga_common_name: "{{ identity_name }}"
 icinga_alt_dns: [ "{{ icinga_common_name }}" ]  
@@ -28,31 +29,17 @@ icinga_graphite_enabled: ""
 icinga_graphite_host: "localhost"
 icinga_graphite_port: "2003"
 
-# installation
+# ---------- installation
 
-icinga_source: "{{ ubuntu_mirror }}/ppa.launchpad.net/formorer/icinga"
+icinga_mirror: "{{ wbs_dist }}/icinga"
+icinga_directory: "icinga-{{ icinga_version }}"
+icinga_archive: "{{ icinga_directory }}.tar.xz"
+icinga_url: "{{ icinga_mirror }}/{{ icinga_archive }}"
 
-icinga_agent_system_packages:
+icinga_temp: "/tmp/icinga-install"
+icinga_target: "/opt/icinga-{{ icinga_version }}"
 
-  - "icinga2"
-
-icinga_master_system_packages_map:
-
-  postgresql:
-
-    - "icinga2"
-    - "icinga2-ido-pgsql"
-
-  mysql:
-
-    - "icinga2"
-    - "icinga2-ido-mysql"
-
-icinga_master_system_packages: "{{
-  icinga_master_system_packages_map [icinga_database_type]
-}}"
-
-# master configuration
+# ---------- master configuration
 
 icinga_master_endpoints: "icinga-masters"
 icinga_master_agents: "icinga-agents"
@@ -65,9 +52,59 @@ icinga_master_services: []
 
 icinga_master_directories:
 
-  - directory: "/etc/icinga2/local"
-    user: "nagios"
-    group: "nagios"
+  - directory: "/etc/icinga2"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/etc/icinga2/pki"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/etc/icinga2/scripts"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/etc/icinga2/zones.d"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/cache/icinga2"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/lib/icinga2"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/lib/icinga2/api"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/lib/icinga2/api/log"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/lib/icinga2/api/repository"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/lib/icinga2/api/zones"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/log/icinga2"
+    user: "icinga"
+    group: "icinga"
     mode: "0750"
 
 icinga_master_config_templates:
@@ -130,9 +167,74 @@ icinga_master_security_files:
     target: "pki/{{ identity.name }}.key"
     mode: "0640"
 
-# agent configuration
+icinga_master_links:
+
+  - link: "{{ icinga_target }}/etc"
+    target: "../../etc"
+
+  - link: "{{ icinga_target }}/var"
+    target: "../../var"
+
+# ---------- agent configuration
 
 icinga_agent_masters: "icinga-masters"
+
+icinga_master_directories:
+
+  - directory: "/etc/icinga2"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/etc/icinga2/pki"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/etc/icinga2/scripts"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/etc/icinga2/zones.d"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/cache/icinga2"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/lib/icinga2"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/lib/icinga2/api"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/lib/icinga2/api/log"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/lib/icinga2/api/repository"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/lib/icinga2/api/zones"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
+
+  - directory: "/var/log/icinga2"
+    user: "icinga"
+    group: "icinga"
+    mode: "0750"
 
 icinga_agent_config_templates:
 
@@ -146,7 +248,7 @@ icinga_agent_config_templates:
 
   - template: "icinga-agent-secrets"
     target: "secrets.conf"
-    mode: "0600"
+    mode: "0640"
 
   - template: "icinga-agent-zones"
     target: "zones.conf"
@@ -165,6 +267,14 @@ icinga_agent_security_files:
   - source: "{{ icinga_private_key }}"
     target: "pki/{{ identity.name }}.key"
     mode: "0640"
+
+icinga_agent_links:
+
+  - link: "{{ icinga_target }}/etc"
+    target: "../../etc"
+
+  - link: "{{ icinga_target }}/var"
+    target: "../../var"
 
 icinga_host_vars: {}
 

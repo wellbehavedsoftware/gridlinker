@@ -14,7 +14,7 @@
     - "libsqlite3-dev"
     - "zlib1g-dev"
 
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "apt"
@@ -22,7 +22,7 @@
 
 - name: "build python"
   when: "python_installed_version != python_version"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

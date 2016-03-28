@@ -1,4 +1,4 @@
-user www-data;
+user {{ nginx_user }};
 worker_processes {{ nginx_worker_processes }};
 
 events {
@@ -7,27 +7,59 @@ events {
 
 http {
 
+	# logging
+
+	log_format times '{{ [
+		'$time_iso8601',
+		'$status',
+		'$body_bytes_sent',
+		'$request_time',
+		'$request_method',
+		'$scheme://$host$request_uri',
+		'$server_protocol',
+		'$http_x_wistla_client_request_id',
+	] | join (' ') }}';
+
+	access_log /var/log/nginx/access.log;
+	access_log /var/log/nginx/times.log times;
+	error_log /var/log/nginx/error.log;
+
+	# protocol
+
 	sendfile on;
 	tcp_nopush on;
 	tcp_nodelay on;
 	keepalive_timeout 65;
 
+	# mime types
+
 	types_hash_max_size 2048;
 	include mime.types;
 	default_type application/octet-stream;
 
+	# compression
+
 	gzip on;
 	gzip_disable "msie6";
+
+	# virtual hosts
 
 	server_names_hash_bucket_size {{ nginx_server_names_hash_bucket_size }};
 	server_names_hash_max_size {{ nginx_server_names_hash_max_size }};
 
-	include {{ nginx_target }}/conf/sites/*;
+	# fastcgi
 
 	fastcgi_read_timeout {{ nginx_fastcgi_read_timeout }};
 	fastcgi_send_timeout {{ nginx_fastcgi_send_timeout }};
 	fastcgi_connect_timeout {{ nginx_fastcgi_connect_timeout }};
 
+	# request limits
+
 	client_max_body_size {{ nginx_client_max_body_size }};
+
+	# individual configuration
+
+	include {{ nginx_target }}/conf/local/*;
+	include {{ nginx_target }}/conf/sites/*;
 
 }

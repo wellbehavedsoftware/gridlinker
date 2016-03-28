@@ -1,0 +1,7 @@
+---
+
+dependencies:
+
+  - "hetzner-guest-network-setup"
+
+# ex: et ts=2 filetype=yaml

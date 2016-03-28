@@ -1,0 +1,38 @@
+---
+
+- name: "allocate vpn client address"
+  when: "not openvpn_client_address"
+  register: "openvpn_client_address_allocate_result"
+  action:
+
+    module: "network_address_allocator"
+    action: "allocate"
+    database_location: "{{ openvpn_client_alloc_path }}"
+    start_address: "{{ openvpn_client_alloc_start }}"
+    end_address: "{{ openvpn_client_alloc_end }}"
+    name: "{{ openvpn_client_alloc_name }}"
+
+- name: "store vpn address"
+  when: "openvpn_client_address_allocate_result | changed"
+  update_resource:
+
+    "openvpn_client.address": "{{ openvpn_client_address_allocate_result.address }}"
+
+- name: "issue openvpn client certificate"
+  when: "not openvpn_client_certificate"
+  register: "openvpn_client_certificate_result"
+  action:
+
+    module: "certificate_authority_issue"
+    authority: "{{ openvpn_client_authority }}"
+    common_name: "{{ openvpn_client_common_name }}"
+    usage: "client"
+
+- name: "store openvpn client certificate"
+  when: "openvpn_client_certificate_result | changed"
+  update_resource:
+
+    openvpn_client.certificate: "{{ openvpn_client_certificate_result.certificate }}"
+    openvpn_client.private_key: "{{ openvpn_client_certificate_result.private_key }}"
+
+# ex: et ts=2 filetype=yaml

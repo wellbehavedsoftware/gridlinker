@@ -234,23 +234,38 @@ class GenericContext (object):
 				"%s/bin" % self.ansible_home,
 			] + os.environ ["PATH"].split (":"),
 
-			"PYTHONPATH": [
-
-				"%s/python" % self.home,
-				"%s/python" % self.gridlinker_home,
-				"%s/lib" % self.ansible_home,
-
-				"%s/ipaddress" % self.third_party_home,
-				"%s/jinja2" % self.third_party_home,
-				"%s/markupsafe" % self.third_party_home,
-				"%s/netaddr" % self.third_party_home,
-				"%s/pyopenssl/src" % self.third_party_home,
-				"%s/pyyaml/lib" % self.third_party_home,
-			],
-
+			"PYTHONPATH": self.python_path,
 			"PYTHONUNBUFFERED": "1",
 
 		}
+
+	@lazy_property
+	def third_party_index (self):
+
+		with open ("%s/third-party/third-party-index" % self.home) as file_handle:
+
+			return yaml.load (
+				file_handle)
+
+	@lazy_property
+	def python_path (self):
+
+		ret = [
+			"%s/python" % self.home,
+		]
+
+		for third_party_name, third_party_data \
+		in self.third_party_index.items ():
+
+			if not "python" in third_party_data:
+				continue
+
+			ret.append (
+				"%s/third-party/%s" % (
+					self.home,
+					third_party_data ["python"]))
+
+		return ret
 
 	@lazy_property
 	def ansible_action_plugins (self):
