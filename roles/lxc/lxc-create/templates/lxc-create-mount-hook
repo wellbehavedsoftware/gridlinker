@@ -2,7 +2,11 @@
 
 set -euf -o pipefail
 
-{% for extra_address in lxc_container_private_extra_addresses | default ([]) %}
+{%- print '\n' -%}
+
+{%- set private_network = networks [private_network].network -%}
+
+{%- for extra_address in lxc_container_private_extra_addresses | default ([]) %}
 
 	{%- print [
 		'ip address add',
@@ -12,30 +16,27 @@ set -euf -o pipefail
 
 {%- endfor -%}
 
-{%- if lxc_container_public_extra_addresses | default ([]) %}
-
-	{%- for extra_address in lxc_container_public_extra_addresses | default ([]) %}
-
-		{%- print [
-			'ip address add',
-			extra_address,
-			'dev eth1',
-		] | join (' ') + '\n' -%}
-
-		{%- print [
-			'ip rule add',
-			'from', extra_address,
-			'lookup 100',
-		] | join (' '), '\n' -%}
-
-	{%- endfor -%}
+{%- for other_network in networks.values () | map (attribute = 'network') %}
+{% if other_network.route == 'yes' %}
+{% if other_network.short != private_network.short %}
 
 	{%- print [
 		'ip route add',
-		'default',
-		'via', lxc_container_public_gateway,
-		'dev eth1',
-		'table 100',
+		other_network.short,
+		'via ' + private_network.gateway,
 	] | join (' '), '\n' -%}
 
-{%- endif -%}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{%- for extra_address in lxc_container_public_extra_addresses | default ([]) %}
+
+	{%- print [
+		'ip address add',
+		extra_address,
+		'dev eth1',
+	] | join (' ') + '\n' -%}
+
+{%- endfor -%}
+

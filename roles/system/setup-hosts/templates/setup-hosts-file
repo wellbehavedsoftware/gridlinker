@@ -1,11 +1,11 @@
 # this host
 
-{% for private_hostname in private_hostnames | default ([]) %}
-{{ private_address }} {{ private_hostname }}
-{% endfor %}
-
 {% for public_hostname in public_hostnames | default ([]) %}
 {{ public_address }} {{ public_hostname }}
+{% endfor %}
+
+{% for private_hostname in private_hostnames | default ([]) %}
+{{ private_address }} {{ private_hostname }}
 {% endfor %}
 
 # other hosts
