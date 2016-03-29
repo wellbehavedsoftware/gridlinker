@@ -47,7 +47,7 @@
 
 					{%- else -%}
 
-						{%- print '# ERROR\n' -%}
+						{%- print '# ERROR 1\n' -%}
 
 					{%- endif -%}
 
@@ -86,13 +86,13 @@
 
 		{%- else -%}
 
-			{%- print '# ERROR\n' -%}
+			{%- print '# ERROR 2\n' -%}
 
 		{%- endif -%}
 
 	{%- else -%}
 
-		{%- print '# ERROR\n' -%}
+		{%- print '# ERROR 3\n' -%}
 
 	{%- endif -%}
 
