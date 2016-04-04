@@ -48,6 +48,7 @@
     module: "assemble"
     dest: "/etc/ssh/ssh_known_hosts"
     src: "/etc/ssh/ssh_known_hosts.d"
+
     mode: "0644"
 
 # ex: et ts=2 filetype=yaml

@@ -3,10 +3,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-import argparse
 import os
 import sys
-import yaml
 
 def outer_main ():
 
@@ -33,16 +31,29 @@ def setup_imports ():
 
 	while os.path.islink (main_path):
 
-		main_path = os.path.normpath (
-			os.path.join (
-				os.path.dirname (main_path),
-				os.readlink (main_path)))
+		main_path = (
+			os.path.normpath (
+				os.path.join (
+					os.path.dirname (main_path),
+					os.readlink (main_path))))
 
-	SCRIPT = os.path.basename (__file__)
+	SCRIPT = (
+		os.path.basename (
+			__file__))
 
-	HOME = os.path.abspath (os.path.dirname (main_path) + "/../../..")
+	HOME = (
+		os.path.abspath (
+			"%s/../../.." % (
+				os.path.dirname (
+					main_path))))
 
-	sys.path.append (HOME + "/python")
+	sys.path.append (
+		"%s/python" % HOME)
+
+	sys.path.append (
+		"%s/third-party/pyyaml/lib" % HOME)
+
+	import yaml
 
 	with open ("%s/third-party/third-party-index" % HOME) as file_handle:
 
@@ -56,10 +67,26 @@ def setup_imports ():
 		if not "python" in third_party_data:
 			continue
 
-		sys.path.append (
-			"%s/third-party/%s" % (
-				HOME,
-				third_party_data ["python"]))
+		if isinstance (third_party_data ["python"], str) \
+		or isinstance (third_party_data ["python"], unicode):
+
+			sys.path.append (
+				"%s/third-party/%s" % (
+					HOME,
+					third_party_data ["python"]))
+
+		elif isinstance (third_party_data ["python"], list):
+
+			for python_item in third_party_data ["python"]:
+
+				sys.path.append (
+					"%s/third-party/%s" % (
+						HOME,
+						python_item))
+
+		else:
+
+			raise Exception ()
 
 def load_config ():
 

@@ -24,7 +24,7 @@ class ActionModule (ActionBase):
 
 	def run (self, tmp = None, task_vars = dict ()):
 
-		options = {}
+		options = dict ()
 
 		resource_name = task_vars.get ("inventory_hostname")
 
@@ -32,7 +32,11 @@ class ActionModule (ActionBase):
 			raise Exception ("Not found: " + resource_name)
 
 		resource_data = (
-			self.context.resources.get_slow (resource_name))
+			self.context.resources.get_slow (
+				resource_name))
+
+		if not resource_data:
+			resource_data = dict ()
 
 		changed = False
 

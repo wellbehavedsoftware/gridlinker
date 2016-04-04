@@ -31,6 +31,7 @@
     seconds: "3"
 
 - name: "set etcd.needs_restart to 'no'"
+  changed_when: "True"
   update_resource:
 
     etcd.needs_restart: "no"

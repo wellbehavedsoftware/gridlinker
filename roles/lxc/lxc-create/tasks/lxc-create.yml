@@ -1,9 +1,9 @@
 ---
 
 - name: "create directories for lxc container bind mounts"
+  with_items: "{{ lxc_container_bind_mounts }}"
   delegate_to: "{{ lxc_container_delegate }}"
   become: "yes"
-  with_items: "lxc_container_bind_mounts"
   action:
 
     module: "file"

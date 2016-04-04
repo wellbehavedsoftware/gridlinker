@@ -233,6 +233,7 @@ class GenericContext (object):
 			"PATH": [
 				"%s/bin" % self.ansible_home,
 			] + os.environ ["PATH"].split (":"),
+
 			"PYTHONPATH": self.python_path,
 			"PYTHONUNBUFFERED": "1",
 

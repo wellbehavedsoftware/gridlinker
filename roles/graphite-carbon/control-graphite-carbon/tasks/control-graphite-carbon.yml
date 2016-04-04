@@ -11,7 +11,7 @@
     - "reload upstart config"
     - "set graphite_carbon.needs_restart to 'yes'"
 
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "template"
