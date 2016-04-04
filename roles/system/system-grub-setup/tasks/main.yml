@@ -1,0 +1,11 @@
+---
+
+- include: "system-grub-setup.yml"
+  when: "system_grub_enable == 'yes'"
+  tags:
+
+    - "system"
+    - "system-grub"
+    - "system-grub-setup"
+
+# ex: et ts=2 filetype=yaml

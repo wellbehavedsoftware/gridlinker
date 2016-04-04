@@ -5,10 +5,6 @@ import os
 import importlib
 import itertools
 
-#from ansible import utils
-#from ansible.runner.return_data import ReturnData
-#from ansible.utils import template
-
 from ansible.plugins.action import ActionBase
 
 from gridlinker import AlreadyExistsError
@@ -23,9 +19,11 @@ class ActionModule (ActionBase):
 		self.support = importlib.import_module (
 			os.environ ["GRIDLINKER_SUPPORT"]).support
 
-		self.context = self.support.get_context ()
+		self.context = (
+			self.support.get_context ())
 
-		self.client = self.context.client
+		self.client = (
+			self.context.client)
 
 		ActionBase.__init__ (
 			self,

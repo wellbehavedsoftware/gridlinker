@@ -1,0 +1,43 @@
+---
+
+- name: "install hetzner balancer network packages"
+  with_items:
+
+    - "iptables"
+
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+    state: "present"
+
+- name: "create hetzner balancer firewall rules"
+  register: "hetzner_balancer_firewall_rules_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/network/firewall-rules"
+    src: "hetzner-balancer-firewall-rules"
+
+    mode: "0755"
+
+- name: "reload hetzner balancer firewall rules"
+  changed_when: "hetzner_balancer_firewall_rules_result | changed"
+  become: "yes"
+  shell: "/etc/network/firewall-rules"
+
+- name: "create hetzner balancer rt tables"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/iproute2/rt_tables"
+    src: "hetzner-balancer-rt-tables"
+
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+# ex: et ts=2 filetype=yaml

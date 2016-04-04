@@ -1,0 +1,76 @@
+---
+
+- name: "install bridge utils"
+  with_items:
+
+    - "bridge-utils"
+    - "ebtables"
+
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "install dnsmasq"
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "dnsmasq"
+
+- name: "create dnsmasq config"
+  notify: "restart dnsmasq"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/dnsmasq.conf"
+    src: "hetzner-dedicated-dnsmasq-config"
+
+- meta: "flush_handlers"
+
+- name: "remove heztner dedicated resolvconf"
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "resolvconf"
+    state: "absent"
+
+- name: "create heztner dedicated resolv config"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/resolv.conf"
+    src: "hetzner-dedicated-resolv-conf"
+
+- name: "create hetzner dedicated firewall rules"
+  register: "hetzner_dedicated_firewall_rules_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/network/firewall-rules"
+    src: "hetzner-dedicated-firewall-rules"
+
+    mode: "0755"
+
+- name: "reload hetzner dedicated firewall rules"
+  changed_when: "hetzner_dedicated_firewall_rules_result | changed"
+  become: "yes"
+  shell: "/etc/network/firewall-rules"
+
+- name: "create network interfaces"
+  notify: "activate network interfaces"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/network/interfaces"
+    src: "hetzner-dedicated-network-interfaces"
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

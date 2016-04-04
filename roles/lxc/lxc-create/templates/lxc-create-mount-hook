@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -euf -o pipefail
+
+{%- print '\n' -%}
+
+{%- set private_network = networks [private_network].network -%}
+
+{%- for extra_address in lxc_container_private_extra_addresses | default ([]) %}
+
+	{%- print [
+		'ip address add',
+		extra_address,
+		'dev eth0',
+	] | join (' ') + '\n' -%}
+
+{%- endfor -%}
+
+{%- for other_network in networks.values () | map (attribute = 'network') %}
+{% if other_network.route == 'yes' %}
+{% if other_network.short != private_network.short %}
+
+	{%- print [
+		'ip route add',
+		other_network.short,
+		'via ' + private_network.gateway,
+	] | join (' '), '\n' -%}
+
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{%- for extra_address in lxc_container_public_extra_addresses | default ([]) %}
+
+	{%- print [
+		'ip address add',
+		extra_address,
+		'dev eth1',
+	] | join (' ') + '\n' -%}
+
+{%- endfor -%}
+

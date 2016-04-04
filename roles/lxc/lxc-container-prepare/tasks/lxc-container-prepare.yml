@@ -1,0 +1,43 @@
+---
+
+- name: "assign lxc container private network"
+  when: "not private_network"
+  update_resource:
+
+    private.network: "{{ parent.private_network }}"
+
+- name: "assign lxc container private balancer"
+  when: "
+    not private_balancer
+    and not inventory_hostname in groups ['balancers']
+  "
+  update_resource:
+
+    private.balancer: "{{ parent.private_balancer }}"
+
+- name: "generate lxc container private mac"
+  when: "not private_mac"
+  update_resource:
+
+    private.mac: "{{ 'aa' | generate_mac_address }}"
+
+- name: "allocate lxc container private ip"
+  register: "allocate_ip_result"
+  when: "not private_address"
+  local_action:
+
+    module: "network_address_allocator"
+    name: "{{ identity.name }}"
+    action: "allocate"
+    database_location: "/private-ip"
+
+    start_address: "{{ networks [private_network].network_alloc_start }}"
+    end_address: "{{ networks [private_network].network_alloc_end }}"
+
+- name: "store lxc container private ip"
+  when: "not private_address"
+  update_resource:
+
+    private.address: "{{ allocate_ip_result.address }}"
+
+# ex: et ts=2 filetype=yaml

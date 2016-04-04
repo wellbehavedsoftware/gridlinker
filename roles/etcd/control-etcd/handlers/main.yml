@@ -5,7 +5,6 @@
   shell: "initctl reload-configuration"
 
 - name: "set etcd.needs_restart to 'yes'"
-  changed_when: "True"
   notify: "restart etcd"
   update_resource:
 

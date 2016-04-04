@@ -3,6 +3,6 @@
 dependencies:
 
   - "gridlinker-admin-common"
-  - "setup-gridlinker-admin"
+  - "gridlinker-admin-setup"
 
 # ex: et ts=2 filetype=yaml

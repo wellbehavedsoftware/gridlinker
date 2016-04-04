@@ -1,0 +1,11 @@
+---
+
+- include: "hetzner-virtual-network-setup.yml"
+  tags:
+
+    - "hetzner"
+    - "hetzner-virtual"
+    - "hetzner-virtual-network"
+    - "hetzner-virtual-network-setup"
+
+# ex: et ts=2 filetype=yaml

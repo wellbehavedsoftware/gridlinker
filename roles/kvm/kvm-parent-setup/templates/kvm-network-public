@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<network>
+	<name>public</name>
+	<forward mode="bridge"/>
+	<bridge name="brpub0"/>
+</network>
+
+<!-- ex: noet ts=4 filetype=xml -->

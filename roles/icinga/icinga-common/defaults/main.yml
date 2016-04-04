@@ -31,7 +31,8 @@ icinga_graphite_port: "2003"
 
 # ---------- installation
 
-icinga_mirror: "{{ wbs_dist }}/icinga"
+icinga_dist: "{{ default_dist }}"
+icinga_mirror: "{{ icinga_dist }}/icinga"
 icinga_directory: "icinga-{{ icinga_version }}"
 icinga_archive: "{{ icinga_directory }}.tar.xz"
 icinga_url: "{{ icinga_mirror }}/{{ icinga_archive }}"

@@ -1,9 +1,0 @@
----
-
-- include: "install-lxc.yml"
-  tags:
-
-    - "lxc"
-    - "install-lxc"
-
-# ex: et ts=2 filetype=yaml

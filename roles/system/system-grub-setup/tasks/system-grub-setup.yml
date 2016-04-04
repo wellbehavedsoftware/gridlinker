@@ -1,0 +1,21 @@
+---
+
+- name: "write system grub config"
+  register: "system_grub_config_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/default/grub"
+    src: "system-grub-default"
+
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- name: "update grub"
+  when: "system_grub_config_result | changed"
+  become: "yes"
+  shell: "update-grub"
+
+# ex: et ts=2 filetype=yaml

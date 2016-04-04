@@ -4,6 +4,7 @@ lxc_system_packages:
 
   - "lxc"
   - "lxc-templates"
+  - "xz-utils"
 
 lxc_data: "/var/lib/lxc"
 

@@ -1,0 +1,25 @@
+{%- print lookup ('etcd', [
+	'/certificate/ssl/subjects/',
+	item,
+	'/current/certificate',
+] | join), '\n' -%}
+
+{%- for index in [ 0, 1, 2, 3, 4 ] -%}
+
+	{%- if lookup ('etcd_exists', [
+		'/certificate/ssl/subjects/',
+		item,
+		'/current/chain/',
+		index,
+	] | join) == 'yes' -%}
+
+		{%- print lookup ('etcd', [
+			'/certificate/ssl/subjects/',
+			item,
+			'/current/chain/',
+			index,
+		] | join), '\n' -%}
+
+	{%- endif -%}
+
+{%- endfor -%}

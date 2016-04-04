@@ -1,0 +1,64 @@
+---
+
+- name: "create balancer autoconfig directories"
+  with_items: "{{ balancer_autoconfig_directories }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "configure balancer autoconfig"
+  with_items: "{{ balancer_autoconfig_config_templates }}"
+  notify: "set nginx.needs_restart to 'yes'"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ item.target }}"
+    src: "{{ item.template }}"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "create balancer autoconfig email directories"
+  with_nested:
+
+    - "{{ groups ['email-domain'] }}"
+
+    - - ""
+      - "/mail"
+
+  when: "'email_domain_autoconfig_domain' in hostvars [item.0]"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "/var/www/{{ hostvars [item.0].email_domain_autoconfig_domain }}{{ item.1 }}"
+    state: "directory"
+
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: "create balancer autoconfig email configs"
+  with_items: "{{ groups ['email-domain'] }}"
+  when: "'email_domain_autoconfig_domain' in hostvars [item]"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/var/www/{{ hostvars [item].email_domain_autoconfig_domain }}/mail/config-v1.1.xml"
+    src: "balancer-autoconfig-email-xml"
+
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,9 @@
+---
+
+dependencies:
+
+  - "kvm-common"
+  - "kvm-parent-install"
+  - "kvm-parent-setup"
+
+# ex: et ts=2 filetype=yaml

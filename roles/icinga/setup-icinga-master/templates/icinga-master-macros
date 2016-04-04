@@ -40,7 +40,7 @@
 
 			{%- print '\t}\n' -%}
 
-		{%- else -%}
+		{%- elif var.type == 'raw' -%}
 			{%- print '\t', lhs, ' = ', var.value, '\n' -%}
 		{%- endif -%}
 

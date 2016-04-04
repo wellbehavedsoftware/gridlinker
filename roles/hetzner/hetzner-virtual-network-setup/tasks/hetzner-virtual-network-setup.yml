@@ -1,0 +1,27 @@
+---
+
+- name: "create hetzner virtual network interfaces"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/network/interfaces"
+    src: "hetzner-virtual-network-interfaces"
+
+- name: "remove hetzner virtual resolvconf"
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "resolvconf"
+    state: "absent"
+
+- name: "create hetzner virtual resolv config"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/resolv.conf"
+    src: "hetzner-virtual-resolv-conf"
+
+# ex: et ts=2 filetype=yaml

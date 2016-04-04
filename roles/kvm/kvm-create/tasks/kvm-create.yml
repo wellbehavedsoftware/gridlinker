@@ -1,0 +1,151 @@
+---
+
+- name: "create virtual machine config dir"
+  delegate_to: "host/{{ identity_parent }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "/etc/libvirt/machine"
+    state: "directory"
+
+- name: "create virtual machine configs"
+  with_items:
+
+    - template: "kvm-create-domain"
+      target: "{{ identity_name }}-domain"
+
+    - template: "kvm-create-domain-install"
+      target: "{{ identity_name }}-domain-install"
+
+    - template: "kvm-create-preseed"
+      target: "{{ identity_name }}-preseed"
+
+  delegate_to: "host/{{ identity_parent }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/libvirt/machine/{{ item.target }}"
+    src: "{{ item.template }}"
+
+- name: "create virtual machine"
+  delegate_to: "host/{{ identity_parent }}"
+  args:
+
+    executable: "/bin/bash"
+    creates: "/etc/libvirt/machine/{{ identity_name }}-install-flag"
+
+  become: "yes"
+  shell:
+
+    set -euf -o pipefail;
+
+    if test "{{ kvm_create_enable | default ('no') }}" != "yes"; then
+      echo "virtual host creation disabled";
+      false;
+    fi;
+
+    rm -rf /tmp/virtual-{{ identity_name }};
+    mkdir /tmp/virtual-{{ identity_name }};
+    cd /tmp/virtual-{{ identity_name }};
+
+    id="$RANDOM";
+    sem="/tmp/virtual-{{ identity_name }}/semaphore-$id";
+    touch "$sem";
+
+    wget --quiet "{{ virtual_install_netboot_url }}" || {
+      echo "unable to retrieve {{ virtual_install_netboot_url }}";
+      false;
+    };
+
+    xorriso
+      -indev mini.iso
+      -osirrox on
+      -extract initrd.gz initrd.gz
+      -extract linux linux;
+
+    mkdir initrd;
+    cd initrd;
+
+    zcat ../initrd.gz | cpio --extract;
+
+    cp /etc/libvirt/machine/{{ identity_name }}-preseed preseed.cfg;
+
+    (zcat ../initrd.gz | cpio --list; echo preseed.cfg)
+      | cpio --create --format newc
+      | gzip > ../initrd-new.gz;
+
+    cd -;
+
+    wget "{{ virtual_install_kernel_url }}"
+        --quiet
+        --output-document "linux"
+    || {
+      echo "unable to retrieve {{ virtual_install_kernel_url }}";
+      false;
+    };
+
+    virsh destroy {{ identity_name }} || true;
+    virsh undefine {{ identity_name }} || true;
+
+    if test -b "/dev/{{ virtual_storage_volume_group }}/{{ identity_name }}"; then
+
+      lvremove --force
+        "/dev/{{ virtual_storage_volume_group }}/{{ identity_name }}";
+
+    fi;
+
+    lvcreate "{{ virtual_storage_volume_group }}"
+      --name "{{ identity_name }}"
+      --size "{{ virtual_storage_size }}GiB";
+
+    virsh define "/etc/libvirt/machine/{{ identity_name }}-domain-install";
+
+    sleep 1;
+
+    virsh start {{ identity_name }};
+
+    sleep 1;
+
+    while test "$(virsh domstate "{{ identity_name }}")" != "shut off"; do
+
+      test -f "$sem";
+
+      sleep 1;
+
+    done;
+
+    sleep 1;
+
+    virsh undefine "{{ identity_name }}";
+
+    sleep 1;
+
+    virsh define "/etc/libvirt/machine/{{ identity_name }}-domain";
+
+    sleep 1;
+
+    virsh start "{{ identity_name }}";
+
+    sleep 1;
+
+    virsh autostart {{ identity_name }};
+
+    cd /;
+
+    rm -rf "/tmp/virtual-{{ identity_name }}";
+
+    touch "/etc/libvirt/machine/{{ identity_name }}-install-flag";
+
+    exit 0;
+
+- name: "wait for ssh"
+  delegate_to: "localhost"
+  wait_for:
+
+    host: "{{ private_address }}"
+    port: "22"
+    search_regex: "OpenSSH"
+
+# ex: et ts=2 filetype=yaml

@@ -196,20 +196,42 @@ def do_inventory_list (context):
 
 	for key, value in context.project_metadata ["resource_data"].items ():
 
-		if not value in inventory.namespaces:
+		if "." in value:
 
-			raise Exception ("".join ([
-				"Invalid namespace '%s' " % value,
-				"referenced in resource_data for '%s'" % key,
-			]))
+			namespace, section = (
+				value.split ("."))
 
-		output ["all"] ["vars"] [key] = dict ([
-			(
-				inventory.resources [resource_name] ["identity"] ["name"],
-				inventory.resources [resource_name],
-			)
-			for resource_name in inventory.namespaces [value]
-		])
+			if not namespace in inventory.namespaces:
+
+				raise Exception ("".join ([
+					"Invalid namespace '%s' " % namespace,
+					"referenced in resource_data for '%s'" % key,
+				]))
+
+			output ["all"] ["vars"] [key] = dict ([
+				(
+					inventory.resources [resource_name] ["identity"] ["name"],
+					inventory.resources [resource_name] [section],
+				)
+				for resource_name in inventory.namespaces [namespace]
+			])
+
+		else:
+
+			if not value in inventory.namespaces:
+
+				raise Exception ("".join ([
+					"Invalid namespace '%s' " % value,
+					"referenced in resource_data for '%s'" % key,
+				]))
+
+			output ["all"] ["vars"] [key] = dict ([
+				(
+					inventory.resources [resource_name] ["identity"] ["name"],
+					inventory.resources [resource_name],
+				)
+				for resource_name in inventory.namespaces [value]
+			])
 
 	output ["localhost"] = {
 		"ansible_connection": "local",
