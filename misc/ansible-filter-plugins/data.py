@@ -112,6 +112,18 @@ def flatten_list (lists):
 		for list in lists
 		for item in list
 	]
+
+def keys (item):
+
+	return item.keys ();
+
+def values (item):
+
+	return item.values ();
+
+def items (item):
+
+	return item.items ();
  
 class FilterModule (object):
 
@@ -126,5 +138,9 @@ class FilterModule (object):
 
 			"prepend_list": prepend_list,
 			"append_list": append_list,
+
+			"keys": keys,
+			"values": values,
+			"items": items,
 
 		}
