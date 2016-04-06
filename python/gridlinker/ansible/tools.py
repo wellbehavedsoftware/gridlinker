@@ -198,23 +198,35 @@ def do_inventory_list (context):
 
 		if "." in value:
 
-			namespace, section = (
+			group, section = (
 				value.split ("."))
 
-			if not namespace in inventory.namespaces:
+			if group in inventory.group_members:
+
+				output ["all"] ["vars"] [key] = dict ([
+					(
+						inventory.resources [resource_name] ["identity"] ["name"],
+						inventory.resources [resource_name] [section],
+					)
+					for resource_name in inventory.group_members [group]
+				])
+
+			elif group in inventory.namespaces:
+
+				output ["all"] ["vars"] [key] = dict ([
+					(
+						inventory.resources [resource_name] ["identity"] ["name"],
+						inventory.resources [resource_name] [section],
+					)
+					for resource_name in inventory.namespaces [group]
+				])
+
+			else:
 
 				raise Exception ("".join ([
-					"Invalid namespace '%s' " % namespace,
+					"Invalid group or namespace '%s' " % group,
 					"referenced in resource_data for '%s'" % key,
 				]))
-
-			output ["all"] ["vars"] [key] = dict ([
-				(
-					inventory.resources [resource_name] ["identity"] ["name"],
-					inventory.resources [resource_name] [section],
-				)
-				for resource_name in inventory.namespaces [namespace]
-			])
 
 		else:
 

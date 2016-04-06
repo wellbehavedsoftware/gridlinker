@@ -235,6 +235,9 @@ class Inventory (object):
 					resource_data ["identity"] ["grandparent"] = \
 						parent_data ["identity"] ["parent"]
 
+					resource_data ["identity_grandparent"] = \
+						parent_data ["identity"] ["parent"]
+
 		# set children
 
 		for resource_name, resource_data \
