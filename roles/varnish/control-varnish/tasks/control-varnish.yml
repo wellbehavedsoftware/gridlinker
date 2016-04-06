@@ -2,9 +2,11 @@
 
 - name: "write varnish upstart config"
   notify:
+
     - "reload varnish config"
     - "set varnish.needs_restart to 'yes'"
-  sudo: "yes"
+
+  become: "yes"
   action:
 
     module: "template"
@@ -21,7 +23,7 @@
 
 - name: "start varnish"
   when: "varnish_state == 'enabled'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"
@@ -30,7 +32,7 @@
 
 - name: "stop varnish"
   when: "varnish_state == 'disabled'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"

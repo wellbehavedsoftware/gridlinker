@@ -2,7 +2,7 @@
 
 - name: "install varnish build dependencies"
   with_items: "varnish_build_dependencies"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "apt"
@@ -10,9 +10,11 @@
 
 - name: "build varnish"
   when: "varnish_installed_version != varnish_version"
-  sudo: "yes"
+  become: "yes"
   args:
+
     executable: "/bin/bash"
+
   shell:
 
     set -euf -o pipefail;

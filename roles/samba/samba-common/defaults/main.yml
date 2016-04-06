@@ -2,6 +2,7 @@
 
 samba_system_packages:
 
+  - "avahi-daemon"
   - "samba"
   - "smbclient"
 
@@ -15,6 +16,12 @@ samba_config_templates:
 
   - template: "samba-username-map"
     target: "/etc/samba/username-map"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - template: "samba-avahi-service"
+    target: "/etc/avahi/services/smb.service"
     user: "root"
     group: "root"
     mode: "0644"

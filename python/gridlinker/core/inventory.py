@@ -769,6 +769,34 @@ class Inventory (object):
 
 				return False, None, None
 
+			elif tokens [token_index] == "|":
+
+				token_index += 1
+
+				if tokens [token_index + 0] == "substring_before" \
+				and tokens [token_index + 1] == "(" \
+				and tokens [token_index + 2] [0] == "'" \
+				and tokens [token_index + 3] == ")":
+
+					separator = (
+						re.sub (
+							r"\\(.)",
+							lambda match: match.group (1),
+							tokens [token_index + 2] [1 : -1]))
+
+					token_index += 4
+
+					if value_type == "value":
+
+						value = (
+							value.partition (separator) [0])
+
+						continue
+
+					raise Exception ()
+
+				return False, None, None
+
 			elif tokens [token_index] == "[":
 
 				token_index += 1
@@ -1200,7 +1228,7 @@ class Inventory (object):
 
 	tokenize_re = re.compile ("\s*((?:" + ")|(?:".join ([
 		r"$",
-		r"[][.]",
+		r"[][.|()]",
 		r"[a-zA-Z][a-zA-Z0-9_]*",
 		r"'(?:[^'\\]|\\\\|\\\')*'",
 	]) + "))")
