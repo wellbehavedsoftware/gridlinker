@@ -7,6 +7,7 @@ from __future__ import with_statement
 
 import argparse
 import os
+import site
 import sys
 
 def outer_main ():
@@ -50,11 +51,11 @@ def setup_imports ():
 				os.path.dirname (
 					main_path))))
 
-	sys.path.append (
-		"%s/python" % HOME)
+	site.addsitedir (
+		"%s/work/lib/python2.7/site-packages" % HOME)
 
 	sys.path.append (
-		"%s/third-party/pyyaml/lib" % HOME)
+		"%s/python" % HOME)
 
 	import yaml
 
@@ -74,7 +75,7 @@ def setup_imports ():
 		or isinstance (third_party_data ["python"], unicode):
 
 			sys.path.append (
-				"%s/third-party/%s" % (
+				"%s/%s" % (
 					HOME,
 					third_party_data ["python"]))
 
@@ -83,7 +84,7 @@ def setup_imports ():
 			for python_item in third_party_data ["python"]:
 
 				sys.path.append (
-					"%s/third-party/%s" % (
+					"%s/%s" % (
 						HOME,
 						python_item))
 

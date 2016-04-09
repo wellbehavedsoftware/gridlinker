@@ -19,6 +19,7 @@
 
 - name: "create configs"
   with_items: "{{ kvm_parent_defines }}"
+  when: "{{ item.when }}"
   become: "yes"
   action:
 
@@ -28,6 +29,7 @@
 
 - name: "define kvm configs"
   with_items: "{{ kvm_parent_defines }}"
+  when: "{{ item.when }}"
   args:
 
     creates: "/etc/libvirt/qemu/{{ item.target }}"

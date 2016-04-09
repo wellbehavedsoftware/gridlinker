@@ -216,8 +216,13 @@ class EtcdClient:
 
 		# prepare payload
 
-		payload_string = urllib.urlencode (payload_data)
-		payload_bytes = payload_string.encode ("utf-8")
+		payload_bytes = (
+			urllib.urlencode (
+				dict ([
+					(key, value.encode ("utf-8"))
+					for key, value
+					in payload_data.items ()
+				])))
 
 		# get connection
 
@@ -227,7 +232,7 @@ class EtcdClient:
 
 		connection.putrequest (method, url)
 
-		if payload_string:
+		if payload_bytes:
 
 			connection.putheader (
 				"Content-Length",
