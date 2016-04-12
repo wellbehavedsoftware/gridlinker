@@ -90,35 +90,37 @@ class EtcdClient:
 
 			connection.connect ()
 
-			peer_certificate = connection.sock.getpeercert ()
-			peer_alt_names = peer_certificate ["subjectAltName"]
+			if self.ssl_context:
 
-			# check if the server is an ip address
+				peer_certificate = connection.sock.getpeercert ()
+				peer_alt_names = peer_certificate ["subjectAltName"]
 
-			if re.match (
-				r"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$",
-				self.servers [0]):
+				# check if the server is an ip address
 
-				# match ip addresses with custom code
+				if re.match (
+					r"^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$",
+					self.servers [0]):
 
-				if not self.servers [0] in [
-					alt_value
-					for alt_type, alt_value in peer_alt_names
-					if alt_type == 'IP Address'
-				]:
+					# match ip addresses with custom code
 
-					raise Exception ("".join ([
-						"Etcd server certificate failed to match IP address ",
-						"'%s'" % self.servers [0],
-					]))
+					if not self.servers [0] in [
+						alt_value
+						for alt_type, alt_value in peer_alt_names
+						if alt_type == 'IP Address'
+					]:
 
-			else:
+						raise Exception ("".join ([
+							"Etcd server certificate failed to match IP address ",
+							"'%s'" % self.servers [0],
+						]))
 
-				# match hostnames using python implementation
+				else:
 
-				ssl.match_hostname (
-					peer_certificate,
-					self.servers [0])
+					# match hostnames using python implementation
+
+					ssl.match_hostname (
+						peer_certificate,
+						self.servers [0])
 
 			self.connection = connection
 
