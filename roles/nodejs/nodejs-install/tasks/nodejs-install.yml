@@ -1,0 +1,40 @@
+---
+
+- name: "install node.js"
+  args:
+
+    executable: "/bin/bash"
+    creates: "{{ nodejs_flag }}"
+
+  become: "yes"
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf {{ nodejs_tmp }};
+    mkdir {{ nodejs_tmp }};
+    cd {{ nodejs_tmp }};
+
+    wget {{ nodejs_url }};
+
+    rm -rf {{ nodejs_name }};
+    tar --extract --xz --file {{ nodejs_archive }};
+
+    rsync --archive --delete {{ nodejs_name }}/ {{ nodejs_target }}/;
+
+    rm -rf {{ nodejs_tmp }};
+    touch {{ nodejs_flag }};
+
+- name: "setup nodejs alternatives"
+  with_items: "{{ nodejs_alternatives }}"
+  when: "nodejs_default == 'yes'"
+  become: "yes"
+  action:
+
+    module: "alternatives"
+    name: "{{ item.name }}"
+    link: "{{ item.link }}"
+    path: "{{ item.target }}"
+    force: "yes"
+
+# ex: et ts=2 filetype=yaml

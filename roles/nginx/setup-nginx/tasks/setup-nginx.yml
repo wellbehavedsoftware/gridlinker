@@ -14,7 +14,6 @@
 
 - name: "configure nginx"
   with_items: "{{ nginx_config_templates }}"
-  notify: "set nginx.needs_restart to 'yes'"
   become: "yes"
   action:
 

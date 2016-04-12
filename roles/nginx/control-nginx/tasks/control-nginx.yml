@@ -13,6 +13,20 @@
     src: "nginx-upstart"
     dest: "/etc/init/nginx.conf"
 
+- meta: "flush_handlers"
+
+- name: "reload nginx"
+  when: "
+    nginx_state == 'enabled'
+    and nginx_needs_restart == 'no'
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "started"
+
 - name: "restart nginx"
   when: "nginx_needs_restart == 'yes'"
   changed_when: "True"
