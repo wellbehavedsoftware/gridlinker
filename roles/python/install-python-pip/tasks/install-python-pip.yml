@@ -41,7 +41,7 @@
   when: "python_pip_installed_version != python_pip_version"
   update_resource:
 
-    python_pip.installed_version: "{{
+    python_pip.installed_version: "{{ [
       python_version,
       python_pip_version,
     ] | join ('/') }}"
