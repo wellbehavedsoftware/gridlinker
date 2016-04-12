@@ -1,7 +1,12 @@
 ---
 
 - name: "build python-apt"
-  when: "python_apt_installed_version != python_apt_version"
+  when: "
+    python_apt_installed_version != [
+      python_version,
+      python_apt_version,
+    ] | join ('/')
+  "
   become: "yes"
   args:
 
@@ -49,6 +54,9 @@
   when: "python_apt_installed_version != python_apt_version"
   update_resource:
 
-    python_apt.installed_version: "{{ python_apt_version }}"
+    python_apt.installed_version: "{{ [
+      python_version,
+      python_apt_version,
+    ] | join ('/') }}"
 
 # ex: et ts=2 filetype=yaml

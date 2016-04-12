@@ -1,7 +1,12 @@
 ---
 
 - name: "install pip"
-  when: "python_pip_version != python_pip_installed_version"
+  when: "
+    python_pip_installed_version != [
+      python_version,
+      python_pip_version,
+    ] | join ('/')
+  "
   become: "yes"
   args:
 
@@ -36,6 +41,9 @@
   when: "python_pip_installed_version != python_pip_version"
   update_resource:
 
-    python_pip.installed_version: "{{ python_pip_version }}"
+    python_pip.installed_version: "{{
+      python_version,
+      python_pip_version,
+    ] | join ('/') }}"
 
 # ex: et ts=2 filetype=yaml
