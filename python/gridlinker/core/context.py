@@ -251,6 +251,7 @@ class GenericContext (object):
 	def python_path (self):
 
 		ret = [
+			"%s/work/lib/python2.7/site-packages" % self.home,
 			"%s/python" % self.home,
 		]
 
@@ -261,7 +262,7 @@ class GenericContext (object):
 				continue
 
 			ret.append (
-				"%s/third-party/%s" % (
+				"%s/%s" % (
 					self.home,
 					third_party_data ["python"]))
 

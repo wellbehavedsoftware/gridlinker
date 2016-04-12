@@ -21,14 +21,16 @@
         continue;
       fi;
 
-      if test -h "/usr/local/bin/$filename"; then
+      link="/usr/local/bin/$filename"
+      target="../../..{{ python_target }}/bin/$filename"
+
+      if test -h "$link" -a "$(readlink "$link")" = "$target"; then
         continue;
       fi;
 
       changed="yes";
 
-      ln -s "../../..{{ python_target }}/bin/$filename"
-        "/usr/local/bin/$filename";
+      ln --no-dereference --force --symbolic "$target" "$link";
 
     done < <(ls);
 

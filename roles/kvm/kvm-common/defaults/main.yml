@@ -18,11 +18,13 @@ kvm_parent_defines:
   - template: "kvm-network-private"
     config: "network-private.xml"
     target: "networks/private.xml"
+    when: "private_address | default ('')"
     command: "net-define"
 
   - template: "kvm-network-public"
     config: "network-public.xml"
     target: "networks/public.xml"
+    when: "public_address | default ('')"
     command: "net-define"
 
 # ex: et ts=2 filetype=yaml
