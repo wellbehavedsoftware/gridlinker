@@ -69,13 +69,24 @@ class EtcdClient:
 
 		if self.secure:
 
-			connection = httplib.HTTPSConnection (
-				host = self.servers [0],
-				port = self.port,
-				key_file = self.client_key,
-				cert_file = self.client_cert,
-				context = self.ssl_context,
-				timeout = 4)
+			if self.ssl_context:
+
+				connection = httplib.HTTPSConnection (
+					host = self.servers [0],
+					port = self.port,
+					key_file = self.client_key,
+					cert_file = self.client_cert,
+					context = self.ssl_context,
+					timeout = 4)
+
+			else:
+
+				connection = httplib.HTTPSConnection (
+					host = self.servers [0],
+					port = self.port,
+					key_file = self.client_key,
+					cert_file = self.client_cert,
+					timeout = 4)
 
 			connection.connect ()
 
