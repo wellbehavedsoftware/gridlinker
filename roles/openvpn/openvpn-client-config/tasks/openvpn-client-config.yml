@@ -1,0 +1,23 @@
+---
+
+- name: "create openvpn client directory"
+  action:
+
+    module: "file"
+    path: "work/openvpn/client-configs"
+    state: "directory"
+
+    owner: "{{ lookup ('env', 'USER') }}"
+    group: "{{ lookup ('env', 'USER') }}"
+    mode: "0700"
+
+- name: "create openvpn client configs"
+  with_items: "{{ openvpn_clients.values () }}"
+  action:
+
+    module: "template"
+    dest: "work/openvpn/client-configs/{{ item.common_name }}.ovpn"
+    src: "openvpn-client-config"
+    mode: "0600"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,36 @@
+# general configuration
+
+client
+
+# connection
+
+{% for remote in item.remotes %}
+remote {{ remote.hostname }} {{ remote.port }}
+{% endfor %}
+resolv-retry infinite
+proto udp
+nobind
+
+# networking
+
+dev tun
+persist-tun
+tun-mtu {{ item.tun_mtu }}
+comp-lzo
+
+# security
+
+<ca>
+{{ lookup ('etcd', item.certificate_authority) | trim }}
+</ca>
+
+<cert>
+{{ lookup ('etcd', item.certificate) | trim }}
+</cert>
+
+<key>
+{{ lookup ('etcd', item.private_key) | trim }}
+</key>
+
+remote-cert-tls server
+persist-key
