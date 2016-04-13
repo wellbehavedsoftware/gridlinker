@@ -238,7 +238,7 @@ class EtcdClient:
 		payload_bytes = (
 			urllib.urlencode (
 				dict ([
-					(key, value.encode ("utf-8"))
+					(key, str (value).encode ("utf-8"))
 					for key, value
 					in payload_data.items ()
 				])))
