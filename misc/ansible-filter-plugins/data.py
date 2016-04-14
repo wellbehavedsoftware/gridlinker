@@ -4,6 +4,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import itertools
+import re
 import types
 
 def flatten_hash (values, * inner_names):
@@ -124,7 +125,41 @@ def values (item):
 def items (item):
 
 	return item.items ();
- 
+
+def bytes (source):
+
+	units = {
+		"": 1,
+		"B": 1,
+		"KB": 1000,
+		"MB": 1000 * 1000,
+		"GB": 1000 * 1000 * 1000,
+		"TB": 1000 * 1000 * 1000 * 1000,
+		"KiB": 1024,
+		"MiB": 1024 * 1024,
+		"GiB": 1024 * 1024 * 1024,
+		"TiB": 1024 * 1024 * 1024 * 1024,
+	}
+
+	match = (
+		re.match (
+			r"^\s*([0-9]+)\s*(%s)?\s*$" % (
+				"|".join (units.keys ())),
+			source))
+
+	if not match:
+
+		raise Exception (
+			"Cannot convert '%s' to bytes'" % (
+				source))
+
+	size = int (match.group (1))
+	unit = match.group (2)
+
+	scale = units [unit]
+
+	return size * scale
+
 class FilterModule (object):
 
     def filters (self):
@@ -143,4 +178,8 @@ class FilterModule (object):
 			"values": values,
 			"items": items,
 
+			"bytes": bytes,
+
 		}
+
+# ex: noet ts=4 filetype=python
