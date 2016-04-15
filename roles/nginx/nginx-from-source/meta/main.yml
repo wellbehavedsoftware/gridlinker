@@ -2,8 +2,8 @@
 
 dependencies:
 
-  - "build-nginx"
-  - "setup-nginx"
-  - "control-nginx"
+  - "nginx-build"
+  - "nginx-setup"
+  - "nginx-control"
 
 # ex: et ts=2 filetype=yaml

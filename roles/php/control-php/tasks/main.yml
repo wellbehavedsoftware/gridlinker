@@ -1,6 +1,0 @@
----
-
-- include: "control-php.yml"
-  tags: [ "php", "control-php" ]
-
-# ex: et ts=2 filetype=yaml

@@ -1,0 +1,10 @@
+---
+
+- include: "nginx-setup.yml"
+  when: "nginx_version != ''"
+  tags:
+
+    - "nginx"
+    - "nginx-setup"
+
+# ex: et ts=2 filetype=yaml

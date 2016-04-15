@@ -1,9 +1,9 @@
 ---
 
-- include: "setup-php.yml"
+- include: "php-setup.yml"
   tags:
 
     - "php"
-    - "setup-php"
+    - "php-setup"
 
 # ex: et ts=2 filetype=yaml

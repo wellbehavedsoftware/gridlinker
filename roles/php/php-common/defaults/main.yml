@@ -1,7 +1,17 @@
 ---
 
-php_state: "no"
-php_needs_restart: "no"
+# ---------- state
+
+php_state: ""
+php_needs_restart: ""
+php_installed_version: ""
+
+# ---------- general
+
+php_version: ""
+php_target: "/opt/php-{{ php_version }}"
+
+# ---------- runtime config
 
 php_max_execution_time: "30"
 
@@ -14,5 +24,58 @@ php_modules: []
 
 php_upload_max_filesize: "2M"
 php_post_max_size: "8M"
+
+# ---------- build config
+
+php_build_temp: "/tmp/php-build"
+php_build_mirror: "https://dist.wellbehavedsoftware.com/php"
+php_build_name: "php-{{ php_version }}"
+php_build_directory: "{{ php_build_name }}"
+php_build_archive: "{{ php_build_name }}.tar.bz2"
+php_build_url: "{{ php_build_mirror }}/{{ php_build_archive }}"
+
+php_build_dependencies:
+
+  - "apache2-dev"
+  - "freetds-common"
+  - "freetds-dev"
+  - "language-pack-de"
+  - "language-pack-de-base"
+  - "libapr1-dev"
+  - "libaprutil1-dev"
+  - "libaspell-dev"
+  - "libct4"
+  - "libenchant-dev"
+  - "libevent-core-2.0-5"
+  - "libevent-dev"
+  - "libevent-extra-2.0-5"
+  - "libevent-openssl-2.0-5"
+  - "libevent-pthreads-2.0-5"
+  - "libgd-dev"
+  - "libgmp3-dev"
+  - "libmagic-dev"
+  - "libmhash-dev"
+  - "libpam0g-dev"
+  - "libpcre3-dev"
+  - "libpspell-dev"
+  - "librecode-dev"
+  - "libsctp-dev"
+  - "libsensors4-dev"
+  - "libsnmp-dev"
+  - "libsybdb5"
+  - "libsystemd-daemon-dev"
+  - "libtidy-0.99-0"
+  - "libtidy-dev"
+  - "libvpx-dev"
+  - "libwrap0-dev"
+  - "libxmltok1"
+  - "libxmltok1-dev"
+  - "libxpm-dev"
+  - "mysql-server"
+  - "mysql-server-5.5"
+  - "mysql-server-core-5.5"
+  - "systemtap-sdt-dev"
+  - "unixodbc"
+  - "unixodbc-dev"
 
 # ex: et ts=2 filetype=yaml

@@ -1,0 +1,10 @@
+---
+
+- include: "php-build.yml"
+  when: "php_version != ''"
+  tags:
+
+    - "php"
+    - "php-build"
+
+# ex: et ts=2 filetype=yaml

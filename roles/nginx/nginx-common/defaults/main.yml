@@ -2,14 +2,18 @@
 
 # default state
 
-nginx_state: "no"
-nginx_needs_reload: "no"
-nginx_needs_restart: "no"
-nginx_installed_version: "no"
+nginx_state: ""
+nginx_needs_reload: ""
+nginx_needs_restart: ""
+nginx_installed_version: ""
 
 nginx_ssl_certificates: []
 
-# runtime config
+# ---------- general
+
+nginx_version: ""
+
+# ---------- runtime config
 
 nginx_user: "www-data"
 
@@ -62,7 +66,7 @@ nginx_config_templates:
     group: "root"
     mode: "0644"
 
-# build config
+# ---------- build config
 
 nginx_build_temp: "/tmp/nginx-build"
 nginx_build_mirror: "http://nginx.org/download"

@@ -1,9 +1,0 @@
----
-
-- include: "install-php.yml"
-  tags:
-
-    - "php"
-    - "install-php"
-
-# ex: et ts=2 filetype=yaml
