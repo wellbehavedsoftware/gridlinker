@@ -1,0 +1,14 @@
+---
+
+- include: "mysql-install-from-distro.yml"
+  when: "
+    mysql_install == 'yes'
+    and mysql_install_from == 'distro'
+  "
+  tags:
+
+    - "mysql"
+    - "mysql-install"
+    - "mysql-install-from-distro"
+
+# ex: et ts=2 filetype=yaml

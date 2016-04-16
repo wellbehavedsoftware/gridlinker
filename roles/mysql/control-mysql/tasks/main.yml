@@ -1,6 +1,0 @@
----
-
-- include: "control-mysql.yml"
-  tags: [ "mysql", "control-mysql" ]
-
-# ex: et ts=2 filetype=yaml

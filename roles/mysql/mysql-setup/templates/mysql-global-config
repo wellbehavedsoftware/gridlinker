@@ -1,6 +1,6 @@
 [client]
 
-port = 3306
+port = {{ mysql_port }}
 socket = /var/run/mysqld/mysqld.sock
 
 [mysqld_safe]
@@ -16,7 +16,7 @@ syslog
 user = mysql
 pid-file = /var/run/mysqld/mysqld.pid
 socket = /var/run/mysqld/mysqld.sock
-bind-address = 0.0.0.0
+bind-address = {{ mysql_bind_address }}
 port = {{ mysql_port }}
 basedir = /usr
 datadir = /var/lib/mysql

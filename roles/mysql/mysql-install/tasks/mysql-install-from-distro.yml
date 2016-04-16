@@ -1,0 +1,50 @@
+---
+
+- name: "preseed mysql debconf"
+  with_items: "{{ mysql_distro_debconf }}"
+  become: "yes"
+  action:
+
+    module: "debconf"
+    name: "{{ item.name }}"
+    question: "{{ item.question }}"
+    value: "{{ item.value }}"
+    vtype: "{{ item.type }}"
+
+- name: "install mysql packages"
+  with_items: "{{ mysql_distro_packages }}"
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "disable mysql sysv init"
+  register: "mysql_sysv_result"
+  changed_when: "mysql_sysv_result.stdout != 'UNCHANGED'"
+  become: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    test -e /etc/init.d/mysql || { echo "UNCHANGED"; exit 0; };
+    service mysql stop;
+    rm -f /etc/init.d/mysql /etc/init.d/rc?.d/[KS]??mysql;
+
+- name: "set mysql.state to 'installed'"
+  when: "mysql_state == ''"
+  update_resource:
+
+    mysql.state: "installed"
+
+- name: "set mysql.installed_from to 'distro'"
+  when: "mysql_installed_from != 'distro'"
+  update_resource:
+
+    mysql.installed_from: "distro"
+
+# ex: et ts=2 filetype=yaml

@@ -1,11 +1,69 @@
 ---
 
-mysql_port: "3306"
+# ---------- general
 
-mysql_state: "no"
+mysql_version: ""
+mysql_install_from: "distro"
+
+# ---------- state
+
+mysql_state: ""
+mysql_installed_from: ""
+mysql_installed_version: ""
 mysql_needs_restart: "no"
+
+# ---------- runtime
+
+mysql_bind_address: "0.0.0.0"
+mysql_port: "3306"
 
 mysql_replication: "no"
 mysql_replication_user: "replication"
+
+# ---------- config structure
+
+mysql_config_templates:
+
+  - template: "mysql-global-config"
+    target: "/etc/mysql/my.cnf"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - template: "mysql-root-config"
+    target: "/root/.my.cnf"
+    user: "root"
+    group: "root"
+    mode: "0600"
+
+  - template: "mysql-user-config"
+    target: "/home/ubuntu/.my.cnf"
+    user: "ubuntu"
+    group: "ubuntu"
+    mode: "0600"
+
+# ---------- install from distro
+
+mysql_distro_debconf:
+
+  - question: "mysql-server/root_password"
+    name: "mysql-server-5.5"
+    value: "{{ mysql_root_password }}"
+    type: "password"
+
+  - question: "mysql-server/root_password_again"
+    name: "mysql-server-5.5"
+    value: "{{ mysql_root_password }}"
+    type: "password"
+
+  - question: "mysql-server-5.5/start-on_boot"
+    name: "mysql-server-5.5"
+    value: "no"
+    type: "boolean"
+
+mysql_distro_packages:
+
+  - "mysql-server-5.5"
+  - "python-mysqldb"
 
 # ex: et ts=2 filetype=yaml
