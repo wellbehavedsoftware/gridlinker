@@ -1,7 +1,7 @@
 ---
 
 - name: "create nginx directories"
-  with_items: "{{ nginx_directories }}"
+  with_items: "{{ nginx_config_directories }}"
   become: "yes"
   action:
 
@@ -20,14 +20,6 @@
     module: "template"
     src: "{{ item.template }}"
     dest: "{{ item.target }}"
-
-- name: "create nginx ssl directory"
-  become: "yes"
-  action:
-
-    module: "file"
-    path: "/etc/nginx/ssl"
-    state: "directory"
 
 - name: "install ssl certificates"
   with_items: "{{

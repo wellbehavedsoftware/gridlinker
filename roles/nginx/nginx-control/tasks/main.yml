@@ -1,7 +1,9 @@
 ---
 
 - include: "control-nginx.yml"
-  when: "nginx_version != ''"
+  when: "
+    nginx_state in [ 'enabled', 'disabled' ]
+  "
   tags:
 
     - "nginx"

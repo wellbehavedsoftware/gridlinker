@@ -2,7 +2,8 @@
 
 dependencies:
 
-  - "nginx-build"
+  - "nginx-common"
+  - "nginx-install"
   - "nginx-setup"
   - "nginx-control"
 

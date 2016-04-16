@@ -1,0 +1,14 @@
+---
+
+- include: "nginx-install-from-source.yml"
+  when: "
+    nginx_install == 'yes'
+    and nginx_install_from == 'source'
+  "
+  tags:
+
+    - "nginx"
+    - "nginx-install"
+    - "nginx-install-from-source"
+
+# ex: et ts=2 filetype=yaml

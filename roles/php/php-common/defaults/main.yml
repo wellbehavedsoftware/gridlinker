@@ -3,7 +3,7 @@
 # ---------- general
 
 php_install: "yes"
-php_install_source: "ppa"
+php_install_from: "ppa"
 php_target: "/opt/php-{{ php_version }}"
 php_version: "7.0"
 php_config_directory: "/etc/php/7.0"
@@ -22,6 +22,9 @@ php_max_execution_time: "30"
 
 php_upload_max_filesize: "2M"
 php_post_max_size: "8M"
+
+php_enabled_modules: []
+php_disabled_modules: []
 
 # ---------- install config
 

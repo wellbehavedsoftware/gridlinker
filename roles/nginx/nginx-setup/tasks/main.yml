@@ -1,7 +1,10 @@
 ---
 
 - include: "nginx-setup.yml"
-  when: "nginx_version != ''"
+  when: "
+    nginx_install == 'yes'
+    and nginx_state in [ 'installed', 'enabled', 'disabled' ]
+  "
   tags:
 
     - "nginx"

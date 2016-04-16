@@ -18,7 +18,7 @@ umask 007
 
 pre-start script
 
-	{{ nginx_target }}/sbin/nginx -t
+	{{ nginx_installed_prefix }}/sbin/nginx -t
 
 	if test "$?" -ne "0"
 		then exit $?
@@ -26,4 +26,4 @@ pre-start script
 
 end script
 
-exec {{ nginx_target }}/sbin/nginx
+exec {{ nginx_installed_prefix }}/sbin/nginx

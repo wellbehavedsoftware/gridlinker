@@ -1,7 +1,6 @@
 ---
 
 - name: "configure php"
-  notify: "set php.needs_restart to 'yes'"
   with_items:
 
     - template: "php-ini"
@@ -12,16 +11,20 @@
       target: "{{ php_config_directory }}/cli/php.ini"
       type: "cli"
 
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "template"
     src: "{{ item.template }}"
     dest: "{{ item.target }}"
 
+- name: "disable php modules"
+  with_items: "{{ php_disabled_modules }}"
+  become: "yes"
+  shell: "phpdismod {{ item }}"
+
 - name: "enable php modules"
-  with_items: "{{ php_modules }}"
-  notify: "set php.needs_restart to 'yes'"
+  with_items: "{{ php_enabled_modules }}"
   become: "yes"
   shell: "phpenmod {{ item }}"
 

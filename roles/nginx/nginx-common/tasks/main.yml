@@ -1,0 +1,12 @@
+---
+
+- include: "nginx-common.yml"
+  when: "
+    nginx_install == 'yes'
+  "
+  tags:
+
+    - "nginx"
+    - "nginx-common"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,107 @@
+---
+
+- name: "check nginx_version is specified"
+  when: "nginx_version == ''"
+  fail:
+
+    msg: "Must set nginx.version"
+
+- name: "install nginx build dependencies"
+  become: "yes"
+  with_items: "{{ nginx_build_dependencies }}"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "create nginx build directories"
+  with_items: "{{ nginx_build_directories }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "create nginx build links"
+  with_items: "{{ nginx_build_links }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.link }}"
+    state: "link"
+
+    src: "{{ item.target }}"
+    force: "yes"
+
+- name: "build nginx"
+  when: "
+    nginx_installed_version != nginx_version
+  "
+  register: "nginx_build_result"
+  become: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ nginx_build_temp }}";
+    mkdir -p "{{ nginx_build_temp }}";
+    cd "{{ nginx_build_temp }}";
+
+    wget --timeout=10 "{{ nginx_build_url }}";
+    tar --extract --gz --file "{{ nginx_build_archive }}";
+    cd "{{ nginx_build_directory }}";
+
+    ./configure {{
+      nginx_build_configure_options
+      | map ('quote')
+      | join (' ')
+    }};
+
+    make -j4;
+
+    make install;
+
+    cd /;
+    rm -rf "{{ nginx_build_temp }}"
+
+- name: "set nginx.needs_restart to 'yes'"
+  when: "nginx_build_result | changed"
+  update_resource:
+
+    nginx.needs_restart: "yes"
+
+- name: "set nginx.state to 'installed'"
+  when: "nginx_state == ''"
+  update_resource:
+
+    nginx.state: "installed"
+
+- name: "set nginx.installed_version"
+  when: "nginx_installed_version != nginx_version"
+  update_resource:
+
+    nginx.installed_version: "{{ nginx_version }}"
+
+- name: "set nginx.installed_from"
+  when: "nginx_installed_from != 'source'"
+  update_resource:
+
+    nginx.installed_from: "source"
+
+- name: "set nginx.installed_prefix"
+  when: "nginx_installed_prefix != nginx_build_target"
+  update_resource:
+
+    nginx.installed_prefix: "{{ nginx_build_target }}"
+
+# ex: et ts=2 filetype=yaml

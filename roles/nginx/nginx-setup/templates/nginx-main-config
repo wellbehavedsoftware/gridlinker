@@ -59,7 +59,7 @@ http {
 
 	# individual configuration
 
-	include {{ nginx_target }}/conf/local/*;
-	include {{ nginx_target }}/conf/sites/*;
+	include /etc/nginx/local/*;
+	include /etc/nginx/sites/*;
 
 }
