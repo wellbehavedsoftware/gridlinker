@@ -3,8 +3,5 @@
 dependencies:
 
   - "php-common"
-  - "php-build"
-  - "php-setup"
-  - "php-control"
 
 # ex: et ts=2 filetype=yaml

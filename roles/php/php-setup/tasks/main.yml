@@ -1,6 +1,10 @@
 ---
 
 - include: "php-setup.yml"
+  when: "
+    php_install == 'yes'
+    and php_state in [ 'installed', 'enabled', 'disabled' ]
+  "
   tags:
 
     - "php"

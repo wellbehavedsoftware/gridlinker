@@ -1,7 +1,10 @@
 ---
 
 - include: "php-build.yml"
-  when: "php_version != ''"
+  when: "
+    php_install == 'yes'
+    and php_install_from == 'source'
+  "
   tags:
 
     - "php"

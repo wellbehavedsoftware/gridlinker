@@ -3,8 +3,10 @@
 - name: "write php upstart config"
   sudo: "yes"
   notify:
+
     - "reload upstart config"
     - "set php.needs_restart to 'yes'"
+
   action:
 
     module: "template"
@@ -25,7 +27,7 @@
   action:
 
     module: "service"
-    name: "php5-fpm"
+    name: "{{ php_service_name }}"
     state: "started"
 
 - name: "stop php"
@@ -34,7 +36,7 @@
   action:
 
     module: "service"
-    name: "php5-fpm"
+    name: "{{ php_service_name }}"
     state: "stopped"
 
 # ex: et ts=2 filetype=yaml

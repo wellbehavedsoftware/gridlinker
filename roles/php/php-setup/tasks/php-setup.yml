@@ -5,11 +5,11 @@
   with_items:
 
     - template: "php-ini"
-      target: "/etc/php5/fpm/php.ini"
+      target: "{{ php_config_directory }}/fpm/php.ini"
       type: "fpm"
 
     - template: "php-ini"
-      target: "/etc/php5/cli/php.ini"
+      target: "{{ php_config_directory }}/cli/php.ini"
       type: "cli"
 
   sudo: "yes"
@@ -20,20 +20,10 @@
     dest: "{{ item.target }}"
 
 - name: "enable php modules"
-  when: "item.1.state == 'enabled'"
-  with_nested:
-
-    - [ "cli", "fpm" ]
-    - "{{ php_modules }}"
-
+  with_items: "{{ php_modules }}"
   notify: "set php.needs_restart to 'yes'"
-  sudo: "yes"
-  action:
-
-    module: "file"
-    path: "/etc/php5/{{ item.0 }}/conf.d/{{ item.1.priority }}-{{ item.1.name }}.ini"
-    state: "link"
-    src: "../../mods-available/{{ item.1.name }}.ini"
+  become: "yes"
+  shell: "phpenmod {{ item }}"
 
 - name: "set php.state to 'enabled'"
   when: "php_state == 'installed'"

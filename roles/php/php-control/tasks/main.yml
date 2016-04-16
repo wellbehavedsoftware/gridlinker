@@ -1,7 +1,9 @@
 ---
 
 - include: "php-control-upstart.yml"
-  when: "php_version"
+  when: "
+    php_state in [ 'installed', 'enabled', 'disabled' ]
+  "
   tags:
 
     - "php"

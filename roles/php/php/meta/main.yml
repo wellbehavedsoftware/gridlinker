@@ -1,0 +1,11 @@
+---
+
+dependencies:
+
+  - role: "php-common"
+  - role: "php-build"
+  - role: "php-install-ppa"
+  - role: "php-setup"
+  - role: "php-control"
+
+# ex: et ts=2 filetype=yaml
