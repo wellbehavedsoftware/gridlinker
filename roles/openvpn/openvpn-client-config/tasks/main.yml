@@ -1,0 +1,14 @@
+---
+
+- include: "openvpn-client-config.yml"
+  tags:
+
+    - "openvpn"
+    - "openvpn-client"
+    - "openvpn-client-config"
+
+    - "vpn"
+    - "vpn-client"
+    - "vpn-client-config"
+
+# ex: et ts=2 filetype=yaml

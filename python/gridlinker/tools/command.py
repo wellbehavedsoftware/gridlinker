@@ -274,7 +274,7 @@ class GenericCommand:
 
 		else:
 
-			all_records = collection.get_all_list ()
+			all_records = collection.get_all_list_slow ()
 
 		filtered_records = [
 			(record_name, record_data)
