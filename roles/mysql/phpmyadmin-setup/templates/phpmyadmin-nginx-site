@@ -1,0 +1,29 @@
+server {
+
+	listen {{ nginx_http_port }};
+
+	server_name {{ phpmyadmin_hostname }};
+
+	root {{ phpmyadmin_installed_public }};
+	index index.php;
+
+	port_in_redirect off;
+
+	location /favicon.ico {
+		log_not_found off;
+		access_log off;
+	}
+
+	location / {
+		try_files $uri $uri/ /index.php?$args;
+	}
+
+	location ~ \.php$ {
+		include fastcgi_params;
+		fastcgi_pass unix:{{ php_fpm_socket }};
+		fastcgi_param HTTP_HOST {{ phpmyadmin_hostname }};
+		fastcgi_param SERVER_PORT 443;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+	}
+
+}

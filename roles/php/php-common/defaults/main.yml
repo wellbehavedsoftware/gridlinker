@@ -7,12 +7,13 @@ php_install_from: "ppa"
 php_target: "/opt/php-{{ php_version }}"
 php_version: "7.0"
 php_config_directory: "/etc/php/7.0"
-php_service_name: "php7.0-fpm"
 
 # ---------- state
 
+php_fpm_socket: ""
 php_installed_version: ""
 php_installed_from: ""
+php_installed_service: ""
 php_needs_restart: ""
 php_state: ""
 

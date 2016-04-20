@@ -43,7 +43,7 @@
   action:
 
     module: "service"
-    name: "php_installed_service"
+    name: "{{ php_installed_service }}"
     state: "restarted"
 
 - name: "start php"
@@ -51,12 +51,12 @@
     php_state == 'enabled'
     and not php_restart_result | changed
   "
-  register: "start_php_result"
+  register: "php_start_result"
   become: "yes"
   action:
 
     module: "service"
-    name: "{{ php_service_name }}"
+    name: "{{ php_installed_service }}"
     state: "started"
 
 - name: "stop php"
@@ -68,14 +68,18 @@
   action:
 
     module: "service"
-    name: "{{ php_service_name }}"
+    name: "{{ php_installed_service }}"
     state: "stopped"
 
 - name: "reload php"
   when: "
     php_state == 'enabled'
-    and not php_start_result | changed
+    and not (
+      (php_restart_result | changed)
+      or (php_start_result | changed)
+    )
   "
+  changed_when: "False"
   become: "yes"
   action:
 

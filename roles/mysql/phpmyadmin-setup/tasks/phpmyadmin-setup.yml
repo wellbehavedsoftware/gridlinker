@@ -1,5 +1,11 @@
 ---
 
+- name: "generate phpmyadmin.blowfish_secret"
+  when: "phpmyadmin_blowfish_secret == ''"
+  update_resource:
+
+    phpmyadmin.blowfish_secret: "{{ 20 | generate_random }}"
+
 - name: "create phpmyadmin directories"
   with_items: "{{ phpmyadmin_config_directories }}"
   become: "yes"
@@ -15,6 +21,7 @@
 
 - name: "write phpmyadmin config templates"
   with_items: "{{ phpmyadmin_config_templates }}"
+  when: "item.when | default (True)"
   notify: "reload apache"
   become: "yes"
   action:
@@ -29,6 +36,7 @@
 
 - name: "create phpmyadmin links"
   with_items: "{{ phpmyadmin_config_links }}"
+  when: "item.when | default (True)"
   become: "yes"
   action:
 

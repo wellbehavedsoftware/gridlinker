@@ -1,0 +1,10 @@
+---
+
+- include: "mysql-prepare.yml"
+  when: "mysql_install == 'yes'"
+  tags:
+
+    - "mysql"
+    - "mysql-prepare"
+
+# ex: et ts=2 filetype=yaml

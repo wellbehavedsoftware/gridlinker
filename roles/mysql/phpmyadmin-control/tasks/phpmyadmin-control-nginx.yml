@@ -1,0 +1,11 @@
+---
+
+- name: "reload nginx"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "reloaded"
+
+# ex: et ts=2 filetype=yaml

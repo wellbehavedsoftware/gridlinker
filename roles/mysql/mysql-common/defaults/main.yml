@@ -10,14 +10,15 @@ mysql_install_from: "distro"
 mysql_state: ""
 mysql_installed_from: ""
 mysql_installed_version: ""
-mysql_needs_restart: "no"
+mysql_needs_restart: ""
+mysql_root_password: ""
 
 # ---------- runtime
 
 mysql_bind_address: "0.0.0.0"
 mysql_port: "3306"
 
-mysql_replication: "no"
+mysql_replication: ""
 mysql_replication_user: "replication"
 
 # ---------- config structure
@@ -43,23 +44,6 @@ mysql_config_templates:
     mode: "0600"
 
 # ---------- install from distro
-
-mysql_distro_debconf:
-
-  - question: "mysql-server/root_password"
-    name: "mysql-server-5.5"
-    value: "{{ mysql_root_password }}"
-    type: "password"
-
-  - question: "mysql-server/root_password_again"
-    name: "mysql-server-5.5"
-    value: "{{ mysql_root_password }}"
-    type: "password"
-
-  - question: "mysql-server-5.5/start-on_boot"
-    name: "mysql-server-5.5"
-    value: "no"
-    type: "boolean"
 
 mysql_distro_packages:
 

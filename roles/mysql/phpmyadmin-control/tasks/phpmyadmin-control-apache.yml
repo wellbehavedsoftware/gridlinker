@@ -1,0 +1,37 @@
+---
+
+- name: "enable phpmyadmin apache site"
+  when: "
+    phpmyadmin_install == 'yes'
+    and phpmyadmin_state == 'enabled'
+  "
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "/etc/apache2/sites-enabled/phpmyadmin.conf"
+    state: "link"
+
+    src: "../sites-available/phpmyadmin.conf"
+
+- name: "disable phpmyadmin apache site"
+  when: "
+    phpmyadmin_install == 'yes'
+    and phpmyadmin_state == 'disabled'
+  "
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "/etc/apache2/sites-enabled/phpmyadmin.conf"
+    state: "absent"
+
+- name: "reload apache"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "apache2"
+    state: "reloaded"
+
+# ex: et ts=2 filetype=yaml

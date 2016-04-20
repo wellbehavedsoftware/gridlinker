@@ -8,7 +8,7 @@
 
 - name: "install phpmyadmin"
   when: "phpmyadmin_installed_version != phpmyadmin_version"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"
@@ -49,5 +49,17 @@
   update_resource:
 
     phpmyadmin.installed_version: "{{ phpmyadmin_version }}"
+
+- name: "set phpmyadmin_installed_from"
+  when: "phpmyadmin_installed_from != 'source'"
+  update_resource:
+
+    phpmyadmin.installed_from: "source"
+
+- name: "set phpmyadmin_installed_public"
+  when: "phpmyadmin_installed_public != phpmyadmin_target"
+  update_resource:
+
+    phpmyadmin.installed_public: "{{ phpmyadmin_target }}"
 
 # ex: et ts=2 filetype=yaml

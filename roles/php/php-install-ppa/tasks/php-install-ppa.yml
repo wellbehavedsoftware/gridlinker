@@ -43,4 +43,16 @@
 
     php.installed_from: "ppa"
 
+- name: "set php.installed_service"
+  when: "php_installed_service != 'php7.0-fpm'"
+  update_resource:
+
+    php.installed_service: "php7.0-fpm"
+
+- name: "set php.fpm_socket"
+  when: "php_fpm_socket != '/var/run/php/php7.0-fpm.sock'"
+  update_resource:
+
+    php.fpm_socket: "/var/run/php/php7.0-fpm.sock"
+
 # ex: et ts=2 filetype=yaml

@@ -3,7 +3,7 @@
 - name: "generate mysql root password"
   when: "
     mysql_install == 'yes'
-    and mysql_root_password = ''
+    and mysql_root_password == ''
   "
   update_resource:
 

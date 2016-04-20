@@ -58,4 +58,10 @@
     name: "mysql"
     state: "stopped"
 
+- name: "set mysql.needs_restart to 'no'"
+  when: "mysql_needs_restart != 'no'"
+  update_resource:
+
+    mysql.needs_restart: "no"
+
 # ex: et ts=2 filetype=yaml
