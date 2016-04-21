@@ -1,4 +1,4 @@
-{% set prefix = '{{ prefix }}' if system_init == 'upstart' else '' %}
+{% set prefix = 'export ' if system_init == 'upstart' else '' %}
 
 {{ prefix }}ETCD_NAME="{{ etcd_name }}"
 {{ prefix }}ETCD_DATA_DIR="{{ etcd_data }}"

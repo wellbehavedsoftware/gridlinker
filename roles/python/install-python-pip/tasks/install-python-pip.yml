@@ -38,7 +38,12 @@
     python_pip.state: "installed"
 
 - name: "set python_pip.installed_version"
-  when: "python_pip_installed_version != python_pip_version"
+  when: "
+    python_pip.installed_version != [
+      python_version,
+      python_pip_version,
+    ] | join ('/')
+  "
   update_resource:
 
     python_pip.installed_version: "{{ [
