@@ -10,6 +10,7 @@ import re
 import ssl
 import time
 import urllib
+import wbs
 
 from wbs import yamlx
 
@@ -227,7 +228,9 @@ class EtcdClient:
 
 		# prepare query
 
-		query_string = urllib.urlencode (query_data)
+		query_string = (
+			wbs.urlencode (
+				query_data))
 
 		if query_string:
 			url += "&" if "?" in url else "?"
@@ -236,12 +239,8 @@ class EtcdClient:
 		# prepare payload
 
 		payload_bytes = (
-			urllib.urlencode (
-				dict ([
-					(key, str (value).encode ("utf-8"))
-					for key, value
-					in payload_data.items ()
-				])))
+			wbs.urlencode (
+				payload_data))
 
 		# get connection
 
@@ -456,4 +455,3 @@ def args (sub_parsers):
 	pass
 
 # ex: noet ts=4 filetype=yaml
-
