@@ -1,0 +1,47 @@
+---
+
+- name: "install wbs-backup"
+  when: "wbs_backup_installed_version != wbs_backup_version"
+  become: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ wbs_backup_temp }}";
+    mkdir -p "{{ wbs_backup_temp }}";
+    cd "{{ wbs_backup_temp }}";
+
+    wget "{{ wbs_backup_url }}";
+
+    tar
+      --extract
+      --xz
+      --file "{{ wbs_backup_archive }}";
+
+    mkdir -p "{{ wbs_backup_target }}";
+
+    rsync
+      --archive
+      --delete
+      {{ wbs_backup_directory }}/
+      {{ wbs_backup_target }}/;
+
+    rm -rf {{ wbs_backup_temp }};
+
+- name: "set wbs_backup.state to 'installed'"
+  when: "wbs_backup_state == ''"
+  update_resource:
+
+    wbs_backup.state: "installed"
+
+- name: "set wbs_backup.installed_version"
+  when: "wbs_backup_installed_version != wbs_backup_version"
+  update_resource:
+
+    wbs_backup.installed_version: "{{ wbs_backup_version }}"
+
+# ex: et ts=2 filetype=yaml

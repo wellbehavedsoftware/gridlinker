@@ -1,0 +1,13 @@
+---
+
+# ---------- general
+
+wbs_backup_install: "yes"
+wbs_backup_version: ""
+
+# ---------- state
+
+wbs_backup_state: ""
+wbs_backup_installed_version: ""
+
+# ex: et ts=2 filetype=yaml
