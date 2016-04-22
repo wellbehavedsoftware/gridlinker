@@ -2,7 +2,7 @@
 
 # ---------- general
 
-php_install: "yes"
+php_install: "{{ default_install | default ('yes') }}"
 php_install_from: "ppa"
 php_target: "/opt/php-{{ php_version }}"
 php_version: "7.0"

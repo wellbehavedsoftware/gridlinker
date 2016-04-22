@@ -2,7 +2,7 @@
 
 # ---------- general
 
-nginx_install: "yes"
+nginx_install: "{{ default_install | default ('yes') }}"
 nginx_install_from: "source"
 nginx_version: ""
 
