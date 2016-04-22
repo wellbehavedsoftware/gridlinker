@@ -124,7 +124,18 @@ def load_config ():
 
 	if not os.path.isfile ("%s/%s" % (HOME, CONNECTIONS)):
 
-		with open ("%s/%s" % (HOME, CONNECTIONS), "w") as file_handle:
+		import yaml
+
+		filename = (
+			"%s/%s" % (
+				HOME,
+				CONNECTIONS))
+
+		temp_filename = (
+			"%s.temp" % (
+				filename))
+
+		with open (temp_filename, "w") as file_handle:
 
 			file_handle.write ("---\n\n")
 
@@ -133,6 +144,10 @@ def load_config ():
 				file_handle)
 
 			file_handle.write ("\n# ex: et ts=2 filetype=yaml\n")
+
+		os.rename (
+			temp_filename,
+			filename)
 
 	if not os.path.isdir ("%s/%s" % (HOME, WORK)):
 

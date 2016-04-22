@@ -39,7 +39,7 @@
 
 - name: "set python_pip.installed_version"
   when: "
-    python_pip.installed_version != [
+    python_pip_installed_version != [
       python_version,
       python_pip_version,
     ] | join ('/')

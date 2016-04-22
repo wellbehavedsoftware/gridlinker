@@ -1,0 +1,35 @@
+---
+
+- name: "retrieve host key {{ scan_ssh_key_type }}"
+  connection: "local"
+  register: "ssh_keyscan_result"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    ssh-keyscan -t {{ scan_ssh_key_type }} {{ ansible_ssh_host }} \
+    | cut -f2-3 -d' ';
+
+- name: "temporary store host key {{ scan_ssh_key_type }}"
+  connection: "local"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    echo "{{ ansible_ssh_host }} {{ ssh_keyscan_result.stdout }}"
+      >>"$GRIDLINKER_KNOWN_HOSTS";
+
+- name: "store host key {{ scan_ssh_key_type }}"
+  update_resource:
+
+    "ssh.host_key_{{ scan_ssh_key_type }}": "{{ ssh_keyscan_result.stdout }}"
+
+# ex: et ts=2 filetype=yaml
