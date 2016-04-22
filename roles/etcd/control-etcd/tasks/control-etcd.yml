@@ -1,11 +1,7 @@
 ---
 
 - name: "write etcd upstart config"
-  notify:
-
-    - "reload upstart config"
-    - "set etcd.needs_restart to 'yes'"
-
+  when: "system_init == 'upstart'"
   become: "yes"
   action:
 
@@ -13,13 +9,14 @@
     dest: "/etc/init/etcd.conf"
     src: "etcd-upstart"
 
-- name: "trigger etcd restart"
-  when: "etcd_needs_restart == 'yes'"
-  changed_when: "True"
-  notify: "restart etcd"
-  update_resource: {}
+- name: "write etcd systemd config"
+  when: "system_init == 'systemd'"
+  become: "yes"
+  action:
 
-- meta: "flush_handlers"
+    module: "template"
+    dest: "/etc/systemd/system/etcd.service"
+    src: "etcd-systemd"
 
 - name: "start etcd"
   when: "etcd_state == 'enabled'"
@@ -29,6 +26,14 @@
     module: "service"
     name: "etcd"
     state: "started"
+
+- name: "reload etcd"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "etcd"
+    state: "reloaded"
 
 - name: "stop etcd"
   when: "etcd_state == 'disabled'"

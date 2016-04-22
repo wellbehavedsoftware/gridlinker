@@ -1,5 +1,13 @@
 ---
 
+- name: "install haskell cabal dependencies"
+  with_items: "{{ haskell_cabal_build_dependencies }}"
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
 - name: "build haskell cabal"
   when: "haskell_cabal_installed_version != haskell_cabal_version"
   sudo: "yes"

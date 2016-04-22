@@ -369,9 +369,9 @@ class CertificateAuthority:
 
 		self.issue_serial = int (root_serial_string)
 
-	def issue (self, type, name, alt_names):
+	def issue (self, type, name, alt_names, reissue = False):
 
-		if self.client.exists (
+		if not reissue and self.client.exists (
 			self.path + "/named/" + name):
 
 			raise AlreadyExistsError ()
@@ -766,6 +766,11 @@ def args_issue (sub_parsers):
 		required = True,
 		help = "common name to use in subject")
 
+	parser.add_argument (
+		"--reissue",
+		action = "store_true",
+		help = "reissue existing certificate")
+
 	# type
 
 	parser_type = parser.add_mutually_exclusive_group (
@@ -847,10 +852,12 @@ def do_issue (context, args):
 
 	try:
 
-		certificate = authority.issue (
-			args.type,
-			args.common_name,
-			alt_names)
+		certificate = (
+			authority.issue (
+				args.type,
+				args.common_name,
+				alt_names,
+				args.reissue))
 
 	except AlreadyExistsError:
 
