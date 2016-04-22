@@ -5,6 +5,7 @@
 nginx_install: "{{ default_install | default ('yes') }}"
 nginx_install_from: "source"
 nginx_version: ""
+nginx_config: "/etc/nginx"
 
 # ---------- state
 
@@ -39,22 +40,22 @@ nginx_ssl_certificates: []
 
 nginx_config_directories:
 
-  - directory: "/etc/nginx"
+  - directory: "{{ nginx_config }}"
     user: "root"
     group: "root"
     mode: "0755"
 
-  - directory: "/etc/nginx/sites"
+  - directory: "{{ nginx_config }}/sites"
     user: "root"
     group: "root"
     mode: "0755"
 
-  - directory: "/etc/nginx/local"
+  - directory: "{{ nginx_config }}/local"
     user: "root"
     group: "root"
     mode: "0755"
 
-  - directory: "/etc/nginx/ssl"
+  - directory: "{{ nginx_config }}/ssl"
     user: "root"
     group: "root"
     mode: "0750"
@@ -66,13 +67,13 @@ nginx_config_directories:
 
 nginx_config_templates:
 
-  - target: "/etc/nginx/nginx.conf"
+  - target: "{{ nginx_config }}/nginx.conf"
     template: "nginx-main-config"
     user: "root"
     group: "root"
     mode: "0644"
 
-  - target: "/etc/nginx/sites/00-default.conf"
+  - target: "{{ nginx_config }}/sites/00-default.conf"
     template: "nginx-default-site"
     user: "root"
     group: "root"
@@ -160,7 +161,7 @@ nginx_build_directories:
     group: "adm"
     mode: "2750"
 
-  - directory: "/etc/nginx"
+  - directory: "{{ nginx_config }}"
     user: "root"
     group: "root"
     mode: "0755"
@@ -171,7 +172,7 @@ nginx_build_links:
     target: "/var/log/nginx"
 
   - link: "{{ nginx_build_target }}/conf"
-    target: "/etc/nginx"
+    target: "{{ nginx_config }}"
 
   - link: "{{ nginx_build_target }}/html"
     target: "/usr/share/nginx/html"
