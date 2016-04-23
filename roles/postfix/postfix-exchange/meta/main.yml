@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "postfix-common"
+  - "postfix-exchange-install"
+  - "postfix-exchange-setup"
+  - "postfix-control"
+
+# ex: et ts=2 flietype=yaml

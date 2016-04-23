@@ -31,4 +31,8 @@ haskell_cabal_build_archive: "{{ haskell_cabal_build_directory }}.tar.gz"
 haskell_cabal_build_url: "{{ haskell_cabal_mirror }}/cabal-install-{{ haskell_cabal_version }}/{{ haskell_cabal_build_archive }}"
 haskell_cabal_build_temp: "/tmp/haskell-cabal-build"
 
+haskell_cabal_build_dependencies:
+
+  - "libgmp-dev"
+
 # ex: et ts=2 filetype=yaml

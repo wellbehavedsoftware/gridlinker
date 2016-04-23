@@ -1,0 +1,62 @@
+[client]
+
+port = {{ mysql_port }}
+socket = /var/run/mysqld/mysqld.sock
+
+[mysqld_safe]
+
+socket = /var/run/mysqld/mysqld.sock
+nice = 0
+syslog
+
+[mysqld]
+
+# general
+
+user = mysql
+pid-file = /var/run/mysqld/mysqld.pid
+socket = /var/run/mysqld/mysqld.sock
+bind-address = {{ mysql_bind_address }}
+port = {{ mysql_port }}
+basedir = /usr
+datadir = /var/lib/mysql
+tmpdir = /tmp
+lc-messages-dir = /usr/share/mysql
+skip-external-locking
+
+# tuning
+
+key-buffer-size = 16M
+max-allowed-packet = 16M
+thread-stack = 192K
+thread-cache-size = 8
+query-cache-limit = 1M
+query-cache-size = 16M
+
+# logging
+
+log_error = /var/log/mysql/error.log
+
+{% if mysql_replication == 'yes' %}
+# replication
+
+server-id = {{ mysql_server_id }}
+{% if identity.name == mysql_master %}
+log-bin = /var/log/mysql/mysql-bin.log
+expire-logs-days = 1
+max-binlog-size = 128M
+{% else %}
+read-only
+{% endif %}
+{% endif %}
+
+# innodb
+
+default-storage-engine = InnoDB
+innodb-file-per-table
+
+[mysqldump]
+
+quick
+quote-names
+max-allowed-packet = 16M

@@ -1,0 +1,8 @@
+---
+
+dependencies:
+
+  - "gridlinker-admin-common"
+  - "gridlinker-admin-setup"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "dovecot-common"
+  - "dovecot-install"
+  - "dovecot-setup"
+  - "dovecot-control"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,62 @@
+{%- for email_account in email_accounts.values () -%}
+
+	{%- for email_domain_name, addresses
+		in email_account.email_account_addresses.items () -%}
+
+		{%- for address
+			in addresses -%}
+
+			{%- set email_domain =
+				hostvars ['email-domain/' + email_domain_name] -%}
+
+			{%- for domain
+				in email_domain.email_domains -%}
+
+				{%- set full_address =
+					address + '@' + domain -%}
+
+				{%- if full_address == email_account.identity_name
+					and not 'email_target' in email_account -%}
+
+					{%- set resolved_target = [
+						domain,
+						address,
+					] | join ('/') -%}
+
+					{%- for filter
+						in (email_account.email_account_filters | default ([])) -%}
+
+						{%- set filter_address = [
+							address,
+							'+',
+							filter.name,
+							'@',
+							domain,
+						] | join -%}
+
+						{%- set filter_resolved_target = [
+							resolved_target,
+							filter.target,
+						] | join ('/') -%}
+
+						{%- print [
+							filter_address,
+							filter_resolved_target + '/',
+						] | join (' '), '\n' -%}
+
+					{%- endfor -%}
+
+					{%- print [
+						full_address,
+						resolved_target + '/',
+					] | join (' '), '\n' -%}
+
+				{%- endif -%}
+
+			{%- endfor -%}
+
+		{%- endfor -%}
+
+	{%- endfor -%}
+
+{%- endfor -%}

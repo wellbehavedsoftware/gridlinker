@@ -1,6 +1,0 @@
----
-
-- include: "setup-nginx.yml"
-  tags: [ "nginx", "setup-nginx" ]
-
-# ex: et ts=2 filetype=yaml

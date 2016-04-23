@@ -1,0 +1,22 @@
+---
+
+- name: "install mysql config"
+  with_items: "{{ mysql_config_templates }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    src: "{{ item.template }}"
+    dest: "{{ item.target }}"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "set mysql.state to 'enabled'"
+  when: "mysql_state == 'installed'"
+  update_resource:
+
+    mysql.state: "enabled"
+
+# ex: et ts=2 filetype=yaml

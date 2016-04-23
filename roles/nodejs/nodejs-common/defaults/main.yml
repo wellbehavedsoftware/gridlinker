@@ -1,0 +1,27 @@
+---
+
+nodejs_name: "node-v{{ nodejs_version }}-linux-x64"
+nodejs_archive: "{{ nodejs_name }}.tar.xz"
+nodejs_url: "{{ wistla_dist_url }}/nodejs/{{ nodejs_archive }}"
+
+nodejs_target: "/opt/{{ nodejs_name }}"
+nodejs_flag: "/etc/node-{{ nodejs_version }}-flag"
+nodejs_tmp: "/tmp/nodejs-install"
+
+nodejs_alternatives:
+
+  - name: "node"
+    link: "/usr/bin/node"
+    target: "/opt/node-v{{ nodejs_version }}-linux-x64/bin/node"
+
+  - name: "nodejs"
+    link: "/usr/bin/nodejs"
+    target: "/opt/node-v{{ nodejs_version }}-linux-x64/bin/node"
+
+  - name: "npm"
+    link: "/usr/bin/npm"
+    target: "/opt/node-v{{ nodejs_version }}-linux-x64/bin/npm"
+
+nodejs_default: "no"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,9 @@
+---
+
+- name: "restart dovecot"
+  when: "dovecot_needs_restart == 'yes'"
+  changed_when: "True"
+  notify: "restart dovecot"
+  update_resource: {}
+
+# ex: et ts=2 filetype=yaml

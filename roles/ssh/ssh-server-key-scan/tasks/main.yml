@@ -1,0 +1,29 @@
+---
+
+- include: "ssh-server-key-scan.yml"
+  when: "
+    ssh_host_key_rsa is not defined
+    or not ssh_host_key_rsa
+  "
+  scan_ssh_key_type: "rsa"
+  tags:
+
+    - "ssh"
+    - "ssh-server"
+    - "ssh-server-key-scan"
+    - "ssh-server-key-scan-rsa"
+
+- include: "ssh-server-key-scan.yml"
+  scan_ssh_key_type: "ecdsa"
+  when: "
+    ssh_host_key_ecdsa is not defined
+    or not ssh_host_key_ecdsa
+  "
+  tags:
+
+    - "ssh"
+    - "ssh-server"
+    - "ssh-server-key-scan"
+    - "ssh-server-key-scan-ecdsa"
+
+# ex: et ts=2 filetype=yaml

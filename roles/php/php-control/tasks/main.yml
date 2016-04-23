@@ -1,0 +1,13 @@
+---
+
+- include: "php-control-upstart.yml"
+  when: "
+    php_state in [ 'installed', 'enabled', 'disabled' ]
+  "
+  tags:
+
+    - "php"
+    - "php-control"
+    - "php-control-upstart"
+
+# ex: et ts=2 filetype=yaml

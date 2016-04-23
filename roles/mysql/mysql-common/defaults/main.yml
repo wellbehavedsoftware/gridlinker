@@ -1,11 +1,54 @@
 ---
 
+# ---------- general
+
+mysql_install: "{{ default_install | default ('yes') }}"
+mysql_install_from: "distro"
+mysql_version: ""
+
+# ---------- state
+
+mysql_state: ""
+mysql_installed_from: ""
+mysql_installed_version: ""
+mysql_needs_restart: ""
+mysql_root_password: ""
+
+# ---------- runtime
+
+mysql_bind_address: "0.0.0.0"
 mysql_port: "3306"
 
-mysql_state: "no"
-mysql_needs_restart: "no"
-
-mysql_replication: "no"
+mysql_replication: ""
 mysql_replication_user: "replication"
+
+# ---------- config structure
+
+mysql_config_templates:
+
+  - template: "mysql-global-config"
+    target: "/etc/mysql/my.cnf"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - template: "mysql-root-config"
+    target: "/root/.my.cnf"
+    user: "root"
+    group: "root"
+    mode: "0600"
+
+  - template: "mysql-user-config"
+    target: "/home/ubuntu/.my.cnf"
+    user: "ubuntu"
+    group: "ubuntu"
+    mode: "0600"
+
+# ---------- install from distro
+
+mysql_distro_packages:
+
+  - "mysql-server-5.5"
+  - "python-mysqldb"
 
 # ex: et ts=2 filetype=yaml

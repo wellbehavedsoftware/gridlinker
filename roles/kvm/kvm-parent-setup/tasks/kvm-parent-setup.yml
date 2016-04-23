@@ -1,0 +1,40 @@
+---
+
+- name: "create config dir"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "/etc/libvirt/config"
+    state: "directory"
+
+- name: "undefine kvm configs"
+  with_items: "{{ kvm_parent_undefines }}"
+  args:
+
+    removes: "/etc/libvirt/qemu/{{ item.target }}"
+
+  become: "yes"
+  shell: "virsh {{ item.command }}"
+
+- name: "create configs"
+  with_items: "{{ kvm_parent_defines }}"
+  when: "{{ item.when }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/libvirt/config/{{ item.config }}"
+    src: "{{ item.template }}"
+
+- name: "define kvm configs"
+  with_items: "{{ kvm_parent_defines }}"
+  when: "{{ item.when }}"
+  args:
+
+    creates: "/etc/libvirt/qemu/{{ item.target }}"
+
+  become: "yes"
+  shell: "virsh {{ item.command }} /etc/libvirt/config/{{ item.config }}"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,53 @@
+---
+
+# ---------- dovecot state
+
+dovecot_needs_restart: ""
+
+# ---------- dovecot install
+
+dovecot_install_system_packages:
+
+  - "dovecot-imapd"
+  - "dovecot-pop3d"
+
+# ---------- dovecot setup
+
+dovecot_setup_directories:
+
+  - directory: "/etc/dovecot"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+dovecot_setup_config_templates:
+
+  - target: "/etc/dovecot/dovecot.conf"
+    template: "dovecot-config"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - target: "/etc/dovecot/dovecot-passwords"
+    template: "dovecot-passwords"
+    user: "root"
+    group: "dovecot"
+    mode: "0640"
+
+  - target: "/etc/dovecot/{{ dovecot_certificate_name }}.cert"
+    template: "dovecot-certificate-chain"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - target: "/etc/dovecot/{{ dovecot_certificate_name }}.key"
+    template: "dovecot-private-key"
+    user: "root"
+    group: "root"
+    mode: "0600"
+
+dovecot_certificate_name: "dovecot"
+
+# ---------- dovecot default config
+
+# ex: et ts=2 filetype=yaml

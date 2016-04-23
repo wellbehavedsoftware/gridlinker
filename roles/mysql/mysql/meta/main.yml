@@ -3,9 +3,10 @@
 dependencies:
 
   - "mysql-common"
-  - "install-mysql"
-  - "setup-mysql"
-  - "synchronize-mysql"
-  - "control-mysql"
+  - "mysql-prepare"
+  - "mysql-install"
+  - "mysql-setup"
+  - "mysql-synchronize"
+  - "mysql-control"
 
 # ex: et ts=2 filetype=yaml

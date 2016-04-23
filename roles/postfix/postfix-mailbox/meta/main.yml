@@ -1,0 +1,9 @@
+---
+
+dependencies:
+
+  - "postfix-common"
+  - "postfix-mailbox-install"
+  - "postfix-mailbox-setup"
+
+# ex: et ts=2 filetype=yaml

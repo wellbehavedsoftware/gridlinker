@@ -1,0 +1,12 @@
+---
+
+- name: "generate mysql root password"
+  when: "
+    mysql_install == 'yes'
+    and mysql_root_password == ''
+  "
+  update_resource:
+
+    mysql.root_password: "{{ 20 | generate_random }}"
+
+# ex: et ts=2 filetype=yaml

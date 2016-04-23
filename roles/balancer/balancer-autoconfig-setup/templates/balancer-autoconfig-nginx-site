@@ -1,0 +1,12 @@
+{% for email_domain in email_domains.values () %}
+{% if 'email_domain_autoconfig_domain' in email_domain %}
+{% set autoconfig = email_domain.email_domain_autoconfig %}
+
+server {
+	listen 80;
+	server_name {{ autoconfig.domain }};
+	root /var/www/{{ autoconfig.domain }};
+}
+
+{% endif %}
+{% endfor %}

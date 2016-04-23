@@ -1,0 +1,67 @@
+---
+
+- name: "write mysql upstart config"
+  register: "mysql_upstart_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    src: "mysql-upstart"
+    dest: "/etc/init/mysql.conf"
+
+- name: "set mysql.needs_restart to 'yes'"
+  when: "mysql_upstart_result | changed"
+  update_resource:
+
+    mysql.needs_restart: "yes"
+
+- name: "reload mysql"
+  when: "
+    mysql_state == 'enabled'
+    and mysql_needs_restart != 'yes'
+  "
+  changed_when: "False"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "mysql"
+    state: "reloaded"
+
+- name: "restart mysql"
+  when: "
+    mysql_state == 'enabled'
+    and mysql_needs_restart == 'yes'
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "mysql"
+    state: "restarted"
+
+- name: "start mysql"
+  when: "mysql_state == 'enabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "mysql"
+    state: "started"
+
+- name: "stop mysql"
+  when: "mysql_state == 'disabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "mysql"
+    state: "stopped"
+
+- name: "set mysql.needs_restart to 'no'"
+  when: "mysql_needs_restart != 'no'"
+  update_resource:
+
+    mysql.needs_restart: "no"
+
+# ex: et ts=2 filetype=yaml

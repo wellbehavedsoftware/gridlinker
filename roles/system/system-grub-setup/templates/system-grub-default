@@ -1,0 +1,10 @@
+GRUB_DEFAULT="0"
+GRUB_TIMEOUT="{{ system_grub_timeout }}"
+GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`
+{% if system_serial_console_unit != '' %}
+GRUB_CMDLINE_LINUX="console=ttyS{{ system_serial_console_unit }},115200n console=tty0"
+GRUB_TERMINAL="serial"
+GRUB_SERIAL_COMMAND="serial --unit={{ system_serial_console_unit }} --speed=115200 --stop=1"
+{% else %}
+GRUB_CMDLINE_LINUX=""
+{% endif %}

@@ -1,0 +1,14 @@
+---
+
+- name: "install nodejs packages"
+  with_items: "{{ nodejs_packages }}"
+  tags: "update"
+  sudo: "yes"
+  action:
+
+    module: "npm"
+    name: "{{ item.name }}"
+    version: "{{ item.version }}"
+    global: "yes"
+
+# ex: et ts=2 filetype=yaml

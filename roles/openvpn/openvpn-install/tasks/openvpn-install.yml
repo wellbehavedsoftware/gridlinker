@@ -1,0 +1,34 @@
+---
+
+- name: "install openvpn packages"
+  with_items:
+
+    - "openvpn"
+
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "create tun device"
+  args:
+
+    creates: "/dev/net/tun"
+    executable: "/bin/bash"
+
+  become: "yes"
+  shell:
+
+    set -euf -o pipefail;
+
+    mkdir -p /dev/net;
+    mknod /dev/net/tun c 10 200;
+
+- name: "set openvpn.state to 'installed'"
+  when: "openvpn_state == ''"
+  update_resource:
+
+    openvpn.state: "installed"
+
+# ex: et ts=2 filetype=yaml

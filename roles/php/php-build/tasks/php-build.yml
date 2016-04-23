@@ -1,0 +1,181 @@
+---
+
+- name: "install php build dependencies"
+  become: "yes"
+  with_items: "{{ php_build_dependencies }}"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "build php"
+  when: "php_installed_version != php_version"
+  become: "yes"
+  environment:
+
+    build_temp: "{{ php_build_temp }}"
+    target: "{{ php_target }}"
+
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "$build_temp";
+    mkdir -p "$build_temp";
+    cd "$build_temp";
+
+    wget --timeout=10 "{{ php_build_url }}";
+    tar --extract --bzip2 --file "{{ php_build_archive }}";
+    cd "{{ php_build_directory }}";
+
+    ln -sfn x86_64-linux-gnu/gmp.h /usr/include/gmp.h;
+    ln -sfn x86_64-linux-gnu/libldap.so /usr/lib/libldap.so;
+    ln -sfn x86_64-linux-gnu/libldap.a /usr/lib/libldap.a;
+    ln -sfn x86_64-linux-gnu/libsybdb.so /usr/lib/libsybdb.so;
+
+    (
+
+      exec >"$build_temp/build.log" 2>&1;
+
+      ./configure
+        --build="x86_64-linux-gnu"
+        --host="x86_64-linux-gnu"
+        --prefix="$target"
+        --datadir="$target/share/php/7.0"
+        --includedir="$target/include"
+        --infodir="$target/share/info"
+        --libdir="$target/lib/x86_64-linux-gnu"
+        --libexecdir="$target/lib/x86_64-linux-gnu"
+        --localstatedir="$target/var"
+        --mandir="$target/share/man"
+        --sysconfdir="$target/etc"
+        --disable-all
+        --disable-debug
+        --disable-phpdbg
+        --disable-rpath
+        --disable-static
+        --without-pear
+        --enable-bcmath="shared"
+        --enable-calendar="shared"
+        --enable-cgi
+        --enable-cli
+        --enable-ctype="shared"
+        --enable-dtrace
+        --enable-dom="shared"
+        --enable-exif="shared"
+        --enable-fpm
+        --enable-libxml
+        --enable-fileinfo="shared"
+        --enable-filter
+        --enable-ftp="shared"
+        --enable-gd-native-ttf
+        --enable-hash
+        --enable-huge-code-pages
+        --enable-intl="shared"
+        --enable-json="shared"
+        --enable-mbregex
+        --enable-mbregex-backtrack
+        --enable-mbstring="shared"
+        --enable-mysqlnd="shared"
+        --enable-mysqlnd-compression-support
+        --enable-opcache
+        --enable-opcache-file
+        --enable-phar="shared"
+        --enable-pdo="shared"
+        --enable-posix="shared"
+        --enable-session
+        --enable-shmop="shared"
+        --enable-soap="shared"
+        --enable-sockets="shared"
+        --enable-sysvmsg="shared"
+        --enable-sysvsem="shared"
+        --enable-sysvshm="shared"
+        --enable-tokenizer="shared"
+        --enable-simplexml="shared"
+        --enable-wddx="shared"
+        --enable-xml="shared"
+        --enable-xmlreader="shared"
+        --enable-xmlwriter="shared"
+        --enable-zip="shared"
+        --with-bz2="shared,/usr"
+        --with-config-file-path="/etc/php/7.0/apache2"
+        --with-config-file-scan-dir="/etc/php/7.0/apache2/conf.d"
+        --with-curl="shared,/usr"
+        --with-enchant="shared,/usr"
+        --with-fpm-user="www-data"
+        --with-fpm-group="www-data"
+        --with-freetype-dir="/usr"
+        --with-gd="shared,/usr"
+        --with-gettext="shared,/usr"
+        --with-gmp
+        --with-iconv="shared"
+        --with-imap="shared,/usr"
+        --with-imap-ssl="yes"
+        --with-jpeg-dir="/usr"
+        --with-kerberos
+        --with-layout="GNU"
+        --with-ldap="shared,/usr"
+        --with-ldap-sasl="/usr"
+        --with-libedit="shared,/usr"
+        --with-libxml-dir="/usr"
+        --with-mcrypt="shared,/usr"
+        --with-mhash="/usr"
+        --with-mysqli="shared,mysqlnd"
+        --with-openssl="yes"
+        --with-openssl-dir="/usr"
+        --with-pcre-regex
+        --with-pdo-dblib="shared,/usr"
+        --with-pdo-mysql="shared,mysqlnd"
+        --with-pdo-pgsql="shared,/usr"
+        --with-pdo-sqlite="shared,/usr"
+        --with-pgsql="shared,/usr"
+        --with-pic
+        --with-png-dir="/usr"
+        --with-pspell="shared,/usr"
+        --with-snmp="shared,/usr"
+        --with-sqlite3="shared,/usr"
+        --with-tidy="shared,/usr"
+        --with-xpm-dir="/usr/X11R6"
+        --with-xsl="shared,/usr"
+        --with-webp-dir="/usr"
+        --with-zlib="/usr"
+        --with-zlib-dir="/usr"
+        --with-xmlrpc="shared,/usr";
+
+      make -j4;
+      make install;
+
+    ) || {
+      tail -n 30 "$build_temp/build.log" >&2;
+      echo "See $build_temp/build.log for full build log" >&2;
+      false;
+    };
+
+    cd /;
+    rm -rf "$build_temp";
+
+    echo "Build successful" >&2;
+
+- name: "set php.state to 'installed'"
+  when: "php_state == 'no'"
+  update_resource:
+
+    php.state: "installed"
+
+- name: "set php.installed_version"
+  when: "php_installed_version != php_version"
+  update_resource:
+
+    php.installed_version: "{{ php_version }}"
+
+- name: "set php.installed_type"
+  when: "php_installed_type != 'source'"
+  update_resource:
+
+    php.installed_type: "source"
+
+# ex: et ts=2 filetype=yaml

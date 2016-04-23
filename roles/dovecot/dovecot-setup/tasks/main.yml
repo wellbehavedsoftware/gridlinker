@@ -1,0 +1,9 @@
+---
+
+- include: "dovecot-setup.yml"
+  tags:
+
+    - "dovecot"
+    - "dovecot-setup"
+
+# ex: et ts=2 filetype=yaml

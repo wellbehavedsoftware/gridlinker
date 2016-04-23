@@ -1,7 +1,7 @@
 ---
 
 - name: "create varnish group"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "group"
@@ -9,7 +9,7 @@
     system: "yes"
 
 - name: "create varnish user"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "user"
@@ -19,8 +19,8 @@
     group: "varnish"
 
 - name: "create varnish directories"
-  with_items: "varnish_directories"
-  sudo: "yes"
+  with_items: "{{ varnish_directories }}"
+  become: "yes"
   action:
 
     module: "file"
@@ -31,9 +31,9 @@
     mode: "{{ item.mode }}"
 
 - name: "configure varnish"
-  with_items: "varnish_config_templates"
+  with_items: "{{ varnish_config_templates }}"
   notify: "set varnish.needs_restart to 'yes'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "template"

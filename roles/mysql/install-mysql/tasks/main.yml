@@ -1,9 +1,0 @@
----
-
-- include: "install-mysql.yml"
-  tags:
-
-    - "mysql"
-    - "install-mysql"
-
-# ex: et ts=2 filetype=yaml

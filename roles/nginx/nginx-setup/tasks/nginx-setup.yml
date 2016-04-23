@@ -1,0 +1,53 @@
+---
+
+- name: "create nginx directories"
+  with_items: "{{ nginx_config_directories }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "configure nginx"
+  with_items: "{{ nginx_config_templates }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    src: "{{ item.template }}"
+    dest: "{{ item.target }}"
+
+- name: "install ssl certificates"
+  with_items: "{{
+    nginx_ssl_certificates | flatten_hash ('domains')
+  }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/nginx/ssl/{{ item.domains }}.cert"
+    src: "nginx-ssl-certificate"
+
+- name: "install ssl private keys"
+  with_items: "{{
+    nginx_ssl_certificates | flatten_hash ('domains')
+  }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/nginx/ssl/{{ item.domains }}.key"
+    src: "nginx-ssl-private-key"
+    mode: "0600"
+
+- name: "set nginx.state to 'enabled'"
+  when: "nginx_state == 'installed'"
+  update_resource:
+
+    nginx.state: "enabled"
+
+# ex: et ts=2 filetype=yaml

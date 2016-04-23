@@ -3,7 +3,7 @@
 dependencies:
 
   - "icinga-common"
-  - "install-icinga-agent"
+  - "icinga-install-binary"
   - "setup-icinga-agent"
   - "control-icinga"
 

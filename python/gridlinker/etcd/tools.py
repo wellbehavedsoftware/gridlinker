@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import codecs
 import os
 import subprocess
 import sys
@@ -59,9 +60,15 @@ def do_etcd_export (context, args):
 
 			dir_names [item_dir] = True
 
-		file_handle = open (args.target + key, "w")
-		file_handle.write (value)
-		file_handle.close ()
+		with (
+			codecs.open (
+				args.target + key,
+				mode = "w",
+				encoding = "utf-8")
+		) as file_handle:
+
+			file_handle.write (
+				value)
 
 def args_etcd_import (sub_parsers):
 
@@ -129,7 +136,8 @@ def do_etcd_edit (context, args):
 
 		for name in args.name:
 
-			file_contents = context.client.get_raw (name)
+			file_contents = (
+				context.client.get_raw (name))
 
 			temp_file.write (file_contents)
 			temp_file.flush ()

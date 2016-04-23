@@ -3,11 +3,15 @@
 dependencies:
 
   - "python-common"
-  - "build-python"
-  - "install-python-pip"
-  - "setup-python-pip"
-  - "install-python-packages"
-  - "build-python-apt"
-  - "setup-python-bin-links"
+  - "python-install"
+
+  - "python-pip-install"
+  - "python-pip-setup"
+
+  - "python-packages-install"
+
+  - "python-apt-install"
+
+  - "python-bin-links"
 
 # ex: et ts=2 filetype=yaml

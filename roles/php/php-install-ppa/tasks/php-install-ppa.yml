@@ -1,0 +1,58 @@
+---
+
+- name: "add php ppa key"
+  with_items: "{{ php_install_ppa_keys }}"
+  become: "yes"
+  action:
+
+    module: "apt_key"
+    keyserver: "keyserver.ubuntu.com"
+    id: "{{ item }}"
+
+- name: "add php ppa repository"
+  with_items: "{{ php_install_ppas }}"
+  become: "yes"
+  action:
+
+    module: "apt_repository"
+    repo: "{{ item }}"
+
+- name: "install php packages"
+  with_items: "{{ php_install_packages }}"
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "set php.state to 'installed'"
+  when: "php_state == ''"
+  update_resource:
+
+    php.state: "installed"
+
+- name: "set php.installed_version"
+  when: "php_installed_version != php_version"
+  update_resource:
+
+    php.installed_version: "{{ php_version }}"
+
+- name: "set php.installed_from"
+  when: "php_installed_from != 'ppa'"
+  update_resource:
+
+    php.installed_from: "ppa"
+
+- name: "set php.installed_service"
+  when: "php_installed_service != 'php7.0-fpm'"
+  update_resource:
+
+    php.installed_service: "php7.0-fpm"
+
+- name: "set php.fpm_socket"
+  when: "php_fpm_socket != '/var/run/php/php7.0-fpm.sock'"
+  update_resource:
+
+    php.fpm_socket: "/var/run/php/php7.0-fpm.sock"
+
+# ex: et ts=2 filetype=yaml

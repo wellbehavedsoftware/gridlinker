@@ -1,0 +1,9 @@
+---
+
+dependencies:
+
+  - "ssh-common"
+  - "ssh-server-key-scan"
+  - "ssh-server-setup"
+
+# ex: et ts=2 filetype=yaml

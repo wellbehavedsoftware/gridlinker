@@ -2,7 +2,7 @@
 
 - name: "create system users"
   with_items: "{{ groups [system_users_group_name] }}"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "user"

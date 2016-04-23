@@ -1,0 +1,27 @@
+---
+
+- name: "set postfix.needs_restart to 'yes'"
+  when: "postfix_needs_restart != 'yes'"
+  changed_when: "True"
+  notify: "restart postfix"
+  update_resource:
+
+    postfix.needs_restart: "yes"
+
+- name: "restart postfix"
+  become: "yes"
+  notify: "set postfix.needs_restart to 'no'"
+  action:
+
+    module: "service"
+    name: "postfix"
+    state: "restarted"
+
+- name: "set postfix.needs_restart to 'no'"
+  when: "postfix_needs_restart != 'no'"
+  changed_when: "True"
+  update_resource:
+
+    postfix.needs_restart: "no"
+
+# ex: et ts=2 filetype=yaml

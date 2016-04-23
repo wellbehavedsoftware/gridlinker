@@ -1,0 +1,9 @@
+---
+
+- include: "php-common.yml"
+  tags:
+
+    - "php"
+    - "php-common"
+
+# ex: et ts=2 filetype=yaml

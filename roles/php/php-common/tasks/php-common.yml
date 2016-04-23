@@ -1,0 +1,12 @@
+---
+
+- name: "check php.install_from"
+  when: "
+    php_install == 'yes'
+    and php_install_from not in [ 'ppa', 'source' ]
+  "
+  fail:
+
+    msg: "Invalid value for php.install_from: '{{ php_install_from }}'"
+
+# ex: et ts=2 filetype=yaml

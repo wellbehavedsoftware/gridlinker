@@ -1,0 +1,11 @@
+{%- print [
+	lookup ('etcd', dovecot_certificate),
+] | join, '\n' -%}
+
+{%- for certificate_path in dovecot_certificate_chain -%}
+
+	{%- print [
+		lookup ('etcd', certificate_path),
+	] | join, '\n' -%}
+
+{%- endfor -%}

@@ -369,9 +369,9 @@ class CertificateAuthority:
 
 		self.issue_serial = int (root_serial_string)
 
-	def issue (self, type, name, alt_names):
+	def issue (self, type, name, alt_names, reissue = False):
 
-		if self.client.exists (
+		if not reissue and self.client.exists (
 			self.path + "/named/" + name):
 
 			raise AlreadyExistsError ()
@@ -766,6 +766,11 @@ def args_issue (sub_parsers):
 		required = True,
 		help = "common name to use in subject")
 
+	parser.add_argument (
+		"--reissue",
+		action = "store_true",
+		help = "reissue existing certificate")
+
 	# type
 
 	parser_type = parser.add_mutually_exclusive_group (
@@ -847,10 +852,12 @@ def do_issue (context, args):
 
 	try:
 
-		certificate = authority.issue (
-			args.type,
-			args.common_name,
-			alt_names)
+		certificate = (
+			authority.issue (
+				args.type,
+				args.common_name,
+				alt_names,
+				args.reissue))
 
 	except AlreadyExistsError:
 
@@ -904,6 +911,8 @@ def args_export (sub_parsers):
 	parser.set_defaults (
 		func = do_export)
 
+	# specify what to export
+
 	parser.add_argument (
 		"--authority",
 		required = True,
@@ -913,6 +922,8 @@ def args_export (sub_parsers):
 		"--common-name",
 		required = True,
 		help = "common name of certificate to export")
+
+	# write to file
 
 	parser.add_argument (
 		"--certificate",
@@ -934,6 +945,38 @@ def args_export (sub_parsers):
 		required = False,
 		help = "filename to write the private key")
 
+	# print to console
+
+	parser.add_argument (
+		"--print-certificate",
+		required = False,
+		action = "store_true",
+		help = "print issued certificate to console")
+
+	parser.add_argument (
+		"--print-certificate-and-chain",
+		required = False,
+		action = "store_true",
+		help = "print certificate and chain to console")
+
+	parser.add_argument (
+		"--print-chain",
+		required = False,
+		action = "store_true",
+		help = "print certificate chain to console")
+
+	parser.add_argument (
+		"--print-private-key",
+		required = False,
+		action = "store_true",
+		help = "print private key to console")
+
+	parser.add_argument (
+		"--print-all",
+		required = False,
+		action = "store_true",
+		help = "print certificate, chain and private key to console")
+
 def do_export (context, args):
 
 	authority = context.authorities [args.authority]
@@ -947,6 +990,8 @@ def do_export (context, args):
 
 		print ("not found")
 		sys.exit (1)
+
+	# write to files
 
 	if args.certificate:
 
@@ -986,6 +1031,45 @@ def do_export (context, args):
 
 		print ("Wrote private key to %s" % (
 			args.private_key))
+
+	# print to console
+
+	if args.print_certificate or args.print_all:
+
+		sys.stdout.write (
+			"\nCertificate:\n\n")
+
+		sys.stdout.write (
+			certificate.certificate)
+
+	if args.print_chain or args.print_all:
+
+		sys.stdout.write (
+			"\nCertificate chain:\n\n")
+
+		sys.stdout.write (
+			authority.root_certificate ())
+
+	if args.print_certificate_and_chain:
+
+		sys.stdout.write (
+			"\nCertificate and chain:\n\n")
+
+		sys.stdout.write (
+			certificate.certificate)
+
+		sys.stdout.write (
+			authority.root_certificate ())
+
+	if args.print_private_key or args.print_all:
+
+		sys.stdout.write (
+			"\nPrivate key:\n\n")
+
+		sys.stdout.write (
+			certificate.private_key)
+
+	sys.stdout.write ("\n")
 
 def args_revoke (sub_parsers):
 

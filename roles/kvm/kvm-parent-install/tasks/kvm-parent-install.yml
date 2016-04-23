@@ -1,0 +1,11 @@
+---
+
+- name: "install kvm packages"
+  with_items: "{{ kvm_parent_system_packages }}"
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+# ex: et ts=2 filetype=yaml

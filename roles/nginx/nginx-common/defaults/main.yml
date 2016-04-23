@@ -1,6 +1,23 @@
 ---
 
-# runtime config
+# ---------- general
+
+nginx_install: "{{ default_install | default ('yes') }}"
+nginx_install_from: "source"
+nginx_version: ""
+nginx_config: "/etc/nginx"
+
+# ---------- state
+
+nginx_installed_version: ""
+nginx_installed_from: ""
+nginx_installed_prefix: ""
+nginx_needs_restart: ""
+nginx_state: ""
+
+# ---------- runtime configuration
+
+nginx_user: "www-data"
 
 nginx_http_port: "80"
 nginx_https_port: "443"
@@ -17,31 +34,58 @@ nginx_fastcgi_send_timeout: "60s"
 
 nginx_client_max_body_size: "1m"
 
-# installation config
+nginx_ssl_certificates: []
 
-nginx_target: "/opt/nginx-{{ nginx_version }}"
+# ---------- configuration
 
-nginx_directories:
+nginx_config_directories:
 
-  - directory: "{{ nginx_target }}/conf"
+  - directory: "{{ nginx_config }}"
     user: "root"
     group: "root"
     mode: "0755"
 
-  - directory: "{{ nginx_target }}/conf/sites"
+  - directory: "{{ nginx_config }}/sites"
     user: "root"
     group: "root"
     mode: "0755"
+
+  - directory: "{{ nginx_config }}/local"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "{{ nginx_config }}/ssl"
+    user: "root"
+    group: "root"
+    mode: "0750"
+
+  - directory: "/var/log/nginx"
+    user: "www-data"
+    group: "adm"
+    mode: "2750"
 
 nginx_config_templates:
 
-  - template: "nginx-main-config"
-    target: "{{ nginx_target }}/conf/nginx.conf"
+  - target: "{{ nginx_config }}/nginx.conf"
+    template: "nginx-main-config"
     user: "root"
     group: "root"
     mode: "0644"
 
-# build config
+  - target: "{{ nginx_config }}/sites/00-default.conf"
+    template: "nginx-default-site"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+  - target: "/usr/share/nginx/html/index.html"
+    template: "nginx-default-index"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
+# ---------- build config
 
 nginx_build_temp: "/tmp/nginx-build"
 nginx_build_mirror: "http://nginx.org/download"
@@ -49,6 +93,7 @@ nginx_build_name: "nginx-{{ nginx_version }}"
 nginx_build_directory: "{{ nginx_build_name }}"
 nginx_build_archive: "{{ nginx_build_name }}.tar.gz"
 nginx_build_url: "{{ nginx_build_mirror }}/{{ nginx_build_archive }}"
+nginx_build_target: "/opt/nginx-{{ nginx_version }}"
 
 nginx_build_dependencies:
 
@@ -66,12 +111,70 @@ nginx_build_dependencies:
   - "libxslt1-dev"
   - "zlib1g-dev"
 
-# default state
+nginx_build_configure_options:
 
-nginx_state: "no"
-nginx_needs_restart: "no"
-nginx_installed_version: "no"
+  - "--with-cc-opt={{ [
+      '-g',
+      '-O2',
+      '-fstack-protector',
+      '--param=ssp-buffer-size=4',
+      '-Wformat',
+      '-Werror=format-security',
+    ] | join (' ') }}"
 
-nginx_ssl_certificates: []
+  - "--with-ld-opt={{ [
+      '-Wl,-Bsymbolic-functions',
+      '-Wl,-z,relro',
+      '-Wl,--rpath=' + nginx_build_target + '/lib',
+    ] | join (' ') }}"
+
+  - "--prefix={{ nginx_build_target }}"
+
+  - "--with-debug"
+  - "--with-pcre-jit"
+  - "--with-ipv6"
+  - "--with-http_gzip_static_module"
+  - "--with-http_ssl_module"
+  - "--with-http_stub_status_module"
+  - "--with-http_realip_module"
+  - "--with-http_v2_module"
+
+nginx_build_directories:
+
+  - directory: "{{ nginx_build_target }}"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "/usr/share/nginx"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "/usr/share/nginx/html"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+  - directory: "/var/log/nginx"
+    user: "www-data"
+    group: "adm"
+    mode: "2750"
+
+  - directory: "{{ nginx_config }}"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
+nginx_build_links:
+
+  - link: "{{ nginx_build_target }}/logs"
+    target: "/var/log/nginx"
+
+  - link: "{{ nginx_build_target }}/conf"
+    target: "{{ nginx_config }}"
+
+  - link: "{{ nginx_build_target }}/html"
+    target: "/usr/share/nginx/html"
 
 # ex: et ts=2 filetype=yaml

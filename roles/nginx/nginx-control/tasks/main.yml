@@ -1,0 +1,12 @@
+---
+
+- include: "control-nginx.yml"
+  when: "
+    nginx_state in [ 'enabled', 'disabled' ]
+  "
+  tags:
+
+    - "nginx"
+    - "nginx-control"
+
+# ex: et ts=2 filetype=yaml

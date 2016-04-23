@@ -1,0 +1,51 @@
+# connection
+
+mode server
+proto udp
+port 1194
+
+# misc
+
+persist-key
+persist-tun
+status {{ openvpn_server_name }}.log
+client-config-dir clients
+
+# protocol
+
+comp-lzo adaptive
+tun-mtu 1500
+keepalive 5 20
+
+# network
+
+dev tun
+topology subnet
+client-to-client
+
+ifconfig {{ openvpn_server_address }} {{ openvpn_server_netmask }}
+ifconfig-pool {{ openvpn_server_pool_start }} {{ openvpn_server_pool_end }}
+
+{% for route in openvpn_server_routes if route.local_metric is defined %}
+route {{ route.network }} {{ route.netmask }} {{ route.gateway }} {{ route.local_metric }}
+{% endfor %}
+
+push "topology subnet"
+push "route-gateway {{ openvpn_server_gateway }}"
+
+{% for route in openvpn_server_routes if route.remote_metric is defined %}
+push "route {{ route.network }} {{ route.netmask }} {{ route.gateway }} {{ route.remote_metric }}"
+{% endfor %}
+
+# security
+
+tls-server
+dh {{ openvpn_server_name }}-dh.pem
+ca {{ openvpn_server_name }}-ca.cert
+#crl-verify {{ openvpn_server_name }}-ca.crl
+cert {{ openvpn_server_name }}.cert
+key {{ openvpn_server_name }}.key
+
+# routes
+
+# TODO

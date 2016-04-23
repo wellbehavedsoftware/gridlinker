@@ -1,0 +1,27 @@
+---
+
+- include: "phpmyadmin-control-apache.yml"
+  when: "
+    phpmyadmin_install == 'yes'
+    and phpmyadmin_webserver == 'apache'
+    and phpmyadmin_state in [ 'enabled', 'disabled' ]
+  "
+  tags:
+
+    - "phpmyadmin"
+    - "phpmyadmin-control"
+    - "phpmyadmin-control-apache"
+
+- include: "phpmyadmin-control-nginx.yml"
+  when: "
+    phpmyadmin_install == 'yes'
+    and phpmyadmin_webserver == 'nginx'
+    and phpmyadmin_state in [ 'enabled', 'disabled' ]
+  "
+  tags:
+
+    - "phpmyadmin"
+    - "phpmyadmin-control"
+    - "phpmyadmin-control-nginx"
+
+# ex: et ts=2 filetype=yaml

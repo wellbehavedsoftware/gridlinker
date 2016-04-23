@@ -1,0 +1,10 @@
+---
+
+- include: "balancer-autoconfig-setup.yml"
+  tags:
+
+    - "balancer"
+    - "balancer-autoconfig"
+    - "balancer-autoconfig-setup"
+
+# ex: et ts=2 filetype=yaml

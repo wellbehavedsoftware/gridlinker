@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "nginx-common"
+  - "nginx-install"
+  - "nginx-setup"
+  - "nginx-control"
+
+# ex: et ts=2 filetype=yaml

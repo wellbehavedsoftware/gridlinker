@@ -1,0 +1,13 @@
+---
+
+- include: "mysql-setup.yml"
+  when: "
+    mysql_install == 'yes'
+    and mysql_state in [ 'installed', 'enabled' ]
+  "
+  tags:
+
+    - "mysql"
+    - "mysql-setup"
+
+# ex: et ts=2 filetype=yaml

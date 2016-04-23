@@ -1,9 +1,0 @@
----
-
-- include: "install-icinga-agent.yml"
-  tags:
-
-    - "icinga"
-    - "install-icinga-agent"
-
-# ex: et ts=2 filetype=yaml

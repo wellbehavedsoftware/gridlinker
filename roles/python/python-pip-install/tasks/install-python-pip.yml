@@ -1,0 +1,54 @@
+---
+
+- name: "install pip"
+  when: "
+    python_pip_installed_version != [
+      python_version,
+      python_pip_version,
+    ] | join ('/')
+  "
+  become: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  environment:
+
+    PATH: "{{ python_target }}/bin:{{ lookup ('env', 'PATH') }}"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ python_temp }}";
+    mkdir -p "{{ python_temp }}";
+    cd "{{ python_temp }}";
+
+    wget --timeout=10 "{{ python_pip_url }}";
+
+    "{{ python_target }}/bin/python" "{{ python_pip_archive }}";
+
+    cd /;
+    rm -rf "{{ python_temp }}"
+
+- name: "set python_pip.state to 'installed'"
+  when: "python_pip_state == ''"
+  update_resource:
+
+    python_pip.state: "installed"
+
+- name: "set python_pip.installed_version"
+  when: "
+    python_pip_installed_version != [
+      python_version,
+      python_pip_version,
+    ] | join ('/')
+  "
+  update_resource:
+
+    python_pip.installed_version: "{{ [
+      python_version,
+      python_pip_version,
+    ] | join ('/') }}"
+
+# ex: et ts=2 filetype=yaml

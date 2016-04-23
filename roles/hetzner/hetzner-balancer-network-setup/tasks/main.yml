@@ -1,0 +1,15 @@
+---
+
+- include: "hetzner-balancer-network-setup.yml"
+  tags:
+
+    - "hetzner"
+    - "hetzner-balancer"
+    - "hetzner-balancer-network"
+    - "hetzner-balancer-network-setup"
+
+    - "balancer"
+    - "balancer-network"
+    - "balancer-network-setup"
+
+# ex: et ts=2 filetype=yaml

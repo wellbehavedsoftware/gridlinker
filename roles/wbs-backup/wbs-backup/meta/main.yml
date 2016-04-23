@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "wbs-backup-common"
+  - "wbs-backup-install"
+  - "wbs-backup-setup"
+  - "wbs-backup-control"
+
+# ex: et ts=2 filetype=yaml

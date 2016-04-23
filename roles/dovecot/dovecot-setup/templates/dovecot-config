@@ -1,0 +1,90 @@
+# ---------- plugins
+
+mail_plugins =
+
+# ---------- protocols
+
+protocols = imap pop3
+
+# ---------- authentication
+
+auth_mechanisms = plain
+disable_plaintext_auth = no
+
+userdb {
+	driver = static
+	args = uid={{ dovecot_mailbox_uid }} gid={{ dovecot_mailbox_gid }} home=/
+}
+
+passdb {
+	driver = passwd-file
+	args = /etc/dovecot/dovecot-passwords
+}
+
+# ---------- mailboxes
+
+mail_location = maildir:{{ dovecot_mail_location }}
+
+namespace inbox {
+
+	inbox = yes
+	location =
+
+	mailbox Drafts {
+		special_use = \Drafts
+	}
+
+	mailbox Junk {
+		special_use = \Junk
+	}
+
+	mailbox Sent {
+		special_use = \Sent
+	}
+
+	mailbox "Sent Messages" {
+		special_use = \Sent
+	}
+
+	mailbox Trash {
+		special_use = \Trash
+	}
+
+	prefix =
+
+}
+
+# ---------- ssl
+
+ssl = yes
+
+ssl_cert = </etc/dovecot/{{ dovecot_certificate_name }}.cert
+ssl_key = </etc/dovecot/{{ dovecot_certificate_name }}.key
+
+# ---------- sasl authentication service
+
+service auth {
+
+	inet_listener {
+		port = 12345
+	}
+
+}
+
+# ---------- full text search 
+
+#plugin {
+#
+#	fts = solr
+#
+#	fts_solr = url=http://localhost:8080/solr/
+#
+#}
+
+# ---------- imap service
+
+protocol imap {
+
+	mail_max_userip_connections = 50
+
+}

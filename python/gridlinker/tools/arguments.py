@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import json
+
 from collections import OrderedDict
 
 from wbs import generate_password
@@ -579,6 +581,53 @@ class MiscUnsetArgument:
 
 			if not record_data [section]:
 				del record_data [section]
+
+class MiscSetJsonArgument:
+
+	def args_create (self, parser, helper):
+
+		parser.add_argument (
+			"--set-json",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("GROUP.KEY", "VALUE"),
+			help = "miscellaneous JSON value to store")
+
+	def args_update (self, parser, helper):
+
+		parser.add_argument (
+			"--set-json",
+			action = "append",
+			nargs = 2,
+			default = [],
+			metavar = ("GROUP.KEY", "VALUE"),
+			help = "miscellaneous JSON value to store")
+
+	def update_record (self, arg_vars, record_data, context, helper):
+
+		if arg_vars.get ("set_json") == None:
+			return
+
+		if arg_vars.get ("set_json") == None:
+			return
+
+		for section_key, json_value in arg_vars ["set_json"]:
+
+			section, key = (
+				section_key.split ("."))
+
+			if not section in record_data:
+				record_data [section] = {}
+
+			print (json_value)
+
+			value = (
+				json.loads (
+					json_value))
+
+			record_data [section] [key] = (
+				value)
 
 class MiscRemoveArgument:
 

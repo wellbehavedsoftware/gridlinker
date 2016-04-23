@@ -1,0 +1,14 @@
+---
+
+- include: "php-install-ppa.yml"
+  when: "
+    php_install == 'yes'
+    and php_install_from == 'ppa'
+  "
+  tags:
+
+    - "php"
+    - "php-install"
+    - "php-install-ppa"
+
+# ex: et ts=2 filetype=yaml

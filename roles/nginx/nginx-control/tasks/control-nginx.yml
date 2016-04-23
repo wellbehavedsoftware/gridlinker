@@ -1,0 +1,61 @@
+---
+
+- name: "write nginx upstart config"
+  register: "nginx_upstart_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    src: "nginx-upstart"
+    dest: "/etc/init/nginx.conf"
+
+- name: "set nginx.needs_restart to 'yes'"
+  when: "nginx_upstart_result | changed"
+  update_resource:
+
+    nginx.needs_restart: "yes"
+
+- name: "reload nginx"
+  when: "
+    nginx_state == 'enabled'
+    and nginx_needs_restart != 'yes'
+  "
+  changed_when: "False"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "reloaded"
+
+- name: "restart nginx"
+  when: "
+    nginx_state == 'enabled'
+    and nginx_needs_restart == 'yes'
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "restarted"
+
+- name: "start nginx"
+  when: "nginx_state == 'enabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "started"
+
+- name: "stop nginx"
+  when: "nginx_state == 'disabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "stopped"
+
+# ex: et ts=2 filetype=yaml

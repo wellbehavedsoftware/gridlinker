@@ -1,0 +1,31 @@
+---
+
+- name: "write graphite carbon upstart config"
+  with_items:
+
+    - "graphite-carbon"
+    - "graphite-carbon-cache"
+
+  notify:
+
+    - "reload upstart config"
+    - "set graphite_carbon.needs_restart to 'yes'"
+
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/init/{{ item }}.conf"
+    src: "{{ item }}-upstart"
+
+- meta: "flush_handlers"
+
+- name: "trigger graphite carbon restart"
+  when: "graphite_carbon_needs_restart == 'yes'"
+  changed_when: "True"
+  notify: "restart graphite carbon"
+  update_resource: {}
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

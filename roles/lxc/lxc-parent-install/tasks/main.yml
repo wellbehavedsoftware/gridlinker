@@ -1,0 +1,10 @@
+---
+
+- include: "lxc-parent-install.yml"
+  tags:
+
+    - "lxc"
+    - "lxc-parent"
+    - "lxc-parent-install"
+
+# ex: et ts=2 filetype=yaml

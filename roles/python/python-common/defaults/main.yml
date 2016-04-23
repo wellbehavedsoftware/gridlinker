@@ -1,5 +1,9 @@
 ---
 
+# ----------- general
+
+python_install: "{{ default_install | default ('yes') }}"
+
 # ---------- state
 
 python_state: ""
