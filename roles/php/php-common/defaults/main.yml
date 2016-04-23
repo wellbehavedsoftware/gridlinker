@@ -4,6 +4,7 @@ php_state: "no"
 php_needs_restart: "no"
 
 php_max_execution_time: "30"
+php_max_input_time: "30"
 
 php_packages:
 
