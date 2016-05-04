@@ -19,23 +19,33 @@
 
     set -euf -o pipefail;
 
-    if ! mysql -u root -e "select 1" >/dev/null; then
+    if ! mysql
+      --user="root"
+      --password=""
+      --execute "select 1"
+      >/dev/null;
+    then
       echo "UNCHANGED";
       exit 0;
     fi;
 
-    mysql -u root mysql -e "
+    mysql "mysql"
+      --user="root"
+      --password=""
+      --execute="
 
-      DELETE FROM user WHERE user = 'root';
+        DELETE FROM user
+        WHERE user = 'root'
+        AND host != '%';
 
-      GRANT ALL PRIVILEGES
-      ON *.*
-      TO root@'%'
-      IDENTIFIED BY '{{ mysql_root_password }}';
+        GRANT ALL PRIVILEGES
+        ON *.*
+        TO root@'%'
+        IDENTIFIED BY '{{ mysql_root_password }}';
 
-      FLUSH PRIVILEGES;
+        FLUSH PRIVILEGES;
 
-    ";
+      ";
 
     echo "CHANGED";
     exit 0;
