@@ -20,6 +20,7 @@ php_state: ""
 # ---------- runtime config
 
 php_max_execution_time: "30"
+php_max_input_time: "30"
 
 php_upload_max_filesize: "2M"
 php_post_max_size: "8M"

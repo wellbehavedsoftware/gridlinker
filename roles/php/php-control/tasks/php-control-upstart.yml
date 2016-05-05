@@ -84,7 +84,7 @@
   action:
 
     module: "service"
-    name: "{{ php_service_name }}"
+    name: "{{ php_installed_service }}"
     state: "reloaded"
 
 # ex: et ts=2 filetype=yaml
