@@ -2,8 +2,11 @@
 
 - name: "install nodejs packages"
   with_items: "{{ nodejs_packages }}"
-  tags: "update"
-  sudo: "yes"
+  environment:
+
+    PATH: "{{ nodejs_target }}/bin:{{ lookup ('env', 'PATH') }}"
+
+  become: "yes"
   action:
 
     module: "npm"

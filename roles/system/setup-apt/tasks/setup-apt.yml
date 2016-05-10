@@ -6,8 +6,9 @@
   action:
 
     module: "apt_key"
-    id: "{{ item.id }}"
-    keyserver: "keyserver.ubuntu.com"
+    url: "{{ item.url | default (None) }}"
+    id: "{{ item.id | default (None) }}"
+    keyserver: "{{ item.keyserver | default (None) }}"
 
 - name: "configure apt sources"
   notify: "update apt package lists"

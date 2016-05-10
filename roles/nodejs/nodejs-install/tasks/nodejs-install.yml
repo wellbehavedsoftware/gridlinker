@@ -25,16 +25,4 @@
     rm -rf {{ nodejs_tmp }};
     touch {{ nodejs_flag }};
 
-- name: "setup nodejs alternatives"
-  with_items: "{{ nodejs_alternatives }}"
-  when: "nodejs_default == 'yes'"
-  become: "yes"
-  action:
-
-    module: "alternatives"
-    name: "{{ item.name }}"
-    link: "{{ item.link }}"
-    path: "{{ item.target }}"
-    force: "yes"
-
 # ex: et ts=2 filetype=yaml

@@ -1,0 +1,9 @@
+---
+
+- include: "nodejs-bin-links.yml"
+  tags:
+
+    - "nodejs"
+    - "nodejs-bin-links"
+
+# ex: et ts=2 filetype=yaml
