@@ -3,7 +3,7 @@
 - name: "check php.install_from"
   when: "
     php_install == 'yes'
-    and php_install_from not in [ 'ppa', 'source' ]
+    and php_install_from not in [ 'distro', 'ppa', 'source' ]
   "
   fail:
 
