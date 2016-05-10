@@ -3,10 +3,13 @@
 # ---------- general
 
 php_install: "{{ default_install | default ('yes') }}"
-php_install_from: "ppa"
 php_target: "/opt/php-{{ php_version }}"
-php_version: "7.0"
-php_config_directory: "/etc/php/7.0"
+php_config_directory: "{{ php_config_directory_map [php_version] }}"
+
+php_config_directory_map:
+
+  "5": "/etc/php5"
+  "7.0": "/etc/php/7.0"
 
 # ---------- state
 
@@ -41,8 +44,8 @@ php_install_ppas:
 
 php_install_packages_core:
 
-  - "php7.0-cli"
-  - "php7.0-fpm"
+  - "php{{ php_version }}-cli"
+  - "php{{ php_version }}-fpm"
 
 php_install_packages_modules: []
 
