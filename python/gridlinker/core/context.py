@@ -344,6 +344,7 @@ class GenericContext (object):
 				"force_color": "True",
 				"gathering": "explicit",
 				"ansible_python_interpreter": "/usr/bin/env python",
+				"sudo_flags": "--set-home",
 
 				"retry_files_save_path": "%s/work/retry" % self.home,
 
@@ -587,4 +588,4 @@ class GenericContext (object):
 
 		return Inventory (self)
 
-# ex: noet ts=4 filetype=yaml
+# ex: noet ts=4 filetype=python
