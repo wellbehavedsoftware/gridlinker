@@ -15,27 +15,31 @@
 
     changed="";
 
-    while read filename; do
+    ls | {
 
-      if ! test -x "$filename"; then
-        continue;
+      while read filename; do
+
+        if ! test -x "$filename"; then
+          continue;
+        fi;
+
+        link="/usr/local/bin/$filename"
+        target="../../..{{ nodejs_target }}/bin/$filename"
+
+        if test -h "$link" -a "$(readlink "$link")" = "$target"; then
+          continue;
+        fi;
+
+        changed="yes";
+
+        ln --no-dereference --force --symbolic "$target" "$link";
+
+      done;
+
+      if ! test "$changed"; then
+        echo "UNCHANGED";
       fi;
 
-      link="/usr/local/bin/$filename"
-      target="../../..{{ nodejs_target }}/bin/$filename"
-
-      if test -h "$link" -a "$(readlink "$link")" = "$target"; then
-        continue;
-      fi;
-
-      changed="yes";
-
-      ln --no-dereference --force --symbolic "$target" "$link";
-
-    done < <(ls);
-
-    if ! test "$changed"; then
-      echo "UNCHANGED";
-    fi;
+    };
 
 # ex: et ts=2 filetype=yaml
