@@ -1,7 +1,7 @@
 ---
 
 - name: "write heka upstart config"
-  sudo: "yes"
+  become: "yes"
   notify:
 
     - "reload upstart config"
@@ -23,7 +23,7 @@
 
 - name: "start heka"
   when: "heka_state == 'enabled'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"
@@ -32,7 +32,7 @@
 
 - name: "stop heka"
   when: "heka_state == 'disabled'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"

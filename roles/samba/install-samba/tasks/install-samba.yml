@@ -1,8 +1,8 @@
 ---
 
 - name: "install samba system packages"
-  with_items: "samba_system_packages"
-  sudo: "yes"
+  with_items: "{{ samba_system_packages }}"
+  become: "yes"
   action:
 
     module: "apt"

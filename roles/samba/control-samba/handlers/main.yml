@@ -1,8 +1,8 @@
 ---
 
 - name: "reload upstart config"
+  become: "yes"
   shell: "initctl reload-configuration"
-  sudo: "yes"
 
 - name: "set samba.needs_restart to 'yes'"
   when: "samba_state == 'enabled'"
@@ -20,7 +20,7 @@
 
   when: "samba_state == 'enabled'"
   notify: "set samba.needs_restart to 'no'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"

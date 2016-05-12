@@ -3,7 +3,7 @@
 - name: "create symlinks to heka bins"
   register: "heka_symlinks_result"
   changed_when: "heka_symlinks_result.stdout != 'UNCHANGED'"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

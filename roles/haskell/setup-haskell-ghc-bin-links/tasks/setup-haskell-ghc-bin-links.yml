@@ -3,7 +3,7 @@
 - name: "create symlinks to haskell ghc bins"
   register: "haskell_ghc_symlinks_result"
   changed_when: "haskell_ghc_symlinks_result.stdout != 'UNCHANGED'"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

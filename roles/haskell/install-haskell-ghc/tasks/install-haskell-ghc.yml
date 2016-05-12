@@ -2,7 +2,7 @@
 
 - name: "install haskell ghc dependencies"
   with_items: "haskell_ghc_binary_dependencies"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "apt"
@@ -10,7 +10,7 @@
 
 - name: "install haskell ghc"
   when: "haskell_ghc_version != haskell_ghc_installed_version"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

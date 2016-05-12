@@ -2,9 +2,11 @@
 
 - name: "install heka"
   when: "heka_installed_version != heka_version"
-  sudo: "yes"
+  become: "yes"
   args:
+
     executable: "/bin/bash"
+
   shell:
 
     set -euf -o pipefail;
