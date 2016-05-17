@@ -38,7 +38,7 @@
   action:
 
     module: "template"
-    dest: "{{ nginx_target }}/conf/ssl/{{ item }}.cert"
+    dest: "{{ nginx_config }}/ssl/{{ item }}.cert"
     src: "balancer-nginx-ssl-certificate"
 
 - name: "install ssl private keys"
@@ -53,7 +53,7 @@
   action:
 
     module: "template"
-    dest: "{{ nginx_target }}/conf/ssl/{{ item }}.key"
+    dest: "{{ nginx_config }}/ssl/{{ item }}.key"
     src: "balancer-nginx-ssl-private-key"
     mode: "0600"
 

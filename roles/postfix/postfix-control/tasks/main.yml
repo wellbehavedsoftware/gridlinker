@@ -1,9 +1,9 @@
 ---
 
-- name: "restart postfix"
-  when: "postfix_needs_restart == 'yes'"
-  changed_when: "True"
-  notify: "restart postfix"
-  update_resource: {}
+- include: "postfix-control.yml"
+  tags:
+
+    - "postfix"
+    - "postfix-control"
 
 # ex: et ts=2 filetype=yaml

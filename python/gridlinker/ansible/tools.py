@@ -274,4 +274,4 @@ def print_json (data):
 		indent = 4,
 		separators = (", ", ": "))
 
-# ex: noet ts=4 filetype=yaml
+# ex: noet ts=4 filetype=python

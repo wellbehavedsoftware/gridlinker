@@ -587,4 +587,4 @@ class GenericContext (object):
 
 		return Inventory (self)
 
-# ex: noet ts=4 filetype=yaml
+# ex: noet ts=4 filetype=python

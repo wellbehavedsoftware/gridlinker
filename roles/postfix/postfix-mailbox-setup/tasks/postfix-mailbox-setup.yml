@@ -48,7 +48,7 @@
 
 - name: "rehash postfix mailbox"
   with_items: "{{ postfix_mailbox_config_database_templates }}"
-  when: "postfix_mailbox_config_database_templates_result | changed "
+  changed_when: "postfix_mailbox_config_database_templates_result | changed"
   become: "yes"
   shell: "postmap {{ item.target }}"
 

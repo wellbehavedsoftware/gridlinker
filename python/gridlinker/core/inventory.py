@@ -1256,4 +1256,4 @@ class Inventory (object):
 
 		return True, ret
 
-# ex: noet ts=4 filetype=yaml
+# ex: noet ts=4 filetype=python
