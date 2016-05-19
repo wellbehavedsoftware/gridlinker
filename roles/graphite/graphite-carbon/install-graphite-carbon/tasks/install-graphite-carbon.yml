@@ -7,7 +7,7 @@
     msg: "please set graphite_carbon_version"
 
 - name: "create carbon group"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "group"
@@ -15,7 +15,7 @@
     system: "yes"
 
 - name: "create carbon user"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "user"
@@ -24,7 +24,7 @@
     system: "yes"
 
 - name: "add ubuntu to carbon group"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "user"
@@ -34,7 +34,7 @@
 
 - name: "install graphite carbon"
   when: "graphite_carbon_installed_version != graphite_carbon_version"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

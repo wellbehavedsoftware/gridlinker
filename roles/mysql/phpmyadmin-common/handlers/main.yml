@@ -1,7 +1,7 @@
 ---
 
 - name: "reload apache"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"

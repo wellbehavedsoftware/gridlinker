@@ -1,7 +1,7 @@
 ---
 
 - name: "enable phpmyadmin apache site"
-  sudo: "yes"
+  become: "yes"
   when: "phpmyadmin_state == 'enabled'"
   notify: "reload apache"
   action:
@@ -13,7 +13,7 @@
     src: "../sites-available/phpmyadmin.conf"
 
 - name: "disable phpmyadmin apache site"
-  sudo: "yes"
+  become: "yes"
   when: "phpmyadmin_state != 'enabled'"
   notify: "reload apache"
   action:

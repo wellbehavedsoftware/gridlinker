@@ -1,7 +1,7 @@
 ---
 
 - name: "install postgresql packages"
-  sudo: "yes"
+  become: "yes"
   with_items:
 
     - "postgresql-9.3"
@@ -14,7 +14,7 @@
 - name: "disable postgresql sysv init"
   changed_when: "postgresql_sysv_result.stdout != 'UNCHANGED'"
   register: "postgresql_sysv_result"
-  sudo: "yes"
+  become: "yes"
   shell:
 
     test -e /etc/init.d/postgresql || { echo UNCHANGED; exit 0; };
@@ -28,8 +28,8 @@
     postgresql.state: "installed"
 
 - name: "create postgresql user 'ubuntu'"
-  sudo: "yes"
-  sudo_user: "postgres"
+  become: "yes"
+  become_user: "postgres"
   action:
 
     module: "postgresql_user"

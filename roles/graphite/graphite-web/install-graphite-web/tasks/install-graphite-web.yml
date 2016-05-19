@@ -8,7 +8,7 @@
 
 - name: "install graphite-web"
   when: "graphite_web_installed_version != graphite_web_version"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

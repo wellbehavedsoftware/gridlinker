@@ -6,7 +6,7 @@
     - "reload upstart config"
     - "set postgresql.needs_restart to 'yes'"
 
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "template"

@@ -1,7 +1,7 @@
 ---
 
 - name: "create shared volumes directory"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"
@@ -10,5 +10,6 @@
 
 - include: "setup-shared-volumes-volume.yml"
   with_items: "groups [shared_volumes_group_name] | dict_map (hostvars)"
+  shared_volume: "{{ item }}"
 
 # ex: et ts=2 filetype=yaml
