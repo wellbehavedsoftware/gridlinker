@@ -5,7 +5,7 @@
     module: "template"
     src: "icinga-upstart"
     dest: "/etc/init/icinga.conf"
-  sudo: "yes"
+  become: "yes"
   notify:
     - "reload upstart config"
     - "set icinga.needs_restart to 'yes'"

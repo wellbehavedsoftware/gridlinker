@@ -2,7 +2,7 @@
 
 - name: "install icinga web graphite"
   when: "icinga_web_graphite_installed_version != icinga_web_graphite_version"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"
@@ -27,7 +27,7 @@
     rm -rf {{ icinga_web_graphite_temp }};
 
 - name: "link to icinga web graphite"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"
@@ -37,7 +37,7 @@
     src: "{{ icinga_web_graphite_target }}"
 
 - name: "enable icinga web graphite"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"

@@ -2,7 +2,7 @@
 
 - name: "reload varnish config"
   shell: "initctl reload-configuration"
-  sudo: "yes"
+  become: "yes"
 
 - name: "set varnish.needs_restart to 'yes'"
   when: "varnish_state == 'enabled'"
@@ -14,7 +14,7 @@
 - name: "restart varnish"
   when: "varnish_state == 'enabled'"
   notify: "set varnish.needs_restart to 'no'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"

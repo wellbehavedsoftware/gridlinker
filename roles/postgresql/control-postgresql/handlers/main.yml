@@ -2,7 +2,7 @@
 
 - name: "reload upstart config"
   shell: "initctl reload-configuration"
-  sudo: "yes"
+  become: "yes"
 
 - name: "set postgresql.needs_restart to 'yes'"
   when: "postgresql_state == 'enabled'"
@@ -15,7 +15,7 @@
 - name: "restart postgresql"
   when: "postgresql_state == 'enabled'"
   notify: "set postgresql.needs_restart to 'no'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"
