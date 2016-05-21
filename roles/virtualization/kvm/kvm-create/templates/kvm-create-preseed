@@ -105,7 +105,7 @@ d-i grub-installer/with_other_os boolean true
 d-i preseed/late_command string \
 	echo "%sudo ALL=(ALL) NOPASSWD: ALL" >>/target/etc/sudoers; \
 	mkdir -p /target/home/ubuntu/.ssh; \
-{% for admin_user_name in groups ['admin-user'] %}
+{% for admin_user_name in groups ['admin-user'] | default ([]) %}
 {% set admin_user = hostvars [admin_user_name] %}
 {% for key in [ 'ssh_user_key_ecdsa', 'ssh_user_key_rsa' ] %}
 {% if key in admin_user %}

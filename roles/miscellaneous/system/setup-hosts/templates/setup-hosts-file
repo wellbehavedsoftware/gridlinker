@@ -1,12 +1,16 @@
 # this host
 
+{% if public_address | default ('') %}
 {% for public_hostname in public_hostnames | default ([]) %}
 {{ public_address }} {{ public_hostname }}
 {% endfor %}
+{% endif %}
 
+{% if private_address | default ('') %}
 {% for private_hostname in private_hostnames | default ([]) %}
 {{ private_address }} {{ private_hostname }}
 {% endfor %}
+{% endif %}
 
 # other hosts
 

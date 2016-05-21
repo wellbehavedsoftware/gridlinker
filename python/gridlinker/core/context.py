@@ -321,16 +321,51 @@ class GenericContext (object):
 	@lazy_property
 	def ansible_roles_path (self):
 
-		roles_parent_dirs = [
-			"%s/playbooks" % self.home,
-			"%s/roles" % self.gridlinker_home,
+		directories = []
+
+		if os.path.isdir ("%s/roles" % self.home):
+
+			directories += [
+
+				"/".join ([
+					"%s/roles" % self.home,
+					roles_group_dir,
+				])
+
+				for roles_group_dir
+					in os.listdir ("%s/roles" % self.home)
+
+			]
+
+		directories += [
+
+			"/".join ([
+				self.gridlinker_home,
+				"roles",
+				roles_category_dir,
+				roles_group_dir,
+			])
+
+			for roles_category_dir
+				in os.listdir ("/".join ([
+					self.gridlinker_home,
+					"roles",
+				]))
+
+			for roles_group_dir
+				in os.listdir ("/".join ([
+					self.gridlinker_home,
+					"roles",
+					roles_category_dir,
+				]))
+
 		]
 
 		return [
-			"%s/%s" % (roles_parent_dir, roles_dir)
-			for roles_parent_dir in roles_parent_dirs
-			for roles_dir in os.listdir (roles_parent_dir)
-			if os.path.isdir ("%s/%s" % (roles_parent_dir, roles_dir))
+			directory
+			for directory
+			in directories
+			if os.path.isdir (directory)
 		]
 
 	@lazy_property
