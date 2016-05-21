@@ -2,6 +2,7 @@
 
 # ---------- postfix state
 
+postfix_state: ""
 postfix_needs_restart: ""
 
 postfix_exchange_needs_rehash: ""

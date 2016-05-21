@@ -54,4 +54,10 @@
 
 - meta: "flush_handlers"
 
+- name: "set postfix.state to 'enabled'"
+  when: "postfix_state == 'installed'"
+  update_resource:
+
+    postfix.state: "enabled"
+
 # ex: et ts=2 filetype=yaml
