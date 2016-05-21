@@ -1,0 +1,53 @@
+{% if roundcube_state != 'enabled' %}
+if (false) {
+{% endif %}
+
+server {
+
+	listen 80;
+
+	server_name {{ roundcube_public_hostname }};
+
+	root {{ roundcube_install_target }};
+
+{% for location in [
+
+	'^/CHANGELOG$',
+	'^/INSTALL$',
+	'^/LICENSE$',
+	'^/README$',
+	'^/UPGRADING$',
+
+	'^/SQL/',
+	'^/bin/',
+	'^/config/',
+	'^/temp/',
+	'^/logs/',
+
+	'\.md$',
+
+] %}
+	location ~ {{ location }} { deny all; }
+{% endfor %}
+
+	location / {
+		index index.php;
+		try_files $uri $uri/ /index.php?$args;
+	}
+
+	location ~ \.php$ {
+
+		include fastcgi_params;
+
+		fastcgi_pass unix:{{ php_fpm_socket }};
+		fastcgi_split_path_info ^(.+.php)(/.*)$;
+		fastcgi_index index.php;
+		fastcgi_param SCRIPT_FILENAME {{ roundcube_install_target }}$fastcgi_script_name;
+
+	}
+
+}
+
+{% if roundcube_state != 'enabled' %}
+}
+{% endif %}

@@ -1,0 +1,81 @@
+---
+
+- name: "roundcube install check version is specified"
+  when: "roundcube_version == ''"
+  fail:
+
+    msg: "please provide a value for roundcube.version"
+
+- name: "roundcube install"
+  when: "roundcube_installed_version != roundcube_version"
+  args:
+
+    executable: "/bin/bash"
+
+  become: "yes"
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ roundcube_install_temp }}";
+    mkdir -p "{{ roundcube_install_temp }}";
+    cd "{{ roundcube_install_temp }}";
+
+    wget "{{ roundcube_install_url }}";
+
+    tar
+      --extract
+      --gzip
+      --file "{{ roundcube_install_archive }}";
+
+    rsync
+      --archive
+      --checksum
+      --exclude "/config"
+      --exclude "/logs"
+      --exclude "/temp"
+      "{{ roundcube_install_directory }}/"
+      "{{ roundcube_install_target }}/";
+
+    cp "{{ roundcube_install_directory }}/config/defaults.inc.php"
+      "/etc/roundcube/defaults.inc.php";
+
+    cd /;
+    rm -rf "{{ roundcube_install_temp }}";
+
+- name: "roundcube install directories"
+  with_items: "{{ roundcube_install_directories }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "roundcube install links"
+  with_items: "{{ roundcube_install_links }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.link }}"
+    state: "link"
+    src: "{{ item.target }}"
+
+- name: "set roundcube.state to 'installed'"
+  when: "roundcube_state == ''"
+  update_resource:
+
+    roundcube.state: "installed"
+
+- name: "set roundcube.installed_version"
+  when: "roundcube_installed_version != roundcube_version"
+  update_resource:
+
+    roundcube.installed_version: "{{ roundcube_version }}"
+
+# ex: et ts=2 filetype=yaml

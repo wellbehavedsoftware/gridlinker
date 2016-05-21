@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "roundcube-common"
+  - "roundcube-install"
+  - "roundcube-setup"
+  - "roundcube-control"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,9 @@
+---
+
+- include: "roundcube-setup.yml"
+  tags:
+
+    - "roundcube"
+    - "roundcube-setup"
+
+# ex: et ts=2 filetype=yaml

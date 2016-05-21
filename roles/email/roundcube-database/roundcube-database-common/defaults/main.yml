@@ -1,0 +1,20 @@
+---
+
+# ---------- state
+
+roundcube_database_mysql_schema_version: ""
+
+# ---------- general settings
+
+roundcube_database_delegate: "{{ inventory_hostname }}"
+
+# ---------- runtime settings
+
+roundcube_database_des_key: ""
+
+roundcube_database_mysql_database_name: "roundcube"
+roundcube_database_mysql_user_host: "%"
+roundcube_database_mysql_username: "roundcube"
+roundcube_database_mysql_password: ""
+
+# ex: et ts=2 filetype=yaml

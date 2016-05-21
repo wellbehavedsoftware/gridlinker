@@ -1,0 +1,22 @@
+---
+
+- name: "roundcube setup config templates"
+  with_items: "{{ roundcube_config_templates }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ item.target }}"
+    src: "{{ item.template }}"
+
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "set roundcube.state to 'enabled'"
+  when: "roundcube_state == 'installed'"
+  update_resource:
+
+    roundcube.state: "enabled"
+
+# ex: et ts=2 filetype=yaml

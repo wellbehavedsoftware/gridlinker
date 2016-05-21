@@ -19,12 +19,17 @@
 
     set -euf -o pipefail;
 
-    if ! mysql -u root -e "select 1" >/dev/null; then
+    if ! mysql
+      --user="root"
+      --password=""
+      --execute="select 1"
+      >/dev/null;
+    then
       echo "UNCHANGED";
       exit 0;
     fi;
 
-    mysql -u root mysql -e "
+    mysql --user "root" "mysql" --execute "
 
       DELETE FROM user WHERE user = 'root';
 
