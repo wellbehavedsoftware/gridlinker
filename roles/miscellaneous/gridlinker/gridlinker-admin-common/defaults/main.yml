@@ -57,6 +57,9 @@ gridlinker_admin_target: "/home/ubuntu/{{ gridlinker_admin_name }}"
 
 gridlinker_admin_system_packages:
 
+  - "build-essential"
   - "git"
+  - "libxml2-dev"
+  - "libxslt1-dev"
 
 # ex: et ts=2 filetype=yaml

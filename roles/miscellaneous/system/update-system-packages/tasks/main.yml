@@ -1,6 +1,0 @@
----
-
-- include: "update-system-packages.yml"
-  tags: [ "system", "update-system-packages" ]
-
-# ex: et ts=2 filetype=yaml
