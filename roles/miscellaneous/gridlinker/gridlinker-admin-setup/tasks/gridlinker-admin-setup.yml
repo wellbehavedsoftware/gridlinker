@@ -1,7 +1,7 @@
 ---
 
 - name: "issue gridlinker admin certificate"
-  when: "gridlinker_admin_certificate is not defined"
+  when: "gridlinker_admin_certificate == ''"
   register: "gridlinker_admin_certificate_result"
   action:
 
