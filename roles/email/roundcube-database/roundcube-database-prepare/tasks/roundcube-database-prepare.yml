@@ -1,0 +1,15 @@
+---
+
+- name: "roundcube database generate mysql password"
+  when: "roundcube_database_mysql_password == ''"
+  update_resource:
+
+    roundcube_database.mysql_password: "{{ 20 | generate_random }}"
+
+- name: "roundcube database generate des_key"
+  when: "roundcube_database_des_key == ''"
+  update_resource:
+
+    roundcube_database.des_key: "{{ 24 | generate_random }}"
+
+# ex: et ts=2 filetype=yaml

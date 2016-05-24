@@ -1,0 +1,60 @@
+<?php
+
+$config = array ();
+
+include "secrets.inc.php";
+
+# -------------------- database
+
+$config ["db_dsnw"] =
+	"{{ [
+		'mysql://',
+		roundcube_mysql_username,
+		':',
+		'{$roundcube_secrets["mysql_password"]}',
+		'@',
+		roundcube_mysql_hostname,
+		'/',
+		roundcube_mysql_database,
+	] | join }}";
+
+# -------------------- imap
+
+$config ["default_host"] =
+	"{{ roundcube_default_host }}";
+
+# -------------------- smtp
+
+$config ["smtp_server"] =
+	"{{ roundcube_smtp_server }}";
+
+$config ["smtp_user"] =
+	"%u";
+
+$config ["smtp_pass"] =
+	"%p";
+
+$config ["smtp_port"] =
+	587;
+
+$config ["smtp_auth_type"] =
+	"PLAIN";
+
+# -------------------- miscellaneous
+
+$config ["support_url"] =
+	"{{ roundcube_support_url }}";
+
+$config ["product_name"] =
+	"{{ roundcube_product_name }}";
+
+$config ["des_key"] =
+	"{{ roundcube_des_key }}";
+
+$config ["plugins"] = array (
+	"archive",
+	"zipdownload",
+);
+
+$config ["skin"] =
+	"larry";

@@ -1,0 +1,8 @@
+---
+
+dependencies:
+
+  - "roundcube-database-prepare"
+  - "roundcube-database-setup"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,9 @@
+---
+
+- include: "roundcube-control.yml"
+  tags:
+
+    - "roundcube-control"
+    - "roundcube"
+
+# ex: et ts=2 filetype=yaml

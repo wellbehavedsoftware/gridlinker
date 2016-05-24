@@ -1,0 +1,25 @@
+---
+
+- name: "roundcube control nginx site"
+  register: "roundcube_control_nginx_site_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/nginx/sites/roundcube.conf"
+    src: "roundcube-nginx-site"
+
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- name: "roundcube control nginx reload"
+  changed_when: "roundcube_control_nginx_site_result | changed"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "reloaded"
+
+# ex: et ts=2 filetype=yaml

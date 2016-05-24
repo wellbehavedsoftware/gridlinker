@@ -1,0 +1,59 @@
+---
+
+- name: "roundcube database user"
+  delegate_to: "{{ roundcube_database_delegate }}"
+  action:
+
+    module: "mysql_user"
+    name: "{{ roundcube_database_mysql_username }}"
+    host: "{{ roundcube_database_mysql_user_host }}"
+
+    password: "{{ roundcube_database_mysql_password }}"
+    priv: "{{ roundcube_database_mysql_database_name }}.*:ALL"
+
+- name: "roundcube database schema create"
+  when: "roundcube_database_mysql_schema_version == ''"
+  delegate_to: "{{ roundcube_database_delegate }}"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ roundcube_install_temp }}";
+    mkdir -p "{{ roundcube_install_temp }}";
+    cd "{{ roundcube_install_temp }}";
+
+    wget "{{ roundcube_install_url }}";
+
+    tar
+      --extract
+      --gzip
+      --file "{{ roundcube_install_archive }}";
+
+    mysql --execute "
+      DROP DATABASE IF EXISTS {{ roundcube_database_mysql_database_name }};
+      CREATE DATABASE {{ roundcube_database_mysql_database_name }};
+    ";
+
+    mysql "{{ roundcube_database_mysql_database_name }}"
+      < "{{ roundcube_install_directory }}/SQL/mysql.initial.sql";
+
+- name: "roundcube database schema update"
+  when: "
+    roundcube_database_mysql_schema_version != ''
+    and roundcube_database_mysql_schema_version != roundcube_version
+  "
+  fail:
+
+    msg: "not implemented"
+
+- name: "set roundcube_database.schema_version"
+  when: "roundcube_database_mysql_schema_version != roundcube_version"
+  update_resource:
+
+    roundcube_database.mysql_schema_version: "{{ roundcube_version }}"
+
+# ex: et ts=2 filetype=yaml

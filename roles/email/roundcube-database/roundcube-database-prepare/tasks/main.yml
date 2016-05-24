@@ -1,0 +1,10 @@
+---
+
+- include: "roundcube-database-prepare.yml"
+  tags:
+
+    - "roundcube-database-prepare"
+    - "roundcube-database"
+    - "roundcube"
+
+# ex: et ts=2 filetype=yaml

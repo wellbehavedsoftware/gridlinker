@@ -1,0 +1,105 @@
+---
+
+# ---------- basics
+
+roundcube_install: "yes"
+roundcube_version: ""
+
+# ---------- state
+
+roundcube_state: ""
+roundcube_installed_version: ""
+
+# ---------- runtime configuration
+
+roundcube_default_host: "localhost"
+roundcube_smtp_server: "localhost"
+roundcube_support_url: ""
+roundcube_product_name: "Roundcube webmail"
+roundcube_des_key: "{{ roundcube_database_des_key }}"
+
+roundcube_mysql_hostname: "localhost"
+roundcube_mysql_username: "roundcube"
+roundcube_mysql_password: "{{ roundcube_database_mysql_password }}"
+roundcube_mysql_database: "roundcube"
+
+# ---------- installation
+
+roundcube_install_temp: "/tmp/roundcube-install"
+roundcube_install_mirror: "https://github.com/roundcube/roundcubemail/releases/download"
+roundcube_install_directory: "roundcubemail-{{ roundcube_version }}"
+
+roundcube_install_archive: "{{ [
+  'roundcubemail-',
+  roundcube_version,
+  '-complete.tar.gz',
+] | join }}"
+
+roundcube_install_archive: "{{ [
+  'roundcubemail-',
+  roundcube_version,
+  '-complete.tar.gz',
+] | join }}"
+
+roundcube_install_url: "{{ [
+  roundcube_install_mirror,
+  roundcube_version,
+  roundcube_install_archive,
+] | join ('/') }}"
+
+roundcube_install_target: "{{ [
+  '/opt/roundcubemail-',
+  roundcube_version,
+] | join }}"
+
+roundcube_install_directories:
+
+  - directory: "/etc/roundcube"
+    user: "root"
+    group: "www-data"
+    mode: "0755"
+
+  - directory: "/var/log/roundcube"
+    user: "www-data"
+    group: "adm"
+    mode: "2750"
+
+  - directory: "/var/tmp/roundcube"
+    user: "www-data"
+    group: "www-data"
+    mode: "0750"
+
+roundcube_install_links:
+
+  - link: "{{ roundcube_install_target }}/config"
+    target: "/etc/roundcube"
+
+  - link: "{{ roundcube_install_target }}/logs"
+    target: "/var/log/roundcube"
+
+  - link: "{{ roundcube_install_target }}/temp"
+    target: "/var/tmp/roundcube"
+
+# ---------- configuration metadata
+
+roundcube_config_templates:
+
+  - target: "/etc/roundcube/mimetypes.php"
+    template: "roundcube-mime-types"
+    user: "root"
+    group: "www-data"
+    mode: "0644"
+
+  - target: "/etc/roundcube/config.inc.php"
+    template: "roundcube-config"
+    user: "root"
+    group: "www-data"
+    mode: "0644"
+
+  - target: "/etc/roundcube/secrets.inc.php"
+    template: "roundcube-secrets"
+    user: "root"
+    group: "www-data"
+    mode: "0640"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,17 @@
+---
+
+- name: "install postfix exchange system packages"
+  with_items: "{{ postfix_exchange_system_packages }}"
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "set postfix.state to 'installed'"
+  when: "postfix_state != 'installed'"
+  update_resource:
+
+    postfix.state: "installed"
+
+# ex: et ts=2 filetype=yaml

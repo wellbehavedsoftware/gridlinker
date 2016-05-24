@@ -1,9 +1,0 @@
----
-
-- name: "restart postfix"
-  when: "postfix_needs_restart == 'yes'"
-  changed_when: "True"
-  notify: "restart postfix"
-  update_resource: {}
-
-# ex: et ts=2 filetype=yaml

@@ -1,0 +1,60 @@
+---
+
+- name: "start postfix"
+  when: "
+    postfix_state == 'enabled'
+  "
+  register: "postfix_start_result"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "postfix"
+    state: "started"
+
+- name: "reload postfix"
+  when: "
+    postfix_state == 'enabled'
+    and postfix_needs_restart != 'yes'
+    and not (postfix_start_result | changed)
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "postfix"
+    state: "reloaded"
+
+- name: "restart postfix"
+  when: "
+    postfix_state == 'enabled'
+    and postfix_needs_restart == 'yes'
+    and not (postfix_start_result | changed)
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "postfix"
+    state: "restarted"
+
+- name: "stop postfix"
+  when: "
+    postfix_state != 'enabled'
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "postfix"
+    state: "stopped"
+
+- name: "set postfix.needs_restart to 'no'"
+  when: "
+    postfix_needs_restart != 'no'
+  "
+  update_resource:
+
+    postfix.needs_restart: "no"
+
+# ex: et ts=2 filetype=yaml

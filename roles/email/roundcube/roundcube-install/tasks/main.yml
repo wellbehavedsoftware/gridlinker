@@ -1,0 +1,10 @@
+---
+
+- include: "roundcube-install.yml"
+  when: "roundcube_install == 'yes'"
+  tags:
+
+    - "roundcube"
+    - "roundcube-install"
+
+# ex: et ts=2 filetype=yaml

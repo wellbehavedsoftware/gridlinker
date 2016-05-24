@@ -1,0 +1,9 @@
+---
+
+- include: "postfix-control.yml"
+  tags:
+
+    - "postfix"
+    - "postfix-control"
+
+# ex: et ts=2 filetype=yaml
