@@ -10,7 +10,7 @@
 
 - name: "build haskell cabal"
   when: "haskell_cabal_installed_version != haskell_cabal_version"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

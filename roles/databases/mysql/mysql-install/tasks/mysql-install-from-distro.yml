@@ -29,19 +29,24 @@
       exit 0;
     fi;
 
-    mysql --user "root" "mysql" --execute "
+    mysql "mysql"
+      --user="root"
+      --password=""
+      --execute="
 
-      DELETE FROM user WHERE user = 'root';
+        DELETE FROM user
+        WHERE user = 'root'
+        AND host != '%';
 
-      GRANT ALL PRIVILEGES
-      ON *.*
-      TO root@'%'
-      IDENTIFIED BY '{{ mysql_root_password }}'
-      WITH GRANT OPTION;
+        GRANT ALL PRIVILEGES
+        ON *.*
+        TO root@'%'
+        IDENTIFIED BY '{{ mysql_root_password }}'
+        WITH GRANT OPTION;
 
-      FLUSH PRIVILEGES;
+        FLUSH PRIVILEGES;
 
-    ";
+      ";
 
     echo "CHANGED";
     exit 0;

@@ -1,0 +1,45 @@
+---
+
+- name: "create symlinks to nodejs bins"
+  register: "nodejs_symlinks_result"
+  changed_when: "nodejs_symlinks_result.stdout != 'UNCHANGED'"
+  become: "yes"
+  args:
+
+    executable: "/bin/bash"
+    chdir: "{{ nodejs_target }}/bin"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    changed="";
+
+    ls | {
+
+      while read filename; do
+
+        if ! test -x "$filename"; then
+          continue;
+        fi;
+
+        link="/usr/local/bin/$filename"
+        target="../../..{{ nodejs_target }}/bin/$filename"
+
+        if test -h "$link" -a "$(readlink "$link")" = "$target"; then
+          continue;
+        fi;
+
+        changed="yes";
+
+        ln --no-dereference --force --symbolic "$target" "$link";
+
+      done;
+
+      if ! test "$changed"; then
+        echo "UNCHANGED";
+      fi;
+
+    };
+
+# ex: et ts=2 filetype=yaml

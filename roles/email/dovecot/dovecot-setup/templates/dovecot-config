@@ -8,7 +8,7 @@ protocols = imap pop3
 
 # ---------- authentication
 
-auth_mechanisms = plain login
+auth_mechanisms = plain
 disable_plaintext_auth = no
 
 userdb {

@@ -28,6 +28,7 @@
     state: "started"
 
 - name: "reload etcd"
+  changed_when: "False"
   become: "yes"
   action:
 

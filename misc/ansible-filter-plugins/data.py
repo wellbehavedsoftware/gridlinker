@@ -92,6 +92,14 @@ def dict_map (keys, mapping):
 		for key in keys
 	]
 
+def index_by (items, index_key):
+
+	return dict ([
+		(item [index_key], item)
+		for item
+		in items
+	])
+
 def prepend_list (items, string):
 
 	return [
@@ -170,6 +178,7 @@ class FilterModule (object):
 			"flatten_list": flatten_list,
 			"list_to_map": list_to_map,
 			"dict_map": dict_map,
+			"index_by": index_by,
 
 			"prepend_list": prepend_list,
 			"append_list": append_list,

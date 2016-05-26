@@ -1,10 +1,7 @@
 ---
 
-- set_fact:
-    user_volume: "{{ item }}"
-
 - name: "create user volumes directories"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"
@@ -16,7 +13,7 @@
     mode: "0750"
 
 - name: "create user volumes subvolumes"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"
@@ -38,7 +35,7 @@
       ] | join ('/') }}";
 
 - name: "set user volumes permissions"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"
@@ -49,7 +46,7 @@
     mode: "0770"
 
 - name: "create user volumes snapshots directories"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"

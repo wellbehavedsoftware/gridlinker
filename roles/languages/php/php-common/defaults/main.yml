@@ -22,7 +22,7 @@ php_state: ""
 
 # ---------- runtime config
 
-php_memory_limit: "128"
+php_memory_limit: "128M"
 
 php_max_execution_time: "30"
 php_max_input_time: "30"

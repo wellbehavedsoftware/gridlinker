@@ -7,8 +7,8 @@ ubuntu_system_packages: []
 
 ubuntu_keys_extra: []
 
-ubuntu_archive: "http://archive.ubuntu.com"
-ubuntu_security: "http://security.ubuntu.com"
+ubuntu_archive: "http://archive.ubuntu.com/ubuntu"
+ubuntu_security: "http://security.ubuntu.com/ubuntu"
 
 ubuntu_release: "trusty"
 

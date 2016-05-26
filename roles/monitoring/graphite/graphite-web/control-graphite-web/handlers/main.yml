@@ -2,7 +2,7 @@
 
 - name: "reload upstart config"
   shell: "initctl reload-configuration"
-  sudo: "yes"
+  become: "yes"
 
 - name: "set graphite_web.needs_restart to 'yes'"
   when: "graphite_web_state == 'enabled'"
@@ -15,7 +15,7 @@
 - name: "restart graphite web"
   when: "graphite_web_state == 'enabled'"
   notify: "set graphite_web.needs_restart to 'no'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "service"

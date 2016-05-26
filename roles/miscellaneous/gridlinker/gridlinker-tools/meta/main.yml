@@ -3,6 +3,6 @@
 dependencies:
 
   - "gridlinker-tools-common"
-  - "gridlinker-tools-install"
+  - "install-gridlinker-tools"
 
 # ex: et ts=2 filetype=yaml

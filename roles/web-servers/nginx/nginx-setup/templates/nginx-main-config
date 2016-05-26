@@ -29,9 +29,7 @@ http {
 	sendfile on;
 	tcp_nopush on;
 	tcp_nodelay on;
-
-	keepalive_requests {{ nginx_keepalive_requests }};
-	keepalive_timeout {{ nginx_keepalive_timeout }};
+	keepalive_timeout 65;
 
 	# mime types
 

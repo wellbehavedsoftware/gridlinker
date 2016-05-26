@@ -7,7 +7,7 @@
     msg: "please set icinga_web_version"
 
 - name: "create icingaweb2 group"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "group"
@@ -16,7 +16,7 @@
 
 - name: "add www-data to icingaweb2 group"
   notify: "restart php"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "user"
@@ -26,7 +26,7 @@
 
 - name: "install icinga-web"
   when: "icinga_web_installed_version != icinga_web_version"
-  sudo: "yes"
+  become: "yes"
   args:
 
     executable: "/bin/bash"

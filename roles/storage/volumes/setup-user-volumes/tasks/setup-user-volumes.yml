@@ -1,7 +1,7 @@
 ---
 
 - name: "create user volumes directory"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"
@@ -10,5 +10,6 @@
 
 - include: "setup-user-volumes-volume.yml"
   with_items: "groups [user_volumes_group_name] | dict_map (hostvars)"
+  user_volume: "{{ item }}"
 
 # ex: et ts=2 filetype=yaml

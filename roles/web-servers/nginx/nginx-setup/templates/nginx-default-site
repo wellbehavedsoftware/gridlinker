@@ -1,12 +1,6 @@
 server {
 
-{% if nginx_bind_addresses %}
-{% for address in nginx_bind_addresses %}
-	listen {{ address }}:{{ nginx_http_port }} default_server;
-{% endfor %}
-{% else %}
 	listen {{ nginx_http_port }} default_server;
-{% endif %}
 
 	server_name {{ identity.name }};
 

@@ -56,7 +56,7 @@ http {
 	server {
 		listen 80 default_server;
 		server_name {{ identity_name }};
-		root /usr/share/nginx/html;
+		root {{ nginx_target }}/html;
 	}
 
 
@@ -84,15 +84,15 @@ http {
 		listen 443 ssl http2;
 
 		ssl_certificate {{ [
-			nginx_config,
-			'/ssl/',
+			nginx_target,
+			'/conf/ssl/',
 			virtual_host.ssl_certificate,
 			'.cert',
 		] | join }};
 
 		ssl_certificate_key {{ [
-			nginx_config,
-			'/ssl/',
+			nginx_target,
+			'/conf/ssl/',
 			virtual_host.ssl_certificate,
 			'.key',
 		] | join }};

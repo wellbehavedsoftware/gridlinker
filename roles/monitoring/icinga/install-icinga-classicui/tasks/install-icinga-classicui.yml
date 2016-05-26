@@ -5,7 +5,7 @@
 
     - "icinga2-classicui"
 
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "apt"

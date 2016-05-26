@@ -21,7 +21,7 @@
 
 - name: "create icinga master directories"
   with_items: "{{ icinga_master_directories }}"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"
@@ -34,7 +34,7 @@
 - name: "write icinga config"
   with_items: "{{ icinga_master_config_templates }}"
   notify: "set icinga.needs_restart to 'yes'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "template"
@@ -48,7 +48,7 @@
 - name: "write icinga security config"
   with_items: "{{ icinga_master_security_files }}"
   notify: "set icinga.needs_restart to 'yes'"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "copy"

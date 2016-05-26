@@ -1,7 +1,7 @@
 ---
 
 #- name: "write samba upstart config"
-#  sudo: "yes"
+#  become: "yes"
 #  notify:
 #
 #    - "reload upstart config"

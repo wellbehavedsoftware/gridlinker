@@ -13,29 +13,14 @@
 		{%- elif ssh_key.type == 'resource' -%}
 
 			{%- for resource_name in groups [ssh_key.group] -%}
-			{%- set resource_data = hostvars [resource_name] -%}
-			{%- if not (
-				'match_mine' in ssh_key
-				or 'match_theirs' in ssh_key
-			) or (
-				hostvars [inventory_hostname] [ssh_key.match_mine] | default ([])
-				| intersect (resource_data [ssh_key.match_theirs] | default ([]))
-			) -%}
+				{%- set resource_data = hostvars [resource_name] -%}
 
 				{%- for resource_key in ssh_key ['keys'] -%}
-				{%- if resource_key in resource_data -%}
-
-					{%- print [
-						resource_data [resource_key],
-						' ',
-						resource_name,
-						'\n'
-					] | join -%}
-
-				{%- endif -%}
+					{%- if resource_key in resource_data -%}
+						{%- print resource_data [resource_key], '\n' -%}
+					{%- endif -%}
 				{%- endfor -%}
 
-			{%- endif -%}
 			{%- endfor -%}
 
 		{%- else -%}

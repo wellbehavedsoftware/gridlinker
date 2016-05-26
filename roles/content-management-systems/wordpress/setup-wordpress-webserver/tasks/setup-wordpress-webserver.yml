@@ -24,7 +24,7 @@
 - name: "create nginx site"
   tags: "config"
   with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
-  sudo: "yes"
+  become: "yes"
   notify: "set nginx.needs_restart to 'yes'"
   action:
 
@@ -37,7 +37,7 @@
 - name: "create directory"
   tags: "deploy"
   with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
-  sudo: "yes"
+  become: "yes"
   action:
 
     module: "file"
@@ -110,7 +110,7 @@
 - name: "fix main permissions"
   tags: "perms"
   with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
-  sudo: "yes"
+  become: "yes"
   shell:
 
     set -e;
@@ -163,7 +163,7 @@
 - name: "fix dynamic permissions"
   tags: "perms"
   with_items: "wordpress_server_websites | dict_map (hostvars [inventory_hostname] [wordpress_server_websites_mapping])"
-  sudo: "yes"
+  become: "yes"
   shell:
 
     set -e;
