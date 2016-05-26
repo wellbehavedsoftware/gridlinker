@@ -90,3 +90,36 @@ relay_recipient_maps =
 #milter_protocol = 2
 #smtpd_milters = unix:/opendkim/opendkim.sock
 #non_smtpd_milters = unix:/opendkim/opendkim.sock
+
+# ---------- per host restrictions
+
+smtpd_restriction_classes =
+{% for host_name in groups ['hosts'] %}
+{% set host = hostvars [host_name] %}
+{% if host_name not in groups ['mail-trusted-hosts']
+	and 'private_address' in host
+	and host.postfix_whitelisted_domains | default ([]) %}
+{% print [
+	'\thost_',
+	host.identity_name | replace ('-', '_'),
+	'_maps, defer\n',
+] | join %}
+{% endif %}
+{% endfor %}
+
+{% for host_name in groups ['hosts'] %}
+{% set host = hostvars [host_name] %}
+{% if host_name not in groups ['mail-trusted-hosts']
+	and 'private_address' in host
+	and host.postfix_whitelisted_domains | default ([]) %}
+{% print [
+	'host_',
+	host.identity_name | replace ('-', '_'),
+	'_maps = check_sender_access hash:/etc/postfix/hosts/',
+	host.identity_name,
+	', defer\n',
+] | join %}
+{% endif %}
+{% endfor %}
+
+dummy_maps = defer

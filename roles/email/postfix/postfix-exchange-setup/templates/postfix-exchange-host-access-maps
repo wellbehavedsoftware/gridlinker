@@ -1,0 +1,3 @@
+{% for domain in hostvars [item].postfix_whitelisted_domains %}
+@{{ domain }} OK
+{% endfor %}

@@ -3,6 +3,7 @@
 - name: "create postfix exchange directories"
   with_items: "{{ postfix_exchange_directories }}"
   notify: "set postfix.needs_restart to 'yes'"
+  become: "yes"
   action:
 
     module: "file"
@@ -53,6 +54,30 @@
   shell: "postmap {{ item.target }}"
 
 - meta: "flush_handlers"
+
+- name: "postfix exchange create host access maps"
+  with_items: "{{ groups ['hosts'] }}"
+  when: "(
+    item not in (groups ['mail-trusted-hosts'] | default ([]))
+  ) and (
+    hostvars [item].postfix_whitelisted_domains | default ([])
+  )"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/postfix/hosts/{{ hostvars [item].identity_name }}"
+    src: "postfix-exchange-host-access-maps"
+
+- name: "postfix exchange rehash host access maps"
+  with_items: "{{ groups ['hosts'] }}"
+  when: "(
+    item not in (groups ['mail-trusted-hosts'] | default ([]))
+  ) and (
+    hostvars [item].postfix_whitelisted_domains | default ([])
+  )"
+  become: "yes"
+  shell: "postmap /etc/postfix/hosts/{{ hostvars [item].identity_name }}"
 
 - name: "set postfix.state to 'enabled'"
   when: "postfix_state == 'installed'"

@@ -1,8 +1,32 @@
+{%- print '# ---------- trusted hosts\n\n' -%}
+
 {%- for host_name in groups ['mail-trusted-hosts'] -%}
 {%- set host = hostvars [host_name] -%}
-{%- if 'private_address' in host -%}
 
-	{%- print host.private_address, ' OK\n' -%}
+	{%- if 'private_address' in host -%}
+		{%- print host.private_address, ' OK\n' -%}
+	{%- endif -%}
+
+	{%- if 'public_address' in host -%}
+		{%- print host.public_address, ' OK\n' -%}
+	{%- endif -%}
+
+{%- endfor -%}
+
+{%- print '\n---------- other hosts\n\n' -%}
+
+{%- for host_name in groups ['hosts'] -%}
+{%- set host = hostvars [host_name] -%}
+{%- if host_name not in (groups ['mail-trusted-hosts'] | default ([]))
+	and 'private_address' in host
+	and host.postfix_whitelisted_domains | default ([]) -%}
+
+	{%- print [
+		host.private_address,
+		' host_',
+		host.identity_name | replace ('-', '_'),
+		'\n',
+	] | join -%}
 
 {%- endif -%}
 {%- endfor -%}
