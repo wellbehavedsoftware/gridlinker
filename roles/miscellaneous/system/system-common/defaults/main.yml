@@ -10,6 +10,8 @@ ubuntu_keys_extra: []
 ubuntu_archive: "http://archive.ubuntu.com/ubuntu"
 ubuntu_security: "http://security.ubuntu.com/ubuntu"
 
+ubuntu_apt_proxy_url: ""
+
 ubuntu_release: "trusty"
 
 ubuntu_repositories:
