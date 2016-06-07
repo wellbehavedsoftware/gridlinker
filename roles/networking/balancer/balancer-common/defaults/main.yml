@@ -4,22 +4,22 @@
 
 balancer_nginx_directories:
 
-  - directory: "{{ nginx_target }}/conf"
+  - directory: "{{ nginx_config }}"
     user: "root"
     group: "root"
     mode: "0755"
 
-  - directory: "{{ nginx_target }}/conf/local"
+  - directory: "{{ nginx_config }}/local"
     user: "root"
     group: "root"
     mode: "0755"
 
-  - directory: "{{ nginx_target }}/conf/sites"
+  - directory: "{{ nginx_config }}/sites"
     user: "root"
     group: "root"
     mode: "0755"
 
-  - directory: "{{ nginx_target }}/conf/ssl"
+  - directory: "{{ nginx_config }}/ssl"
     user: "root"
     group: "root"
     mode: "0755"
@@ -27,7 +27,7 @@ balancer_nginx_directories:
 balancer_nginx_config_templates:
 
   - template: "balancer-nginx-main-config"
-    target: "{{ nginx_target }}/conf/nginx.conf"
+    target: "{{ nginx_config }}/nginx.conf"
     user: "root"
     group: "root"
     mode: "0644"
@@ -44,7 +44,7 @@ balancer_autoconfig_directories:
 balancer_autoconfig_config_templates:
 
   - template: "balancer-autoconfig-nginx-site"
-    target: "{{ nginx_target }}/conf/sites/autoconfig.conf"
+    target: "{{ nginx_config }}/sites/autoconfig.conf"
     user: "root"
     group: "root"
     mode: "0644"

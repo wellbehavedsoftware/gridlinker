@@ -3,9 +3,9 @@
 dependencies:
 
   - "balancer-common"
-  - "build-nginx"
+  - "nginx-install"
   - "balancer-nginx-setup"
   - "balancer-autoconfig-setup"
-  - "control-nginx"
+  - "nginx-control"
 
 # ex: et ts=2 filetype=yaml
