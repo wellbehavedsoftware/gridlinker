@@ -36,6 +36,8 @@ nginx_client_max_body_size: "1m"
 
 nginx_ssl_certificates: []
 
+nginx_default_site_enabled: "yes"
+
 # ---------- configuration
 
 nginx_config_directories:

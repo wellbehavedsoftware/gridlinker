@@ -1,3 +1,4 @@
+{% if nginx_default_site_enabled == 'yes' %}
 server {
 
 	listen {{ nginx_http_port }} default_server;
@@ -12,3 +13,4 @@ server {
 	}
 
 }
+{% endif %}
