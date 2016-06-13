@@ -1,9 +1,0 @@
----
-
-- include: "icinga-install-binary.yml"
-  tags:
-
-    - "icinga"
-    - "icinga-install-binary"
-
-# ex: et ts=2 filetype=yaml

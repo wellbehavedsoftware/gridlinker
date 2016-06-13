@@ -1,0 +1,23 @@
+---
+
+- include: "icinga-web-core-database-setup-mysql.yml"
+  when: "icinga_web_core_main_database_type == 'mysql'"
+  tags:
+
+    - "icinga-web-core-database-setup"
+    - "icinga-web-core-database"
+    - "icinga-web-core"
+    - "icinga-web"
+    - "icinga"
+
+- include: "icinga-web-core-database-setup-postgresql.yml"
+  when: "icinga_web_core_main_database_type == 'postgresql'"
+  tags:
+
+    - "icinga-web-core-database-setup"
+    - "icinga-web-core-database"
+    - "icinga-web-core"
+    - "icinga-web"
+    - "icinga"
+
+# ex: et ts=2 filetype=yaml

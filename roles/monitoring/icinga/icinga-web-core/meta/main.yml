@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "icinga-web-core-common"
+  - "icinga-web-core-install"
+  - "icinga-web-core-setup"
+  - "icinga-web-core-control"
+
+# ex: et ts=2 filetype=yaml

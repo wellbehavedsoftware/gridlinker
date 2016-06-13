@@ -1,0 +1,132 @@
+---
+
+# ---------- main configuration
+
+icinga_web_core_version: ""
+
+# ---------- state
+
+icinga_web_core_state: ""
+icinga_web_core_installed_version: ""
+
+icinga_web_core_database_initialized: ""
+
+# ---------- installation metadata
+
+icinga_web_core_github: "https://github.com/Icinga/icingaweb2/archive"
+icinga_web_core_temp: "/tmp/icinga-web-install"
+
+icinga_web_core_url: "{{ icinga_web_core_github }}/v{{ icinga_web_core_version }}.tar.gz"
+icinga_web_core_archive: "v{{ icinga_web_core_version }}.tar.gz"
+icinga_web_core_directory: "icingaweb2-{{ icinga_web_core_version }}"
+icinga_web_core_target: "/opt/icinga-web-{{ icinga_web_core_version }}"
+
+# ---------- configuration defaults
+
+icinga_web_core_admin_password: ""
+
+icinga_web_core_database_type: ""
+icinga_web_core_database_username: "icingaweb"
+icinga_web_core_database_password: ""
+icinga_web_core_database_port: "{{
+  {
+    'postgresql': '5432',
+    'mysql': '3306',
+    '': '',
+  } [icinga_web_core_database_type]
+}}"
+
+icinga_web_core_main_database_type: "{{ icinga_web_core_database_type }}"
+icinga_web_core_main_database_hostname: "{{ icinga_web_core_database_hostname }}"
+icinga_web_core_main_database_port: "{{ icinga_web_core_database_port }}"
+icinga_web_core_main_database_name: "icingaweb"
+icinga_web_core_main_database_username: "{{ icinga_web_core_database_username }}"
+icinga_web_core_main_database_password: "{{ icinga_web_core_database_password }}"
+icinga_web_core_main_database_prefix: "icingaweb_"
+icinga_web_core_main_database_delegate: "{{ icinga_web_core_database_delegate }}"
+
+icinga_web_core_ido_database_type: "{{ icinga_web_core_database_type }}"
+icinga_web_core_ido_database_hostname: "{{ icinga_web_core_database_hostname }}"
+icinga_web_core_ido_database_port: "{{ icinga_web_core_database_port }}"
+icinga_web_core_ido_database_name: "icinga"
+icinga_web_core_ido_database_username: "{{ icinga_web_core_database_username }}"
+icinga_web_core_ido_database_password: "{{ icinga_web_core_database_password }}"
+icinga_web_core_ido_database_prefix: "icinga_"
+icinga_web_core_ido_database_delegate: "{{ icinga_web_core_database_delegate }}"
+
+# ---------- configuration files
+
+icinga_web_core_config_directories:
+
+  - directory: "/etc/icingaweb2"
+    owner: "root"
+    group: "www-data"
+    mode: "0750"
+
+  - directory: "/etc/icingaweb2/modules"
+    owner: "root"
+    group: "www-data"
+    mode: "0750"
+
+  - directory: "/etc/icingaweb2/enabledModules"
+    owner: "root"
+    group: "www-data"
+    mode: "0750"
+
+  - directory: "/etc/icingaweb2/modules/monitoring"
+    owner: "root"
+    group: "www-data"
+    mode: "0750"
+
+icinga_web_core_config_templates:
+
+  - template: "icinga-web-authentication-ini"
+    target: "/etc/icingaweb2/authentication.ini"
+    owner: "root"
+    group: "www-data"
+    mode: "0640"
+
+  - template: "icinga-web-config-ini"
+    target: "/etc/icingaweb2/config.ini"
+    owner: "root"
+    group: "www-data"
+    mode: "0640"
+
+  - template: "icinga-web-resources-ini"
+    target: "/etc/icingaweb2/resources.ini"
+    owner: "root"
+    group: "www-data"
+    mode: "0640"
+
+  - template: "icinga-web-roles-ini"
+    target: "/etc/icingaweb2/roles.ini"
+    owner: "root"
+    group: "www-data"
+    mode: "0640"
+
+  - template: "icinga-web-monitoring-backends-ini"
+    target: "/etc/icingaweb2/modules/monitoring/backends.ini"
+    owner: "root"
+    group: "www-data"
+    mode: "0640"
+
+  - template: "icinga-web-monitoring-config-ini"
+    target: "/etc/icingaweb2/modules/monitoring/config.ini"
+    owner: "root"
+    group: "www-data"
+    mode: "0640"
+
+  - template: "icinga-web-monitoring-commandtransports-ini"
+    target: "/etc/icingaweb2/modules/monitoring/commandtransports.ini"
+    owner: "root"
+    group: "www-data"
+    mode: "0640"
+
+# ---------- constants
+
+icinga_web_core_database_type_map:
+
+  mysql: "mysql"
+  postgresql: "pgsql"
+
+# ex: et ts=2 filetype=yaml

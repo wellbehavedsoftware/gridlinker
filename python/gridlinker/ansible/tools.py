@@ -184,17 +184,20 @@ def do_inventory_list (context):
 			"hosts": inventory.group_members [group_name],
 		}
 
-	for resource_name, resource_data in inventory.resources.items ():
+	for resource_name, resource \
+	in inventory.resources.items ():
 
-		output ["_meta"] ["hostvars"] [resource_name] = \
-			inventory.resources [resource_name]
+		output ["_meta"] ["hostvars"] [resource_name] = (
+			resource.combined)
 
-	for key, value in context.project_metadata ["project_data"].items ():
+	for key, value \
+	in context.project_metadata ["project_data"].items ():
 
-		output ["all"] ["vars"] [key] = \
-		context.local_data [value]
+		output ["all"] ["vars"] [key] = (
+			context.local_data [value])
 
-	for key, value in context.project_metadata ["resource_data"].items ():
+	for key, value \
+	in context.project_metadata ["resource_data"].items ():
 
 		if "." in value:
 
@@ -204,11 +207,18 @@ def do_inventory_list (context):
 			if group in inventory.group_members:
 
 				output ["all"] ["vars"] [key] = dict ([
+
 					(
-						inventory.resources [resource_name] ["identity"] ["name"],
-						inventory.resources [resource_name] [section],
+						resource.identity_name,
+						resource.get (section),
 					)
-					for resource_name in inventory.group_members [group]
+
+					for resource_name
+					in inventory.group_members [group]
+
+					for resource
+					in [ inventory.resources [resource_name] ]
+
 				])
 
 			elif group in inventory.namespaces:
@@ -218,7 +228,8 @@ def do_inventory_list (context):
 						inventory.resources [resource_name] ["identity"] ["name"],
 						inventory.resources [resource_name] [section],
 					)
-					for resource_name in inventory.namespaces [group]
+					for resource_name
+					in inventory.namespaces [group]
 				])
 
 			else:
@@ -238,11 +249,18 @@ def do_inventory_list (context):
 				]))
 
 			output ["all"] ["vars"] [key] = dict ([
+
 				(
-					inventory.resources [resource_name] ["identity"] ["name"],
-					inventory.resources [resource_name],
+					resource.identity_name,
+					resource.combined,
 				)
-				for resource_name in inventory.namespaces [value]
+
+				for resource_name
+				in inventory.namespaces [value]
+
+				for resource
+				in [ inventory.resources [resource_name] ]
+
 			])
 
 	output ["localhost"] = {
@@ -273,4 +291,4 @@ def print_json (data):
 		indent = 4,
 		separators = (", ", ": "))
 
-# ex: noet ts=4 filetype=yaml
+# ex: noet ts=4 filetype=python

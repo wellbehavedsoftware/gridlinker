@@ -1,0 +1,11 @@
+---
+
+- include: "icinga-core-agent-setup.yml"
+  tags:
+
+    - "icinga-core-agent-setup"
+    - "icinga-core-agent"
+    - "icinga-core"
+    - "icinga"
+
+# ex: et ts=2 filetype=yaml

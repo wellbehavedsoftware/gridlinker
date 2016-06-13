@@ -1,0 +1,12 @@
+---
+
+- include: "icinga-web-core-database-prepare.yml"
+  tags:
+
+    - "icinga-web-core-database-prepare"
+    - "icinga-web-core-database"
+    - "icinga-web-core"
+    - "icinga-web"
+    - "icinga"
+
+# ex: et ts=2 filetype=yaml

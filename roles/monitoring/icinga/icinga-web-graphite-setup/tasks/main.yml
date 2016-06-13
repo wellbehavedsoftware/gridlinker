@@ -1,0 +1,12 @@
+---
+
+- include: "icinga-web-graphite-setup.yml"
+  when: "icinga_web_graphite_version != ''"
+  tags:
+
+    - "icinga-web-graphite-setup"
+    - "icinga-web-graphite"
+    - "icinga-web"
+    - "icinga"
+
+# ex: et ts=2 filetype=yaml

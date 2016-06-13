@@ -1,0 +1,18 @@
+[icingaweb_db]
+type = "db"
+db = "{{ icinga_web_core_database_type_map [icinga_web_core_main_database_type] }}"
+host = "{{ icinga_web_core_main_database_hostname }}"
+port = "{{ icinga_web_core_main_database_port }}"
+dbname = "{{ icinga_web_core_main_database_name }}"
+username = "{{ icinga_web_core_main_database_username }}"
+password = "{{ icinga_web_core_main_database_password }}"
+prefix = "{{ icinga_web_core_main_database_prefix }}"
+
+[icinga_ido]
+type = "db"
+db = "{{ icinga_web_core_database_type_map [icinga_web_core_ido_database_type] }}"
+host = "{{ icinga_web_core_ido_database_hostname }}"
+port = "{{ icinga_web_core_ido_database_port }}"
+dbname = "{{ icinga_web_core_ido_database_name }}"
+username = "{{ icinga_web_core_ido_database_username }}"
+password = "{{ icinga_web_core_ido_database_password }}"

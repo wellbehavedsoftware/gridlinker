@@ -1,0 +1,59 @@
+---
+
+- name: "create icingaweb2 group"
+  become: "yes"
+  action:
+
+    module: "group"
+    name: "icingaweb2"
+    system: "yes"
+
+- name: "add www-data to icingaweb2 group"
+  notify: "restart php"
+  become: "yes"
+  action:
+
+    module: "user"
+    name: "www-data"
+    groups: "icingaweb2"
+    append: "yes"
+
+- name: "install icinga-web"
+  when: "icinga_web_core_installed_version != icinga_web_core_version"
+  become: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf {{ icinga_web_core_temp }};
+    mkdir -p {{ icinga_web_core_temp }};
+    cd {{ icinga_web_core_temp }};
+
+    wget {{ icinga_web_core_url }};
+    tar xzf {{ icinga_web_core_archive }};
+
+    mkdir -p {{ icinga_web_core_target }};
+
+    rsync --archive --delete
+      {{ icinga_web_core_directory }}/
+      {{ icinga_web_core_target }}/;
+
+    rm -rf {{ icinga_web_core_temp }};
+
+- name: "set icinga_web.state to 'installed'"
+  when: "icinga_web_core_state == ''"
+  update_resource:
+
+    icinga_web.state: "installed"
+
+- name: "set icinga_web_core_installed_version"
+  when: "icinga_web_core_installed_version != icinga_web_core_version"
+  update_resource:
+
+    icinga_web.installed_version: "{{ icinga_web_core_version }}"
+
+# ex: et ts=2 filetype=yaml

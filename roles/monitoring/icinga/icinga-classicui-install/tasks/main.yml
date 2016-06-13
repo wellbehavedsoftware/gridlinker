@@ -1,0 +1,10 @@
+---
+
+- include: "icinga-classicui-install.yml"
+  tags:
+
+    - "icinga-classicui-install"
+    - "icinga-classicui"
+    - "icinga"
+
+# ex: et ts=2 filetype=yaml

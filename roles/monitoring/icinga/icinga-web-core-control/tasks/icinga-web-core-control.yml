@@ -1,0 +1,24 @@
+---
+
+- name: "create icinga web site"
+  register: "icinga_web_core_site_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ nginx_config }}/sites/icinga-web"
+    src: "icinga-web-nginx-site"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- name: "icinga web nginx reload"
+  changed_when: "icinga_web_core_site_result | changed"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "reloaded"
+
+# ex: et ts=2 filetype=yaml

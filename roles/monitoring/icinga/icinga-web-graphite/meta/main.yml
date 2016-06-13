@@ -1,0 +1,9 @@
+---
+
+dependencies:
+
+  - "icinga-web-graphite-common"
+  - "icinga-web-graphite-install"
+  - "icinga-web-graphite-setup"
+
+# ex: et ts=2 filetype=yaml

@@ -1,0 +1,11 @@
+---
+
+- include: "icinga-core-install-binary.yml"
+  tags:
+
+    - "icinga-core-install-binary"
+    - "icinga-core-install"
+    - "icinga-core"
+    - "icinga"
+
+# ex: et ts=2 filetype=yaml

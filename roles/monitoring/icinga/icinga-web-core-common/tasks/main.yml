@@ -1,0 +1,11 @@
+---
+
+- include: "icinga-web-core-common.yml"
+  tags:
+
+    - "icinga-web-core-common"
+    - "icinga-web-core"
+    - "icinga-web"
+    - "icinga"
+
+# ex: et ts=2 filetype=yaml

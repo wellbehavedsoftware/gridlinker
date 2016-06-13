@@ -1,0 +1,51 @@
+---
+
+- name: "install icinga web graphite"
+  when: "icinga_web_graphite_installed_version != icinga_web_graphite_version"
+  become: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ icinga_web_graphite_temp }}";
+    mkdir -p "{{ icinga_web_graphite_temp }}";
+    cd "{{ icinga_web_graphite_temp }}";
+
+    wget "{{ icinga_web_graphite_url }}";
+    tar xzf "{{ icinga_web_graphite_archive }}";
+
+    mkdir -p "{{ icinga_web_graphite_target }}";
+
+    rsync --archive --delete
+      "{{ icinga_web_graphite_directory }}/"
+      "{{ icinga_web_graphite_target }}/";
+
+    rm -rf "{{ icinga_web_graphite_temp }}";
+
+- name: "enable icinga web graphite"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "/etc/icingaweb2/enabledModules/graphite"
+    state: "link"
+
+    src: "{{ icinga_web_graphite_target }}"
+
+- name: "set icinga_web_graphite.state to 'installed'"
+  when: "icinga_web_graphite_state == ''"
+  update_resource:
+
+    icinga_web_graphite.state: "installed"
+
+- name: "set icinga_web_graphite_installed_version"
+  when: "icinga_web_graphite_installed_version != icinga_web_graphite_version"
+  update_resource:
+
+    icinga_web_graphite.installed_version: "{{ icinga_web_graphite_version }}"
+
+# ex: et ts=2 filetype=yaml

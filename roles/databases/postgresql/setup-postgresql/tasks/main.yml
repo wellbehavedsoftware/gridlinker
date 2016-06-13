@@ -1,9 +1,0 @@
----
-
-- include: "setup-postgresql.yml"
-  tags:
-
-    - "postgresql"
-    - "setup-postgresql"
-
-# ex: et ts=2 filetype=yaml

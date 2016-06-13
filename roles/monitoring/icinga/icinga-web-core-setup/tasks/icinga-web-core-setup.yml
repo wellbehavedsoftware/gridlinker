@@ -1,0 +1,47 @@
+---
+
+- name: "create icinga web directories"
+  with_items: "{{ icinga_web_core_config_directories }}"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ item.directory }}"
+    state: "directory"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "create icinga web templates"
+  with_items: "{{ icinga_web_core_config_templates }}"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ item.target }}"
+    src: "{{ item.template }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+
+- name: "enable modules"
+  with_items:
+
+    - "monitoring"
+
+  become: "yes"
+  action:
+
+    module: "file"
+    dest: "/etc/icingaweb2/enabledModules/{{ item }}"
+    state: "link"
+
+    src: "{{ icinga_web_core_target }}/modules/{{ item }}"
+
+- name: "set icinga_web.state to 'enabled'"
+  when: "icinga_web_core_state == 'installed'"
+  update_resource:
+
+    icinga_web.state: "enabled"
+
+# ex: et ts=2 filetype=yaml

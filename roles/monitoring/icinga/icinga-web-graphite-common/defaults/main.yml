@@ -1,0 +1,48 @@
+---
+
+# ---------- main configuration
+
+icinga_web_graphite_install: "yes"
+icinga_web_graphite_version: ""
+
+# ---------- state
+
+icinga_web_graphite_state: ""
+icinga_web_graphite_installed_version: ""
+
+# ---------- runtime configuration
+
+icinga_web_graphite_host: "localhost"
+icinga_web_graphite_port: "2003"
+
+# ---------- installation metadata
+
+icinga_web_graphite_github: "https://github.com/findmypast/icingaweb2-module-graphite"
+icinga_web_graphite_temp: "/tmp/icinga-graphite-install"
+
+icinga_web_graphite_directory: "icingaweb2-module-graphite-{{ icinga_web_graphite_version }}"
+icinga_web_graphite_archive: "{{ icinga_web_graphite_version }}.tar.gz"
+icinga_web_graphite_downloads: "{{ icinga_web_graphite_github }}/archive"
+icinga_web_graphite_url: "{{ icinga_web_graphite_downloads }}/{{ icinga_web_graphite_archive }}"
+
+icinga_web_graphite_version_short: "{{ icinga_web_graphite_version | git_version_shorten }}"
+icinga_web_graphite_target: "/opt/icinga-web-graphite-{{ icinga_web_graphite_version_short }}"
+
+# ---------- configuration metadata
+
+icinga_web_graphite_config_directories:
+
+  - directory: "/etc/icingaweb2/modules/graphite"
+    owner: "root"
+    group: "www-data"
+    mode: "0750"
+
+icinga_web_graphite_config_templates:
+
+  - target: "/etc/icingaweb2/modules/graphite/config.ini"
+    template: "icinga-web-graphite-config-ini"
+    owner: "root"
+    group: "www-data"
+    mode: "0640"
+
+# ex: et ts=2 filetype=yaml

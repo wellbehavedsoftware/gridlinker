@@ -1,9 +1,0 @@
----
-
-- name: "do nothing"
-  action:
-
-    module: "pause"
-    seconds: "1"
-
-# ex: et ts=2 filetype=yaml

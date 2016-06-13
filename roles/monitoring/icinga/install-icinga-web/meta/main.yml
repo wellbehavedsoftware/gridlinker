@@ -1,8 +1,0 @@
----
-
-dependencies:
-
-  - "icinga-web-common"
-  - "php-common"
-
-# ex: et ts=2 filetype=yaml

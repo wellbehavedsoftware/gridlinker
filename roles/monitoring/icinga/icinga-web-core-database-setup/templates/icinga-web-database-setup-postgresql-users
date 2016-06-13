@@ -1,0 +1,191 @@
+CREATE TABLE pg_temp.existing_users (
+	name text PRIMARY KEY
+);
+
+CREATE TABLE pg_temp.existing_groups (
+	name text PRIMARY KEY
+);
+
+CREATE FUNCTION pg_temp.create_user (
+	text,
+	bytea,
+	text []
+) RETURNS void AS $$
+DECLARE
+
+	the_name ALIAS FOR $1;
+	the_password_hash ALIAS FOR $2;
+	the_group_names ALIAS FOR $3;
+
+	the_active bool;
+	the_active_int int;
+
+	the_group_name text;
+
+BEGIN
+
+	the_active :=
+		the_password_hash != '';
+
+	the_active_int :=
+		CASE WHEN the_active THEN 1 ELSE 0 END;
+
+	IF EXISTS (
+		SELECT *
+		FROM icingaweb_user
+		WHERE name = the_name
+	) THEN
+
+		UPDATE icingaweb_user
+		SET password_hash = the_password_hash,
+			active = the_active_int,
+			mtime = now ()
+		WHERE name = the_name AND (
+			active != the_active_int
+			OR password_hash != the_password_hash
+		);
+
+	ELSE
+
+		INSERT INTO icingaweb_user (
+			name,
+			active,
+			password_hash,
+			ctime,
+			mtime
+		) VALUES (
+			the_name,
+			the_active_int,
+			the_password_hash,
+			now (),
+			now ()
+		);
+
+	END IF;
+
+	INSERT INTO pg_temp.existing_users
+	VALUES (the_name);
+
+	FOREACH the_group_name
+	IN ARRAY the_group_names
+	LOOP
+
+		IF EXISTS (
+			SELECT *
+			FROM icingaweb_group_membership
+			WHERE group_name = the_group_name
+				AND username = the_name
+		) THEN
+
+			UPDATE icingaweb_group_membership
+			SET mtime = now ()
+			WHERE group_name = the_group_name
+				AND username = the_name
+				AND false;
+
+		ELSE
+
+			INSERT INTO icingaweb_group_membership (
+				group_name,
+				username,
+				ctime,
+				mtime
+			) VALUES (
+				the_group_name,
+				the_name,
+				now (),
+				now ()
+			);
+
+		END IF;
+
+	END LOOP;
+
+	DELETE FROM icingaweb_group_membership
+	WHERE username = the_name
+	AND NOT (group_name = ANY (the_group_names));
+
+END
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION pg_temp.create_group (
+	text
+) RETURNS void AS $$
+DECLARE
+
+	the_name ALIAS FOR $1;
+
+BEGIN
+
+	IF EXISTS (
+		SELECT *
+		FROM icingaweb_group
+		WHERE name = the_name
+	) THEN
+
+		UPDATE icingaweb_group
+		SET mtime = now ()
+		WHERE name = the_name AND false;
+
+	ELSE
+
+		INSERT INTO icingaweb_group (
+			name,
+			ctime,
+			mtime
+		) VALUES (
+			the_name,
+			now (),
+			now ()
+		);
+
+	END IF;
+
+	INSERT INTO pg_temp.existing_groups
+	VALUES (the_name);
+
+END
+$$ LANGUAGE plpgsql;
+
+BEGIN TRANSACTION;
+
+{% for icinga_web_user in icinga_web_users.values () %}
+
+SELECT pg_temp.create_user (
+	'{{ icinga_web_user.name }}',
+	'{{ icinga_web_user.password_hash }}',
+	ARRAY [ {{
+		icinga_web_user.groups
+		| join3 ('\'', ', ', '\'')
+	}} ] :: text []);
+
+{% endfor %}
+
+{% for icinga_web_group in icinga_web_groups.values () %}
+
+SELECT pg_temp.create_group (
+	'{{ icinga_web_group.name }}');
+
+{% endfor %}
+
+DELETE FROM icingaweb_user
+WHERE name NOT IN (
+	SELECT name
+	FROM pg_temp.existing_users
+);
+
+DELETE FROM icingaweb_group
+WHERE name NOT IN (
+	SELECT name
+	FROM pg_temp.existing_groups
+);
+
+DELETE FROM icingaweb_group_membership
+WHERE username NOT IN (
+	SELECT name
+	FROM pg_temp.existing_users
+);
+
+COMMIT TRANSACTION;
+
+-- ex: noet ts=4 filetype=postgresql
