@@ -21,6 +21,11 @@ postfix_exchange_directories:
     group: "root"
     mode: "0755"
 
+  - directory: "/etc/postfix/hosts"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
 postfix_exchange_config_templates:
 
   - target: "/etc/postfix/main.cf"

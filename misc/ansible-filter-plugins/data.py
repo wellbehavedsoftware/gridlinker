@@ -168,6 +168,10 @@ def bytes (source):
 
 	return size * scale
 
+def to_dict (items):
+
+	return dict (items)
+
 class FilterModule (object):
 
     def filters (self):
@@ -186,6 +190,7 @@ class FilterModule (object):
 			"keys": keys,
 			"values": values,
 			"items": items,
+			"to_dict": to_dict,
 
 			"bytes": bytes,
 
