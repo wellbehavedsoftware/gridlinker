@@ -924,7 +924,7 @@ class Inventory (object):
 			self,
 			resource_source,
 			value,
-			indent):
+			indent = ""):
 
 		resource = (
 			self.find_resource (

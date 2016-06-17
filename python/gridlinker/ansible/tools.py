@@ -199,64 +199,81 @@ def do_inventory_list (context):
 	for key, value \
 	in context.project_metadata ["resource_data"].items ():
 
-		if "." in value:
+		if "section" in value:
 
-			group, section = (
-				value.split ("."))
-
-			if group in inventory.group_members:
+			if value ["group"] in inventory.group_members:
 
 				output ["all"] ["vars"] [key] = dict ([
 
 					(
-						resource.identity_name,
-						resource.get (section),
+
+						inventory.resolve_value_or_fail (
+							resource,
+							value ["key"]),
+
+						resource.get (
+							value ["section"]),
+
 					)
 
 					for resource_name
-					in inventory.group_members [group]
+					in inventory.group_members [value ["group"]]
 
 					for resource
 					in [ inventory.resources [resource_name] ]
 
 				])
 
-			elif group in inventory.namespaces:
+			elif value ["group"] in inventory.namespaces:
 
 				output ["all"] ["vars"] [key] = dict ([
+
 					(
-						inventory.resources [resource_name] ["identity"] ["name"],
-						inventory.resources [resource_name] [section],
+
+						inventory.resolve_value_or_fail (
+							resource,
+							value ["key"]),
+
+						resource.get (
+							value ["section"]),
+
 					)
+
 					for resource_name
 					in inventory.namespaces [group]
+
+					for resource
+					in [ inventory.resources [resource_name] ]
+
 				])
 
 			else:
 
 				raise Exception ("".join ([
-					"Invalid group or namespace '%s' " % group,
+					"Invalid group or namespace '%s' " % value ["group"],
 					"referenced in resource_data for '%s'" % key,
 				]))
 
 		else:
 
-			if not value in inventory.namespaces:
+			if not value ["group"] in inventory.namespaces:
 
 				raise Exception ("".join ([
-					"Invalid namespace '%s' " % value,
+					"Invalid namespace '%s' " % value ["group"],
 					"referenced in resource_data for '%s'" % key,
 				]))
 
 			output ["all"] ["vars"] [key] = dict ([
 
 				(
-					resource.identity_name,
+					inventory.resolve_value_or_fail (
+						resource,
+						value ["key"]),
 					resource.combined,
 				)
 
 				for resource_name
-				in inventory.namespaces [value]
+				in inventory.namespaces [value ["group"]]
 
 				for resource
 				in [ inventory.resources [resource_name] ]
