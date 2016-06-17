@@ -1560,7 +1560,7 @@ class Inventory (object):
 								indent,
 								token))
 
-					return True, "resource", target_resource.name
+					return True, "resource", target_resource.unique_name
 
 			else:
 
