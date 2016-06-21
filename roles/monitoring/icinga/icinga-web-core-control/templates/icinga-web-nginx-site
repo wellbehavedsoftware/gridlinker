@@ -10,7 +10,7 @@
 		fastcgi_pass unix:{{ php_fpm_socket }};
 		fastcgi_index index.php;
 
-		include fastcgi_params;
+		include fastcgi-params.conf;
 
 		fastcgi_param SCRIPT_FILENAME {{ icinga_web_core_public }}/index.php;
 		fastcgi_param ICINGAWEB_CONFIGDIR /etc/icingaweb2;
@@ -33,11 +33,19 @@
 	}
 {% endif %}
 
+{% if icinga_web_core_graphite_fragment != '' %}
+	include {{ icinga_web_core_graphite_fragment }};
+{% endif %}
+
 {% endmacro %}
 
 server {
 
+{% if icinga_web_core_listen_insecure_fragment != '' %}
+	include {{ icinga_web_core_listen_insecure_fragment }};
+{% else %}
 	listen 80;
+{% endif %}
 
 	server_name {{ icinga_web_core_hostname }};
 
@@ -63,7 +71,11 @@ server {
 
 server {
 
+{% if icinga_web_core_listen_secure_fragment != '' %}
+	include {{ icinga_web_core_listen_secure_fragment }};
+{% else %}
 	listen 443 ssl;
+{% endif %}
 
 	server_name {{ icinga_web_core_hostname }};
 

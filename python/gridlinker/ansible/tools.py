@@ -224,12 +224,18 @@ def do_inventory_list (context):
 			elif group in inventory.namespaces:
 
 				output ["all"] ["vars"] [key] = dict ([
+
 					(
-						inventory.resources [resource_name] ["identity"] ["name"],
-						inventory.resources [resource_name] [section],
+						resource.identity_name,
+						resource.get (section),
 					)
+
 					for resource_name
 					in inventory.namespaces [group]
+
+					for resource
+					in [ inventory.resources [resource_name] ]
+
 				])
 
 			else:

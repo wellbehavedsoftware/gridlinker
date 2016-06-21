@@ -1,9 +1,0 @@
----
-
-- include: "setup-graphite-web.yml"
-  tags:
-
-    - "graphite-web"
-    - "setup-graphite-web"
-
-# ex: et ts=2 filetype=yaml

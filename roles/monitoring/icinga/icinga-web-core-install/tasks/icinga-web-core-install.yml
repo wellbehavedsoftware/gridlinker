@@ -44,16 +44,16 @@
 
     rm -rf {{ icinga_web_core_temp }};
 
-- name: "set icinga_web.state to 'installed'"
+- name: "set icinga_web_core.state to 'installed'"
   when: "icinga_web_core_state == ''"
   update_resource:
 
-    icinga_web.state: "installed"
+    icinga_web_core.state: "installed"
 
-- name: "set icinga_web_core_installed_version"
+- name: "set icinga_web_core.installed_version"
   when: "icinga_web_core_installed_version != icinga_web_core_version"
   update_resource:
 
-    icinga_web.installed_version: "{{ icinga_web_core_version }}"
+    icinga_web_core.installed_version: "{{ icinga_web_core_version }}"
 
 # ex: et ts=2 filetype=yaml

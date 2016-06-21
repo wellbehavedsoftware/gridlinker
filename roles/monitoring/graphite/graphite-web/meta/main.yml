@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "graphite-web-common"
+  - "graphite-web-install"
+  - "graphite-web-setup"
+  - "graphite-web-control"
+
+# ex: et ts=2 filetype=yaml

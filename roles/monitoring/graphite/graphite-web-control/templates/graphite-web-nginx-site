@@ -1,0 +1,76 @@
+{% macro gubbins () %}
+
+	location / {
+		include uwsgi-params.conf;
+		uwsgi_pass {{ graphite_web_socket_url }};
+	}
+
+{% endmacro %}
+
+{% if graphite_web_mode == 'nginx-site'
+and graphite_web_state == 'enabled' %}
+
+server {
+
+{% if icinga_web_core_listen_insecure_fragment != '' %}
+	include {{ icinga_web_core_listen_insecure_fragment }};
+{% else %}
+	listen 80;
+{% endif %}
+
+	server_name {{ graphite_web_hostname }};
+
+{% if graphite_web_security in [ 'none', 'optional' ] %}
+{{ gubbins () }}
+{% endif %}
+
+{% if graphite_web_security in [ 'full' ] %}
+	location / {
+		rewrite ^/(.*)$ https://{{ graphite_web_hostname }}/$1 permanent;
+	}
+{% endif %}
+
+{% if graphite_web_security in [ 'full' ] %}
+	add_header Strict-Transport-Security "max-age=315360000; includeSubdomains;";
+{% else %}
+	add_header Strict-Transport-Security "max-age=0; includeSubdomains;";
+{% endif %}
+
+}
+
+{% if graphite_web_security in [ 'optional', 'full', 'disabled' ] %}
+
+server {
+
+{% if icinga_web_core_listen_secure_fragment != '' %}
+	include {{ icinga_web_core_listen_secure_fragment }};
+{% else %}
+	listen 443 ssl;
+{% endif %}
+
+	server_name {{ graphite_web_hostname }};
+
+	ssl_certificate /etc/nginx/ssl/{{ graphite_web_hostname }}.cert;
+	ssl_certificate_key /etc/nginx/ssl/{{ graphite_web_hostname }}.key;
+
+{% if graphite_web_security in [ 'optional', 'full' ] %}
+{{ gubbins () }}
+{% endif %}
+
+{% if graphite_web_security in [ 'none' ] %}
+	location / {
+		rewrite ^/(.*)$ http://{{ graphite_web_hostname }}/$1 permanent;
+	}
+{% endif %}
+
+{% if graphite_web_security in [ 'full' ] %}
+	add_header Strict-Transport-Security "max-age=315360000; includeSubdomains;";
+{% else %}
+	add_header Strict-Transport-Security "max-age=0; includeSubdomains;";
+{% endif %}
+
+}
+
+{% endif %}
+
+{% endif %}

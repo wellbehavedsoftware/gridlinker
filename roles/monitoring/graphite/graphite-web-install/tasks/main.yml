@@ -1,0 +1,10 @@
+---
+
+- include: "graphite-web-install.yml"
+  tags:
+
+    - "graphite-web-install"
+    - "graphite-web"
+    - "graphite"
+
+# ex: et ts=2 filetype=yaml

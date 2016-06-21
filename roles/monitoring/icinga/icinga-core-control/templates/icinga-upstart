@@ -28,7 +28,7 @@ end script
 
 script
 
-	exec {{ icinga_target }}/sbin/icinga2 \
+	exec {{ icinga_core_target }}/sbin/icinga2 \
 		daemon \
 		--config /etc/icinga2/icinga2.conf \
 		>> /var/log/icinga2/startup.log

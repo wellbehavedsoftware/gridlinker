@@ -2,16 +2,16 @@
 
 # ---------- state
 
-icinga_state: ""
-icinga_installed_version: ""
-icinga_needs_restart: ""
-icinga_database_delegate: "{{ icinga_master }}"
+icinga_core_state: ""
+icinga_core_installed_version: ""
+icinga_core_needs_restart: ""
+icinga_core_database_delegate: "{{ icinga_core_master }}"
 
 # ---------- runtime defaults
 
-icinga_common_name: "{{ identity_name }}"
-icinga_alt_dns: [ "{{ icinga_common_name }}" ]
-icinga_alt_ips: []
+icinga_core_common_name: "{{ identity_name }}"
+icinga_core_alt_dns: [ "{{ icinga_common_name }}" ]
+icinga_core_alt_ips: []
 
 icinga_core_database_type: ""
 icinga_core_database_name: "icinga"
@@ -19,22 +19,22 @@ icinga_core_database_username: "icinga"
 icinga_core_database_password: ""
 icinga_core_database_initialized: "no"
 
-icinga_ticket_salt: ""
+icinga_core_ticket_salt: ""
 
-icinga_ca_certificate: ""
-icinga_certificate: ""
-icinga_private_key: ""
+icinga_core_ca_certificate: ""
+icinga_core_certificate: ""
+icinga_core_private_key: ""
 
 # ---------- installation
 
-icinga_dist: "{{ default_dist }}"
-icinga_mirror: "{{ icinga_dist }}/icinga"
-icinga_directory: "icinga-{{ icinga_version }}"
-icinga_archive: "{{ icinga_directory }}.tar.xz"
-icinga_url: "{{ icinga_mirror }}/{{ icinga_archive }}"
+icinga_core_dist: "{{ default_dist }}"
+icinga_core_mirror: "{{ icinga_core_dist }}/icinga"
+icinga_core_directory: "icinga-{{ icinga_core_version }}"
+icinga_core_archive: "{{ icinga_core_directory }}.tar.xz"
+icinga_core_url: "{{ icinga_core_mirror }}/{{ icinga_core_archive }}"
 
-icinga_temp: "/tmp/icinga-install"
-icinga_target: "/opt/icinga-{{ icinga_version }}"
+icinga_core_temp: "/tmp/icinga-install"
+icinga_core_target: "/opt/icinga-{{ icinga_core_version }}"
 
 # ---------- master configuration
 

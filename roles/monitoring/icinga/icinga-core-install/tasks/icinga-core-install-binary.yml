@@ -62,7 +62,7 @@
     append: "yes"
 
 - name: "install icinga"
-  when: "icinga_installed_version != icinga_version"
+  when: "icinga_core_installed_version != icinga_core_version"
   become: "yes"
   args:
 
@@ -72,39 +72,39 @@
 
     set -euf -o pipefail;
 
-    rm -rf "{{ icinga_temp }}";
-    mkdir -p "{{ icinga_temp }}";
-    cd "{{ icinga_temp }}";
+    rm -rf "{{ icinga_core_temp }}";
+    mkdir -p "{{ icinga_core_temp }}";
+    cd "{{ icinga_core_temp }}";
 
-    wget "{{ icinga_url }}";
+    wget "{{ icinga_core_url }}";
 
     tar
       --extract
       --xz
-      --file "{{ icinga_archive }}";
+      --file "{{ icinga_core_archive }}";
 
-    mkdir -p "{{ icinga_target }}";
+    mkdir -p "{{ icinga_core_target }}";
 
     rsync
       --archive
       --delete
-      {{ icinga_directory }}/
-      {{ icinga_target }}/
+      {{ icinga_core_directory }}/
+      {{ icinga_core_target }}/
       --exclude /etc
       --exclude /var;
 
-    rm -rf {{ icinga_temp }};
+    rm -rf {{ icinga_core_temp }};
 
 - name: "set icinga.state to 'installed'"
-  when: "icinga_state == ''"
+  when: "icinga_core_state == ''"
   update_resource:
 
-    icinga.state: "installed"
+    icinga_core.state: "installed"
 
 - name: "set icinga.installed_version"
-  when: "icinga_installed_version != icinga_version"
+  when: "icinga_core_installed_version != icinga_core_version"
   update_resource:
 
-    icinga.installed_version: "{{ icinga_version }}"
+    icinga_core.installed_version: "{{ icinga_core_version }}"
 
 # ex: et ts=2 filetype=yaml

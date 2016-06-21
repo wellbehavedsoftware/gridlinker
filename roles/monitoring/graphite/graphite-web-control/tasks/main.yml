@@ -1,0 +1,10 @@
+---
+
+- include: "control-graphite-web.yml"
+  tags:
+
+    - "graphite-web-control"
+    - "graphite-web"
+    - "graphite"
+
+# ex: et ts=2 filetype=yaml

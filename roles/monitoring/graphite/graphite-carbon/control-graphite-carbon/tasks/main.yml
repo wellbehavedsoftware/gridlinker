@@ -1,9 +1,0 @@
----
-
-- include: "control-graphite-carbon.yml"
-  tags:
-
-    - "graphite-carbon"
-    - "control-graphite-carbon"
-
-# ex: et ts=2 filetype=yaml

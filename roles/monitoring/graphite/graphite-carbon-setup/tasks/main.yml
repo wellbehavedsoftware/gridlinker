@@ -1,0 +1,10 @@
+---
+
+- include: "graphite-carbon-setup.yml"
+  tags:
+
+    - "graphite-carbon-setup"
+    - "graphite-carbon"
+    - "graphite"
+
+# ex: et ts=2 filetype=yaml

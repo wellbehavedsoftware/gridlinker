@@ -1,0 +1,62 @@
+---
+
+- name: "write graphite web upstart config"
+  notify:
+
+    - "reload upstart config"
+    - "set graphite_web.needs_restart to 'yes'"
+
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/init/graphite-web.conf"
+    src: "graphite-web-upstart"
+
+- meta: "flush_handlers"
+
+- name: "trigger graphite web restart"
+  when: "graphite_web_needs_restart == 'yes'"
+  changed_when: "True"
+  notify: "restart graphite web"
+  update_resource: {}
+
+- meta: "flush_handlers"
+
+- name: "create graphite web nginx site"
+  register: "graphite_web_nginx_site_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ graphite_web_nginx_fragment }}"
+    src: "graphite-web-nginx-fragment"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- name: "create graphite web nginx fragment"
+  register: "graphite_web_nginx_fragment_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ graphite_web_nginx_site }}"
+    src: "graphite-web-nginx-site"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- name: "graphite web reload nginx"
+  changed_when: "
+    graphite_web_nginx_site_result | changed
+    or graphite_web_nginx_fragment_result | changed
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "reloaded"
+
+# ex: et ts=2 filetype=yaml
