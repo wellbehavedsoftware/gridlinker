@@ -3,6 +3,8 @@
 system_setup_hosts: "yes"
 system_setup_system_params: "yes"
 
+abc: "{{ 1 / 0 }}"
+
 ubuntu_system_packages: []
 
 ubuntu_keys_extra: []
