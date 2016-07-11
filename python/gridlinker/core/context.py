@@ -506,9 +506,14 @@ class GenericContext (object):
 
 	def ansible_init (self):
 
-		if self.project_metadata.get ("ansible", {}).get ("write_ssh_data", "yes") == "yes":
+		if (
+			self.project_metadata
+				.get ("ansible", {})
+				.get ("write_ssh_data", "yes")
+		) == "yes":
 
-			with open ("%s/work/known-hosts" % self.home, "w") as file_handle:
+			with open ("%s/work/known-hosts.temp" % self.home, "w") \
+			as file_handle:
 
 				for resource_name, resource_data in self.resources.get_all_list_quick ():
 
@@ -596,6 +601,10 @@ class GenericContext (object):
 								",".join (addresses),
 								resource_data ["ssh"] ["key_%s" % key_type],
 							))
+
+			os.rename (
+				"%s/work/known-hosts.temp" % self.home,
+				"%s/work/known-hosts" % self.home)
 
 			for key_path, key_data in self.client.get_tree ("/ssh-key"):
 
