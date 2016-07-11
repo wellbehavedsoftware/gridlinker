@@ -13,6 +13,9 @@ gridlinker_admin_ca_certificate: "{{
   '/authority/' + gridlinker_admin_authority + '/certificate'
 }}"
 
+gridlinker_admin_certificate: ""
+gridlinker_admin_private_key: ""
+
 gridlinker_admin_managed_projects: []
 
 # ---------- configuration files
