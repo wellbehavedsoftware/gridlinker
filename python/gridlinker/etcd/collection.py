@@ -10,10 +10,6 @@ __all__ = [
 	"GenericCollection",
 ]
 
-class CollectionEntry:
-
-	def __init__ (self, collection):
-
 class GenericCollection:
 
 	def __init__ (self, context, type, path, schema):
