@@ -149,10 +149,11 @@ class EtcdClient:
 
 	def exists (self, key):
 
-		result, _ = self.make_request (
-			method = "GET",
-			url = self.key_url (key),
-			accept_response = [ 200, 404 ])
+		result, _ = (
+			self.make_request (
+				method = "GET",
+				url = self.key_url (key),
+				accept_response = [ 200, 404 ]))
 
 		if result == 200:
 			return True
@@ -164,10 +165,11 @@ class EtcdClient:
 
 	def get_raw (self, key):
 
-		result, data = self.make_request (
-			method = "GET",
-			url = self.key_url (key),
-			accept_response = [ 200, 404 ])
+		result, data = (
+			self.make_request (
+				method = "GET",
+				url = self.key_url (key),
+				accept_response = [ 200, 404 ]))
 
 		if result == 404:
 
@@ -219,12 +221,13 @@ class EtcdClient:
 
 		return self.make_request_real (** kwargs)
 
-	def make_request_real (self,
-		method,
-		url,
-		query_data = {},
-		payload_data = {},
-		accept_response = [ 200, 201 ]):
+	def make_request_real (
+			self,
+			method,
+			url,
+			query_data = {},
+			payload_data = {},
+			accept_response = [ 200, 201 ]):
 
 		# prepare query
 
@@ -454,4 +457,4 @@ def args (sub_parsers):
 
 	pass
 
-# ex: noet ts=4 filetype=yaml
+# ex: noet ts=4 filetype=python
