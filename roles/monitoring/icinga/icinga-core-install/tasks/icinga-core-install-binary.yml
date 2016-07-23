@@ -20,13 +20,7 @@
     purge: "yes"
 
 - name: "install icinga system package dependencies"
-  with_items:
-
-    - "libboost-program-options1.54.0"
-    - "libboost-regex1.54.0"
-    - "libyajl2"
-    - "nagios-plugins-basic"
-
+  with_items: "{{ icinga_system_packages }}"
   become: "yes"
   action:
 

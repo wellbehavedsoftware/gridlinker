@@ -27,6 +27,26 @@ icinga_private_key: ""
 
 # ---------- installation
 
+icinga_system_packages: "{{
+  icinga_system_packages_by_release [ubuntu_release]
+}}"
+
+icinga_system_packages_by_release:
+
+  trusty:
+
+    - "libboost-program-options1.54.0"
+    - "libboost-regex1.54.0"
+    - "libyajl2"
+    - "nagios-plugins-basic"
+
+  xenial:
+
+    - "libboost-program-options1.58.0"
+    - "libboost-regex1.58.0"
+    - "libyajl2"
+    - "nagios-plugins-basic"
+
 icinga_dist: "{{ default_dist }}"
 icinga_mirror: "{{ icinga_dist }}/icinga"
 icinga_directory: "icinga-{{ icinga_version }}"

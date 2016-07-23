@@ -14,7 +14,7 @@ ubuntu_security: "http://security.ubuntu.com/ubuntu"
 
 ubuntu_apt_proxy_url: ""
 
-ubuntu_release: "trusty"
+ubuntu_release: ""
 
 ubuntu_repositories:
 
