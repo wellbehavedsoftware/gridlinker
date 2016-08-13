@@ -291,15 +291,25 @@ class GenericCommand:
 
 		for unique_name, record_data in filtered_records:
 
-			self.helper.update_record (context, args, record_data)
+			self.helper.update_record (
+				context,
+				args,
+				record_data)
 
-			collection.set (record_name, record_data)
+			collection.set (
+				unique_name,
+				record_data)
 
-			self.helper.update_files (context, args, unique_name, collection)
+			self.helper.update_files (
+				context,
+				args,
+				unique_name,
+				collection)
 
-			print ("Updated %s %s" % (
-				self.helper.name,
-				record_name))
+			print (
+				"Updated %s %s" % (
+					self.helper.name,
+					unique_name))
 
 	def args_edit (self, sub_parsers):
 
