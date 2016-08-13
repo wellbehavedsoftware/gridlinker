@@ -1047,7 +1047,10 @@ class Inventory (object):
 		elif isinstance (value, str) \
 		or isinstance (value, unicode):
 
-			match = re.search (r"^\{\{\s*([^{}]*\S)\s*\}\}$", value)
+			match = (
+				re.search (
+					r"^\{\{\s*([^{}]*\S)\s*\}\}$",
+					value))
 
 			if match:
 
@@ -1233,6 +1236,16 @@ class Inventory (object):
 
 				token_index += 1
 
+				if tokens [token_index] == "join" \
+				and value_type == "value" \
+				and isinstance (value, list):
+
+					token_index += 1
+
+					value = "".join (value)
+
+					continue
+
 				if tokens [token_index + 0] == "substring_before" \
 				and tokens [token_index + 1] == "(" \
 				and tokens [token_index + 2] [0] == "'" \
@@ -1360,6 +1373,38 @@ class Inventory (object):
 					token [1 : -1]))
 
 			return True, token_index + 1, "value", string_value
+
+		if token == "[":
+
+			token_index += 1
+
+			items = []
+
+			while tokens [token_index] != "]":
+
+				success, token_index, item = (
+					self.parse_expression (
+						tokens,
+						token_index,
+						resource,
+						indent + "  "))
+
+				if not success:
+
+					return False, None, None
+
+				items.append (
+					item)
+
+				if tokens [token_index] == ",":
+
+					token_index += 1
+
+				elif tokens [token_index] != "]":
+
+					return False, None, None
+
+			return True, token_index + 1, "value", items
 
 		if token == "hostvars":
 
@@ -1627,7 +1672,7 @@ class Inventory (object):
 
 	tokenize_re = re.compile ("\s*((?:" + ")|(?:".join ([
 		r"$",
-		r"[][.|()]",
+		r"[][.,|()]",
 		r"[a-zA-Z][a-zA-Z0-9_]*",
 		r"'(?:[^'\\]|\\\\|\\\')*'",
 	]) + "))")
