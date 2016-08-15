@@ -1,0 +1,1 @@
+registry = {{ nodejs_npm_registry }}

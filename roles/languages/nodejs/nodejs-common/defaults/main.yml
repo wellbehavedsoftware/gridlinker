@@ -24,4 +24,6 @@ nodejs_alternatives:
 
 nodejs_default: "no"
 
+nodejs_npm_registry: "http://registry.npmjs.org"
+
 # ex: et ts=2 filetype=yaml
