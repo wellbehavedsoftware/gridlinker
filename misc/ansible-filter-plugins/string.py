@@ -17,6 +17,10 @@ def substring_after (value, separator):
 
 	return value.partition (separator) [3]
 
+def starts_with (value, prefix):
+
+	return value.startswith (prefix)
+
 def join3 (values, prefix, separator, suffix):
 
 	if not values:
@@ -54,6 +58,8 @@ class FilterModule (object):
 
 			"substring_before": substring_before,
 			"substring_after": substring_after,
+
+			"starts_with": starts_with,
 
 			"join3": join3,
 
