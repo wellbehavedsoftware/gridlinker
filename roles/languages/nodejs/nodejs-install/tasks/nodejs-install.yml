@@ -25,6 +25,14 @@
     rm -rf {{ nodejs_tmp }};
     touch {{ nodejs_flag }};
 
+- name: "nodejs install directories"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ nodejs_target }}/etc"
+    state: "directory"
+
 - name: "write npmrc"
   become: "yes"
   action:
