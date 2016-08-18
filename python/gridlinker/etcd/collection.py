@@ -6,10 +6,6 @@ from collections import OrderedDict
 from wbs import freeze
 from wbs import yamlx
 
-__all__ = [
-	"GenericCollection",
-]
-
 class GenericCollection:
 
 	def __init__ (self, context, type, path, schema):
@@ -29,10 +25,8 @@ class GenericCollection:
 			self.path,
 			record_name)
 
-		record_data = (
-			self.client.get_yaml (
-				"%s/data" % (
-					record_key)))
+		record_data = self.client.get_yaml (
+			"%s/data" % record_key)
 
 		return record_data
 
@@ -241,4 +235,4 @@ class GenericCollection:
 		self.client.rm_recursive (
 			record_key)
 	
-# ex: noet ts=4 filetype=python
+# ex: noet ts=4 filetype=yaml

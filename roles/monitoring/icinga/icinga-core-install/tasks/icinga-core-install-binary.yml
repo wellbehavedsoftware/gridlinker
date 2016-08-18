@@ -20,13 +20,7 @@
     purge: "yes"
 
 - name: "install icinga system package dependencies"
-  with_items:
-
-    - "libboost-program-options1.54.0"
-    - "libboost-regex1.54.0"
-    - "libyajl2"
-    - "nagios-plugins-basic"
-
+  with_items: "{{ icinga_system_packages }}"
   become: "yes"
   action:
 
@@ -62,7 +56,7 @@
     append: "yes"
 
 - name: "install icinga"
-  when: "icinga_core_installed_version != icinga_core_version"
+  when: "icinga_installed_version != icinga_version"
   become: "yes"
   args:
 
@@ -72,39 +66,39 @@
 
     set -euf -o pipefail;
 
-    rm -rf "{{ icinga_core_temp }}";
-    mkdir -p "{{ icinga_core_temp }}";
-    cd "{{ icinga_core_temp }}";
+    rm -rf "{{ icinga_temp }}";
+    mkdir -p "{{ icinga_temp }}";
+    cd "{{ icinga_temp }}";
 
-    wget "{{ icinga_core_url }}";
+    wget "{{ icinga_url }}";
 
     tar
       --extract
       --xz
-      --file "{{ icinga_core_archive }}";
+      --file "{{ icinga_archive }}";
 
-    mkdir -p "{{ icinga_core_target }}";
+    mkdir -p "{{ icinga_target }}";
 
     rsync
       --archive
       --delete
-      {{ icinga_core_directory }}/
-      {{ icinga_core_target }}/
+      {{ icinga_directory }}/
+      {{ icinga_target }}/
       --exclude /etc
       --exclude /var;
 
-    rm -rf {{ icinga_core_temp }};
+    rm -rf {{ icinga_temp }};
 
 - name: "set icinga.state to 'installed'"
-  when: "icinga_core_state == ''"
+  when: "icinga_state == ''"
   update_resource:
 
-    icinga_core.state: "installed"
+    icinga.state: "installed"
 
 - name: "set icinga.installed_version"
-  when: "icinga_core_installed_version != icinga_core_version"
+  when: "icinga_installed_version != icinga_version"
   update_resource:
 
-    icinga_core.installed_version: "{{ icinga_core_version }}"
+    icinga.installed_version: "{{ icinga_version }}"
 
 # ex: et ts=2 filetype=yaml

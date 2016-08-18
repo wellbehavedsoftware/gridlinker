@@ -7,6 +7,10 @@ import itertools
 import re
 import types
 
+__all__ = [
+	"FilterModule",
+]
+
 def flatten_hash (values, * inner_names):
 
 	ret = []
@@ -126,9 +130,9 @@ def keys (item):
 
 	return item.keys ();
 
-def values (item):
+def values (source):
 
-	return item.values ();
+	return source.values ()
 
 def items (item):
 

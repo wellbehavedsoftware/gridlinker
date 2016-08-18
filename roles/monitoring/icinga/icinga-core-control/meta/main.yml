@@ -1,7 +1,0 @@
----
-
-dependencies:
-
-  - "icinga-core-common"
-
-# ex: et ts=2 filetype=yaml

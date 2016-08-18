@@ -1,0 +1,26 @@
+---
+
+- name: "write graphite web upstart config"
+  notify:
+
+    - "reload upstart config"
+    - "set graphite_web.needs_restart to 'yes'"
+
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/init/graphite-web.conf"
+    src: "graphite-web-upstart"
+
+- meta: "flush_handlers"
+
+- name: "trigger graphite web restart"
+  when: "graphite_web_needs_restart == 'yes'"
+  changed_when: "True"
+  notify: "restart graphite web"
+  update_resource: {}
+
+- meta: "flush_handlers"
+
+# ex: et ts=2 filetype=yaml

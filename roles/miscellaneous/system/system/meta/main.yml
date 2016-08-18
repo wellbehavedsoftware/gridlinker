@@ -7,7 +7,7 @@ dependencies:
   - "system-grub-setup"
   - "system-getty-setup"
 
-  - "setup-apt"
+  - "system-apt-setup"
   - "setup-hosts"
   - "setup-system-params"
 

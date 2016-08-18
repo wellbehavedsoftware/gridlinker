@@ -1,14 +1,14 @@
-{% for icinga_web_core_role in icinga_web_core_roles.values () %}
+{% for icinga_web_core_role in icinga_web_roles.values () %}
 {% if icinga_web_core_role.permissions %}
 
 [{{ icinga_web_core_role.name }}]
-{% if icinga_web_core_role.users | default ([]) %}
+{% if icinga_web_core_role.users %}
 users = "{{ icinga_web_core_role.users | join (',') }}"
 {% endif %}
-{% if icinga_web_core_role.groups | default ([]) %}
+{% if icinga_web_core_role.groups %}
 groups = "{{ icinga_web_core_role.groups | join (',') }}"
 {% endif %}
-permissions = "{{ icinga_web_core_role.permissions | default ([]) | join (',') }}"
+permissions = "{{ icinga_web_core_role.permissions | join (',') }}"
 
 {% endif %}
 {% endfor %}

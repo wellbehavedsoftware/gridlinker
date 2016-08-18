@@ -1,56 +1,23 @@
 ---
 
-- name: "set icinga_core.needs_restart to 'yes'"
-  when: "icinga_core_needs_restart == 'maybe'"
-  update_resource:
-
-    icinga_core.needs_restart: "yes"
-
-- name: "set icinga_core.needs_restart to 'maybe'"
-  when: "icinga_core_needs_restart == 'no'"
-  update_resource:
-
-    icinga_core.needs_restart: "maybe"
-
 - name: "write icinga upstart config"
-  register: "icinga_core_upstart_result"
-  become: "yes"
   action:
-
     module: "template"
     src: "icinga-upstart"
     dest: "/etc/init/icinga.conf"
-
-- name: "icinga core reload upstart config"
-  changed_when: "icinga_core_upstart_result | changed"
   become: "yes"
-  command: "initctl reload-configuration"
+  notify:
+    - "reload upstart config"
+    - "set icinga.needs_restart to 'yes'"
 
-- name: "set icinga_core.needs_restart to 'yes'"
-  when: "icinga_core_upstart_result | changed"
-  update_resource:
+- meta: "flush_handlers"
 
-    icinga_core.needs_restart: "yes"
+- name: "trigger icinga restart"
+  when: "icinga_needs_restart == 'yes'"
+  update_resource: {}
+  changed_when: "True"
+  notify: "restart icinga"
 
-- name: "set icinga_core.needs_restart to 'no'"
-  when: "icinga_core_needs_restart == 'maybe'"
-  update_resource:
-
-    icinga_core.needs_restart: "no"
-
-- name: "icinga core restart"
-  when: "icinga_core_needs_restart == 'yes'"
-  become: "yes"
-  action:
-
-    module: "service"
-    name: "icinga"
-    state: "restarted"
-
-- name: "set icinga_core.needs_restart to 'no'"
-  when: "icinga_core_needs_restart == 'yes'"
-  update_resource:
-
-    icinga_core.needs_restart: "no"
+- meta: "flush_handlers"
 
 # ex: et ts=2 filetype=yaml

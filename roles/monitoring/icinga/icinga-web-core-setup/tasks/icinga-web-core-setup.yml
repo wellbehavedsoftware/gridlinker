@@ -42,6 +42,6 @@
   when: "icinga_web_core_state == 'installed'"
   update_resource:
 
-    icinga_web_core.state: "enabled"
+    icinga_web.state: "enabled"
 
 # ex: et ts=2 filetype=yaml

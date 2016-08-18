@@ -178,4 +178,4 @@ def args (sub_parsers):
 
 	resource_command.args (sub_parsers)
 
-# ex: noet ts=4 filetype=python
+# ex: noet ts=4 filetype=yaml

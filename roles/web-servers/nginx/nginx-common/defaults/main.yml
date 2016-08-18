@@ -87,6 +87,12 @@ nginx_config_templates:
     group: "root"
     mode: "0644"
 
+  - target: "/etc/logrotate.d/nginx"
+    template: "nginx-logrotate"
+    user: "root"
+    group: "root"
+    mode: "0644"
+
 # ---------- build config
 
 nginx_build_temp: "/tmp/nginx-build"

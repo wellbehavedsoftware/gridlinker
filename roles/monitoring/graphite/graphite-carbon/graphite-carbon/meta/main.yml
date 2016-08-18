@@ -1,0 +1,10 @@
+---
+
+dependencies:
+
+  - "graphite-carbon-common"
+  - "install-graphite-carbon"
+  - "setup-graphite-carbon"
+  - "control-graphite-carbon"
+
+# ex: et ts=2 filetype=yaml
