@@ -240,7 +240,7 @@ def do_inventory_list (context):
 					)
 
 					for resource_name
-					in inventory.namespaces [group]
+					in inventory.namespaces [value ["group"]]
 
 					for resource
 					in [ inventory.resources [resource_name] ]
