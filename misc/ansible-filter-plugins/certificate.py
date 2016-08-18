@@ -6,23 +6,32 @@ from __future__ import unicode_literals
 import importlib
 import os
 
+from wbs import lazy_property
+
 __all__ = [
 	"FilterModule",
 ]
 
 class FilterModule (object):
 
-	def __init__ (self):
+	@lazy_property
+	def support (self):
 
-		self.support = (
+		module = (
 			importlib.import_module (
-				os.environ ["GRIDLINKER_SUPPORT"]).support)
+				os.environ ["GRIDLINKER_SUPPORT"]))
 
-		self.context = (
-			self.support.get_context ())
+		return module.support
 
-		self.client = (
-			self.context.client)
+	@lazy_property
+	def context (self):
+
+		return self.support.get_context ()
+
+	@lazy_property
+	def client (self):
+
+		return self.context.dclient
 
 	def certificate (self, main_path):
 
