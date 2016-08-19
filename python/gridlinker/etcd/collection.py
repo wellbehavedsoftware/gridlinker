@@ -1,10 +1,16 @@
 from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 from __future__ import unicode_literals
 
-from collections import OrderedDict
+import collections
 
 from wbs import freeze
 from wbs import yamlx
+
+__all__ = [
+	"GenericCollection",
+]
 
 class GenericCollection:
 
@@ -75,7 +81,9 @@ class GenericCollection:
 
 		cache = dict (self.client.get_tree (self.path))
 
-		data_cache = OrderedDict ()
+		data_cache = (
+			collections.OrderedDict ())
+
 		all_list_cache = []
 
 		for key, string_value in sorted (cache.items ()):
@@ -234,5 +242,5 @@ class GenericCollection:
 
 		self.client.rm_recursive (
 			record_key)
-	
-# ex: noet ts=4 filetype=yaml
+
+# ex: noet ts=4 filetype=python

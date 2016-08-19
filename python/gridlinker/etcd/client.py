@@ -1,6 +1,9 @@
 from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 from __future__ import unicode_literals
 
+import collections
 import httplib
 import itertools
 import json
@@ -14,7 +17,29 @@ import wbs
 
 from wbs import yamlx
 
+__all__ = [
+	"EtcdClient",
+	"args",
+]
+
 class EtcdClient:
+
+	__slots__ = [
+
+		"servers",
+		"port",
+		"secure",
+		"client_ca_cert",
+		"client_cert",
+		"client_key",
+		"prefix",
+
+		"connection",
+		"ssl_context",
+		"server_url",
+		"pid",
+
+	]
 
 	def __init__ (
 		self,
@@ -141,11 +166,10 @@ class EtcdClient:
 
 	def key_url (self, key):
 
-		url_string = u"/v2/keys%s%s" % (
-			self.prefix,
-			key)
-
-		return url_string
+		return (
+			"/v2/keys%s%s" % (
+				self.prefix,
+				key))
 
 	def exists (self, key):
 
@@ -161,6 +185,23 @@ class EtcdClient:
 			return False
 
 		raise Exception ()
+
+	def get_raw_item (self, key):
+
+		result, data = (
+			self.make_request (
+				method = "GET",
+				url = self.key_url (key),
+				accept_response = [ 200, 404 ]))
+
+		if result == 404:
+
+			raise LookupError (
+				"No such key: %s" % key)
+
+		return EtcdRawItem (
+			key,
+			data ["node"])
 
 	def get_raw (self, key):
 
@@ -178,16 +219,30 @@ class EtcdClient:
 
 	def get_raw_or_none (self, key):
 
-		result, data = self.make_request (
-			method = "GET",
-			url = self.key_url (key),
-			accept_response = [ 200, 404 ])
+		result, data = (
+			self.make_request (
+				method = "GET",
+				url = self.key_url (key),
+				accept_response = [ 200, 404 ]))
 
 		if result == 404:
 
 			return None
 
 		return data ["node"] ["value"]
+
+	def set_raw_if_not_modified (self, key, value, index):
+
+		result, data = (
+			self.make_request (
+				method = "PUT",
+				url = self.key_url (key),
+				query_data = {
+					"prevIndex": index,
+				},
+				payload_data = {
+					"value": value,
+				}))
 
 	def set_raw (self, key, value):
 
@@ -219,12 +274,13 @@ class EtcdClient:
 
 		return self.make_request_real (** kwargs)
 
-	def make_request_real (self,
-		method,
-		url,
-		query_data = {},
-		payload_data = {},
-		accept_response = [ 200, 201 ]):
+	def make_request_real (
+			self,
+			method,
+			url,
+			query_data = {},
+			payload_data = {},
+			accept_response = [ 200, 201 ]):
 
 		# prepare query
 
@@ -422,16 +478,41 @@ class EtcdClient:
 
 	def get_yaml (self, key):
 
-		value_yaml = self.get_raw (key)
-		value = yamlx.parse (value_yaml)
+		raw_value = (
+			self.get_raw_item (
+				key))
 
-		return value
+		data_value = (
+			yamlx.parse (
+				raw_value.data))
+
+		return EtcdYamlItem (
+			self,
+			raw_value,
+			data_value)
 
 	def set_yaml (self, key, value, schema = None):
 
 		value_yaml = yamlx.encode (schema, value)
 
 		self.set_raw (key, value_yaml)
+
+	def set_yaml_if_not_modified (
+			self,
+			key,
+			value,
+			index,
+			schema = None):
+
+		value_yaml = (
+			yamlx.encode (
+				schema,
+				value))
+
+		self.set_raw_if_not_modified (
+			key,
+			value_yaml,
+			index)
 
 	def ls (self, key):
 
@@ -450,8 +531,95 @@ class EtcdClient:
 			for node in data ["node"] ["nodes"]
 		]
 
+class EtcdRawItem (object):
+
+	__slots__ = [
+		"key",
+		"data",
+		"created_index",
+		"modified_index",
+	]
+
+	def __init__ (self, key, node):
+
+		self.key = key
+		self.data = node ["value"]
+		self.created_index = node ["createdIndex"]
+		self.modified_index = node ["modifiedIndex"]
+
+class EtcdYamlItem (collections.OrderedDict):
+
+	__slots__ = [
+
+		"client",
+		"raw_item",
+		"data",
+
+		"created_index",
+		"modified_index",
+		"key",
+		"raw_data",
+
+	]
+
+	def __init__ (self, client, raw_item, data):
+
+		self.client = client
+		self.raw_item = raw_item
+		self.data = data
+
+		self.created_index = raw_item.created_index
+		self.modified_index = raw_item.modified_index
+		self.key = raw_item.key
+		self.raw_data = raw_item.data
+
+		pass
+
+	# ---------- update
+
+	def save (self):
+
+		self.client.set_yaml_if_not_modified (
+			self.key,
+			self.data,
+			self.modified_index)
+
+	# ---------- dictionary delegation
+
+	def __contains__ (self, * arguments):
+
+		return self.data.__contains__ (* arguments)
+
+	def __delitem__ (self, * arguments):
+
+		return self.data.__delitem__ (* arguments)
+
+	def __getitem__ (self, * arguments):
+
+		return self.data.__getitem__ (* arguments)
+
+	def __iter__ (self, * arguments):
+
+		return self.data.__iter__ (* arguments)
+
+	def __len__ (self, * arguments):
+
+		return self.data.__len__ (* arguments)
+
+	def __length_hint__ (self, * arguments):
+
+		return self.data.__length_hint__ (* arguments)
+
+	def __reversed__ (self, * arguments):
+
+		return self.data.__reversed__ (* arguments)
+
+	def __setitem__ (self, * arguments):
+
+		return self.data.__setitem__ (* arguments)
+
 def args (sub_parsers):
 
 	pass
 
-# ex: noet ts=4 filetype=yaml
+# ex: noet ts=4 filetype=python
