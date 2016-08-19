@@ -1376,35 +1376,36 @@ class Inventory (object):
 
 		if token == "[":
 
-			token_index += 1
+			new_token_index = (
+				token_index + 1)
 
 			items = []
 
-			while tokens [token_index] != "]":
+			while tokens [new_token_index] != "]":
 
-				success, token_index, item = (
+				success, new_token_index, item = (
 					self.parse_expression (
 						tokens,
-						token_index,
+						new_token_index,
 						resource,
 						indent + "  "))
 
 				if not success:
 
-					return False, None, None
+					return False, token_index, None, None
 
 				items.append (
 					item)
 
-				if tokens [token_index] == ",":
+				if tokens [new_token_index] == ",":
 
-					token_index += 1
+					new_token_index += 1
 
-				elif tokens [token_index] != "]":
+				elif tokens [new_token_index] != "]":
 
-					return False, None, None
+					return False, token_index, None, None
 
-			return True, token_index + 1, "value", items
+			return True, new_token_index + 1, "value", items
 
 		if token == "hostvars":
 
