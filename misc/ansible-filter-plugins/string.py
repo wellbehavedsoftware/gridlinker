@@ -64,6 +64,16 @@ def append_list (items, string):
 		for item in items
 	]
 
+def replace_list (items, change_from, change_to):
+
+	return [
+		item.replace (
+			change_from,
+			change_to)
+		for item
+		in items
+	]
+
 class FilterModule (object):
 
     def filters (self):
@@ -75,6 +85,7 @@ class FilterModule (object):
 
 			"prepend_list": prepend_list,
 			"append_list": append_list,
+			"replace_list": replace_list,
 
 			"starts_with": starts_with,
 
