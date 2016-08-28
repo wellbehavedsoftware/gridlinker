@@ -15,46 +15,46 @@ def ip_reverse_zones (value):
 
 	network = IPNetwork (value)
 
-	if network.netmask_bits < 8:
+	if network.prefixlen > 24:
 
 		return [
 			"%s.%s.%s.%s.in-addr.arpa." % (
 				octet,
 				network.network.words [2],
 				network.network.words [1],
-				network.network.words [0],
+				network.network.words [0])
 			for octet
 			in xrange (
 				network.network.words [3],
 				network.broadcast.words [3] + 1)
 		]
 
-	elif network.netmask_bits < 16:
+	elif network.prefixlen > 16:
 
 		return [
 			"%s.%s.%s.in-addr.arpa." % (
 				octet,
 				network.network.words [1],
-				network.network.words [0],
+				network.network.words [0])
 			for octet
 			in xrange (
 				network.network.words [2],
 				network.broadcast.words [2] + 1)
 		]
 
-	elif network.netmask_bits < 24:
+	elif network.prefixlen > 8:
 
 		return [
 			"%s.%s.in-addr.arpa." % (
 				octet,
-				network.network.words [0],
+				network.network.words [0])
 			for octet
 			in xrange (
 				network.network.words [1],
 				network.broadcast.words [1] + 1)
 		]
 
-	elif:
+	else:
 
 		raise Exception ()
 
