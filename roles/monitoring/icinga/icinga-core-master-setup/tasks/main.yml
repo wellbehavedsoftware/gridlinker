@@ -1,9 +1,12 @@
 ---
 
-- include: "setup-icinga-master.yml"
+- include: "icinga-core-master-setup.yml"
+  when: "icinga_state in [ 'installed', 'enabled', 'disabled' ]"
   tags:
 
+    - "icinga-core-master-setup"
+    - "icinga-core-master"
+    - "icinga-core"
     - "icinga"
-    - "setup-icinga-master"
 
 # ex: et ts=2 filetype=yaml

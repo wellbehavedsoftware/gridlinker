@@ -1,6 +1,7 @@
 ---
 
 - include: "icinga-core-control.yml"
+  when: "icinga_core_state in [ 'enabled', 'disabled' ]"
   tags:
 
     - "icinga-core-control"
