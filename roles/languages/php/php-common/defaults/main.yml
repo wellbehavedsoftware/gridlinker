@@ -2,10 +2,11 @@
 
 # ---------- general
 
+php_install_version: ""
 php_install: "{{ default_install | default ('yes') }}"
-php_target: "/opt/php-{{ php_version }}"
-php_config_directory: "{{ php_config_directory_map [php_version] }}"
+php_install_target: "/opt/php-{{ php_install_version }}"
 
+php_config_directory: "{{ php_config_directory_map [php_install_version] }}"
 php_config_directory_map:
 
   "5": "/etc/php5"
@@ -14,11 +15,13 @@ php_config_directory_map:
 # ---------- state
 
 php_fpm_socket: ""
+php_needs_restart: ""
+php_state: ""
+
 php_installed_version: ""
 php_installed_from: ""
 php_installed_service: ""
-php_needs_restart: ""
-php_state: ""
+php_installed_target: ""
 
 # ---------- runtime config
 
@@ -46,8 +49,8 @@ php_install_ppas:
 
 php_install_packages_core:
 
-  - "php{{ php_version }}-cli"
-  - "php{{ php_version }}-fpm"
+  - "php{{ php_install_version }}-cli"
+  - "php{{ php_install_version }}-fpm"
 
 php_install_packages_modules: []
 

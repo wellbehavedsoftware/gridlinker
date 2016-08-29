@@ -1,0 +1,9 @@
+---
+
+- include: "postgresql-common.yml"
+  tags:
+
+    - "postgresql-common"
+    - "postgresql"
+
+# ex: et ts=2 filetype=yaml

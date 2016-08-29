@@ -1,12 +1,15 @@
 ---
 
 - name: "check php.install_from"
-  when: "
-    php_install == 'yes'
-    and php_install_from not in [ 'distro', 'ppa', 'source' ]
-  "
+  when: "php_install_from not in [ 'distro', 'ppa', 'source' ]"
   fail:
 
-    msg: "Invalid value for php.install_from: '{{ php_install_from }}'"
+    msg: "Invalid value for php.install_from {{':'}} {{ php_install_from }}"
+
+- name: "check php.install_version"
+  when: "php_install_version == ''"
+  fail:
+
+    msg: "No value for php.install_version"
 
 # ex: et ts=2 filetype=yaml

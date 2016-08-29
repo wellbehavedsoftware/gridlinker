@@ -4,7 +4,7 @@
   become: "yes"
   with_items:
 
-    - "postgresql-9.3"
+    - "postgresql-{{ postgresql_install_version }}"
 
   action:
 
@@ -26,5 +26,11 @@
   update_resource:
 
     postgresql.state: "installed"
+
+- name: "set postgresql.installed_version"
+  when: "postgresql_installed_version == postgresql_install_version"
+  update_resource:
+
+    postgresql.installed_version: "{{ postgresql_install_version }}"
 
 # ex: et ts=2 filetype=yaml

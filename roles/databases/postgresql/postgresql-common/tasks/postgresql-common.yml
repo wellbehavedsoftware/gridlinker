@@ -1,0 +1,15 @@
+---
+
+- name: "check postgresql.install_from"
+  when: "postgresql_install_from not in [ 'distro' ]"
+  fail:
+
+    msg: "Invalid value for postgresql.install_from '{{ postgresql_install_from }}'"
+
+- name: "check postgresql.install_version"
+  when: "postgresql_install_version == ''"
+  fail:
+
+    msg: "No value for postgresql.install_version"
+
+# ex: et ts=2 filetype=yaml
