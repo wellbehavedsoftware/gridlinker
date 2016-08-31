@@ -1,14 +1,26 @@
 ---
 
-- name: "configure apt keys"
+- name: "configure apt keys (url)"
   with_items: "{{ ubuntu_keys_extra }}"
+  when: "item.url is defined"
   become: "yes"
   action:
 
     module: "apt_key"
-    url: "{{ item.url | default (None) }}"
+
     id: "{{ item.id | default (None) }}"
     keyserver: "{{ item.keyserver | default (None) }}"
+    url: "{{ item.url | default (None) }}"
+
+- name: "configure apt keys (file)"
+  with_items: "{{ ubuntu_keys_extra }}"
+  when: "item.file is defined"
+  become: "yes"
+  action:
+
+    module: "apt_key"
+
+    data: "{{ lookup ('file', HOME + '/' + item.file) }}"
 
 - name: "configure apt sources"
   notify: "update apt package lists"
