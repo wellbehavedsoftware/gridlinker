@@ -8,7 +8,7 @@ postgresql_install_version: ""
 
 postgresql_installed_version: ""
 
-postgresql_config_prefix: "/etc/postgresql/{{ postgresql_version }}/main"
+postgresql_config_prefix: "/etc/postgresql/{{ postgresql_installed_version }}/main"
 
 postgresql_config_templates:
 

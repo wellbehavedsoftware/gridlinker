@@ -28,7 +28,7 @@
     postgresql.state: "installed"
 
 - name: "set postgresql.installed_version"
-  when: "postgresql_installed_version == postgresql_install_version"
+  when: "postgresql_installed_version != postgresql_install_version"
   update_resource:
 
     postgresql.installed_version: "{{ postgresql_install_version }}"
