@@ -77,13 +77,13 @@
       --xz
       --file "{{ icinga_core_install_archive }}";
 
-    mkdir -p "{{ icinga_core_install_target }}";
+    mkdir -p "{{ icinga_core_install_prefix }}";
 
     rsync
       --archive
       --delete
       {{ icinga_core_install_directory }}/
-      {{ icinga_core_install_target }}/
+      {{ icinga_core_install_prefix }}/
       --exclude /etc
       --exclude /var;
 

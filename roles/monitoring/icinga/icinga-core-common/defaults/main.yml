@@ -54,7 +54,7 @@ icinga_core_install_system_packages_by_release:
     - "nagios-plugins-basic"
 
 icinga_core_install_temp: "/tmp/icinga-install"
-icinga_core_install_dist: "{{ default_core_install_dist }}"
+icinga_core_install_dist: "https://dist.wellbehavedsoftware.com"
 icinga_core_install_mirror: "{{ icinga_core_install_dist }}/icinga"
 icinga_core_install_directory: "icinga-{{ icinga_core_install_version }}"
 icinga_core_install_archive: "{{ icinga_core_install_directory }}.tar.xz"
