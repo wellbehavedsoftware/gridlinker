@@ -89,6 +89,28 @@
 
     rm -rf {{ icinga_core_install_temp }};
 
+    mkdir -p
+      "{{ icinga_core_install_prefix }}/etc"
+      "{{ icinga_core_install_prefix }}/var/cache"
+      "{{ icinga_core_install_prefix }}/var/log"
+      "{{ icinga_core_install_prefix }}/var/run";
+
+    ln -sfn
+      "/etc/icinga2"
+      "{{ icinga_core_install_prefix }}/etc/icinga2";
+
+    ln -sfn
+      "/var/cache/icinga2"
+      "{{ icinga_core_install_prefix }}/var/cache/icinga2";
+
+    ln -sfn
+      "/var/log/icinga2"
+      "{{ icinga_core_install_prefix }}/var/log/icinga2";
+
+    ln -sfn
+      "/var/run/icinga2"
+      "{{ icinga_core_install_prefix }}/var/run/icinga2";
+
 - name: "set icinga_core.state to 'installed'"
   when: "icinga_core_state == ''"
   update_resource:

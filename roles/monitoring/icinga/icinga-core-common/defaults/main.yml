@@ -43,6 +43,7 @@ icinga_core_install_system_packages_by_release:
 
     - "libboost-program-options1.54.0"
     - "libboost-regex1.54.0"
+    - "libboost-thread1.54.0"
     - "libyajl2"
     - "nagios-plugins-basic"
 
