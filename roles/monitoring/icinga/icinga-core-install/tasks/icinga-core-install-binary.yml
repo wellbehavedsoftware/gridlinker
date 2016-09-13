@@ -92,6 +92,7 @@
     mkdir -p
       "{{ icinga_core_install_prefix }}/etc"
       "{{ icinga_core_install_prefix }}/var/cache"
+      "{{ icinga_core_install_prefix }}/var/lib"
       "{{ icinga_core_install_prefix }}/var/log"
       "{{ icinga_core_install_prefix }}/var/run";
 
@@ -102,6 +103,10 @@
     ln -sfn
       "/var/cache/icinga2"
       "{{ icinga_core_install_prefix }}/var/cache/icinga2";
+
+    ln -sfn
+      "/var/lib/icinga2"
+      "{{ icinga_core_install_prefix }}/var/lib/icinga2";
 
     ln -sfn
       "/var/log/icinga2"
