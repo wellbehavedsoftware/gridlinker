@@ -1,6 +1,7 @@
 ---
 
 - include: "postgresql-common.yml"
+  when: "postgresql_install == 'yes'"
   tags:
 
     - "postgresql-common"

@@ -1,6 +1,10 @@
 ---
 
 - include: "postgresql-control.yml"
+  when: "
+    postgresql_install == 'yes'
+    and postgresql_state in [ 'enabled', 'disabled' ]
+  "
   tags:
 
     - "postgresql-control"
