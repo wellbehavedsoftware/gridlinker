@@ -29,6 +29,7 @@ php_max_input_time: "30"
 
 php_upload_max_filesize: "2M"
 php_post_max_size: "8M"
+php_max_input_vars: "1000"
 
 php_enabled_modules: []
 php_disabled_modules: []
