@@ -1,0 +1,15 @@
+---
+
+rzbackup_install: "{{ default_install | default ('yes') }}"
+
+rzbackup_state: ""
+rzbackup_needs_restart: ""
+
+rzbackup_user: "root"
+rzbackup_listen_address: "127.0.0.1"
+rzbackup_listen_port: "4152"
+rzbackup_repository: "/var/lib/zbackup"
+rzbackup_password_file: "/var/lib/zbackup/password-file"
+rzbackup_log: "/var/log/rzbackup.log"
+
+# ex: et ts=2 filetype=yaml

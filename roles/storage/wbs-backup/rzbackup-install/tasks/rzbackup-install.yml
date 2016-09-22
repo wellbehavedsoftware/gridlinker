@@ -1,0 +1,12 @@
+---
+
+- debug:
+    msg: "TODO"
+
+- name: "set rzbackup.state to 'installed'"
+  when: "rzbackup_state == ''"
+  update_resource:
+
+    rzbackup.state: "installed"
+
+# ex: et ts=2 filetype=yaml

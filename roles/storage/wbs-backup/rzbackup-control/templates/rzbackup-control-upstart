@@ -1,0 +1,52 @@
+{{ ansible_warning ['#'] }}
+
+description "rzbackup daemon"
+
+{% if rzbackup_state == 'enabled' %}
+start on (
+	net-device-up
+	and local-filesystems
+	and runlevel [2345]
+)
+stop on runlevel [^2345]
+{% endif %}
+
+kill signal SIGKILL
+
+respawn
+respawn limit unlimited
+
+umask 007
+
+pre-start script
+
+	set -e
+
+	echo "Creating {{ rzbackup_log }}"
+
+	touch "{{ rzbackup_log }}"
+	chown "{{ rzbackup_user }}:adm" "{{ rzbackup_log }}"
+	chmod 0640 "{{ rzbackup_log }}"
+
+end script
+
+script
+
+	set -e
+
+	echo "Starting rzbackup-server"
+
+	exec >> "{{ rzbackup_log }}"
+	exec 2>&1
+
+	exec setuid "{{ rzbackup_user }}" \
+	/usr/local/bin/rzbackup-server \
+		"{{ rzbackup_listen_address }}:{{ rzbackup_listen_port }}" \
+		"{{ rzbackup_repository }}" \
+		"{{ rzbackup_password_file }}"
+
+end script
+
+post-stop exec sleep 1
+
+# ex: noet ts=4 filetype=upstart
