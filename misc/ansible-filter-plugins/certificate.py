@@ -31,7 +31,7 @@ class FilterModule (object):
 	@lazy_property
 	def client (self):
 
-		return self.context.dclient
+		return self.context.client
 
 	def certificate (self, main_path):
 

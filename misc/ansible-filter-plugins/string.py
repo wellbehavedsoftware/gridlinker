@@ -50,6 +50,30 @@ def git_version_shorten (value, length = 8):
 	else:
 		return value
 
+def prepend_list (items, string):
+
+	return [
+		string + item
+		for item in items
+	]
+
+def append_list (items, string):
+
+	return [
+		item + string
+		for item in items
+	]
+
+def replace_list (items, change_from, change_to):
+
+	return [
+		item.replace (
+			change_from,
+			change_to)
+		for item
+		in items
+	]
+
 class FilterModule (object):
 
     def filters (self):
@@ -58,6 +82,10 @@ class FilterModule (object):
 
 			"substring_before": substring_before,
 			"substring_after": substring_after,
+
+			"prepend_list": prepend_list,
+			"append_list": append_list,
+			"replace_list": replace_list,
 
 			"starts_with": starts_with,
 

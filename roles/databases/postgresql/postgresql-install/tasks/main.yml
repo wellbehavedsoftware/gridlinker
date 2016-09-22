@@ -1,8 +1,13 @@
 ---
 
-- include: "postgresql-install.yml"
+- include: "postgresql-install-distro.yml"
+  when: "{{
+    postgresql_install == 'yes'
+    and postgresql_install_from == 'distro'
+  }}"
   tags:
 
+    - "postgresql-install-distro"
     - "postgresql-install"
     - "postgresql"
 

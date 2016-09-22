@@ -4,7 +4,8 @@
 
 nginx_install: "{{ default_install | default ('yes') }}"
 nginx_install_from: "source"
-nginx_version: ""
+nginx_install_version: ""
+
 nginx_config: "/etc/nginx"
 
 # ---------- state
@@ -12,8 +13,9 @@ nginx_config: "/etc/nginx"
 nginx_installed_version: ""
 nginx_installed_from: ""
 nginx_installed_prefix: ""
-nginx_needs_restart: ""
+
 nginx_state: ""
+nginx_needs_restart: ""
 
 # ---------- runtime configuration
 
@@ -97,11 +99,11 @@ nginx_config_templates:
 
 nginx_build_temp: "/tmp/nginx-build"
 nginx_build_mirror: "http://nginx.org/download"
-nginx_build_name: "nginx-{{ nginx_version }}"
+nginx_build_name: "nginx-{{ nginx_install_version }}"
 nginx_build_directory: "{{ nginx_build_name }}"
 nginx_build_archive: "{{ nginx_build_name }}.tar.gz"
 nginx_build_url: "{{ nginx_build_mirror }}/{{ nginx_build_archive }}"
-nginx_build_target: "/opt/nginx-{{ nginx_version }}"
+nginx_build_target: "/opt/nginx-{{ nginx_install_version }}"
 
 nginx_build_dependencies:
 

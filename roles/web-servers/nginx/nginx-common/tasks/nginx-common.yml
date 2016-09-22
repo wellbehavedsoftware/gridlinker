@@ -1,12 +1,15 @@
 ---
 
 - name: "check nginx.install_from"
-  when: "
-    nginx_install == 'yes'
-    and nginx_install_from not in [ 'source' ]
-  "
+  when: "nginx_install_from not in [ 'source' ]"
   fail:
 
     msg: "Invalid value for nginx.install_from: '{{ nginx_install_from }}'"
+
+- name: "check nginx.install_version is specified"
+  when: "nginx_install_version == ''"
+  fail:
+
+    msg: "Must set nginx.install_version"
 
 # ex: et ts=2 filetype=yaml

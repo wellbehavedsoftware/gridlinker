@@ -1,23 +1,25 @@
 ---
 
-postgresql_version: "9.3"
-
 postgresql_state: ""
-postgresql_installed_version: ""
-postgresql_needs_restart: "no"
+postgresql_needs_restart: ""
 
-postgresql_config: "/etc/postgresql/{{ postgresql_version }}/main"
+postgresql_install: "{{ default_install }}"
+postgresql_install_version: ""
+
+postgresql_installed_version: ""
+
+postgresql_config_prefix: "/etc/postgresql/{{ postgresql_installed_version }}/main"
 
 postgresql_config_templates:
 
   - template: "postgresql-config"
-    target: "{{ postgresql_config }}/postgresql.conf"
+    target: "{{ postgresql_config_prefix }}/postgresql.conf"
     user: "postgres"
     group: "postgres"
     mode: "0644"
 
   - template: "postgresql-hba"
-    target: "{{ postgresql_config }}/pg_hba.conf"
+    target: "{{ postgresql_config_prefix }}/pg_hba.conf"
     user: "postgres"
     group: "postgres"
     mode: "0640"

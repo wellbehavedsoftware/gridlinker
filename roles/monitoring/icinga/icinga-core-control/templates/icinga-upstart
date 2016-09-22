@@ -1,6 +1,6 @@
 description "icinga"
 
-{% if icinga_state == 'enabled' %}
+{% if icinga_core_state == 'enabled' %}
 start on runlevel [2345]
 stop on runlevel [!2345]
 {% endif %}
@@ -28,7 +28,7 @@ end script
 
 script
 
-	exec {{ icinga_target }}/sbin/icinga2 \
+	exec {{ icinga_core_installed_prefix }}/sbin/icinga2 \
 		daemon \
 		--config /etc/icinga2/icinga2.conf \
 		>> /var/log/icinga2/startup.log

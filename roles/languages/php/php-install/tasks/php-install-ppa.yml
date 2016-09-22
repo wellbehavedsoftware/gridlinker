@@ -32,10 +32,10 @@
     php.state: "installed"
 
 - name: "set php.installed_version"
-  when: "php_installed_version != php_version"
+  when: "php_installed_version != php_install_version"
   update_resource:
 
-    php.installed_version: "{{ php_version }}"
+    php.installed_version: "{{ php_install_version }}"
 
 - name: "set php.installed_from"
   when: "php_installed_from != 'ppa'"
