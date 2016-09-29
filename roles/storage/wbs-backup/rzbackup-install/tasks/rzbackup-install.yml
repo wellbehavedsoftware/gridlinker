@@ -1,12 +1,52 @@
 ---
 
-- debug:
-    msg: "TODO"
+- name: "install rzbackup"
+  when: "rzbackup_installed_version != rzbackup_install_version"
+  args:
+
+    executable: "/bin/bash"
+
+  become: "yes"
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ rzbackup_install_temp }}";
+    mkdir -p "{{ rzbackup_install_temp }}";
+    cd "{{ rzbackup_install_temp }}";
+
+    wget "{{ rzbackup_install_url }}";
+
+    tar --extract --xz
+      --file "{{ rzbackup_install_archive }}";
+
+    rsync --recursive
+      "{{ rzbackup_install_directory }}/"
+      "{{ rzbackup_install_target }}/";
+
+    ln -sfn
+      "$( basename "{{ rzbackup_install_target }}" )"
+      "$( dirname "{{ rzbackup_install_target }}" )/rzbackup";
+
+    cd "/";
+    rm -rf "{{ rzbackup_install_temp }}";
 
 - name: "set rzbackup.state to 'installed'"
   when: "rzbackup_state == ''"
   update_resource:
 
     rzbackup.state: "installed"
+
+- name: "set rzbackup.installed_version"
+  when: "rzbackup_installed_version != rzbackup_install_version"
+  update_resource:
+
+    rzbackup.installed_version: "{{ rzbackup_install_version }}"
+
+- name: "set rzbackup.installed_prefix"
+  when: "rzbackup_installed_prefix != rzbackup_install_target"
+  update_resource:
+
+    rzbackup.installed_prefix: "{{ rzbackup_install_target }}"
 
 # ex: et ts=2 filetype=yaml

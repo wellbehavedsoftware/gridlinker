@@ -28,6 +28,11 @@ pre-start script
 	chown "{{ rzbackup_user }}:adm" "{{ rzbackup_log }}"
 	chmod 0640 "{{ rzbackup_log }}"
 
+	echo "Creating {{ rzbackup_cache }}"
+	mkdir -p "{{ rzbackup_cache }}"
+	chown "{{ rzbackup_user }}:adm" "{{ rzbackup_cache }}"
+	chmod 0750 "{{ rzbackup_cache }}"
+
 end script
 
 script
@@ -40,10 +45,15 @@ script
 	exec 2>&1
 
 	exec setuid "{{ rzbackup_user }}" \
-	/usr/local/bin/rzbackup-server \
-		"{{ rzbackup_listen_address }}:{{ rzbackup_listen_port }}" \
-		"{{ rzbackup_repository }}" \
-		"{{ rzbackup_password_file }}"
+	{{ rzbackup_installed_prefix }}/rzbackup-server \
+		--listen-address "{{ [
+			rzbackup_listen_address,
+			':',
+			rzbackup_listen_port,
+		] | join }}" \
+		--repository-path "{{ rzbackup_repository }}" \
+		--password-file "{{ rzbackup_password_file }}" \
+		--filesystem-cache-path "{{ rzbackup_cache }}"
 
 end script
 

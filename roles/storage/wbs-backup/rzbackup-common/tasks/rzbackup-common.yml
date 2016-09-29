@@ -1,0 +1,9 @@
+---
+
+- name: "check rzbackup.install_version is set"
+  when: "rzbackup_install_version == ''"
+  fail:
+
+    msg: "Please set rzbackup.install_version"
+
+# ex: et ts=2 filetype=yaml
