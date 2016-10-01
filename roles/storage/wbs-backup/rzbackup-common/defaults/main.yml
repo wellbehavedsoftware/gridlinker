@@ -21,6 +21,9 @@ rzbackup_repository: "/var/lib/zbackup"
 rzbackup_password_file: "/var/lib/zbackup/password-file"
 rzbackup_log: "/var/log/rzbackup.log"
 rzbackup_cache: "/var/cache/rzbackup"
+rzbackup_max_uncompressed_memory_cache_entries: "256"
+rzbackup_max_compressed_memory_cache_entries: "2048"
+rzbackup_max_compressed_filesystem_cache_entries: "16384"
 
 # ---------- installation
 
