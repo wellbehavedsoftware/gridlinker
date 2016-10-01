@@ -18,6 +18,8 @@ respawn limit unlimited
 
 umask 007
 
+env MALLOC_CONF="narenas:1"
+
 pre-start script
 
 	set -e
