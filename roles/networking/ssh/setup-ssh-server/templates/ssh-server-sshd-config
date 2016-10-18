@@ -42,6 +42,6 @@ PrintLastLog yes
 
 # misc
 
-AcceptEnv LANG LC_*
+AcceptEnv LANG LC_* GIT_*
 Subsystem sftp /usr/lib/openssh/sftp-server
 UsePAM yes
