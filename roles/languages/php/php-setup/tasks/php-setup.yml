@@ -18,13 +18,27 @@
     src: "{{ item.template }}"
     dest: "{{ item.target }}"
 
+- name: "disable php5 modules"
+  with_items: "{{ php_disabled_modules }}"
+  when: "php_install_version == '5'"
+  become: "yes"
+  shell: "php5dismod {{ item }}"
+
+- name: "enable php5 modules"
+  with_items: "{{ php_enabled_modules }}"
+  when: "php_install_version == '5'"
+  become: "yes"
+  shell: "php5enmod {{ item }}"
+
 - name: "disable php modules"
   with_items: "{{ php_disabled_modules }}"
+  when: "php_install_version != '5'"
   become: "yes"
   shell: "phpdismod {{ item }}"
 
 - name: "enable php modules"
   with_items: "{{ php_enabled_modules }}"
+  when: "php_install_version != '5'"
   become: "yes"
   shell: "phpenmod {{ item }}"
 
