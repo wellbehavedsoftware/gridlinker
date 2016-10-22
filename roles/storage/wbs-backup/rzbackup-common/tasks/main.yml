@@ -1,0 +1,10 @@
+---
+
+- include: "rzbackup-common.yml"
+  when: "rzbackup_install == 'yes'"
+  tags:
+
+    - "rzbackup-common"
+    - "rzbackup"
+
+# ex: et ts=2 filetype=yaml

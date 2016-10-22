@@ -1,0 +1,9 @@
+---
+
+- name: "set rzbackup.state to 'enabled'"
+  when: "rzbackup_state == 'installed'"
+  update_resource:
+
+    rzbackup.state: "enabled"
+
+# ex: et ts=2 filetype=yaml

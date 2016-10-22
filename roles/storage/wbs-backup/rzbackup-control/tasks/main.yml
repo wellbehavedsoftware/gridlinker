@@ -1,0 +1,13 @@
+---
+
+- include: "rzbackup-control.yml"
+  when: "
+    rzbackup_install == 'yes'
+    and rzbackup_state in [ 'enabled', 'disabled' ]
+  "
+  tags:
+
+    - "rzbackup-control"
+    - "rzbackup"
+
+# ex: et ts=2 filetype=yaml
