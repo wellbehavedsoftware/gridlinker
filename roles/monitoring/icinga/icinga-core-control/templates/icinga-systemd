@@ -1,0 +1,29 @@
+[Unit]
+
+Description = Icinga monitoring daemon
+After = network.target
+
+[Service]
+
+User = icinga
+Group = icinga
+
+ExecStart = {{ [
+	icinga_core_installed_prefix + '/sbin/icinga2',
+	'daemon',
+	'--daemonize',
+	'--config',
+	'/etc/icinga2/icinga2.conf',
+] | join (' ') }}
+ExecReload = /bin/kill -HUP $MAINPID
+
+Type = forking
+PIDFile = /run/icinga2/icinga2.pid
+
+RuntimeDirectory = icinga2
+
+[Install]
+
+WantedBy = multi-user.target
+
+# ex: noet ts=4
