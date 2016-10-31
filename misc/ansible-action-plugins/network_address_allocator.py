@@ -17,12 +17,17 @@ class ActionModule (ActionBase):
 
 	def __init__ (self, * arguments, ** keyword_arguments):
 
-		self.support = importlib.import_module (
-			os.environ ["GRIDLINKER_SUPPORT"]).support
+		self.support = (
+			importlib.import_module (
+				os.environ ["GRIDLINKER_SUPPORT"]
+			).support
+		)
 
-		self.context = self.support.get_context ()
+		self.context = (
+			self.support.get_context ())
 
-		self.client = self.context.client
+		self.client = (
+			self.context.client)
 
 		ActionBase.__init__ (
 			self,

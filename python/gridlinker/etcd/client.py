@@ -238,7 +238,7 @@ class EtcdClient:
 				method = "PUT",
 				url = self.key_url (key),
 				query_data = {
-					"prevIndex": index,
+					"prevIndex": unicode (index),
 				},
 				payload_data = {
 					"value": value,
@@ -310,7 +310,7 @@ class EtcdClient:
 
 			connection.putheader (
 				"Content-Length",
-				len (payload_bytes))
+				unicode (len (payload_bytes)))
 
 			connection.putheader (
 				"Content-Type",
@@ -370,7 +370,7 @@ class EtcdClient:
 			url = self.key_url (key),
 			payload_data = {
 				"value": value,
-				"prevExist": False,
+				"prevExist": "false",
 			},
 			accept_response = [ 201, 412 ])
 

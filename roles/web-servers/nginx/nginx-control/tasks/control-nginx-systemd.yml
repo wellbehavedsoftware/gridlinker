@@ -9,6 +9,11 @@
     src: "nginx-systemd"
     dest: "/etc/systemd/system/nginx.service"
 
+- name: "reload systemd"
+  changed_when: "nginx_systemd_result | changed"
+  become: "yes"
+  command: "systemctl daemon-reload"
+
 - name: "set nginx.needs_restart to 'yes'"
   when: "nginx_systemd_result | changed"
   update_resource:

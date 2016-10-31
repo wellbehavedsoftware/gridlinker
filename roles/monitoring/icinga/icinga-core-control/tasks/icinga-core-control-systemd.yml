@@ -61,6 +61,7 @@
     module: "service"
     name: "icinga"
     state: "started"
+    enabled: "yes"
 
 - name: "icinga core control set needs_restart to 'no'"
   when: "
