@@ -53,6 +53,7 @@
     module: "service"
     name: "nginx"
     state: "started"
+    enabled: "yes"
 
 - name: "stop nginx"
   when: "nginx_state == 'disabled'"
