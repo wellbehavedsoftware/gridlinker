@@ -31,6 +31,25 @@
     cd "/";
     rm -rf "{{ rzbackup_install_temp }}";
 
+- name: "install rzbackup links"
+  args:
+
+    executable: "/bin/bash"
+
+  become: "yes"
+  shell:
+
+    set -euf -o pipefail;
+
+    cd "/usr/local/bin";
+    for binary in client decrypt restore server; do
+
+      ln -sfn
+        "../../../opt/{{ rzbackup_install_directory }}/rzbackup-$binary"
+        "/usr/local/bin/rzbackup-$binary";
+
+    done;
+
 - name: "set rzbackup.state to 'installed'"
   when: "rzbackup_state == ''"
   update_resource:
