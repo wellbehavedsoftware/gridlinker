@@ -93,7 +93,16 @@ class GenericCollection:
 
 			name = key [ 1 : len (key) - 5 ]
 
-			value = yamlx.parse (string_value)
+			try:
+
+				value = yamlx.parse (string_value)
+
+			except Exception as error:
+
+				raise Exception (
+					"Error loading %s" % (
+						key),
+					error)
 
 			data_cache [name] = value
 			all_list_cache.append (( name, value ))

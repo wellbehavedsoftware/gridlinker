@@ -91,7 +91,9 @@ class Resource (object):
 		self.identity_name = data ["identity"] ["name"]
 		self.identity_parent = data ["identity"].get ("parent")
 
-		self.resource_class = inventory.classes [self.identity_class]
+		self.resource_class = (
+			inventory.classes [self.identity_class])
+
 		self.identity_namespace = self.resource_class.namespace
 
 		self.unique_name = "/".join ([
@@ -142,6 +144,15 @@ class Resource (object):
 
 				self.combined [class_prefix] = (
 					collections.OrderedDict ())
+
+			if not isinstance (
+				self.unresolved [class_prefix],
+				dict):
+
+				raise Exception (
+					"Not a dictionary: %s.%s" % (
+						self.unique_name,
+						class_prefix))
 
 			for section_name, section_value \
 			in class_data.items ():
@@ -419,7 +430,7 @@ class Inventory (object):
 	def load_classes (self):
 
 		for class_name, class_data \
-		in self.context.local_data ["classes"].items ():
+		in self.context.classes.items ():
 
 			self.add_class (
 				class_name,

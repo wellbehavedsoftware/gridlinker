@@ -1,0 +1,90 @@
+---
+
+- name: "write php systemd config"
+  become: "yes"
+  register: "php_systemd_config_result"
+  action:
+
+    module: "template"
+    src: "php-systemd"
+    dest: "/etc/systemd/{{ php_installed_service }}.conf"
+
+- name: "set php.needs_restart to 'yes'"
+  when: "
+    php_state == 'enabled'
+    and php_systemd_config_result | changed
+    and php_needs_restart != 'yes'
+  "
+  update_resource:
+
+    php.needs_restart: "yes"
+
+- name: "set php.needs_restart to 'no'"
+  when: "
+    php_state != 'enabled'
+    and php_needs_restart == 'yes'
+  "
+  update_resource:
+
+    php.needs_restart: "no"
+
+- name: "reload systemd config"
+  when: "php_needs_restart == 'yes'"
+  become: "yes"
+  shell: "systemctl daemon-reload"
+
+- name: "restart php"
+  when: "
+    php_state == 'enabled'
+    and php_needs_restart == 'yes'
+  "
+  register: "php_restart_result"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "{{ php_installed_service }}"
+    state: "restarted"
+
+- name: "start php"
+  when: "
+    php_state == 'enabled'
+    and not php_restart_result | changed
+  "
+  register: "php_start_result"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "{{ php_installed_service }}"
+    state: "started"
+
+- name: "stop php"
+  when: "
+    php_state == 'disabled'
+  "
+  register: "stop_php_result"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "{{ php_installed_service }}"
+    state: "stopped"
+
+- name: "reload php"
+  when: "
+    php_state == 'enabled'
+    and not (
+      (php_restart_result | changed)
+      or (php_start_result | changed)
+    )
+  "
+  changed_when: "False"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "{{ php_installed_service }}"
+    state: "reloaded"
+
+# ex: et ts=2 filetype=yaml

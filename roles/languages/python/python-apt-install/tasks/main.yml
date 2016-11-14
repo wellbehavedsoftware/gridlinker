@@ -6,4 +6,7 @@
     - "python"
     - "build-python-apt"
 
+    - "build"
+    - "install"
+
 # ex: et ts=2 filetype=yaml

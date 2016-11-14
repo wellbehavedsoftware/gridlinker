@@ -21,7 +21,8 @@ class ResourceHelper (CommandHelper):
 				"No such class: %s" % (
 					class_name))
 
-		class_data = context.local_data ["classes"] [class_name]
+		class_data = (
+			context.classes [class_name])
 
 		return "%s/%s" % (
 			class_data ["class"] ["namespace"],
@@ -32,7 +33,9 @@ class ResourceHelper (CommandHelper):
 		resource_name = resource_data ["identity"] ["name"]
 
 		class_name = resource_data ["identity"] ["class"]
-		class_data = context.local_data ["classes"] [class_name]
+
+		class_data = (
+			context.classes [class_name])
 
 		# determine unique name depending on scope
 
@@ -44,8 +47,11 @@ class ResourceHelper (CommandHelper):
 
 		errors = []
 
+
 		class_name = resource_data ["identity"] ["class"]
-		class_data = context.local_data ["classes"] [class_name]
+
+		class_data = (
+			context.classes [class_name])
 
 		# check resource name
 
@@ -178,4 +184,4 @@ def args (sub_parsers):
 
 	resource_command.args (sub_parsers)
 
-# ex: noet ts=4 filetype=yaml
+# ex: noet ts=4 filetype=python

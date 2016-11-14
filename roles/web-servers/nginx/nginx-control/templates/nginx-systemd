@@ -1,0 +1,19 @@
+[Unit]
+
+Description = Nginx web server
+
+After = local-fs.target network.target
+
+[Service]
+
+Type = forking
+
+ExecPreStart = {{ nginx_installed_prefix }}/sbin/nginx -t
+
+ExecStart = {{ nginx_installed_prefix }}/sbin/nginx
+
+ExecReload = {{ nginx_installed_prefix }}/sbin/nginx -s reload
+
+[Install]
+
+WantedBy = multi-user.target

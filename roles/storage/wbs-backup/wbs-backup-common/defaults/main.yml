@@ -10,4 +10,13 @@ wbs_backup_version: ""
 wbs_backup_state: ""
 wbs_backup_installed_version: ""
 
+# ---------- install
+
+wbs_backup_mirror: "https://dist.wellbehavedsoftware.com/wbs-backup-daemon"
+wbs_backup_directory: "wbs-backup-daemon-{{ wbs_backup_version }}"
+wbs_backup_archive: "{{ wbs_backup_directory }}.tar.xz"
+wbs_backup_url: "{{ wbs_backup_mirror }}/{{ wbs_backup_archive }}"
+wbs_backup_temp: "/tmp/wbs-backup-install"
+wbs_backup_target: "/opt/{{ wbs_backup_directory }}"
+
 # ex: et ts=2 filetype=yaml
