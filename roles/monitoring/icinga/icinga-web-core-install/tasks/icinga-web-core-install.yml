@@ -19,7 +19,7 @@
     append: "yes"
 
 - name: "install icinga-web"
-  when: "icinga_web_core_installed_version != icinga_web_core_version"
+  when: "icinga_web_core_installed_version != icinga_web_core_install_version"
   become: "yes"
   args:
 
@@ -29,31 +29,48 @@
 
     set -euf -o pipefail;
 
-    rm -rf {{ icinga_web_core_temp }};
-    mkdir -p {{ icinga_web_core_temp }};
-    cd {{ icinga_web_core_temp }};
+    rm -rf {{ icinga_web_core_install_temp }};
+    mkdir -p {{ icinga_web_core_install_temp }};
+    cd {{ icinga_web_core_install_temp }};
 
-    wget {{ icinga_web_core_url }};
-    tar xzf {{ icinga_web_core_archive }};
+    wget {{ icinga_web_core_install_url }};
+    tar xzf {{ icinga_web_core_install_archive }};
 
-    mkdir -p {{ icinga_web_core_target }};
+    mkdir -p {{ icinga_web_core_install_prefix }};
 
     rsync --archive --delete
-      {{ icinga_web_core_directory }}/
-      {{ icinga_web_core_target }}/;
+      {{ icinga_web_core_install_directory }}/
+      {{ icinga_web_core_install_prefix }}/;
 
-    rm -rf {{ icinga_web_core_temp }};
+    rm -rf {{ icinga_web_core_install_temp }};
 
-- name: "set icinga_web.state to 'installed'"
+- name: "link icinga-web"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "/opt/icinga-web"
+    state: "link"
+
+    src: "icinga-web-{{ icinga_web_core_install_version }}"
+    force: "yes"
+
+- name: "set icinga_web_core.state to 'installed'"
   when: "icinga_web_core_state == ''"
   update_resource:
 
-    icinga_web.state: "installed"
+    icinga_web_core.state: "installed"
 
-- name: "set icinga_web_core_installed_version"
-  when: "icinga_web_core_installed_version != icinga_web_core_version"
+- name: "set icinga_web_core.installed_version"
+  when: "icinga_web_core_installed_version != icinga_web_core_install_version"
   update_resource:
 
-    icinga_web.installed_version: "{{ icinga_web_core_version }}"
+    icinga_web_core.installed_version: "{{ icinga_web_core_install_version }}"
+
+- name: "set icinga_web_core.installed_prefix"
+  when: "icinga_web_core_installed_prefix != icinga_web_core_install_prefix"
+  update_resource:
+
+    icinga_web_core.installed_prefix: "{{ icinga_web_core_install_prefix }}"
 
 # ex: et ts=2 filetype=yaml

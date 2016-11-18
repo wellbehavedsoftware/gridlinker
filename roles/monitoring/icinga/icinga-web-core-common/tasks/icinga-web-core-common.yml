@@ -1,9 +1,0 @@
----
-
-- name: "check required variables"
-  when: "icinga_web_core_version == ''"
-  fail:
-
-    msg: "please set icinga_web_core.version"
-
-# ex: et ts=2 filetype=yaml

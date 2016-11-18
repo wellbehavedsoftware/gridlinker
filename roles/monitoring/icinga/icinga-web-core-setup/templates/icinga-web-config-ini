@@ -8,4 +8,4 @@ store = "db"
 resource = "icingaweb_db"
 
 [global]
-module_path = "/opt/icinga-web-{{ icinga_web_core_version }}/modules"
+module_path = "{{ icinga_web_core_installed_prefix }}/modules"

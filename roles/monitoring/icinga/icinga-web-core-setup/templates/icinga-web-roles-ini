@@ -1,13 +1,16 @@
-{% for icinga_web_core_role in icinga_web_roles.values () %}
+{% for icinga_web_core_role in icinga_web_core_roles.values () %}
 {% if icinga_web_core_role.permissions %}
 
 [{{ icinga_web_core_role.name }}]
-{% if icinga_web_core_role.users %}
+
+{% if icinga_web_core_role.users is defined  %}
 users = "{{ icinga_web_core_role.users | join (',') }}"
 {% endif %}
-{% if icinga_web_core_role.groups %}
+
+{% if icinga_web_core_role.groups is defined %}
 groups = "{{ icinga_web_core_role.groups | join (',') }}"
 {% endif %}
+
 permissions = "{{ icinga_web_core_role.permissions | join (',') }}"
 
 {% endif %}

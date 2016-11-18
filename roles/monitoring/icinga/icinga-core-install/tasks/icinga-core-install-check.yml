@@ -1,0 +1,9 @@
+---
+
+- name: "check icinga_core.install_version is set"
+  when: "icinga_core_install_version == ''"
+  fail:
+
+    msg: "must set icinga_core.install_version"
+
+# ex: et ts=2 filetype=yaml
