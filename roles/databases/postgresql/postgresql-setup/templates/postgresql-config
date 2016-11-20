@@ -1,9 +1,9 @@
 # ---------- locations
 
-data_directory = '/var/lib/postgresql/9.3/main'
-hba_file = '/etc/postgresql/9.3/main/pg_hba.conf'
-ident_file = '/etc/postgresql/9.3/main/pg_ident.conf'
-external_pid_file = '/var/run/postgresql/9.3-main.pid'
+data_directory = '/var/lib/postgresql/{{ postgresql_installed_version }}/main'
+hba_file = '/etc/postgresql/{{ postgresql_installed_version }}/main/pg_hba.conf'
+ident_file = '/etc/postgresql/{{ postgresql_installed_version }}/main/pg_ident.conf'
+external_pid_file = '/var/run/postgresql/{{ postgresql_installed_version }}-main.pid'
 
 # ---------- connections
 
