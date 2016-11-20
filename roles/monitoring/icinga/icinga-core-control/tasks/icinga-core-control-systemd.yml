@@ -79,7 +79,7 @@
     icinga_core_state == 'enabled'
     and icinga_core_needs_restart == 'yes'
   "
-  register: "icinga_core_control_reload_result"
+  register: "icinga_core_control_restart_result"
   become: "yes"
   action:
 
