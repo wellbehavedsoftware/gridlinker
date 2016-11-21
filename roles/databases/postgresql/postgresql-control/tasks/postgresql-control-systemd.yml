@@ -57,6 +57,12 @@
     name: "postgresql"
     state: "restarted"
 
+- name: "set postgresql.needs_restart to 'no'"
+  when: "postgresql_control_systemd_restart_result | changed"
+  update_resource:
+
+    postgresql.needs_restart: "no"
+
 - name: "postgresql control systemd reload"
   when: "
     not (
@@ -66,7 +72,7 @@
     )
   "
   changed_when: "False"
-  register: "postgresql_control_systemd_restart_result"
+  register: "postgresql_control_systemd_reload_result"
   become: "yes"
   action:
 
