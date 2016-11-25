@@ -11,4 +11,6 @@
     - "nginx-install"
     - "nginx-install-from-source"
 
+    - "install"
+
 # ex: et ts=2 filetype=yaml

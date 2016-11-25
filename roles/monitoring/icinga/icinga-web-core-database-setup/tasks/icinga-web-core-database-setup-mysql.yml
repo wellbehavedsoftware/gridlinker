@@ -1,25 +1,25 @@
 ---
 
 - name: "create icinga web database"
-  delegate_to: "{{ icinga_web_core_main_database_delegate }}"
+  delegate_to: "{{ icinga_web_core_database_delegate }}"
   action:
 
     module: "mysql_db"
-    name: "{{ icinga_web_core_main_database_name }}"
+    name: "{{ icinga_web_core_database_name }}"
 
 - name: "create icinga web database user"
-  delegate_to: "{{ icinga_web_core_main_database_delegate }}"
+  delegate_to: "{{ icinga_web_core_database_delegate }}"
   action:
 
     module: "mysql_user"
     name: "{{ icinga_web_core_database_username }}"
     host: "%"
     password: "{{ icinga_web_core_database_password }}"
-    priv: "{{ icinga_web_core_ido_database_name }}.*:ALL/{{ icinga_web_core_main_database_name }}.*:ALL"
+    priv: "{{ icinga_web_core_ido_database_name }}.*:ALL/{{ icinga_web_core_database_name }}.*:ALL"
 
 - name: "initialize icinga web database"
-  delegate_to: "{{ icinga_web_core_main_database_delegate }}"
-  when: "icinga_web_core_main_database_initialized == 'no'"
+  delegate_to: "{{ icinga_web_core_database_delegate }}"
+  when: "icinga_web_core_database_initialized == 'no'"
   args:
 
     executable: "/bin/bash"
@@ -28,20 +28,20 @@
 
     set -euf -o pipefail;
 
-    mysql {{ icinga_web_core_main_database_name }}
+    mysql {{ icinga_web_core_database_name }}
       </opt/icinga-web-{{ icinga_web_core_version }}/etc/schema/mysql.schema.sql;
 
     password_hash=$(openssl passwd -1 {{ icinga_web_core_admin_password }});
 
-    mysql {{ icinga_web_core_main_database_name }} --execute "
+    mysql {{ icinga_web_core_database_name }} --execute "
       INSERT INTO icingaweb_user (name, active, password_hash)
       VALUES ('admin', 1, '$password_hash');
     ";
 
-- name: "set icinga_web_core_main_database_initialized to 'yes'"
-  when: "icinga_web_core_main_database_initialized == 'no'"
+- name: "set icinga_web_core_database_initialized to 'yes'"
+  when: "icinga_web_core_database_initialized == 'no'"
   update_resource:
 
-    icinga_web.main_database_initialized: "yes"
+    icinga_web_core.database_initialized: "yes"
 
 # ex: et ts=2 filetype=yaml

@@ -1,5 +1,13 @@
 ---
 
+- include: "icinga-web-core-install-check.yml"
+  tags:
+
+    - "icinga-web-core-install"
+    - "icinga-web-core"
+    - "icinga-web"
+    - "icinga"
+
 - include: "icinga-web-core-install.yml"
   tags:
 

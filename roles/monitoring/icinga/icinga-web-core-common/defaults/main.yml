@@ -1,25 +1,24 @@
 ---
 
-# ---------- main configuration
-
-icinga_web_core_version: ""
-
 # ---------- state
 
 icinga_web_core_state: ""
+
 icinga_web_core_installed_version: ""
+icinga_web_core_installed_prefix: ""
 
 icinga_web_core_database_initialized: ""
 
 # ---------- installation metadata
 
-icinga_web_core_github: "https://github.com/Icinga/icingaweb2/archive"
-icinga_web_core_temp: "/tmp/icinga-web-install"
+icinga_web_core_install_version: ""
 
-icinga_web_core_url: "{{ icinga_web_core_github }}/v{{ icinga_web_core_version }}.tar.gz"
-icinga_web_core_archive: "v{{ icinga_web_core_version }}.tar.gz"
-icinga_web_core_directory: "icingaweb2-{{ icinga_web_core_version }}"
-icinga_web_core_target: "/opt/icinga-web-{{ icinga_web_core_version }}"
+icinga_web_core_install_github: "https://github.com/Icinga/icingaweb2/archive"
+icinga_web_core_install_temp: "/tmp/icinga-web-install"
+icinga_web_core_install_url: "{{ icinga_web_core_install_github }}/v{{ icinga_web_core_install_version }}.tar.gz"
+icinga_web_core_install_archive: "v{{ icinga_web_core_install_version }}.tar.gz"
+icinga_web_core_install_directory: "icingaweb2-{{ icinga_web_core_install_version }}"
+icinga_web_core_install_prefix: "/opt/icinga-web-{{ icinga_web_core_install_version }}"
 
 # ---------- configuration defaults
 
@@ -35,6 +34,7 @@ icinga_web_core_database_port: "{{
     '': '',
   } [icinga_web_core_database_type]
 }}"
+icinga_web_core_database_name: "icingaweb"
 
 icinga_web_core_main_database_type: "{{ icinga_web_core_database_type }}"
 icinga_web_core_main_database_hostname: "{{ icinga_web_core_database_hostname }}"
