@@ -1257,6 +1257,24 @@ class Inventory (object):
 
 					continue
 
+				if tokens [token_index] == "keys" \
+				and value_type == "value":
+
+					token_index += 1
+
+					value = value.keys ()
+
+					continue
+
+				if tokens [token_index] == "values" \
+				and value_type == "value":
+
+					token_index += 1
+
+					value = value.values ()
+
+					continue
+
 				if tokens [token_index + 0] == "substring_before" \
 				and tokens [token_index + 1] == "(" \
 				and tokens [token_index + 2] [0] == "'" \
