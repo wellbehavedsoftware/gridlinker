@@ -38,10 +38,10 @@
 
     src: "{{ icinga_web_core_installed_prefix }}/modules/{{ item }}"
 
-- name: "set icinga_web.state to 'enabled'"
+- name: "set icinga_web_core.state to 'enabled'"
   when: "icinga_web_core_state == 'installed'"
   update_resource:
 
-    icinga_web.state: "enabled"
+    icinga_web_core.state: "enabled"
 
 # ex: et ts=2 filetype=yaml
