@@ -4,7 +4,15 @@
 
 mysql_install: "{{ default_install | default ('yes') }}"
 mysql_install_from: "distro"
-mysql_version: ""
+
+mysql_install_version: "{{
+  mysql_install_version_default_by_release [ubuntu_release]
+}}"
+
+mysql_install_version_default_by_release:
+
+  trusty: "5.5"
+  xenial: "5.7"
 
 # ---------- state
 
@@ -48,7 +56,7 @@ mysql_config_templates:
 
 mysql_distro_packages:
 
-  - "mysql-server-5.5"
+  - "mysql-server-{{ mysql_install_version }}"
   - "python-mysqldb"
 
 # ex: et ts=2 filetype=yaml
