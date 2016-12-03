@@ -1,0 +1,19 @@
+---
+
+- include: "heka-control-upstart.yml"
+  when: "system_init == 'upstart'"
+  tags:
+
+    - "heka-control-upstart"
+    - "heka-control"
+    - "heka"
+
+- include: "heka-control-systemd.yml"
+  when: "system_init == 'systemd'"
+  tags:
+
+    - "heka-control-systemd"
+    - "heka-control"
+    - "heka"
+
+# ex: et ts=2 filetype=yaml

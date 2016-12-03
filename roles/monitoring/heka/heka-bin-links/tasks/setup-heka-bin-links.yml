@@ -1,0 +1,39 @@
+---
+
+- name: "create symlinks to heka bins"
+  register: "heka_symlinks_result"
+  changed_when: "heka_symlinks_result.stdout != 'UNCHANGED'"
+  become: "yes"
+  args:
+
+    executable: "/bin/bash"
+    chdir: "{{ heka_target }}/bin"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    changed="";
+
+    while read filename; do
+
+      if ! test -x "$filename"; then
+        continue;
+      fi;
+
+      if test -h "/usr/local/bin/$filename"; then
+        continue;
+      fi;
+
+      changed="yes";
+
+      ln -s "../../..{{ heka_target }}/bin/$filename"
+        "/usr/local/bin/$filename";
+
+    done < <(ls);
+
+    if ! test "$changed"; then
+      echo "UNCHANGED";
+    fi;
+
+# ex: et ts=2 filetype=yaml

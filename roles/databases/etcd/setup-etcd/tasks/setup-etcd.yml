@@ -46,7 +46,6 @@
 
 - name: "create etcd directories"
   with_items: "{{ etcd_directories }}"
-  notify: "set etcd.needs_restart to 'yes'"
   become: "yes"
   action:
 
@@ -57,7 +56,7 @@
 
 - name: "write etcd config templates"
   with_items: "{{ etcd_config_templates }}"
-  notify: "set etcd.needs_restart to 'yes'"
+  register: "etcd_setup_config_result"
   become: "yes"
   action:
 
@@ -69,10 +68,16 @@
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
 
+- name: "set etcd.needs_restart to 'yes'"
+  when: "etcd_setup_config_result | changed"
+  update_resource:
+
+    etcd.needs_restart: "yes"
+
 - name: "write etcd security config"
   with_items: "{{ etcd_security_config }}"
   when: "etcd_secured == 'yes'"
-  notify: "set etcd.needs_restart to 'yes'"
+  register: "etcd_setup_security_result"
   become: "yes"
   action:
 
@@ -81,7 +86,11 @@
     content: "{{ lookup ('etcd', item.source) }}"
     mode: "{{ item.mode }}"
 
-- meta: "flush_handlers"
+- name: "set etcd.needs_restart to 'yes'"
+  when: "etcd_setup_security_result | changed"
+  update_resource:
+
+    etcd.needs_restart: "yes"
 
 - name: "set etcd.state to 'enabled'"
   when: "etcd_state == 'installed'"

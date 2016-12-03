@@ -1,0 +1,40 @@
+---
+
+- name: "install heka"
+  when: "heka_installed_version != heka_version"
+  become: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ heka_temp }}";
+    mkdir "{{ heka_temp }}";
+    cd "{{ heka_temp }}";
+
+    wget --quiet "{{ heka_url }}";
+
+    tar -xzf "{{ heka_archive }}";
+
+    rsync --archive --delete
+      "{{ heka_directory }}/"
+      "{{ heka_target }}/";
+
+    rm -rf "{{ heka_temp }}";
+
+- name: "set heka.state to 'installed'"
+  when: "heka_state == 'no'"
+  update_resource:
+
+    heka.state: "installed"
+
+- name: "set heka.installed_version"
+  when: "heka_installed_version != heka_version"
+  update_resource:
+
+    heka.installed_version: "{{ heka_version }}"
+
+# ex: et ts=2 filetype=yaml

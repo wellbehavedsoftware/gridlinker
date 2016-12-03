@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -euf -o pipefail
+
+export MALLOC_CONF="narenas:1"
+
+echo "Creating {{ rzbackup_log }}"
+
+touch "{{ rzbackup_log }}"
+chown "{{ rzbackup_user }}:adm" "{{ rzbackup_log }}"
+chmod 0640 "{{ rzbackup_log }}"
+
+echo "Creating {{ rzbackup_cache }}"
+mkdir -p "{{ rzbackup_cache }}"
+chown "{{ rzbackup_user }}:adm" "{{ rzbackup_cache }}"
+chmod 0750 "{{ rzbackup_cache }}"
+
+echo "Starting rzbackup-server"
+
+exec >> "{{ rzbackup_log }}"
+exec 2>&1
+
+exec setuid "{{ rzbackup_user }}" \
+{{ rzbackup_installed_prefix }}/rzbackup-server \
+	--listen-address "{{ [
+		rzbackup_listen_address,
+		':',
+		rzbackup_listen_port,
+	] | join }}" \
+	--repository-path "{{ rzbackup_repository }}" \
+	--password-file "{{ rzbackup_password_file }}" \
+	--filesystem-cache-path "{{ rzbackup_cache }}" \
+	--max-uncompressed-memory-cache-entries "{{
+		rzbackup_max_uncompressed_memory_cache_entries
+	}}" \
+	--max-compressed-memory-cache-entries "{{
+		rzbackup_max_compressed_memory_cache_entries
+	}}" \
+	--max-compressed-filesystem-cache-entries "{{
+		rzbackup_max_compressed_filesystem_cache_entries
+	}}"
+
+# ex: noet ts=4 filetype=sh

@@ -1,0 +1,67 @@
+---
+
+- name: "rzbackup control write start script"
+  register: "rzbackup_control_systemd_script_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    src: "rzbackup-control-script"
+    dest: "/etc/rzbackup-start-script"
+    mode: "0755"
+
+- name: "set rzbackup.needs_restart to 'yes'"
+  when: "rzbackup_control_systemd_script_result | changed"
+  update_resource:
+
+    rzbackup.needs_restart: "yes"
+
+- name: "rzbackup control write systemd config"
+  register: "rzbackup_control_systemd_config_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    src: "rzbackup-control-systemd"
+    dest: "/etc/systemd/system/rzbackup.service"
+
+- name: "set rzbackup.needs_restart to 'yes'"
+  when: "rzbackup_control_systemd_config_result | changed"
+  update_resource:
+
+    rzbackup.needs_restart: "yes"
+
+- name: "rzbackup control systemd daemon reload"
+  when: "rzbackup_control_systemd_config_result | changed"
+  become: "yes"
+  command: "systemctl daemon-reload"
+
+- name: "stop rzbackup"
+  when: "
+    rzbackup_state == 'disabled'
+    or rzbackup_needs_restart == 'yes'
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "rzbackup"
+    state: "stopped"
+    enabled: "{{ 'yes' if rzbackup_state == 'enabled' else 'no' }}"
+
+- name: "set rzbackup.needs_restart to 'no'"
+  update_resource:
+
+    rzbackup.needs_restart: "no"
+
+- name: "start rzbackup"
+  when: "rzbackup_state == 'enabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "rzbackup"
+    state: "started"
+    enabled: "yes"
+
+# ex: et ts=2 filetype=yaml
