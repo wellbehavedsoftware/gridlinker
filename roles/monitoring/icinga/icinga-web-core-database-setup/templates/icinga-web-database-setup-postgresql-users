@@ -21,6 +21,7 @@ DECLARE
 	the_active_int int;
 
 	the_group_name text;
+	the_group_id int;
 
 BEGIN
 
@@ -70,28 +71,34 @@ BEGIN
 	IN ARRAY the_group_names
 	LOOP
 
+		the_group_id := (
+			SELECT id
+			FROM icingaweb_group
+			WHERE name = the_group_name
+		);
+
 		IF EXISTS (
 			SELECT *
 			FROM icingaweb_group_membership
-			WHERE group_name = the_group_name
+			WHERE group_id = the_group_id
 				AND username = the_name
 		) THEN
 
 			UPDATE icingaweb_group_membership
 			SET mtime = now ()
-			WHERE group_name = the_group_name
+			WHERE group_id = the_group_id
 				AND username = the_name
 				AND false;
 
 		ELSE
 
 			INSERT INTO icingaweb_group_membership (
-				group_name,
+				group_id,
 				username,
 				ctime,
 				mtime
 			) VALUES (
-				the_group_name,
+				the_group_id,
 				the_name,
 				now (),
 				now ()
@@ -103,7 +110,11 @@ BEGIN
 
 	DELETE FROM icingaweb_group_membership
 	WHERE username = the_name
-	AND NOT (group_name = ANY (the_group_names));
+	AND NOT group_id IN (
+		SELECT id
+		FROM icingaweb_group
+		WHERE name = ANY (the_group_names)
+	);
 
 END
 $$ LANGUAGE plpgsql;
@@ -149,7 +160,14 @@ $$ LANGUAGE plpgsql;
 
 BEGIN TRANSACTION;
 
-{% for icinga_web_user in icinga_web_users.values () %}
+{% for icinga_web_group in icinga_web_core_groups.values () %}
+
+SELECT pg_temp.create_group (
+	'{{ icinga_web_group.name }}');
+
+{% endfor %}
+
+{% for icinga_web_user in icinga_web_core_users.values () %}
 
 SELECT pg_temp.create_user (
 	'{{ icinga_web_user.name }}',
@@ -158,13 +176,6 @@ SELECT pg_temp.create_user (
 		icinga_web_user.groups
 		| join3 ('\'', ', ', '\'')
 	}} ] :: text []);
-
-{% endfor %}
-
-{% for icinga_web_group in icinga_web_groups.values () %}
-
-SELECT pg_temp.create_group (
-	'{{ icinga_web_group.name }}');
 
 {% endfor %}
 

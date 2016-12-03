@@ -1,5 +1,15 @@
 ---
 
+- name: "mysql install from distro set dpkg config"
+  become: "yes"
+  action:
+
+    module: "debconf"
+    name: "mysql-server"
+    question: "mysql-server/root_password"
+    value: "{{ mysql_root_password }}"
+    vtype: "password"
+
 - name: "install mysql packages"
   with_items: "{{ mysql_distro_packages }}"
   become: "yes"

@@ -1,0 +1,77 @@
+{%- set postgresql_prefix = [
+	'/usr/lib/postgresql/',
+	postgresql_installed_version,
+] | join -%}
+
+{%- set postgresql_bin = [
+	postgresql_prefix,
+	'/bin',
+] | join -%}
+
+{%- set postgresql_main = [
+	postgresql_bin,
+	'/postgres',
+] | join -%}
+
+{%- set postgresql_ctl = [
+	postgresql_bin,
+	'/pg_ctl',
+] | join -%}
+
+{%- set postgresql_data = [
+	'/var/lib/postgresql/',
+	postgresql_installed_version,
+	'/main',
+] | join -%}
+
+{%- set postgresql_pid = [
+	'/var/run/postgresql/',
+	postgresql_installed_version,
+	'-main.pid',
+] | join -%}
+
+[Unit]
+
+	Description = PostgreSQL database server
+	After = network.target
+
+[Service]
+
+	Type = simple
+	PIDFile = {{ postgresql_pid }}
+
+	User = postgres
+	Group = postgres
+
+	OOMScoreAdjust = -1000
+
+	TimeoutSec = 300
+
+	Environment = PG_OOM_ADJUST_FILE=/proc/self/oom_score_adj
+	Environment = PG_OOM_ADJUST_VALUE=0
+	Environment = PGSTARTTIMEOUT=270
+
+	ExecStart = {{ [
+		postgresql_main,
+		'--config-file=' + postgresql_config_prefix + '/postgresql.conf',
+	] | join (' ') }}
+
+	ExecStop = {{ [
+		postgresql_ctl,
+		'stop',
+		'-w',
+		'--pgdata ' + postgresql_data,
+	] | join (' ') }}
+
+	ExecReload = {{ [
+		postgresql_ctl,
+		'reload',
+		'-w',
+		'--pgdata ' + postgresql_data,
+	] | join (' ') }}
+
+[Install]
+
+	WantedBy = multi-user.target
+
+# ex: noet ts=4 filetype=systemd

@@ -5,16 +5,7 @@ After = network.target
 
 [Service]
 
-User = icinga
-Group = icinga
-
-ExecStart = {{ [
-	icinga_core_installed_prefix + '/sbin/icinga2',
-	'daemon',
-	'--daemonize',
-	'--config',
-	'/etc/icinga2/icinga2.conf',
-] | join (' ') }}
+ExecStart = /etc/icinga2/startup-script
 ExecReload = /bin/kill -HUP $MAINPID
 
 Type = forking

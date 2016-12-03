@@ -65,7 +65,10 @@
     set -euf -o pipefail;
 
     psql {{ icinga_core_database_name }}
-      < /usr/share/icinga2-ido-pgsql/schema/pgsql.sql;
+      < "{{ [
+        hostvars [icinga_core_database_delegate].icinga_core_installed_prefix,
+        '/share/icinga2-ido-pgsql/schema/pgsql.sql',
+      ] | join }}";
 
 - name: "set icinga_core.database_initialized to 'yes'"
   update_resource:

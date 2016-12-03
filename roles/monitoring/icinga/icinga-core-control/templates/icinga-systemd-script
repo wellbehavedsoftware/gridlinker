@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -euf -o pipefail
+
+mkdir -p /var/run/icinga2
+chown icinga:icinga /var/run/icinga2
+chmod 0755 /var/run/icinga2
+
+mkdir -p /var/run/icinga2/cmd
+chown icinga:icinga /var/run/icinga2/cmd
+chmod 0755 /var/run/icinga2/cmd
+
+test -e /var/run/icinga2/cmd/icinga2.cmd || {
+	mkfifo /var/run/icinga2/cmd/icinga2.cmd
+}
+chown icinga:www-data /var/run/icinga2/cmd/icinga2.cmd
+chmod 0660 /var/run/icinga2/cmd/icinga2.cmd
+
+exec {{ icinga_core_installed_prefix }}/sbin/icinga2 \
+	daemon --daemonize \
+	--config /etc/icinga2/icinga2.conf
+
+# ex: noet ts=4 filetype=bash
+
+

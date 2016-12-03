@@ -1,0 +1,77 @@
+---
+
+- name: "write postgresql upstart config"
+  register: "postgresql_control_upstart_config_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/init/postgresql.conf"
+    src: "postgresql-control-upstart"
+
+- name: "postgresql control upstart stop"
+  when: "postgresql_state != 'enabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "postgresql"
+    state: "stopped"
+    enable: "no"
+
+- name: "postgresql control upstart start"
+  when: "postgresql_state == 'enabled'"
+  register: "postgresql_control_upstart_start_result"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "postgresql"
+    state: "started"
+    enable: "yes"
+
+- name: "set postgresql.needs_restart to 'no'"
+  when: "postgresql_control_upstart_start_result | changed"
+  update_resource:
+
+    postgresql.needs_restart: "no"
+
+- name: "postgresql control upstart restart"
+  when: "postgresql_needs_restart == 'yes'"
+  register: "postgresql_control_upstart_restart_result"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "postgresql"
+    state: "restarted"
+
+- name: "postgresql control upstart reload"
+  when: "
+    not (
+      postgresql_control_upstart_start_result | changed
+    ) and not (
+      postgresql_control_upstart_restart_result | changed
+    )
+  "
+  changed_when: "False"
+  register: "postgresql_control_upstart_restart_result"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "postgresql"
+    state: "reloaded"
+- name: "create postgresql user 'ubuntu'"
+  become: "yes"
+  become_user: "postgres"
+  action:
+
+    module: "postgresql_user"
+    name: "ubuntu"
+
+    role_attr_flags: "SUPERUSER"
+
+    login_unix_socket: "/var/run/postgresql"
+
+# ex: et ts=2 filetype=yaml
