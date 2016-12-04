@@ -14,7 +14,7 @@
   become: "yes"
   command: "systemctl daemon-reload"
 
-- name: "stop etcd"
+- name: "etcd control systemd stop"
   when: "
     etcd_control_systemd_config_result | changed
     or etcd_state == 'disabled'
@@ -27,7 +27,7 @@
     state: "stopped"
     enabled: "{{ 'yes' if etcd_state == 'enabled' else 'no' }}"
 
-- name: "start etcd"
+- name: "etcd control systemd start"
   when: "etcd_state == 'enabled'"
   become: "yes"
   action:
