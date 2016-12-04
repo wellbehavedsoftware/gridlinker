@@ -3,7 +3,7 @@
 - include: "etcd-install.yml"
   tags:
 
-    - "install-etcd"
+    - "etcd-install"
     - "etcd"
 
 # ex: et ts=2 filetype=yaml
