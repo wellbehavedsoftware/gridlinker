@@ -1,14 +1,26 @@
 ---
 
 - name: "mysql install from distro set dpkg config"
+  with_items:
+
+    - package: "mysql-server"
+      question: "mysql-server/root_password"
+      answer: "{{ mysql_root_password }}"
+      type: "password"
+
+    - package: "mysql-server"
+      question: "mysql-server/root_password_again"
+      answer: "{{ mysql_root_password }}"
+      type: "password"
+
   become: "yes"
   action:
 
     module: "debconf"
-    name: "mysql-server"
-    question: "mysql-server/root_password"
-    value: "{{ mysql_root_password }}"
-    vtype: "password"
+    name: "{{ item.package }}"
+    question: "{{ item.question }}"
+    value: "{{ item.answer }}"
+    vtype: "{{ item.type }}"
 
 - name: "install mysql packages"
   with_items: "{{ mysql_distro_packages }}"
