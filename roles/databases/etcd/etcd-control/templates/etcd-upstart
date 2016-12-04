@@ -1,0 +1,22 @@
+description "Etcd daemon"
+
+{% if etcd_state == 'enabled' %}
+start on runlevel [2345]
+stop on runlevel [!2345]
+{% endif %}
+
+respawn
+respawn limit unlimited
+
+script
+
+	. /etc/etcd/etcd-environment
+
+	exec >>/var/log/etcd.log
+	exec 2>&1
+
+	exec {{ etcd_target }}/etcd
+
+end script
+
+post-stop exec sleep 2

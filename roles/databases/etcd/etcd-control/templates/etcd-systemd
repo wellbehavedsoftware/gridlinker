@@ -1,0 +1,24 @@
+{{ ansible_warning ['#'] }}
+
+[Unit]
+
+	Description = Etcd daemon
+	After = network.target
+
+[Service]
+
+	Type = notify
+	KillMode = process
+	Restart = on-failure
+
+	EnvironmentFile = /etc/etcd/etcd-environment
+
+	ExecStart = {{ etcd_target }}/etcd
+	ExecReload = /bin/kill -HUP $MAINPID
+
+[Install]
+
+	WantedBy = mult-user.target
+	Alias = etcd.service
+
+# ex: et ts=4 filetype=systemd

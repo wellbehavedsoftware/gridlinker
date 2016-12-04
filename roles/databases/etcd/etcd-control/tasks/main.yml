@@ -1,0 +1,19 @@
+---
+
+- include: "etcd-control-upstart.yml"
+  when: "system_init == 'upstart'"
+  tags:
+
+    - "etcd-control-upstart"
+    - "etcd-control"
+    - "etcd"
+
+- include: "etcd-control-systemd.yml"
+  when: "system_init == 'systemd'"
+  tags:
+
+    - "etcd-control-upstart"
+    - "etcd-control"
+    - "etcd"
+
+# ex: et ts=2 filetype=yaml

@@ -3,8 +3,5 @@
 dependencies:
 
   - "etcd-common"
-  - "etcd-install"
-  - "etcd-setup"
-  - "etcd-control"
 
 # ex: et ts=2 filetype=yaml

@@ -1,0 +1,49 @@
+---
+
+- name: "install etcd"
+  when: "etcd_installed_version != etcd_version"
+  become: "yes"
+  args:
+
+    executable: "/bin/bash"
+
+  shell:
+
+    set -euf -o pipefail;
+
+    rm -rf "{{ etcd_temp }}";
+    mkdir "{{ etcd_temp }}";
+    cd "{{ etcd_temp }}";
+
+    wget --quiet "{{ etcd_url }}";
+
+    tar -xzf "{{ etcd_archive }}";
+
+    rsync --archive --delete
+      "{{ etcd_directory }}/"
+      "{{ etcd_target }}/";
+
+    rm -rf "{{ etcd_temp }}";
+
+- name: "create symlink to etcdctl"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "/usr/local/bin/etcdctl"
+    state: "link"
+    src: "{{ etcd_target }}/etcdctl"
+
+- name: "set etcd.state to 'installed'"
+  when: "etcd_state == 'no'"
+  update_resource:
+
+    etcd.state: "installed"
+
+- name: "set etcd.installed_version"
+  when: "etcd_installed_version != etcd_version"
+  update_resource:
+
+    etcd.installed_version: "{{ etcd_version }}"
+
+# ex: et ts=2 filetype=yaml

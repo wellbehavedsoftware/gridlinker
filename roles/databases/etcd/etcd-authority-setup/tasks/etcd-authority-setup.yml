@@ -1,0 +1,19 @@
+---
+
+- name: "create etcd clients authority"
+  when: "etcd_secured == 'yes'"
+  action:
+
+    module: "certificate_authority_create"
+    authority: "{{ etcd_client_authority }}"
+    common_name: "{{ etcd_client_common_name }}"
+
+- name: "create etcd peers authority"
+  when: "etcd_secured == 'yes'"
+  action:
+
+    module: "certificate_authority_create"
+    authority: "{{ etcd_peer_authority }}"
+    common_name: "{{ etcd_peer_common_name }}"
+
+# ex: et ts=2 filetype=yaml
