@@ -1,9 +1,0 @@
----
-
-- include: "install-etcd.yml"
-  tags:
-
-    - "etcd"
-    - "install-etcd"
-
-# ex: et ts=2 filetype=yaml

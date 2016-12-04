@@ -118,4 +118,10 @@ etcd_config_templates:
     group: "root"
     mode: "0644"
 
+  - target: "/etc/etcd/etcd-control"
+    template: "etcd-control-script"
+    user: "root"
+    group: "root"
+    mode: "0755"
+
 # ex: et ts=2 filetype=yaml# ex: et ts=2 filetype=yaml
