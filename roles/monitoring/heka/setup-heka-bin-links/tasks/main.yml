@@ -1,9 +1,0 @@
----
-
-- include: "setup-heka-bin-links.yml"
-  tags:
-
-    - "heka"
-    - "setup-heka-bin-links"
-
-# ex: et ts=2 filetype=yaml

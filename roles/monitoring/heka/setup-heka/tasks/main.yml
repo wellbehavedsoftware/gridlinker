@@ -1,9 +1,0 @@
----
-
-- include: "setup-heka.yml"
-  tags:
-
-    - "heka"
-    - "setup-heka"
-
-# ex: et ts=2 filetype=yaml

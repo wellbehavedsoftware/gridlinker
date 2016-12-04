@@ -1,9 +1,0 @@
----
-
-- include: "control-heka.yml"
-  tags:
-
-    - "heka"
-    - "control-heka"
-
-# ex: et ts=2 filetype=yaml
