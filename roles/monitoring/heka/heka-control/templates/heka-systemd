@@ -13,7 +13,7 @@
 		'-config=' + heka_target + '/conf/hekad.toml',
 	] | join (' ') }}
 
-	ExecReload = kill -HUP $MAINPID
+	ExecReload = /bin/kill -HUP $MAINPID
 
 [Install]
 
