@@ -3,7 +3,10 @@
 - include: "install-python-packages.yml"
   tags:
 
+    - "python-packages-install"
+    - "python-packages"
     - "python"
-    - "install-python-packages"
+
+    - "install"
 
 # ex: et ts=2 filetype=yaml

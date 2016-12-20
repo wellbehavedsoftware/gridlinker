@@ -1,8 +1,26 @@
 ---
 
-- include: "postgresql-control.yml"
+- include: "postgresql-control-upstart.yml"
+  when: "
+    postgresql_install == 'yes'
+    and postgresql_state in [ 'enabled', 'disabled' ]
+    and system_init == 'upstart'
+  "
   tags:
 
+    - "postgresql-control-upstart"
+    - "postgresql-control"
+    - "postgresql"
+
+- include: "postgresql-control-systemd.yml"
+  when: "
+    postgresql_install == 'yes'
+    and postgresql_state in [ 'enabled', 'disabled' ]
+    and system_init == 'systemd'
+  "
+  tags:
+
+    - "postgresql-control-systemd"
     - "postgresql-control"
     - "postgresql"
 

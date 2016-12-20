@@ -1,0 +1,66 @@
+---
+
+- name: "rzbackup control write upstart config"
+  register: "rzbackup_control_upstart_config_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    src: "rzbackup-control-upstart"
+    dest: "/etc/init/rzbackup.conf"
+
+- name: "set rzbackup.needs_restart to 'yes'"
+  when: "rzbackup_control_upstart_config_result | changed"
+  update_resource:
+
+    rzbackup.needs_restart: "yes"
+
+- name: "reload upstart config"
+  when: "rzbackup_control_upstart_config_result | changed"
+  become: "yes"
+  command: "initctl reload-configuration"
+
+- name: "reload rzbackup"
+  when: "
+    rzbackup_state == 'enabled'
+    and rzbackup_needs_restart != 'yes'
+  "
+  changed_when: "False"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "rzbackup"
+    state: "reloaded"
+
+- name: "restart rzbackup"
+  when: "
+    rzbackup_state == 'enabled'
+    and rzbackup_needs_restart == 'yes'
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "rzbackup"
+    state: "restarted"
+
+- name: "start rzbackup"
+  when: "rzbackup_state == 'enabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "rzbackup"
+    state: "started"
+
+- name: "stop rzbackup"
+  when: "rzbackup_state == 'disabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "rzbackup"
+    state: "stopped"
+
+# ex: et ts=2 filetype=yaml

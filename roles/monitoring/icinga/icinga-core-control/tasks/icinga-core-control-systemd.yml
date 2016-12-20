@@ -1,0 +1,92 @@
+---
+
+# write systemd config
+
+- name: "icinga core control systemd config"
+  register: "icinga_core_control_systemd_config_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/systemd/system/icinga.service"
+    src: "icinga-systemd"
+
+- name: "icinga core control set needs_restart to 'yes'"
+  when: "icinga_core_control_systemd_config_result | changed"
+  update_resource:
+
+    icinga_core.needs_restart: 'yes'
+
+- name: "icinga core control systemd script"
+  register: "icinga_core_control_systemd_script_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/icinga2/startup-script"
+    src: "icinga-systemd-script"
+    mode: "0755"
+
+- name: "icinga core control set needs_restart to 'yes'"
+  when: "icinga_core_control_systemd_script_result | changed"
+  update_resource:
+
+    icinga_core.needs_restart: 'yes'
+
+# reload systemd config
+
+- name: "icinga core control reload systemd"
+  changed_when: "icinga_core_needs_restart == 'yes'"
+  become: "yes"
+  command: "systemctl daemon-reload"
+
+# stop icinga process
+
+- name: "icinga core control stop"
+  when: "
+    icinga_core_state != 'enabled'
+    or icinga_core_needs_restart == 'yes'
+  "
+  register: "icinga_core_control_stop_result"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "icinga"
+    state: "stopped"
+
+- name: "icinga core control set needs_restart to 'no'"
+  when: "icinga_core_control_stop_result | changed"
+  update_resource:
+
+    icinga_core.needs_restart: 'no'
+
+# start icinga process
+
+- name: "icinga core control start"
+  when: "icinga_core_state == 'enabled'"
+  register: "icinga_core_control_start_result"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "icinga"
+    state: "started"
+    enabled: "yes"
+
+# reload icinga process
+
+- name: "icinga core control reload"
+  when: "
+    icinga_core_state == 'enabled'
+    and not icinga_core_control_start_result | changed
+  "
+  changed_when: "False"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "icinga"
+    state: "reloaded"
+
+# ex: et ts=2 filetype=yaml

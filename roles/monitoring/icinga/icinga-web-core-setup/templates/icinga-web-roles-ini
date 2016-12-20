@@ -2,13 +2,16 @@
 {% if icinga_web_core_role.permissions %}
 
 [{{ icinga_web_core_role.name }}]
-{% if icinga_web_core_role.users | default ([]) %}
+
+{% if icinga_web_core_role.users is defined  %}
 users = "{{ icinga_web_core_role.users | join (',') }}"
 {% endif %}
-{% if icinga_web_core_role.groups | default ([]) %}
+
+{% if icinga_web_core_role.groups is defined %}
 groups = "{{ icinga_web_core_role.groups | join (',') }}"
 {% endif %}
-permissions = "{{ icinga_web_core_role.permissions | default ([]) | join (',') }}"
+
+permissions = "{{ icinga_web_core_role.permissions | join (',') }}"
 
 {% endif %}
 {% endfor %}

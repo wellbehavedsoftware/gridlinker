@@ -36,9 +36,9 @@
     dest: "/etc/icingaweb2/enabledModules/{{ item }}"
     state: "link"
 
-    src: "{{ icinga_web_core_target }}/modules/{{ item }}"
+    src: "{{ icinga_web_core_installed_prefix }}/modules/{{ item }}"
 
-- name: "set icinga_web.state to 'enabled'"
+- name: "set icinga_web_core.state to 'enabled'"
   when: "icinga_web_core_state == 'installed'"
   update_resource:
 

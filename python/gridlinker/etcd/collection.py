@@ -1,7 +1,9 @@
 from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 from __future__ import unicode_literals
 
-from collections import OrderedDict
+import collections
 
 from wbs import freeze
 from wbs import yamlx
@@ -29,10 +31,8 @@ class GenericCollection:
 			self.path,
 			record_name)
 
-		record_data = (
-			self.client.get_yaml (
-				"%s/data" % (
-					record_key)))
+		record_data = self.client.get_yaml (
+			"%s/data" % record_key)
 
 		return record_data
 
@@ -81,7 +81,9 @@ class GenericCollection:
 
 		cache = dict (self.client.get_tree (self.path))
 
-		data_cache = OrderedDict ()
+		data_cache = (
+			collections.OrderedDict ())
+
 		all_list_cache = []
 
 		for key, string_value in sorted (cache.items ()):
@@ -91,7 +93,16 @@ class GenericCollection:
 
 			name = key [ 1 : len (key) - 5 ]
 
-			value = yamlx.parse (string_value)
+			try:
+
+				value = yamlx.parse (string_value)
+
+			except Exception as error:
+
+				raise Exception (
+					"Error loading %s" % (
+						key),
+					error)
 
 			data_cache [name] = value
 			all_list_cache.append (( name, value ))
@@ -240,5 +251,5 @@ class GenericCollection:
 
 		self.client.rm_recursive (
 			record_key)
-	
+
 # ex: noet ts=4 filetype=python

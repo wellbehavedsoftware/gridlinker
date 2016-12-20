@@ -506,9 +506,14 @@ class GenericContext (object):
 
 	def ansible_init (self):
 
-		if self.project_metadata.get ("ansible", {}).get ("write_ssh_data", "yes") == "yes":
+		if (
+			self.project_metadata
+				.get ("ansible", {})
+				.get ("write_ssh_data", "yes")
+		) == "yes":
 
-			with open ("%s/work/known-hosts" % self.home, "w") as file_handle:
+			with open ("%s/work/known-hosts.temp" % self.home, "w") \
+			as file_handle:
 
 				for resource_name, resource_data in self.resources.get_all_list_quick ():
 
@@ -533,14 +538,15 @@ class GenericContext (object):
 						raise Exception (
 							"Can't deduce class for %s" % resource_name)
 
-					if not class_name in self.local_data ["classes"]:
+					if not class_name \
+					in self.classes:
 
 						raise Exception (
 							"Resource %s has invalid class: %s" % (
 								resource_name,
 								class_name))
 
-					class_data = self.local_data ["classes"] [class_name]
+					class_data = self.classes [class_name]
 
 					if not "ssh" in class_data \
 					or not "hostnames" in class_data ["ssh"]:
@@ -597,6 +603,10 @@ class GenericContext (object):
 								resource_data ["ssh"] ["key_%s" % key_type],
 							))
 
+			os.rename (
+				"%s/work/known-hosts.temp" % self.home,
+				"%s/work/known-hosts" % self.home)
+
 			for key_path, key_data in self.client.get_tree ("/ssh-key"):
 
 				if not key_path.endswith ("/private"):
@@ -616,7 +626,11 @@ class GenericContext (object):
 	@lazy_property
 	def classes (self):
 
-		return self.local_data ["classes"]
+		return dict ([
+			(key, value)
+			for directory in self.local_data ["classes"].values ()
+			for key, value in directory.items ()
+		])
 
 	@lazy_property
 	def inventory (self):

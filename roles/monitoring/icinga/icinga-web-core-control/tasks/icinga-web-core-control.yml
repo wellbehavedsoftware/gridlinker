@@ -6,7 +6,7 @@
   action:
 
     module: "template"
-    dest: "{{ nginx_config }}/sites/icinga-web.conf"
+    dest: "{{ nginx_config }}/sites/icinga-web"
     src: "icinga-web-nginx-site"
     owner: "root"
     group: "root"

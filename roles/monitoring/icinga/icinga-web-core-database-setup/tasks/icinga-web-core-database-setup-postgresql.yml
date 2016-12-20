@@ -1,21 +1,21 @@
 ---
 
 - name: "create icinga web database"
-  delegate_to: "{{ icinga_web_core_main_database_delegate }}"
+  delegate_to: "{{ icinga_web_core_database_delegate }}"
   register: "icinga_web_core_database_create_result"
   action:
 
     module: "postgresql_db"
-    name: "{{ icinga_web_core_main_database_name }}"
+    name: "{{ icinga_web_core_database_name }}"
 
     login_user: "ubuntu"
     login_unix_socket: "/var/run/postgresql"
 
-- name: "set icinga_web.database_initialized to 'no'"
+- name: "set icinga_web_core.database_initialized to 'no'"
   when: "icinga_web_core_database_create_result | changed"
   update_resource:
 
-    icinga_web.database_initialized: "no"
+    icinga_web_core.database_initialized: "no"
 
 - name: "create icinga web ido database user"
   delegate_to: "{{ icinga_web_core_ido_database_delegate }}"
@@ -49,14 +49,14 @@
     login_unix_socket: "/var/run/postgresql"
 
 - name: "create icinga web main database user"
-  delegate_to: "{{ icinga_web_core_main_database_delegate }}"
+  delegate_to: "{{ icinga_web_core_database_delegate }}"
   action:
 
     module: "postgresql_user"
-    name: "{{ icinga_web_core_main_database_username }}"
+    name: "{{ icinga_web_core_database_username }}"
 
-    password: "{{ icinga_web_core_main_database_password }}"
-    db: "{{ icinga_web_core_main_database_name }}"
+    password: "{{ icinga_web_core_database_password }}"
+    db: "{{ icinga_web_core_database_name }}"
 
     login_user: "ubuntu"
     login_unix_socket: "/var/run/postgresql"
@@ -67,14 +67,14 @@
     - "table"
     - "sequence"
 
-  delegate_to: "{{ icinga_web_core_main_database_delegate }}"
+  delegate_to: "{{ icinga_web_core_database_delegate }}"
   action:
 
     module: "postgresql_privs"
-    role: "{{ icinga_web_core_main_database_username }}"
+    role: "{{ icinga_web_core_database_username }}"
     state: "present"
 
-    database: "{{ icinga_web_core_main_database_name }}"
+    database: "{{ icinga_web_core_database_name }}"
     schema: "public"
     objs: "ALL_IN_SCHEMA"
     type: "{{ item }}"
@@ -85,7 +85,7 @@
     login_unix_socket: "/var/run/postgresql"
 
 - name: "initialize icinga web database"
-  delegate_to: "{{ icinga_web_core_main_database_delegate }}"
+  delegate_to: "{{ icinga_web_core_database_delegate }}"
   when: "icinga_web_core_database_initialized != 'yes'"
   args:
 
@@ -93,23 +93,33 @@
 
   environment:
 
-    PGHOST: "{{ icinga_web_core_main_database_hostname }}"
-    PGPORT: "{{ icinga_web_core_main_database_port }}"
-    PGUSER: "{{ icinga_web_core_main_database_username }}"
-    PGPASSWORD: "{{ icinga_web_core_main_database_password }}"
+    PGHOST: "{{ icinga_web_core_database_hostname }}"
+    PGPORT: "{{ icinga_web_core_database_port }}"
+    PGUSER: "{{ icinga_web_core_database_username }}"
+    PGPASSWORD: "{{ icinga_web_core_database_password }}"
 
   shell:
 
     set -euf -o pipefail;
 
     psql
-      --dbname "{{ icinga_web_core_main_database_name }}"
-      --file "{{ icinga_web_core_target }}/etc/schema/pgsql.schema.sql"
+      --dbname "{{ icinga_web_core_database_name }}"
+      --file "{{ [
+        hostvars [icinga_web_core_database_delegate]
+          .icinga_web_core_installed_prefix,
+        '/etc/schema/pgsql.schema.sql',
+      ] | join }}"
       --set "ON_ERROR_STOP=on";
+
+- name: "set icinga_web_core_database_initialized to 'yes'"
+  when: "icinga_web_core_database_initialized != 'yes'"
+  update_resource:
+
+    icinga_web_core.database_initialized: "yes"
 
 - name: "icinga web database setup postgresql write data script"
   register: "icinga_web_core_database_script_result"
-  delegate_to: "{{ icinga_web_core_main_database_delegate }}"
+  delegate_to: "{{ icinga_web_core_database_delegate }}"
   action:
 
     module: "template"
@@ -120,31 +130,25 @@
 
 - name: "icinga web database setup postgresql run data script"
   changed_when: "icinga_web_core_database_script_result | changed"
-  delegate_to: "{{ icinga_web_core_main_database_delegate }}"
+  delegate_to: "{{ icinga_web_core_database_delegate }}"
   args:
 
     executable: "/bin/bash"
 
   environment:
 
-    PGHOST: "{{ icinga_web_core_main_database_hostname }}"
-    PGPORT: "{{ icinga_web_core_main_database_port }}"
-    PGUSER: "{{ icinga_web_core_main_database_username }}"
-    PGPASSWORD: "{{ icinga_web_core_main_database_password }}"
+    PGHOST: "{{ icinga_web_core_database_hostname }}"
+    PGPORT: "{{ icinga_web_core_database_port }}"
+    PGUSER: "{{ icinga_web_core_database_username }}"
+    PGPASSWORD: "{{ icinga_web_core_database_password }}"
 
   shell:
 
     set -euf -o pipefail;
 
     psql
-      --dbname "{{ icinga_web_core_main_database_name }}"
+      --dbname "{{ icinga_web_core_database_name }}"
       --file "/tmp/icinga-web-users.sql"
       --set ON_ERROR_STOP=on;
-
-- name: "set icinga_web_core_database_initialized to 'yes'"
-  when: "icinga_web_core_database_initialized != 'yes'"
-  update_resource:
-
-    icinga_web.main_database_initialized: "yes"
 
 # ex: et ts=2 filetype=yaml

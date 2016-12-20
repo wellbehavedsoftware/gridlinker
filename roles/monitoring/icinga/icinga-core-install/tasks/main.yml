@@ -1,6 +1,16 @@
 ---
 
+- include: "icinga-core-install-check.yml"
+  when: "icinga_core_install == 'yes'"
+  tags:
+
+    - "icinga-core-install-binary"
+    - "icinga-core-install"
+    - "icinga-core"
+    - "icinga"
+
 - include: "icinga-core-install-binary.yml"
+  when: "icinga_core_install == 'yes'"
   tags:
 
     - "icinga-core-install-binary"

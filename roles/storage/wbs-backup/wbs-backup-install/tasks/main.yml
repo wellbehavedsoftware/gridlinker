@@ -1,11 +1,11 @@
 ---
 
-- include: "wbs-backup-install.yml"
+- include: "wbs-backup-install-binary.yml"
   when: "wbs_backup_install == 'yes'"
   tags:
 
-    - "wbs-backup"
-    - "wbs-backup-install"
     - "wbs-backup-install-binary"
+    - "wbs-backup-install"
+    - "wbs-backup"
 
 # ex: et ts=2 filetype=yaml

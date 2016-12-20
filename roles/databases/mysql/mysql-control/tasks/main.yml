@@ -1,13 +1,27 @@
 ---
 
-- include: "mysql-control.yml"
+- include: "mysql-control-upstart.yml"
   when: "
-    mysql_install == 'yes'
+    system_init == 'upstart'
+    and mysql_install == 'yes'
     and mysql_state in [ 'enabled', 'disabled' ]
   "
   tags:
 
-    - "mysql"
+    - "mysql-control-upstart"
     - "mysql-control"
+    - "mysql"
+
+- include: "mysql-control-systemd.yml"
+  when: "
+    system_init == 'systemd'
+    and mysql_install == 'yes'
+    and mysql_state in [ 'enabled', 'disabled' ]
+  "
+  tags:
+
+    - "mysql-control-systemd"
+    - "mysql-control"
+    - "mysql"
 
 # ex: et ts=2 filetype=yaml

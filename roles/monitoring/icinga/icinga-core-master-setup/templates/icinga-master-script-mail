@@ -186,4 +186,4 @@ def service_notification (
 main (
 	sys.argv [1 : ])
 
-# ex: noet ts=4 filetype=yaml
+# ex: noet ts=4 filetype=python

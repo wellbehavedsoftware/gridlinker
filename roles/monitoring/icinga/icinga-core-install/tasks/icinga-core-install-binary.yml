@@ -20,13 +20,7 @@
     purge: "yes"
 
 - name: "install icinga system package dependencies"
-  with_items:
-
-    - "libboost-program-options1.54.0"
-    - "libboost-regex1.54.0"
-    - "libyajl2"
-    - "nagios-plugins-basic"
-
+  with_items: "{{ icinga_core_install_system_packages }}"
   become: "yes"
   action:
 
@@ -62,7 +56,7 @@
     append: "yes"
 
 - name: "install icinga"
-  when: "icinga_core_installed_version != icinga_core_version"
+  changed_when: "icinga_core_installed_version != icinga_core_install_version"
   become: "yes"
   args:
 
@@ -72,39 +66,77 @@
 
     set -euf -o pipefail;
 
-    rm -rf "{{ icinga_core_temp }}";
-    mkdir -p "{{ icinga_core_temp }}";
-    cd "{{ icinga_core_temp }}";
+    if test "{{ icinga_core_installed_version }}"
+        == "{{ icinga_core_install_version }}"; then
+      exit 0;
+    fi;
 
-    wget "{{ icinga_core_url }}";
+    rm -rf "{{ icinga_core_install_temp }}";
+    mkdir -p "{{ icinga_core_install_temp }}";
+    cd "{{ icinga_core_install_temp }}";
+
+    wget "{{ icinga_core_install_url }}";
 
     tar
       --extract
       --xz
-      --file "{{ icinga_core_archive }}";
+      --file "{{ icinga_core_install_archive }}";
 
-    mkdir -p "{{ icinga_core_target }}";
+    mkdir -p "{{ icinga_core_install_prefix }}";
 
     rsync
       --archive
       --delete
-      {{ icinga_core_directory }}/
-      {{ icinga_core_target }}/
+      {{ icinga_core_install_directory }}/
+      {{ icinga_core_install_prefix }}/
       --exclude /etc
       --exclude /var;
 
-    rm -rf {{ icinga_core_temp }};
+    rm -rf {{ icinga_core_install_temp }};
 
-- name: "set icinga.state to 'installed'"
+    mkdir -p
+      "{{ icinga_core_install_prefix }}/etc"
+      "{{ icinga_core_install_prefix }}/var/cache"
+      "{{ icinga_core_install_prefix }}/var/lib"
+      "{{ icinga_core_install_prefix }}/var/log"
+      "{{ icinga_core_install_prefix }}/var/run";
+
+    ln -sfn
+      "/etc/icinga2"
+      "{{ icinga_core_install_prefix }}/etc/icinga2";
+
+    ln -sfn
+      "/var/cache/icinga2"
+      "{{ icinga_core_install_prefix }}/var/cache/icinga2";
+
+    ln -sfn
+      "/var/lib/icinga2"
+      "{{ icinga_core_install_prefix }}/var/lib/icinga2";
+
+    ln -sfn
+      "/var/log/icinga2"
+      "{{ icinga_core_install_prefix }}/var/log/icinga2";
+
+    ln -sfn
+      "/var/run/icinga2"
+      "{{ icinga_core_install_prefix }}/var/run/icinga2";
+
+- name: "set icinga_core.state to 'installed'"
   when: "icinga_core_state == ''"
   update_resource:
 
     icinga_core.state: "installed"
 
-- name: "set icinga.installed_version"
-  when: "icinga_core_installed_version != icinga_core_version"
+- name: "set icinga_core.installed_version"
+  when: "icinga_core_installed_version != icinga_core_install_version"
   update_resource:
 
-    icinga_core.installed_version: "{{ icinga_core_version }}"
+    icinga_core.installed_version: "{{ icinga_core_install_version }}"
+
+- name: "set icinga_core.installed_prefix"
+  when: "icinga_core_installed_prefix != icinga_core_install_prefix"
+  update_resource:
+
+    icinga_core.installed_prefix: "{{ icinga_core_install_prefix }}"
 
 # ex: et ts=2 filetype=yaml

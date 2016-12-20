@@ -1,5 +1,7 @@
 ---
 
+# ---------- install packages
+
 - name: "install php packages"
   with_items: "{{ php_install_packages }}"
   become: "yes"
@@ -8,6 +10,8 @@
     module: "apt"
     name: "{{ item }}"
 
+# ---------- general settings
+
 - name: "set php.state to 'installed'"
   when: "php_state == ''"
   update_resource:
@@ -15,10 +19,10 @@
     php.state: "installed"
 
 - name: "set php.installed_version"
-  when: "php_installed_version != php_version"
+  when: "php_installed_version != php_install_version"
   update_resource:
 
-    php.installed_version: "{{ php_version }}"
+    php.installed_version: "{{ php_install_version }}"
 
 - name: "set php.installed_from"
   when: "php_installed_from != 'distro'"
@@ -26,16 +30,44 @@
 
     php.installed_from: "distro"
 
-- name: "set php.installed_service"
-  when: "php_installed_service != 'php5-fpm'"
+# ---------- php 5 settings
+
+- name: "set php.installed_service to 'php5-fpm'"
+  when: "
+    php_install_version == '5'
+    and php_installed_service != 'php5-fpm'
+  "
   update_resource:
 
     php.installed_service: "php5-fpm"
 
-- name: "set php.fpm_socket"
-  when: "php_fpm_socket != '/var/run/php5-fpm.sock'"
+- name: "set php.fpm_socket to '/var/run/php5-fpm.sock'"
+  when: "
+    php_install_version == '5'
+    and php_fpm_socket != '/var/run/php5-fpm.sock'
+  "
   update_resource:
 
     php.fpm_socket: "/var/run/php5-fpm.sock"
+
+# ---------- php 7.0 settings
+
+- name: "set php.installed_service to 'php7.0-fpm'"
+  when: "
+    php_install_version == '7.0'
+    and php_installed_service != 'php7.0-fpm'
+  "
+  update_resource:
+
+    php.installed_service: "php7.0-fpm"
+
+- name: "set php.fpm_socket to '/run/php/php7.0-fpm.sock'"
+  when: "
+    php_install_version == '7.0'
+    and php_fpm_socket != '/run/php/php7.0-fpm.sock'
+  "
+  update_resource:
+
+    php.fpm_socket: "/run/php/php7.0-fpm.sock"
 
 # ex: et ts=2 filetype=yaml

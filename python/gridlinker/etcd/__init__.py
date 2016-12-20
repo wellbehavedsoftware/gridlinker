@@ -9,7 +9,19 @@ from gridlinker.etcd.collection import GenericCollection
 
 from gridlinker.etcd import tools
 
+__all__ = [
+
+	"EtcdClient",
+	"GenericCollection",
+
+	"args",
+	"client",
+	"collection",
+	"tools",
+
+]
+
 def args (parser):
 	tools.args (parser)
 
-# ex: noet ts=4 filetype=yaml
+# ex: noet ts=4 filetype=python

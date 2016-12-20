@@ -1,0 +1,32 @@
+---
+
+- name: "stop mysql"
+  when: "
+    mysql_state == 'disabled'
+    or mysql_needs_restart == 'yes'
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "mysql"
+    state: "stopped"
+    enabled: "{{ 'yes' if mysql_state == 'enabled' else 'no' }}"
+
+- name: "set mysql.needs_restart to 'no'"
+  when: "mysql_needs_restart != 'no'"
+  update_resource:
+
+    mysql.needs_restart: "no"
+
+- name: "start mysql"
+  when: "mysql_state == 'enabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "mysql"
+    state: "started"
+    enabled: "yes"
+
+# ex: et ts=2 filetype=yaml

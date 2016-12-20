@@ -25,4 +25,20 @@
     rm -rf {{ nodejs_tmp }};
     touch {{ nodejs_flag }};
 
+- name: "nodejs install directories"
+  become: "yes"
+  action:
+
+    module: "file"
+    path: "{{ nodejs_target }}/etc"
+    state: "directory"
+
+- name: "write npmrc"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "{{ nodejs_target }}/etc/npmrc"
+    src: "nodejs-npmrc"
+
 # ex: et ts=2 filetype=yaml

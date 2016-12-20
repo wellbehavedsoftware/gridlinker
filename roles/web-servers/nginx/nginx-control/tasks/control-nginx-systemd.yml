@@ -1,0 +1,67 @@
+---
+
+- name: "write nginx systemd config"
+  register: "nginx_systemd_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    src: "nginx-systemd"
+    dest: "/etc/systemd/system/nginx.service"
+
+- name: "reload systemd"
+  changed_when: "nginx_systemd_result | changed"
+  become: "yes"
+  command: "systemctl daemon-reload"
+
+- name: "set nginx.needs_restart to 'yes'"
+  when: "nginx_systemd_result | changed"
+  update_resource:
+
+    nginx.needs_restart: "yes"
+
+- name: "reload nginx"
+  when: "
+    nginx_state == 'enabled'
+    and nginx_needs_restart != 'yes'
+  "
+  changed_when: "False"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "reloaded"
+
+- name: "restart nginx"
+  when: "
+    nginx_state == 'enabled'
+    and nginx_needs_restart == 'yes'
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "restarted"
+
+- name: "start nginx"
+  when: "nginx_state == 'enabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "started"
+    enabled: "yes"
+
+- name: "stop nginx"
+  when: "nginx_state == 'disabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "nginx"
+    state: "stopped"
+
+# ex: et ts=2 filetype=yaml

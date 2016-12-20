@@ -1,9 +1,0 @@
-{% if graphite_web_mode == 'nginx-fragment'
-and graphite_web_state == 'enabled' %}
-
-location {{ graphite_web_path }} {
-	include uwsgi-params.conf;
-	uwsgi_pass {{ graphite_web_socket_url }};
-}
-
-{% endif %}

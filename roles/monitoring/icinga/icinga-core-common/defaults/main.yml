@@ -3,16 +3,18 @@
 # ---------- state
 
 icinga_core_state: ""
-icinga_core_installed_version: ""
 icinga_core_needs_restart: ""
-icinga_core_database_delegate: "{{ icinga_core_master }}"
+
+icinga_core_installed_version: ""
+icinga_core_installed_prefix: ""
 
 # ---------- runtime defaults
 
 icinga_core_common_name: "{{ identity_name }}"
-icinga_core_alt_dns: [ "{{ icinga_common_name }}" ]
+icinga_core_alt_dns: [ "{{ icinga_core_common_name }}" ]
 icinga_core_alt_ips: []
 
+icinga_core_database_delegate: "{{ icinga_core_master }}"
 icinga_core_database_type: ""
 icinga_core_database_name: "icinga"
 icinga_core_database_username: "icinga"
@@ -27,27 +29,51 @@ icinga_core_private_key: ""
 
 # ---------- installation
 
-icinga_core_dist: "{{ default_dist }}"
-icinga_core_mirror: "{{ icinga_core_dist }}/icinga"
-icinga_core_directory: "icinga-{{ icinga_core_version }}"
-icinga_core_archive: "{{ icinga_core_directory }}.tar.xz"
-icinga_core_url: "{{ icinga_core_mirror }}/{{ icinga_core_archive }}"
+icinga_core_install: ""
+icinga_core_install_version: ""
+icinga_core_install_prefix: "/opt/icinga-{{ icinga_core_install_version }}"
 
-icinga_core_temp: "/tmp/icinga-install"
-icinga_core_target: "/opt/icinga-{{ icinga_core_version }}"
+icinga_core_install_system_packages: "{{
+  icinga_core_install_system_packages_by_release [ubuntu_release]
+}}"
+
+icinga_core_install_system_packages_by_release:
+
+  trusty:
+
+    - "libboost-program-options1.54.0"
+    - "libboost-regex1.54.0"
+    - "libboost-thread1.54.0"
+    - "libyajl2"
+    - "nagios-plugins-basic"
+
+  xenial:
+
+    - "libboost-program-options1.58.0"
+    - "libboost-regex1.58.0"
+    - "libboost-thread1.58.0"
+    - "libyajl2"
+    - "nagios-plugins-basic"
+
+icinga_core_install_temp: "/tmp/icinga-install"
+icinga_core_install_dist: "https://dist.wellbehavedsoftware.com"
+icinga_core_install_mirror: "{{ icinga_core_install_dist }}/icinga"
+icinga_core_install_directory: "icinga-{{ icinga_core_install_version }}"
+icinga_core_install_archive: "{{ icinga_core_install_directory }}.tar.xz"
+icinga_core_install_url: "{{ icinga_core_install_mirror }}/{{ icinga_core_install_archive }}"
 
 # ---------- master configuration
 
-icinga_master_endpoints: "icinga-masters"
-icinga_master_agents: "icinga-agents"
-icinga_master_hosts: "icinga-hosts"
+icinga_core_master_endpoints: "icinga-masters"
+icinga_core_master_agents: "icinga-agents"
+icinga_core_master_hosts: "icinga-hosts"
 
-icinga_master_users: "icinga-users"
-icinga_master_groups: "icinga-groups"
+icinga_core_master_users: "icinga-users"
+icinga_core_master_groups: "icinga-groups"
 
-icinga_master_services: []
+icinga_core_master_services: []
 
-icinga_master_directories:
+icinga_core_master_directories:
 
   - directory: "/etc/icinga2"
     user: "icinga"
@@ -104,7 +130,7 @@ icinga_master_directories:
     group: "icinga"
     mode: "0750"
 
-icinga_master_config_templates:
+icinga_core_master_config_templates:
 
   - template: "icinga-master-commands"
     target: "commands.conf"
@@ -150,33 +176,33 @@ icinga_master_config_templates:
     target: "zones.conf"
     mode: "0644"
 
-icinga_master_security_files:
+icinga_core_master_security_files:
 
-  - source: "{{ icinga_ca_certificate }}"
+  - source: "{{ icinga_core_ca_certificate }}"
     target: "pki/ca.cert"
     mode: "0644"
 
-  - source: "{{ icinga_certificate }}"
+  - source: "{{ icinga_core_certificate }}"
     target: "pki/{{ identity.name }}.cert"
     mode: "0644"
 
-  - source: "{{ icinga_private_key }}"
+  - source: "{{ icinga_core_private_key }}"
     target: "pki/{{ identity.name }}.key"
     mode: "0640"
 
-icinga_master_links:
+icinga_core_master_links:
 
-  - link: "{{ icinga_target }}/etc"
+  - link: "{{ icinga_installed_prefix }}/etc"
     target: "../../etc"
 
-  - link: "{{ icinga_target }}/var"
+  - link: "{{ icinga_installed_prefix }}/var"
     target: "../../var"
 
 # ---------- agent configuration
 
-icinga_agent_masters: "icinga-masters"
+icinga_core_agent_masters: "icinga-masters"
 
-icinga_agent_directories:
+icinga_core_agent_directories:
 
   - directory: "/etc/icinga2"
     user: "icinga"
@@ -233,7 +259,7 @@ icinga_agent_directories:
     group: "icinga"
     mode: "0750"
 
-icinga_agent_config_templates:
+icinga_core_agent_config_templates:
 
   - template: "icinga-agent-constants"
     target: "constants.conf"
@@ -251,28 +277,30 @@ icinga_agent_config_templates:
     target: "zones.conf"
     mode: "0644"
 
-icinga_agent_security_files:
+icinga_core_agent_security_files:
 
-  - source: "{{ icinga_ca_certificate }}"
+  - source: "{{ icinga_core_ca_certificate }}"
     target: "pki/ca.cert"
     mode: "0644"
 
-  - source: "{{ icinga_certificate }}"
-    target: "pki/{{ identity.name }}.cert"
+  - source: "{{ icinga_core_certificate }}"
+    target: "pki/{{ identity_name }}.cert"
     mode: "0644"
 
-  - source: "{{ icinga_private_key }}"
-    target: "pki/{{ identity.name }}.key"
+  - source: "{{ icinga_core_private_key }}"
+    target: "pki/{{ identity_name }}.key"
     mode: "0640"
 
-icinga_agent_links:
+icinga_core_agent_links:
 
-  - link: "{{ icinga_target }}/etc"
+  - link: "{{ icinga_core_installed_prefix }}/etc"
     target: "../../etc"
 
-  - link: "{{ icinga_target }}/var"
+  - link: "{{ icinga_core_installed_prefix }}/var"
     target: "../../var"
 
-icinga_host_vars: {}
+# ---------- agent configuration
+
+icinga_core_host_vars: {}
 
 # ex: et ts=2 filetype=yaml

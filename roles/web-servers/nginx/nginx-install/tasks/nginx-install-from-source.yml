@@ -1,11 +1,5 @@
 ---
 
-- name: "check nginx_version is specified"
-  when: "nginx_version == ''"
-  fail:
-
-    msg: "Must set nginx.version"
-
 - name: "install nginx build dependencies"
   become: "yes"
   with_items: "{{ nginx_build_dependencies }}"
@@ -41,7 +35,7 @@
 
 - name: "build nginx"
   when: "
-    nginx_installed_version != nginx_version
+    nginx_installed_version != nginx_install_version
   "
   register: "nginx_build_result"
   become: "yes"
@@ -87,10 +81,10 @@
     nginx.state: "installed"
 
 - name: "set nginx.installed_version"
-  when: "nginx_installed_version != nginx_version"
+  when: "nginx_installed_version != nginx_install_version"
   update_resource:
 
-    nginx.installed_version: "{{ nginx_version }}"
+    nginx.installed_version: "{{ nginx_install_version }}"
 
 - name: "set nginx.installed_from"
   when: "nginx_installed_from != 'source'"

@@ -1,4 +1,6 @@
 from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
@@ -65,10 +67,7 @@ class GenericCommand:
 
 		# determine name
 
-		unique_name = (
-			self.helper.create_unique_name (
-				context,
-				args))
+		unique_name = self.helper.create_unique_name (context, args)
 
 		if collection.exists_slow (unique_name):
 
@@ -102,16 +101,12 @@ class GenericCommand:
 
 			temp_file = tempfile.NamedTemporaryFile ()
 
-			record_yaml = (
-				collection.to_yaml (
-					record_data))
+			record_yaml = collection.to_yaml (record_data)
 
 			temp_file.write (record_yaml)
 			temp_file.flush ()
 
-			os.system (
-				"%s %s" % (os.environ ["EDITOR"],
-				temp_file.name))
+			os.system ("%s %s" % (os.environ ["EDITOR"], temp_file.name))
 
 			temp_again = open (temp_file.name, "r")
 			record_yaml = temp_again.read ()
@@ -291,25 +286,15 @@ class GenericCommand:
 
 		for unique_name, record_data in filtered_records:
 
-			self.helper.update_record (
-				context,
-				args,
-				record_data)
+			self.helper.update_record (context, args, record_data)
 
-			collection.set (
-				unique_name,
-				record_data)
+			record_data.save ()
 
-			self.helper.update_files (
-				context,
-				args,
-				unique_name,
-				collection)
+			self.helper.update_files (context, args, unique_name, collection)
 
-			print (
-				"Updated %s %s" % (
-					self.helper.name,
-					unique_name))
+			print ("Updated %s %s" % (
+				self.helper.name,
+				record_name))
 
 	def args_edit (self, sub_parsers):
 
@@ -339,13 +324,13 @@ class GenericCommand:
 					self.helper.name.title (),
 					args.name))
 
-		record_data = collection.get_slow (args.name)
+		record = (
+			collection.get_slow (
+				args.name))
 
 		with tempfile.NamedTemporaryFile () as temp_file:
 
-			record_yaml = collection.to_yaml (record_data)
-
-			temp_file.write (record_yaml)
+			temp_file.write (record.raw_data)
 			temp_file.flush ()
 
 			if "VISUAL" in os.environ:
@@ -361,11 +346,12 @@ class GenericCommand:
 			os.system ("%s %s" % (editor, temp_file.name))
 
 			with open (temp_file.name, "r") as temp_file_again:
-				record_yaml = temp_file_again.read ()
 
-		record_data = yamlx.parse (record_yaml)
+				record.data = (
+					yamlx.parse (
+						temp_file_again.read ()))
 
-		collection.set (args.name, record_data)
+		record.save ()
 
 	def args_show (self, sub_parsers):
 

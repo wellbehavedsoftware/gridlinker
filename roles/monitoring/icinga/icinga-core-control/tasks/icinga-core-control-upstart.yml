@@ -1,0 +1,121 @@
+---
+
+# write upstart config
+
+- name: "icinga core control upstart config"
+  register: "icinga_core_control_upstart_config_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/init/icinga.conf"
+    src: "icinga-upstart"
+
+- name: "icinga core control set needs_restart to 'yes'"
+  when: "icinga_core_control_upstart_config_result | changed"
+  update_resource:
+
+    icinga_core.needs_restart: 'yes'
+
+# reload upstart config
+
+- name: "icinga core control reload upstart"
+  changed_when: "
+    icinga_core_control_upstart_config_result | changed
+  "
+  become: "yes"
+  command: "initctl reload-configuration"
+
+# stop icinga process
+
+- name: "icinga core control stop"
+  when: "
+    icinga_core_state != 'enabled'
+    or icinga_core_control_upstart_config_result | changed
+  "
+  register: "icinga_core_control_stop_result"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "icinga"
+    state: "stopped"
+
+- name: "icinga core control set needs_restart to 'no'"
+  when: "
+    icinga_core_control_stop_result is defined
+    and icinga_core_control_stop_result | changed
+  "
+  update_resource:
+
+    icinga_core.needs_restart: 'no'
+
+# start icinga process
+
+- name: "icinga core control start"
+  when: "
+    icinga_core_state == 'enabled'
+  "
+  register: "icinga_core_control_start_result"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "icinga"
+    state: "started"
+
+- name: "icinga core control set needs_restart to 'no'"
+  when: "
+    icinga_core_control_start_result is defined
+    and icinga_core_control_start_result | changed
+  "
+  update_resource:
+
+    icinga_core.needs_restart: 'no'
+
+# restart icinga process
+
+- name: "icinga core control restart"
+  when: "
+    icinga_core_state == 'enabled'
+    and icinga_core_needs_restart == 'yes'
+  "
+  register: "icinga_core_control_reload_result"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "icinga"
+    state: "started"
+
+- name: "icinga core control set needs_restart to 'no'"
+  when: "
+    icinga_core_control_restart_result is defined
+    and icinga_core_control_restart_result | changed
+  "
+  update_resource:
+
+    icinga_core.needs_restart: 'no'
+
+# reload icinga process
+
+- name: "icinga core control reload"
+  when: "
+    icinga_core_state == 'enabled'
+    and (
+      icinga_core_control_start_result is not defined
+      or not icinga_core_control_start_result | changed
+    ) and (
+      icinga_core_control_restart_result is not defined
+      or not icinga_core_control_restart_result | changed
+    )
+  "
+  changed_when: "False"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "icinga"
+    state: "reloaded"
+
+# ex: et ts=2 filetype=yaml

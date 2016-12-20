@@ -1,0 +1,36 @@
+---
+
+- name: "install postgresql packages"
+  become: "yes"
+  with_items:
+
+    - "postgresql-{{ postgresql_install_version }}"
+
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "disable postgresql sysv init"
+  changed_when: "postgresql_sysv_result.stdout != 'UNCHANGED'"
+  register: "postgresql_sysv_result"
+  become: "yes"
+  shell:
+
+    test -e /etc/init.d/postgresql || { echo UNCHANGED; exit 0; };
+    service postgresql stop;
+    rm -f /etc/init.d/postgresql /etc/init.d/rc?.d/[KS]??postgresql;
+
+- name: "set postgresql.state to 'installed'"
+  when: "postgresql_state == ''"
+  update_resource:
+
+    postgresql.state: "installed"
+
+- name: "set postgresql.installed_version"
+  when: "postgresql_installed_version != postgresql_install_version"
+  update_resource:
+
+    postgresql.installed_version: "{{ postgresql_install_version }}"
+
+# ex: et ts=2 filetype=yaml

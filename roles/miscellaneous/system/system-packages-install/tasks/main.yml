@@ -1,0 +1,10 @@
+---
+
+- include: "system-packages-install.yml"
+  tags:
+
+    - "system-packages-install"
+    - "system-packages"
+    - "system"
+
+# ex: et ts=2 filetype=yaml

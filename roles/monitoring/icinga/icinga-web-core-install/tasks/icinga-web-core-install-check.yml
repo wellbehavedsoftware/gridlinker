@@ -1,0 +1,9 @@
+---
+
+- name: "check icinga_web_core.install_version"
+  when: "icinga_web_core_install_version == ''"
+  fail:
+
+    msg: "please set icinga_web_core.install_version"
+
+# ex: et ts=2 filetype=yaml

@@ -7,9 +7,11 @@
   "
   tags:
 
-    - "php"
-    - "php-install"
     - "php-install-source"
+    - "php-install"
+    - "php"
+
+    - "install"
 
 - include: "php-install-ppa.yml"
   when: "
@@ -18,9 +20,11 @@
   "
   tags:
 
-    - "php"
-    - "php-install"
     - "php-install-ppa"
+    - "php-install"
+    - "php"
+
+    - "install"
 
 - include: "php-install-distro.yml"
   when: "
@@ -29,8 +33,10 @@
   "
   tags:
 
-    - "php"
-    - "php-install"
     - "php-install-distro"
+    - "php-install"
+    - "php"
+
+    - "install"
 
 # ex: et ts=2 filetype=yaml# ex: et ts=2 filetype=yaml

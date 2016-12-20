@@ -91,7 +91,9 @@ class Resource (object):
 		self.identity_name = data ["identity"] ["name"]
 		self.identity_parent = data ["identity"].get ("parent")
 
-		self.resource_class = inventory.classes [self.identity_class]
+		self.resource_class = (
+			inventory.classes [self.identity_class])
+
 		self.identity_namespace = self.resource_class.namespace
 
 		self.unique_name = "/".join ([
@@ -142,6 +144,15 @@ class Resource (object):
 
 				self.combined [class_prefix] = (
 					collections.OrderedDict ())
+
+			if not isinstance (
+				self.unresolved [class_prefix],
+				dict):
+
+				raise Exception (
+					"Not a dictionary: %s.%s" % (
+						self.unique_name,
+						class_prefix))
 
 			for section_name, section_value \
 			in class_data.items ():
@@ -419,7 +430,7 @@ class Inventory (object):
 	def load_classes (self):
 
 		for class_name, class_data \
-		in self.context.local_data ["classes"].items ():
+		in self.context.classes.items ():
 
 			self.add_class (
 				class_name,
@@ -924,7 +935,7 @@ class Inventory (object):
 			self,
 			resource_source,
 			value,
-			indent):
+			indent = ""):
 
 		resource = (
 			self.find_resource (
@@ -1047,7 +1058,10 @@ class Inventory (object):
 		elif isinstance (value, str) \
 		or isinstance (value, unicode):
 
-			match = re.search (r"^\{\{\s*([^{}]*\S)\s*\}\}$", value)
+			match = (
+				re.search (
+					r"^\{\{\s*([^{}]*\S)\s*\}\}$",
+					value))
 
 			if match:
 
@@ -1233,6 +1247,34 @@ class Inventory (object):
 
 				token_index += 1
 
+				if tokens [token_index] == "join" \
+				and value_type == "value" \
+				and isinstance (value, list):
+
+					token_index += 1
+
+					value = "".join (value)
+
+					continue
+
+				if tokens [token_index] == "keys" \
+				and value_type == "value":
+
+					token_index += 1
+
+					value = value.keys ()
+
+					continue
+
+				if tokens [token_index] == "values" \
+				and value_type == "value":
+
+					token_index += 1
+
+					value = value.values ()
+
+					continue
+
 				if tokens [token_index + 0] == "substring_before" \
 				and tokens [token_index + 1] == "(" \
 				and tokens [token_index + 2] [0] == "'" \
@@ -1360,6 +1402,39 @@ class Inventory (object):
 					token [1 : -1]))
 
 			return True, token_index + 1, "value", string_value
+
+		if token == "[":
+
+			new_token_index = (
+				token_index + 1)
+
+			items = []
+
+			while tokens [new_token_index] != "]":
+
+				success, new_token_index, item = (
+					self.parse_expression (
+						tokens,
+						new_token_index,
+						resource,
+						indent + "  "))
+
+				if not success:
+
+					return False, token_index, None, None
+
+				items.append (
+					item)
+
+				if tokens [new_token_index] == ",":
+
+					new_token_index += 1
+
+				elif tokens [new_token_index] != "]":
+
+					return False, token_index, None, None
+
+			return True, new_token_index + 1, "value", items
 
 		if token == "hostvars":
 
@@ -1560,7 +1635,7 @@ class Inventory (object):
 								indent,
 								token))
 
-					return True, "resource", target_resource.name
+					return True, "resource", target_resource.unique_name
 
 			else:
 
@@ -1627,7 +1702,7 @@ class Inventory (object):
 
 	tokenize_re = re.compile ("\s*((?:" + ")|(?:".join ([
 		r"$",
-		r"[][.|()]",
+		r"[][.,|()]",
 		r"[a-zA-Z][a-zA-Z0-9_]*",
 		r"'(?:[^'\\]|\\\\|\\\')*'",
 	]) + "))")

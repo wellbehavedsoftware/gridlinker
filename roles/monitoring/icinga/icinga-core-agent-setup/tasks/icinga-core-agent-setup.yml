@@ -1,26 +1,26 @@
 ---
 
 - name: "issue icinga agent certificate"
-  when: "not icinga_certificate"
-  register: "icinga_agent_certificate_result"
+  when: "icinga_core_certificate = ''"
+  register: "icinga_core_agent_certificate_result"
   action:
 
     module: "certificate_authority_issue"
-    authority: "{{ icinga_authority }}"
-    common_name: "{{ icinga_common_name }}"
+    authority: "{{ icinga_core_authority }}"
+    common_name: "{{ icinga_core_common_name }}"
     usage: "mixed"
-    alt_dns: "{{ icinga_alt_dns }}"
-    alt_ip: "{{ icinga_alt_ips }}"
+    alt_dns: "{{ icinga_core_alt_dns }}"
+    alt_ip: "{{ icinga_core_alt_ips }}"
 
 - name: "store icinga agent certificate"
-  when: "icinga_agent_certificate_result | changed"
+  when: "icinga_core_agent_certificate_result | changed"
   update_resource:
 
-    icinga.certificate: "{{ icinga_agent_certificate_result.certificate }}"
-    icinga.private_key: "{{ icinga_agent_certificate_result.private_key }}"
+    icinga_core.certificate: "{{ icinga_core_agent_certificate_result.certificate }}"
+    icinga_core.private_key: "{{ icinga_core_agent_certificate_result.private_key }}"
 
-- name: "create icinga master directories"
-  with_items: "{{ icinga_master_directories }}"
+- name: "create icinga agent directories"
+  with_items: "{{ icinga_core_agent_directories }}"
   become: "yes"
   action:
 
@@ -32,8 +32,7 @@
     mode: "{{ item.mode }}"
 
 - name: "write icinga agent config"
-  with_items: "{{ icinga_agent_config_templates }}"
-  notify: "set icinga.needs_restart to 'yes'"
+  with_items: "{{ icinga_core_agent_config_templates }}"
   become: "yes"
   action:
 
@@ -44,8 +43,7 @@
     group: "nagios"
 
 - name: "write icinga security config"
-  with_items: "{{ icinga_agent_security_files }}"
-  notify: "set icinga.needs_restart to 'yes'"
+  with_items: "{{ icinga_core_agent_security_files }}"
   become: "yes"
   action:
 
@@ -56,7 +54,7 @@
     group: "nagios"
 
 - name: "create icinga agent links"
-  with_items: "{{ icinga_agent_links }}"
+  with_items: "{{ icinga_core_agent_links }}"
   become: "yes"
   action:
 
@@ -66,10 +64,10 @@
 
     src: "{{ item.target }}"
 
-- name: "set icinga.state to 'enabled'"
-  when: "icinga_state == 'installed'"
+- name: "set icinga_core.state to 'enabled'"
+  when: "icinga_core_state == 'installed'"
   update_resource:
 
-    icinga.state: "enabled"
+    icinga_core.state: "enabled"
 
 # ex: et ts=2 filetype=yaml

@@ -7,6 +7,10 @@ import itertools
 import re
 import types
 
+__all__ = [
+	"FilterModule",
+]
+
 def flatten_hash (values, * inner_names):
 
 	ret = []
@@ -100,20 +104,6 @@ def index_by (items, index_key):
 		in items
 	])
 
-def prepend_list (items, string):
-
-	return [
-		string + item
-		for item in items
-	]
-
-def append_list (items, string):
-
-	return [
-		item + string
-		for item in items
-	]
-
 def flatten_list (lists):
 
 	return [
@@ -126,9 +116,9 @@ def keys (item):
 
 	return item.keys ();
 
-def values (item):
+def values (source):
 
-	return item.values ();
+	return source.values ()
 
 def items (item):
 
@@ -183,9 +173,6 @@ class FilterModule (object):
 			"list_to_map": list_to_map,
 			"dict_map": dict_map,
 			"index_by": index_by,
-
-			"prepend_list": prepend_list,
-			"append_list": append_list,
 
 			"keys": keys,
 			"values": values,

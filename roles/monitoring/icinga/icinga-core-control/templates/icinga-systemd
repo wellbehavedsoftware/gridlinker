@@ -1,0 +1,20 @@
+[Unit]
+
+Description = Icinga monitoring daemon
+After = network.target
+
+[Service]
+
+ExecStart = /etc/icinga2/startup-script
+ExecReload = /bin/kill -HUP $MAINPID
+
+Type = forking
+PIDFile = /run/icinga2/icinga2.pid
+
+RuntimeDirectory = icinga2
+
+[Install]
+
+WantedBy = multi-user.target
+
+# ex: noet ts=4

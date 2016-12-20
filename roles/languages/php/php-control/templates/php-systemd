@@ -1,0 +1,24 @@
+[Unit]
+
+Description = "PHP FPM"
+
+After = local-fs.target network.target
+
+[Service]
+
+Type = simple
+
+ExecStartPre = /usr/lib/php5/php5-fpm-checkconf
+
+ExecStart = {{ [
+	'/usr/sbin/php5-fpm',
+	'--nodaemonize',
+	'--fpm-config',
+	'/etc/php5/fpm/php-fpm.conf',
+] | join (' ') }}
+
+ExecReload = /bin/kill -USR2 $MAINPID
+
+[Install]
+
+WantedBy = multi-user.target

@@ -1,6 +1,0 @@
----
-
-- include: "setup-apt.yml"
-  tags: [ "system", "setup-apt" ]
-
-# ex: et ts=2 filetype=yaml
