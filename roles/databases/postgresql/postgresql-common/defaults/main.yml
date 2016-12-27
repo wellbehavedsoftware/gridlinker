@@ -1,12 +1,46 @@
 ---
 
-postgresql_state: ""
-postgresql_needs_restart: ""
+# ---------- installation
 
 postgresql_install: "{{ default_install }}"
 postgresql_install_version: ""
 
+# ---------- state
+
+postgresql_state: ""
+postgresql_needs_restart: ""
+
 postgresql_installed_version: ""
+
+# ---------- runtime configuration
+
+postgresql_max_connections: "100"
+postgresql_superuser_reserved_connections: "3"
+
+postgresql_authentication_timeout: "1min"
+
+postgresql_shared_buffers: "128MB"
+postgresql_temp_buffers: "8MB"
+postgresql_work_mem: "1MB"
+postgresql_maintenance_work_mem: "16MB"
+postgresql_max_stack_depth: "2MB"
+
+postgresql_log_line_prefix: "%t "
+postgresql_log_timezone: "UTC"
+postgresql_log_min_duration_statement: "1s"
+
+postgresql_datestyle: "iso, ymd"
+postgresql_timezone: "UTC"
+
+postgresql_locale: "en_GB.UTF-8"
+postgresql_lc_messages: "{{ postgresql_locale }}"
+postgresql_lc_monetary: "{{ postgresql_locale }}"
+postgresql_lc_numeric: "{{ postgresql_locale }}"
+postgresql_lc_time: "{{ postgresql_locale }}"
+
+postgresql_default_text_search_config: "pg_catalog.english"
+
+# ---------- configuration metadata
 
 postgresql_config_prefix: "/etc/postgresql/{{ postgresql_installed_version }}/main"
 

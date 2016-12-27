@@ -9,13 +9,13 @@ external_pid_file = '/var/run/postgresql/{{ postgresql_installed_version }}-main
 
 listen_addresses = '*'
 port = 5432
-max_connections = 100
-superuser_reserved_connections = 3
+max_connections = {{ postgresql_max_connections }}
+superuser_reserved_connections = {{ postgresql_superuser_reserved_connections }}
 unix_socket_directories = '/var/run/postgresql'
 
 # ---------- security
 
-authentication_timeout = 1min
+authentication_timeout = {{ postgresql_authentication_timeout }}
 ssl = true
 ssl_cert_file = '/etc/ssl/certs/ssl-cert-snakeoil.pem'
 ssl_key_file = '/etc/ssl/private/ssl-cert-snakeoil.key'
@@ -24,25 +24,28 @@ db_user_namespace = off
 
 # ---------- memory
 
-shared_buffers = 128MB
-temp_buffers = 8MB
-work_mem = 1MB
-maintenance_work_mem = 16MB
-max_stack_depth = 2MB
+shared_buffers = {{ postgresql_shared_buffers }}
+temp_buffers = {{ postgresql_temp_buffers }}
+work_mem = {{ postgresql_work_mem }}
+maintenance_work_mem = {{ postgresql_maintenance_work_mem }}
+max_stack_depth = {{ postgresql_max_stack_depth }}
 
 # ---------- logging
 
-log_line_prefix = '%t '
-log_timezone = 'UTC'
+log_line_prefix = '{{ postgresql_log_line_prefix }}'
+log_timezone = '{{ postgresql_log_timezone }}'
+log_min_duration_statement = {{ postgresql_log_min_duration_statement }}
 
 # ---------- locale
 
-datestyle = 'iso, ymd'
-timezone = 'UTC'
+datestyle = '{{ postgresql_datestyle }}'
+timezone = '{{ postgresql_timezone }}'
 
-lc_messages = 'en_GB.UTF-8'
-lc_monetary = 'en_GB.UTF-8'
-lc_numeric = 'en_GB.UTF-8'
-lc_time = 'en_GB.UTF-8'
+lc_messages = '{{ postgresql_lc_messages }}'
+lc_monetary = '{{ postgresql_lc_monetary }}'
+lc_numeric = '{{ postgresql_lc_numeric }}'
+lc_time = '{{ postgresql_lc_time }}'
 
-default_text_search_config = 'pg_catalog.english'
+default_text_search_config = '{{ postgresql_default_text_search_config }}'
+
+# ex: noet ts=4 filetype=postgresql

@@ -2,7 +2,7 @@
 
 - name: "configure postgresql"
   with_items: "{{ postgresql_config_templates }}"
-  notify: "set postgresql.needs_restart to 'yes'"
+  register: "postgresql_setup_config_templates_result"
   become: "yes"
   action:
 
@@ -13,6 +13,12 @@
     owner: "{{ item.user }}"
     group: "{{ item.group }}"
     mode: "{{ item.mode }}"
+
+- name: "set postgresql.needs_restart to 'yes'"
+  when: "postgresql_setup_config_templates_result | changed"
+  update_resource:
+
+    postgresql.needs_restart: "yes"
 
 - name: "set postgresql.state to 'enabled'"
   when: "postgresql_state == 'installed'"
