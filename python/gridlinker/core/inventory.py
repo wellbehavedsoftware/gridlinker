@@ -1,11 +1,14 @@
 from __future__ import absolute_import
+from __future__ import print_function
 from __future__ import unicode_literals
+from __future__ import with_statement
 
 import collections
 import re
 import wbs
 
 from wbs import ReportableError
+from wbs import uprint
 
 __all__ = [
 	"Inventory",
@@ -573,7 +576,7 @@ class Inventory (object):
 
 			if self.trace:
 
-				print (
+				uprint (
 					"resolve_resource_values () pass %s" % (
 						pass_count + 1))
 
@@ -601,7 +604,7 @@ class Inventory (object):
 
 					if self.trace:
 
-						print (
+						uprint (
 							"  resolve %s.%s.%s" % (
 								resource.unique_name,
 								prefix,
@@ -625,7 +628,7 @@ class Inventory (object):
 
 						if self.trace:
 
-							print (
+							uprint (
 								"    failed to resolve")
 
 						continue
@@ -636,7 +639,7 @@ class Inventory (object):
 
 					if self.trace:
 
-						print (
+						uprint (
 							"    resolved successfully")
 
 					num_resolved += 1
@@ -645,7 +648,7 @@ class Inventory (object):
 
 				if self.trace:
 
-					print (
+					uprint (
 						"  resolve %s.%s" % (
 							resource.unique_name,
 							prefix))
@@ -665,7 +668,7 @@ class Inventory (object):
 
 				if self.trace:
 
-					print (
+					uprint (
 						"    resolved successfully")
 
 				num_resolved += 1
@@ -952,7 +955,7 @@ class Inventory (object):
 			raise Exception (
 				"Unable to resolve '%s' for resource '%s'" % (
 					value,
-					resource.name))
+					resource.unique_name))
 
 		return resolved
 
@@ -1010,7 +1013,9 @@ class Inventory (object):
 
 		if self.trace:
 
-			print (
+			uprint (type (value))
+
+			uprint (
 				"%sresolve_value (%s, %s)" % (
 					indent,
 					resource.unique_name,
@@ -1088,7 +1093,7 @@ class Inventory (object):
 					if not success:
 						return False, None
 
-					ret += str (resolved)
+					ret += unicode (resolved)
 
 					last_pos = match.end ()
 
@@ -1112,7 +1117,7 @@ class Inventory (object):
 
 		if self.trace:
 
-			print (
+			uprint (
 				"%sresolve_expression (%s, %s)" % (
 					indent,
 					resource.unique_name,
@@ -1127,7 +1132,7 @@ class Inventory (object):
 
 			if self.trace:
 
-				print (
+				uprint (
 					"%stokenize failed" % (
 						indent))
 
@@ -1135,7 +1140,7 @@ class Inventory (object):
 
 		if self.trace:
 
-			print (
+			uprint (
 				"%stokens: '%s'" % (
 					indent,
 					"', '".join (tokens)))
@@ -1153,7 +1158,7 @@ class Inventory (object):
 
 			if self.trace:
 
-				print (
+				uprint (
 					"%sparse failed" % (
 						indent))
 
@@ -1163,7 +1168,7 @@ class Inventory (object):
 
 			if self.trace:
 
-				print (
+				uprint (
 					"%sonly used %s/%s tokens" % (
 						indent,
 						token_index,
@@ -1173,7 +1178,7 @@ class Inventory (object):
 
 		if self.trace:
 
-			print (
+			uprint (
 				"%ssuccess: %s" % (
 					indent,
 					value))
@@ -1193,7 +1198,7 @@ class Inventory (object):
 
 		if self.trace:
 
-			print (
+			uprint (
 				"%sparse_expression ([ '%s' ], %s, %s)" % (
 					indent,
 					"', '".join (tokens),
@@ -1236,7 +1241,7 @@ class Inventory (object):
 
 					if self.trace:
 
-						print (
+						uprint (
 							"%svalue not present: %s" % (
 								indent,
 								token))
@@ -1366,7 +1371,7 @@ class Inventory (object):
 
 				if self.trace:
 
-					print (
+					uprint (
 						"%svalue not present: %s" % (
 							indent,
 							token))
@@ -1440,7 +1445,7 @@ class Inventory (object):
 
 			if self.trace:
 
-				print (
+				uprint (
 					"%srecurse hostvars" % (
 						indent))
 
@@ -1450,7 +1455,7 @@ class Inventory (object):
 
 			if self.trace:
 
-				print (
+				uprint (
 					"%sfound in project data: %s" % (
 						indent,
 						token))
@@ -1485,7 +1490,7 @@ class Inventory (object):
 
 		if self.trace:
 
-			print (
+			uprint (
 				"%sunable to resolve: %s" % (
 					indent,
 					token))
@@ -1501,7 +1506,7 @@ class Inventory (object):
 
 		if self.trace:
 
-			print (
+			uprint (
 				"%sdereference (%s, %s, %s)" % (
 					indent,
 					reference_type,
@@ -1554,7 +1559,7 @@ class Inventory (object):
 
 		elif self.trace:
 
-			print (
+			uprint (
 				"%svalue not present: %s" % (
 					indent,
 					token))
@@ -1573,7 +1578,7 @@ class Inventory (object):
 
 		if self.trace:
 
-			print (
+			uprint (
 				"%sdereference_resource (%s, %s)" % (
 					indent,
 					resource.unique_name,
@@ -1589,11 +1594,14 @@ class Inventory (object):
 
 			if reference ["type"] == "resource":
 
-				target_name = (
-					self.resolve_value_or_fail (
+				target_success, target_name = (
+					self.resolve_value_real (
 						resource,
 						reference ["value"],
 						indent))
+
+				if not target_success:
+					return False, None, None
 
 				if not target_name in self.resources:
 					raise Exception ()
@@ -1610,7 +1618,7 @@ class Inventory (object):
 
 					if self.trace:
 
-						print (
+						uprint (
 							"%sfound resource class section reference: %s" % (
 								indent,
 								token))
@@ -1630,7 +1638,7 @@ class Inventory (object):
 
 					if self.trace:
 
-						print (
+						uprint (
 							"%sfound resource class reference: %s" % (
 								indent,
 								token))
@@ -1645,7 +1653,7 @@ class Inventory (object):
 
 			if self.trace:
 
-				print (
+				uprint (
 					"%sfound in resource: %s" % (
 						indent,
 						token))
@@ -1665,7 +1673,7 @@ class Inventory (object):
 
 			if self.trace:
 
-				print (
+				uprint (
 					"%srecurse parent: %s" % (
 						indent,
 						parent_name))
@@ -1676,7 +1684,7 @@ class Inventory (object):
 
 			if self.trace:
 
-				print (
+				uprint (
 					"%sfound in globals: %s" % (
 						indent,
 						token))
