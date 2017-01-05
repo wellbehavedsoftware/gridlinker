@@ -47,6 +47,7 @@ default_socket_timeout = 60
 
 upload_max_filesize = {{ php_upload_max_filesize }}
 post_max_size = {{ php_post_max_size }}
+max_input_vars = {{ php_max_input_vars }}
 
 [Pdo_mysql]
 pdo_mysql.cache_size = 2000

@@ -1,11 +1,5 @@
 ---
 
-- name: "check private address"
-  when: "private_address | default ('') == ''"
-  fail:
-
-    msg: "must set 'private_address'"
-
 - name: "configure hosts"
   become: "yes"
   action:
