@@ -42,7 +42,7 @@
     set -euf -o pipefail;
 
     cd "/usr/local/bin";
-    for binary in client decrypt restore server; do
+    for binary in client convert decrypt restore server; do
 
       ln -sfn
         "../../../opt/{{ rzbackup_install_directory }}/rzbackup-$binary"
