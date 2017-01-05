@@ -1,0 +1,18 @@
+[Unit]
+
+	Description = RZBackup daemon
+	After = network.target
+
+[Service]
+
+	Type = simple
+
+	ExecStart = /etc/rzbackup-start-script
+	ExecReload = /bin/kill -HUP $MAINPID
+	ExecStop = /bin/kill -TERM $MAINPID
+
+[Install]
+
+	WantedBy = multi-user.target
+
+# ex: noet ts=4

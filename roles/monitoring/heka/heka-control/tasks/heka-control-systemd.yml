@@ -1,0 +1,40 @@
+---
+
+- name: "heka control systemd config"
+  register: "heka_control_systemd_config_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    src: "heka-systemd"
+    dest: "/etc/systemd/system/heka.service"
+
+- name: "heka control systemd daemon reload"
+  when: "heka_control_systemd_config_result | changed"
+  become: "yes"
+  command: "systemctl daemon-reload"
+
+- name: "heka control systemd stop"
+  when: "
+    heka_control_systemd_config_result | changed
+    or heka_state == 'disabled'
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "heka"
+    state: "stopped"
+    enabled: "{{ 'yes' if heka_state == 'enabled' else 'no' }}"
+
+- name: "heka control systemd start"
+  when: "heka_state == 'enabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "heka"
+    state: "started"
+    enabled: "yes"
+
+# ex: et ts=2 filetype=yaml

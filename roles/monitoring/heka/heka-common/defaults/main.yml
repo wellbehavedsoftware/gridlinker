@@ -8,8 +8,8 @@ heka_needs_restart: "no"
 
 # ---------- installation
 
-heka_mirror: "https://github.com/coreos/etcd/releases/download"
-heka_temp: "/tmp/etcd-install"
+heka_mirror: ""
+heka_temp: "/tmp/heka-install"
 
 heka_version_mangled: "{{ heka_version | replace ('.', '_') }}"
 heka_name: "heka-{{ heka_version_mangled }}-linux-amd64"

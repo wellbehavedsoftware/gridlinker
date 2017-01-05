@@ -1,9 +1,9 @@
 ---
 
-- include: "install-heka.yml"
+- include: "heka-install.yml"
   tags:
 
+    - "heka-install"
     - "heka"
-    - "install-heka"
 
 # ex: et ts=2 filetype=yaml

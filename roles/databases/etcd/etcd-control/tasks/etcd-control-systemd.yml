@@ -1,0 +1,40 @@
+---
+
+- name: "etcd control systemd config"
+  register: "etcd_control_systemd_config_result"
+  become: "yes"
+  action:
+
+    module: "template"
+    dest: "/etc/systemd/system/etcd.service"
+    src: "etcd-systemd"
+
+- name: "etcd control systemd daemon reload"
+  when: "etcd_control_systemd_config_result | changed"
+  become: "yes"
+  command: "systemctl daemon-reload"
+
+- name: "etcd control systemd stop"
+  when: "
+    etcd_control_systemd_config_result | changed
+    or etcd_state == 'disabled'
+  "
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "etcd"
+    state: "stopped"
+    enabled: "{{ 'yes' if etcd_state == 'enabled' else 'no' }}"
+
+- name: "etcd control systemd start"
+  when: "etcd_state == 'enabled'"
+  become: "yes"
+  action:
+
+    module: "service"
+    name: "etcd"
+    state: "started"
+    enabled: "yes"
+
+# ex: et ts=2 filetype=yaml

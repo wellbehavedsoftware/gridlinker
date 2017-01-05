@@ -1,6 +1,0 @@
----
-
-- include: "setup-etcd-authority.yml"
-  tags: [ "etcd", "setup-etcd-authority" ]
-
-# ex: et ts=2 filetype=yaml

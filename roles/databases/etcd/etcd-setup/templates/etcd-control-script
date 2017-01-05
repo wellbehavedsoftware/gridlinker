@@ -1,0 +1,10 @@
+#!/bin/bash
+
+exec "{{ etcd_target }}/etcdctl" \
+	--endpoint "{{ etcd_client_url }}" \
+	--cert-file "/etc/etcd/client-{{ etcd_name }}.cert" \
+	--key-file "/etc/etcd/client-{{ etcd_name }}.key" \
+	--ca-file "/etc/etcd/client-ca.cert" \
+	"$@"
+
+# ex: noet ts=4 filetype=sh

@@ -44,6 +44,11 @@
     cd "/usr/local/bin";
     for binary in client convert decrypt restore server; do
 
+      if ! test -x "/opt/{{ rzbackup_install_directory }}/rzbackup-$binary";
+      then
+        continue;
+      fi;
+
       ln -sfn
         "../../../opt/{{ rzbackup_install_directory }}/rzbackup-$binary"
         "/usr/local/bin/rzbackup-$binary";

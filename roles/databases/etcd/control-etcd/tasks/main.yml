@@ -1,6 +1,0 @@
----
-
-- include: "control-etcd.yml"
-  tags: [ "etcd", "control-etcd" ]
-
-# ex: et ts=2 filetype=yaml

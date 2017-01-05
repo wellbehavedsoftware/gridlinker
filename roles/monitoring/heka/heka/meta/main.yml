@@ -3,9 +3,9 @@
 dependencies:
 
   - "heka-common"
-  - "install-heka"
-  - "setup-heka-bin-links"
-  - "setup-heka"
-  - "control-heka"
+  - "heka-install"
+  - "heka-bin-links"
+  - "heka-setup"
+  - "heka-control"
 
 # ex: et ts=2 filetype=yaml

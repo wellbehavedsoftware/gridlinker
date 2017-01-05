@@ -37,6 +37,13 @@ python_apt_archive: "{{ python_apt_name }}.tar.gz"
 python_apt_mirror: "https://dist.wellbehavedsoftware.com/python-apt"
 python_apt_url: "{{ python_apt_mirror }}/{{ python_apt_archive }}"
 
+python_apt_version: "{{
+  {
+    'trusty': '0.9.3-1',
+    'xenial': '1.1.0~beta1-1',
+  } [ubuntu_release]
+}}"
+
 python_alternatives:
 
   - name: "2to3"

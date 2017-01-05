@@ -1,3 +1,5 @@
+{{ ansible_warning ['#'] }}
+
 description "Heka daemon"
 
 {% if heka_state == 'enabled' %}

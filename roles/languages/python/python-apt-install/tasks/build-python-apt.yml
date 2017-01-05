@@ -1,5 +1,32 @@
 ---
 
+- name: "python apt build install system packages"
+  with_items:
+
+    - "build-essential"
+    - "libapt-pkg-dev"
+
+  become: "yes"
+  action:
+
+    module: "apt"
+    name: "{{ item }}"
+
+- name: "python apt build install pip packages"
+  with_items:
+
+    - "sphinx"
+
+  become: "yes"
+  environment:
+
+    PATH: "{{ python_target }}/bin:{{ lookup ('env', 'PATH') }}"
+
+  action:
+
+    module: "pip"
+    name: "{{ item }}"
+
 - name: "build python-apt"
   when: "
     python_apt_installed_version != [
@@ -21,13 +48,6 @@
     set -euf -o pipefail;
 
     echo "PATH - $PATH";
-
-    apt-get install -y
-      build-essential
-      libapt-pkg-dev;
-
-    pip install
-      sphinx;
 
     rm -rf "{{ python_temp }}";
     mkdir -p "{{ python_temp }}";

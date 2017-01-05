@@ -1,12 +1,26 @@
 ---
 
-- include: "rzbackup-control.yml"
+- include: "rzbackup-control-upstart.yml"
   when: "
-    rzbackup_install == 'yes'
+    system_init == 'upstart'
+    and rzbackup_install == 'yes'
     and rzbackup_state in [ 'enabled', 'disabled' ]
   "
   tags:
 
+    - "rzbackup-control-upstart"
+    - "rzbackup-control"
+    - "rzbackup"
+
+- include: "rzbackup-control-systemd.yml"
+  when: "
+    system_init == 'systemd'
+    and rzbackup_install == 'yes'
+    and rzbackup_state in [ 'enabled', 'disabled' ]
+  "
+  tags:
+
+    - "rzbackup-control-upstart"
     - "rzbackup-control"
     - "rzbackup"
 

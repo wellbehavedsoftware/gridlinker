@@ -1,0 +1,22 @@
+{{ ansible_warning ['#'] }}
+
+[Unit]
+
+	Description = Heka daemon
+
+[Service]
+
+	Type = simple
+
+	ExecStart = {{ [
+		heka_target + '/bin/hekad',
+		'-config=' + heka_target + '/conf/hekad.toml',
+	] | join (' ') }}
+
+	ExecReload = /bin/kill -HUP $MAINPID
+
+[Install]
+
+	WantedBy = multi-user.target
+
+# ex: noet ts=4 filetype=systemd
